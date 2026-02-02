@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>고양이 & 강아지 머지 (Ver 3.2.1 - Fix)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Jua', sans-serif; touch-action: pan-y; user-select: none; background-color: #fdf2f8; overflow-y: auto; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        #game-container { width: 100%; max-width: 420px; min-height: 100vh; display: flex; flex-direction: column; gap: 4px; padding: 4px 0; }
+
+        /* 1. 상단바 */
+        .status-bar { display: flex; align-items: center; gap: 6px; padding: 0 8px; overflow-x: auto; flex-shrink: 0; height: 40px; scrollbar-width: none; }
+        .status-item { display: flex; align-items: center; gap: 4px; background: white; padding: 2px 8px; border-radius: 10px; border: 2px solid #e2e8f0; flex-shrink: 0; height: 28px; font-size: 0.8rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+        /* 2. 이벤트 진행바 */
+        .event-bar { width: 95%; background: white; border-radius: 10px; padding: 4px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; margin: 0 auto; }
+        #special-quest-bar { border: 2px solid #fcd34d; }
+        #rescue-quest-bar { border: 2px solid #60a5fa; }
+        .progress-track { width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; width: 0%; transition: width 0.5s ease-out; }
+        #cumulative-bar { background: linear-gradient(90deg, #fcd34d, #f59e0b); }
+        #rescue-bar { background: linear-gradient(90deg, #60a5fa, #2563eb); }
+        .milestone-marker { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.8); z-index: 10; }
+
+        /* 3. 퀘스트 카드 */
+        #quest-container { width: 100%; padding: 0 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex-shrink: 0; }
+        .quest-card { background: white; border-radius: 10px; border: 2px solid #e2e8f0; aspect-ratio: 1.4; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 4px; position: relative; box-shadow: 0 2px 2px rgba(0,0,0,0.05); }
+        .quest-card.ready { background-color: #fff1f2; transform: translateY(-2px); animation: rainbow-border 2s linear infinite; }
+        @keyframes rainbow-border { 0% { border-color: #ff0000; } 14% { border-color: #ff7f00; } 28% { border-color: #ffff00; } 42% { border-color: #00ff00; } 57% { border-color: #0000ff; } 71% { border-color: #4b0082; } 85% { border-color: #9400d3; } 100% { border-color: #ff0000; } }
+        .quest-npc { font-size: 1.1rem; line-height: 1; }
+        .quest-reqs { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; }
+        .req-item { font-size: 0.8rem; }
+        .quest-btn { width: 100%; padding: 1px 0; border-radius: 4px; font-size: 0.65rem; font-weight: bold; text-align: center; cursor: default; }
+        .quest-btn.incomplete { background: #f3f4f6; color: #9ca3af; }
+        .quest-btn.complete { background: #f43f5e; color: white; animation: pulse 1.5s infinite; cursor: pointer; }
+
+        /* 4. 보드 래퍼 */
+        #board-wrapper { width: 95%; display: flex; flex-direction: column; gap: 0; overflow: hidden; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: #fbcfe8; position: relative; margin: 0 auto; }
+
+        /* 스페셜 미션 헤더 */
+        #special-mission-container { width: 100%; display: flex; gap: 4px; flex-shrink: 0; padding: 4px; background: #f1f5f9; border-bottom: 1px solid #cbd5e1; }
+        .sp-mission-card { flex: 1; background: white; border: 2px solid #cbd5e1; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; height: 70px; opacity: 0.6; transition: all 0.3s; }
+        .sp-mission-card.active { opacity: 1; border-color: #8b5cf6; background: #f5f3ff; box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2); }
+        .sp-icon { font-size: 1.4rem; }
+        .sp-text { font-size: 0.6rem; color: #64748b; text-align: center; line-height: 1.1; }
+        .sp-reward-text { font-size: 0.5rem; color: #7c3aed; font-weight: bold; }
+        .sp-btn { display: none; margin-top: 2px; background: #8b5cf6; color: white; font-size: 0.6rem; padding: 2px 8px; border-radius: 4px; cursor: pointer; animation: pulse 1s infinite; }
+
+        /* 아파트 (화재) */
+        #apartment-area { background: #cbd5e1; border-top: 4px solid #64748b; border-bottom: 4px solid #64748b; padding: 8px; flex-shrink: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; position: relative; }
+        #apartment-area::before { content: '🔥 구조 현장 🔥'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; font-size: 0.7rem; padding: 0 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
+        .apt-room { background: #334155; border: 2px solid #94a3b8; border-radius: 6px; aspect-ratio: 1.1; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
+        .apt-room.empty { background: #1e293b; opacity: 0.5; cursor: default; }
+        .apt-room.rescued { background: linear-gradient(135deg, #86efac, #4ade80); border-color: #22c55e; cursor: default; }
+        .rescued-badge { position: absolute; top: 4px; background: #22c55e; color: white; font-size: 0.55rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; z-index: 20; }
+        .help-bubble { position: absolute; top: 25%; right: -10px; background: white; color: #ef4444; font-size: 0.6rem; font-weight: bold; padding: 3px 6px; border-radius: 8px; border: 2px solid #ef4444; z-index: 30; animation: bubble-pop 1.5s ease-out forwards; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .help-bubble::after { content: ''; position: absolute; top: 50%; left: -6px; transform: translateY(-50%); border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 6px solid #ef4444; }
+        @keyframes bubble-pop { 0% { transform: scale(0); opacity: 0; } 20% { transform: scale(1.2); opacity: 1; } 40% { transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+        .fire-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(239,68,68,0.5) 0%, transparent 80%); animation: burn 0.5s infinite alternate; z-index: 5; pointer-events: none; }
+        .status-badge { background: white; border-radius: 4px; padding: 1px 4px; font-size: 0.6rem; font-weight: bold; display: flex; align-items: center; gap: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.3); z-index: 20; position: absolute; }
+        .fire-badge { top: 2px; color: #ef4444; }
+        .hp-badge { bottom: 2px; color: #16a34a; }
+        .fire-icon { font-size: 1.2rem; animation: fireFloat 0.5s ease-in-out infinite alternate; z-index: 15; }
+        @keyframes fireFloat { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-3px) scale(1.1); } }
+
+        /* 메인 보드 (고정) */
+        #scroll-area { padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+        .grid-layout { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; }
+        #game-board { grid-template-rows: repeat(8, 1fr); }
+        #game-board .cell { aspect-ratio: 1 / 1 !important; width: 100%; height: auto; }
+
+        /* 상점 */
+        #shop-area { background: #fffbeb; border-top: 4px solid #f59e0b; padding: 8px; flex-shrink: 0; z-index: 15; position: relative; }
+        #shop-area::before { content: '🛒 상점 🛒'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #f59e0b; color: white; font-size: 0.7rem; padding: 0 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
+        #shop-timer-badge { position: absolute; top: -10px; right: 10px; background: #f59e0b; color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .shop-cell { background: white; border-radius: 8px; border: 1px solid #fde68a; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; aspect-ratio: 1; cursor: pointer; }
+        .shop-cell:active { transform: scale(0.95); }
+        .shop-price-tag { position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.7); color: #22d3ee; font-size: 0.6rem; padding: 1px 4px; border-radius: 4px; font-weight: bold; }
+
+        /* 창고 */
+        #storage-area { background: #e2e8f0; border-top: 4px solid #94a3b8; padding: 8px; flex-shrink: 0; z-index: 10; }
+
+        /* 셀 공통 */
+        .cell { background: rgba(255, 255, 255, 0.6); border-radius: 8px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; justify-content: center; align-items: center; overflow: hidden; aspect-ratio: 1; }
+        .cell.locked { background: rgba(0, 0, 0, 0.15); cursor: pointer; flex-direction: column; }
+        .storage-locked { background: repeating-linear-gradient(45deg, #cbd5e1, #cbd5e1 10px, #94a3b8 10px, #94a3b8 20px); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: #475569; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+
+        .item { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; cursor: grab; position: absolute; top: 0; left: 0; z-index: 10; }
+        .bg-circle { position: absolute; width: 85%; height: 85%; border-radius: 50%; opacity: 0.5; z-index: -1; }
+        .bg-square { position: absolute; width: 80%; height: 80%; border-radius: 20%; opacity: 0.6; z-index: -1; border: 2px dashed rgba(255,255,255,0.5); }
+        .level-badge { position: absolute; bottom: 1px; right: 1px; background: rgba(0,0,0,0.6); color: white; font-size: 0.5rem; padding: 0 3px; border-radius: 4px; pointer-events: none; }
+        .sell-btn { position: absolute; top: 1px; right: 1px; width: 14px; height: 14px; background: #fbbf24; border: 1px solid #d97706; color: white; border-radius: 50%; font-size: 9px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 50; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+        .cage-generator { width: 95%; height: 95%; background: #f1f5f9; border: 2px solid #64748b; border-radius: 6px; position: relative; display: flex; justify-content: center; align-items: center; font-size: 1.8rem; overflow: hidden; box-shadow: 0 3px 0 #475569; cursor: grab; }
+        .cage-generator:active { cursor: grabbing; }
+        .cage-generator::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2; background: repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(100,116,139,0.6) 10px, rgba(100,116,139,0.6) 13px); }
+        .cage-label { position: absolute; bottom: 0; width: 100%; background: #64748b; color: white; font-size: 0.5rem; text-align: center; z-index: 3; }
+        .animal-inside { z-index: 1; filter: grayscale(0.2); }
+        .help-btn { position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; background: white; border: 1px solid #cbd5e1; border-radius: 50%; color: #64748b; font-size: 9px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 50; }
+        .cooldown-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); z-index: 20; color: white; font-size: 0.8rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-radius: 6px; }
+        .usage-badge { position: absolute; top: 2px; left: 2px; background: rgba(0,0,0,0.5); color: white; font-size: 0.5rem; padding: 1px 3px; border-radius: 4px; z-index: 40; pointer-events: none; }
+
+        /* UI 애니메이션 */
+        .pop-anim { animation: pop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        @keyframes pop { 0% {transform: scale(0) rotate(-20deg); opacity: 0;} 50% {transform: scale(1.3) rotate(10deg);} 100% {transform: scale(1) rotate(0deg); opacity: 1;} }
+        .spawn-particle { position: absolute; pointer-events: none; font-size: 1rem; animation: particle-burst 0.6s ease-out forwards; z-index: 100; }
+        @keyframes particle-burst { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+        .spawn-ring { position: fixed; pointer-events: none; width: 10px; height: 10px; border: 3px solid #f472b6; border-radius: 50%; transform: translate(-50%, -50%); animation: ring-expand 0.5s ease-out forwards; z-index: 99; }
+        .spawn-ring.lucky { border-color: #fbbf24; border-width: 4px; }
+        @keyframes ring-expand { 0% { width: 10px; height: 10px; opacity: 1; } 100% { width: 60px; height: 60px; opacity: 0; } }
+        .cage-shake { animation: cage-shake 0.3s ease-in-out; }
+        @keyframes cage-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-4px) rotate(-2deg); } 40% { transform: translateX(4px) rotate(2deg); } 60% { transform: translateX(-3px) rotate(-1deg); } 80% { transform: translateX(3px) rotate(1deg); } }
+        .floating-text { position: absolute; font-weight: bold; font-size: 1.2rem; pointer-events: none; animation: floatUp 1s forwards; z-index: 100; }
+        @keyframes floatUp { 0% {transform: translateY(0); opacity: 1;} 100% {transform: translateY(-50px); opacity: 0;} }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+        @keyframes burn { 0% { opacity: 0.5; } 100% { opacity: 0.8; } }
+
+        /* 튜토리얼 */
+        .tutorial-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #ef4444; color: white; font-weight: bold; font-size: 0.8rem; padding: 4px 8px; border-radius: 20px; box-shadow: 0 0 10px rgba(239, 68, 68, 0.8); animation: pulse-scale 1s infinite; z-index: 50; pointer-events: none; white-space: nowrap; }
+        @keyframes pulse-scale { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
+
+        /* 오버레이 */
+        .overlay-bg { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .overlay-content { animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 80%; max-width: 300px; }
+
+        /* 토스트 */
+        #toast { position: fixed; bottom: 32px; background: #1f2937; color: white; padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; pointer-events: none; z-index: 3000; opacity: 0; transition: opacity 0.3s; }
+
+        .clip-triangle { clip-path: polygon(50% 100%, 0 0, 100% 0); }
+
+        /* 도감 모달 */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2500; display: none; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; border-radius: 16px; padding: 16px; width: 90%; max-width: 320px; max-height: 80vh; display: flex; flex-direction: column; animation: pop 0.3s ease-out; }
+        .tab-container { display: flex; gap: 4px; margin-bottom: 12px; }
+        .tab-btn { flex: 1; padding: 8px 4px; border-radius: 8px; background: #f1f5f9; color: #64748b; font-size: 0.75rem; font-weight: bold; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .tab-btn.active { background: #f43f5e; color: white; }
+        .guide-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .guide-item { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .guide-item.locked { opacity: 0.4; filter: grayscale(1); }
+        .guide-emoji { font-size: 1.5rem; }
+        .guide-name { font-size: 0.6rem; color: #475569; margin-top: 2px; }
+        .guide-level { font-size: 0.5rem; color: #94a3b8; }
+
+        /* 룰렛 휠 */
+        #roulette-wheel {
+            background: conic-gradient(
+                #dbeafe 0deg 60deg,
+                #3b82f6 60deg 120deg,
+                #93c5fd 120deg 180deg,
+                #60a5fa 180deg 240deg,
+                #1d4ed8 240deg 300deg,
+                #1e3a8a 300deg 360deg
+            );
+        }
+        .roulette-label { position: absolute; font-size: 0.7rem; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); transform-origin: center center; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <!-- 상태바 -->
+    <div class="status-bar">
+        <h1 class="text-sm font-bold text-rose-500 mr-1 flex-shrink-0">멍냥 머지</h1>
+        <div class="status-item border-yellow-300">
+            <span class="text-xs">⚡</span>
+            <div class="flex flex-col leading-none">
+                <span id="energy-val" class="text-xs font-bold text-yellow-500">100</span>
+                <span id="energy-timer" class="text-[8px] text-gray-400 font-mono">FULL</span>
+            </div>
+        </div>
+        <div class="status-item border-yellow-500"><span class="text-xs">🪙</span><span id="coin-val" class="text-xs text-yellow-600 font-bold">0</span></div>
+        <div class="status-item border-cyan-400"><span class="text-xs">💎</span><span id="diamond-val" class="text-xs text-cyan-600 font-bold">0</span></div>
+        <div class="status-item border-purple-400">
+            <div class="flex flex-col items-center leading-none">
+                <span id="level-val" class="text-xs font-bold text-purple-600">Lv.1</span>
+                <span id="quest-progress" class="text-[8px] text-gray-500 font-bold mt-0.5">0/3</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이벤트 바 -->
+    <div id="special-quest-bar" class="event-bar">
+        <div class="flex justify-between items-end mb-1">
+            <span class="text-[10px] font-bold text-gray-600">👑 누적 코인 (칸마다 50🪙)</span>
+            <span id="cumulative-text" class="text-[9px] text-yellow-600 font-bold">0 / 200</span>
+        </div>
+        <div class="progress-track">
+            <div id="cumulative-bar" class="progress-fill"></div>
+            <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
+        </div>
+    </div>
+
+    <div id="rescue-quest-bar" class="event-bar">
+        <div class="flex justify-between items-end mb-1">
+            <span class="text-[10px] font-bold text-blue-600">🚑 구조 달성 (칸마다 500🪙)</span>
+            <div class="flex items-center gap-2">
+                <span id="rescue-timer" class="text-[9px] text-red-500 font-mono font-bold">59:59</span>
+                <span id="rescue-text" class="text-[9px] text-blue-500 font-bold">0 / 15</span>
+            </div>
+        </div>
+        <div class="progress-track">
+            <div id="rescue-bar" class="progress-fill"></div>
+            <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
+        </div>
+    </div>
+
+    <div id="quest-container"></div>
+
+    <div id="board-wrapper">
+        <!-- 스페셜 미션 -->
+        <div id="special-mission-container">
+            <div id="sp-mission-0" class="sp-mission-card"><div class="sp-icon">🐦</div><div id="sp-text-0" class="sp-text">Lv.3<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-0" class="sp-btn" onclick="completeSpecialMission(0)">완료!</div></div>
+            <div id="sp-mission-1" class="sp-mission-card"><div class="sp-icon">🐠</div><div id="sp-text-1" class="sp-text">Lv.6<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-1" class="sp-btn" onclick="completeSpecialMission(1)">완료!</div></div>
+            <div id="sp-mission-2" class="sp-mission-card"><div class="sp-icon">🦎</div><div id="sp-text-2" class="sp-text">Lv.9<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-2" class="sp-btn" onclick="completeSpecialMission(2)">완료!</div></div>
+        </div>
+
+        <div id="apartment-area"></div>
+        <div id="scroll-area"><div id="game-board" class="grid-layout"></div></div>
+        <div id="shop-area">
+            <div id="shop-timer-badge">갱신: 05:00</div>
+            <div class="grid-layout" id="shop-grid"></div>
+        </div>
+        <div id="storage-area" class="grid-layout"></div>
+
+        <div id="tutorial-pointer" class="hidden">👆</div>
+    </div>
+</div>
+
+<!-- 팝업들 -->
+<div id="toast"></div>
+
+<div id="levelup-overlay" class="overlay-bg">
+    <div class="overlay-content">
+        <div class="text-6xl mb-4">🎉</div><h2 class="text-3xl font-bold text-rose-500 mb-2">LEVEL UP!</h2>
+        <p class="text-xl text-gray-600 mb-4">Lv.<span id="levelup-num">2</span> 달성!</p>
+        <div class="bg-cyan-100 text-cyan-700 px-6 py-3 rounded-xl font-bold text-lg mb-6">💎 +<span id="levelup-reward">5</span></div>
+        <button onclick="closeOverlay('levelup-overlay')" class="bg-rose-500 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-rose-600">확인</button>
+    </div>
+</div>
+
+<div id="milestone-overlay" class="overlay-bg">
+    <div class="overlay-content">
+        <div class="text-6xl mb-4">🎊</div><h2 class="text-3xl font-bold text-yellow-500 mb-2">목표 달성!</h2>
+        <p id="milestone-text" class="text-xl text-gray-600 mb-4"></p>
+        <div class="bg-yellow-100 text-yellow-700 px-6 py-3 rounded-xl font-bold text-lg mb-6">보상: <span id="milestone-reward"></span></div>
+        <button onclick="closeOverlay('milestone-overlay')" class="bg-yellow-500 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-yellow-600">멋져요!</button>
+    </div>
+</div>
+
+<div id="energy-popup" class="overlay-bg">
+    <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-yellow-300">
+        <div class="text-5xl mb-3">⚡</div><h2 class="text-2xl font-bold text-gray-800 mb-2">에너지 부족!</h2>
+        <p class="text-sm text-gray-500 mb-2">에너지 100개 충전</p>
+        <p class="text-xs text-yellow-600 font-bold mb-4">보유: <span id="popup-coin-val">0</span>🪙</p>
+        <p id="energy-err" class="text-xs text-red-500 font-bold mb-2 hidden"></p>
+        <div class="flex gap-2 justify-center">
+            <button onclick="closeOverlay('energy-popup')" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">취소</button>
+            <button onclick="buyEnergy()" class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold shadow-md"><span>500🪙</span> 구매</button>
+        </div>
+    </div>
+</div>
+
+<div id="sell-popup" class="overlay-bg">
+    <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-yellow-400">
+        <div class="text-4xl mb-2">💰</div><h2 class="text-xl font-bold text-gray-800 mb-2">판매하시겠습니까?</h2>
+        <p id="sell-desc" class="text-sm text-gray-500 mb-4"></p>
+        <div class="flex gap-2 justify-center">
+            <button onclick="closeOverlay('sell-popup')" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">취소</button>
+            <button id="confirm-sell-btn" class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold shadow-md">판매</button>
+        </div>
+    </div>
+</div>
+
+<div id="roulette-popup" class="overlay-bg">
+    <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-red-400 w-80 flex flex-col items-center">
+        <h2 class="text-2xl font-bold text-rose-500 mb-2">🔥 화재 진압 룰렛 🔥</h2>
+        <div class="relative w-48 h-48 mb-2">
+            <div id="roulette-wheel" class="w-full h-full rounded-full border-4 border-gray-700 overflow-hidden relative shadow-lg transition-transform ease-out"></div>
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-4 h-6 bg-red-600 z-10 clip-triangle shadow-sm"></div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-4 mb-2 relative overflow-hidden">
+             <div id="popup-fire-hp-bar" class="h-full bg-red-500 transition-all" style="width: 100%"></div>
+             <span id="popup-fire-hp-text" class="absolute inset-0 text-[10px] text-white flex items-center justify-center font-bold"></span>
+        </div>
+        <p class="text-xs text-yellow-600 font-bold mb-2">보유: <span id="roulette-coin-val">0</span>🪙</p>
+        <p id="roulette-err" class="text-xs text-red-500 font-bold mb-2 hidden"></p>
+        <div class="flex gap-2 w-full justify-center">
+            <button onclick="closeOverlay('roulette-popup')" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">닫기</button>
+            <button id="btn-spin" onclick="startSpin()" class="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold shadow-md"><span>100🪙</span> 물 뿌리기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 도감 모달 -->
+<div id="guide-modal" class="modal" onclick="if(event.target === this) closeModal()">
+    <div class="modal-content">
+        <h2 id="modal-title" class="text-center text-xl text-gray-700 font-bold mb-4">도감</h2>
+        <div class="tab-container">
+            <div id="tab-animal" class="tab-btn active" onclick="switchGuideTab('animal')">동물</div>
+            <div id="tab-snack" class="tab-btn" onclick="switchGuideTab('snack')">간식</div>
+            <div id="tab-upgrade" class="tab-btn" onclick="switchGuideTab('upgrade')">업그레이드</div>
+        </div>
+        <div id="guide-list-container" class="flex-1 overflow-y-auto min-h-[200px]"></div>
+        <div id="upgrade-container" class="hidden flex-col items-center justify-center py-4 space-y-4">
+            <div class="text-center">
+                <p class="text-gray-500 text-sm mb-1">현재 레벨</p>
+                <div class="text-3xl font-bold text-rose-500">Lv.<span id="upg-current-lv">1</span></div>
+                <p class="text-xs text-gray-400">행운: <span id="upg-current-luck">5</span>%</p>
+            </div>
+            <div class="text-2xl text-gray-300">⬇️</div>
+            <div class="text-center">
+                <p class="text-gray-500 text-sm mb-1">다음 레벨</p>
+                <div class="text-3xl font-bold text-green-500">Lv.<span id="upg-next-lv">2</span></div>
+                <p class="text-xs text-gray-400">행운: <span id="upg-next-luck">6</span>%</p>
+            </div>
+            <button onclick="upgradeGenerator()" class="bg-blue-500 text-white w-full py-3 rounded-xl font-bold shadow-md mt-4 flex justify-center items-center gap-2"><span>1,000🪙</span> 업그레이드</button>
+        </div>
+        <button onclick="closeModal()" class="w-full mt-4 bg-gray-200 py-2 rounded-lg text-gray-600 font-bold">닫기</button>
+    </div>
+</div>
+
+<script>
+    // --- 상수 정의 ---
+    const GRID_COLS=5, GRID_ROWS=8, BOARD_SIZE=40, STORAGE_SIZE=5, APARTMENT_ROOMS=3;
+    const SHOP_SIZE=5, SHOP_REFRESH_MS=300000;
+    const MAX_ENERGY=100, RECOVERY_SEC=30, UNLOCK_COST_BOARD=100, SNACK_CHANCE=0.15;
+    const SPECIAL_QUEST_GOAL=1000, SPECIAL_QUEST_STEP=200, SPECIAL_QUEST_REWARD_COINS=50;
+    const ENERGY_COST=500, CAGE_UPGRADE_COST=1000, CAGE_MAX_LEVEL=5;
+    const RESCUE_QUEST_GOAL=15, RESCUE_QUEST_STEP=3, RESCUE_QUEST_REWARD=500, RESCUE_TIME_LIMIT_MS=3600000;
+    const ANIMAL_HP_DECAY=2, ANIMAL_HP_DECAY_SEC=10, FIRE_EXTINGUISH_COST=100, FIRE_EXTINGUISH_REWARD=100;
+    const ROULETTE_SEGMENTS=[0,70,30,50,90,100], ROULETTE_COLORS=['#dbeafe','#3b82f6','#93c5fd','#60a5fa','#1d4ed8','#1e3a8a'];
+    const NPC_AVATARS=["👩‍🌾","👨‍🍳","👮‍♀️","🧙‍♂️","👸","🕵️‍♂️","🎅","🧑‍🚀","👨‍🎨","🦸‍♀️"];
+
+    // 데이터
+    const CATS=[{level:1,emoji:"🐱",name:"아기 냥이",color:"#fecdd3"},{level:2,emoji:"🐈",name:"얼룩 냥이",color:"#a3e635"},{level:3,emoji:"🐈‍⬛",name:"검은 냥이",color:"#a1a1aa"},{level:4,emoji:"😹",name:"웃음 냥이",color:"#38bdf8"},{level:5,emoji:"😾",name:"뾰로통 냥이",color:"#fb923c"},{level:6,emoji:"😻",name:"사랑 냥이",color:"#f472b6"},{level:7,emoji:"😼",name:"시크 냥이",color:"#a78bfa"},{level:8,emoji:"🙀",name:"깜짝 냥이",color:"#fde047"},{level:9,emoji:"😽",name:"뽀뽀 냥이",color:"#2dd4bf"},{level:10,emoji:"🐯",name:"호랑이",color:"#fbbf24"},{level:11,emoji:"🦁",name:"사자 왕",color:"#ef4444"}];
+    const DOGS=[{level:1,emoji:"🐶",name:"아기 멍멍",color:"#fecdd3"},{level:2,emoji:"🐕",name:"누렁이",color:"#fcd34d"},{level:3,emoji:"🐩",name:"푸들",color:"#e9d5ff"},{level:4,emoji:"🦮",name:"안내견",color:"#86efac"},{level:5,emoji:"🐕‍🦺",name:"듬직견",color:"#38bdf8"},{level:6,emoji:"🐺",name:"늑대",color:"#94a3b8"},{level:7,emoji:"🦊",name:"여우",color:"#fb923c"},{level:8,emoji:"🦝",name:"너구리",color:"#a78bfa"},{level:9,emoji:"🐼",name:"팬더",color:"#1e293b"},{level:10,emoji:"🐻",name:"곰돌이",color:"#92400e"},{level:11,emoji:"🐻‍❄️",name:"북극곰",color:"#e0f2fe"}];
+    const BIRDS=[{level:1,emoji:"🐣",name:"아기새",color:"#bae6fd"},{level:2,emoji:"🐤",name:"병아리",color:"#fde047"},{level:3,emoji:"🐦",name:"파랑새",color:"#60a5fa"},{level:4,emoji:"🕊️",name:"비둘기",color:"#e2e8f0"},{level:5,emoji:"🦢",name:"백조",color:"#f8fafc"},{level:6,emoji:"🦅",name:"독수리",color:"#78350f"},{level:7,emoji:"🦚",name:"공작",color:"#10b981"}];
+    const FISH=[{level:1,emoji:"🐟",name:"송사리",color:"#bae6fd"},{level:2,emoji:"🐠",name:"열대어",color:"#fde047"},{level:3,emoji:"🐡",name:"복어",color:"#fbbf24"},{level:4,emoji:"🦑",name:"오징어",color:"#f87171"},{level:5,emoji:"🐙",name:"문어",color:"#ef4444"},{level:6,emoji:"🦈",name:"상어",color:"#94a3b8"},{level:7,emoji:"🐳",name:"고래",color:"#3b82f6"}];
+    const REPTILES=[{level:1,emoji:"🐸",name:"개구리",color:"#86efac"},{level:2,emoji:"🦎",name:"도마뱀",color:"#4ade80"},{level:3,emoji:"🐍",name:"뱀",color:"#16a34a"},{level:4,emoji:"🐢",name:"거북이",color:"#15803d"},{level:5,emoji:"🐊",name:"악어",color:"#14532d"},{level:6,emoji:"🦕",name:"브라키오",color:"#60a5fa"},{level:7,emoji:"🐉",name:"드래곤",color:"#ef4444"}];
+    const CAT_SNACKS=[{level:1,emoji:"🥛",name:"우유",color:"#fce7f3"},{level:2,emoji:"🐟",name:"멸치",color:"#fbcfe8"},{level:3,emoji:"🥫",name:"통조림",color:"#f9a8d4"},{level:4,emoji:"🍡",name:"츄르",color:"#f472b6"},{level:5,emoji:"🌿",name:"캣닢",color:"#ec4899"}];
+    const DOG_SNACKS=[{level:1,emoji:"🦴",name:"뼈다귀",color:"#e0f2fe"},{level:2,emoji:"🥖",name:"개껌",color:"#bae6fd"},{level:3,emoji:"🥩",name:"육포",color:"#7dd3fc"},{level:4,emoji:"🌭",name:"소세지",color:"#38bdf8"},{level:5,emoji:"🍖",name:"스테이크",color:"#0ea5e9"}];
+
+    // 변수
+    let boardState=new Array(BOARD_SIZE).fill(null), storageState=new Array(STORAGE_SIZE).fill(null), apartmentState=new Array(APARTMENT_ROOMS).fill(null), shopItems=new Array(SHOP_SIZE).fill(null);
+    for(let i=0;i<STORAGE_SIZE;i++) storageState[i]={type:'locked_storage',cost:(i+1)*5};
+    let coins=0, cumulativeCoins=0, nextSpecialTarget=SPECIAL_QUEST_STEP;
+    let cumulativeRescues=0, nextRescueTarget=RESCUE_QUEST_STEP, rescueEndTime=Date.now()+RESCUE_TIME_LIMIT_MS;
+    let diamonds=0, energy=MAX_ENERGY, recoveryCountdown=RECOVERY_SEC;
+    let userLevel=1, questProgress=0, quests=[], questIdCounter=0;
+    let genLevels={cat:1,dog:1}, dragData=null, currentRouletteRoom=-1, isSpinning=false;
+    let currentGuideType='cat', currentGuideTab='animal', sellTarget=null, shopNextRefresh=Date.now()+SHOP_REFRESH_MS;
+    let specialMissionCycles=[0,0,0], isTutorialActive=true;
+
+    // DOM
+    const boardEl=document.getElementById('game-board'), storageEl=document.getElementById('storage-area'), apartmentEl=document.getElementById('apartment-area'), shopGrid=document.getElementById('shop-grid');
+    const coinEl=document.getElementById('coin-val'), diamondEl=document.getElementById('diamond-val'), energyEl=document.getElementById('energy-val'), energyTimerEl=document.getElementById('energy-timer');
+    const levelEl=document.getElementById('level-val'), questProgEl=document.getElementById('quest-progress'), questContainer=document.getElementById('quest-container');
+    const cumulativeBar=document.getElementById('cumulative-bar'), cumulativeText=document.getElementById('cumulative-text');
+    const rescueBar=document.getElementById('rescue-bar'), rescueText=document.getElementById('rescue-text'), rescueTimerEl=document.getElementById('rescue-timer');
+    const shopTimerBadge=document.getElementById('shop-timer-badge'), rouletteWheel=document.getElementById('roulette-wheel');
+    const tutorialPointer=document.getElementById('tutorial-pointer');
+
+    // --- 초기화 함수 ---
+    function init() {
+        // 보드 셀 생성
+        createBoardCells();
+        createStorageCells();
+        createShopCells();
+
+        // 초기 케이지 배치
+        boardState[0] = { type: 'cat_generator' };
+        boardState[4] = { type: 'dog_generator' };
+
+        // 일부 보드 셀 잠금 (하단부)
+        for (let i = 30; i < 40; i++) {
+            if (boardState[i] === null) {
+                boardState[i] = { type: 'locked_board' };
+            }
+        }
+
+        // 아파트 초기화
+        initApartment();
+
+        // 상점 초기화
+        refreshShop();
+
+        // 퀘스트 생성
+        for (let i = 0; i < 3; i++) {
+            generateNewQuest();
+        }
+
+        // 타이머 시작
+        startEnergyRecovery();
+        startShopTimer();
+        startAnimalHPTimer();
+        startRescueTimer();
+        startCooldownTimer();
+
+        // 드래그 이벤트 등록
+        document.addEventListener('mousedown', handleDragStart);
+        document.addEventListener('mousemove', handleDragMove);
+        document.addEventListener('mouseup', handleDragEnd);
+        document.addEventListener('touchstart', handleDragStart, { passive: false });
+        document.addEventListener('touchmove', handleDragMove, { passive: false });
+        document.addEventListener('touchend', handleDragEnd);
+
+        // 초기 렌더링
+        updateAll();
+
+        console.log('Game initialized!');
+    }
+
+    function createBoardCells() {
+        boardEl.innerHTML = '';
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.zone = 'board';
+            cell.dataset.index = i;
+            cell.onclick = () => handleCellClick('board', i);
+            boardEl.appendChild(cell);
+        }
+    }
+
+    function createStorageCells() {
+        storageEl.innerHTML = '';
+        for (let i = 0; i < STORAGE_SIZE; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.zone = 'storage';
+            cell.dataset.index = i;
+            cell.onclick = () => handleCellClick('storage', i);
+            storageEl.appendChild(cell);
+        }
+    }
+
+    function createShopCells() {
+        shopGrid.innerHTML = '';
+        for (let i = 0; i < SHOP_SIZE; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'shop-cell';
+            cell.dataset.index = i;
+            shopGrid.appendChild(cell);
+        }
+    }
+
+    // --- 퀘스트 함수 ---
+    function generateNewQuest() {
+        const npc=NPC_AVATARS[Math.floor(Math.random()*NPC_AVATARS.length)];
+        const cnt=Math.random()>0.7?2:1, reqs=[]; let sc=0;
+        for(let i=0; i<cnt; i++) {
+            const isSnack=Math.random()<0.15; const base=Math.random()>0.5?'cat':'dog';
+            const type=isSnack?base+'_snack':base;
+            const min=2, max=isSnack?3:5;
+            const lv=Math.floor(Math.random()*(max-min+1))+min;
+            reqs.push({type, level:lv}); sc+=(lv*(isSnack?15:10));
+        }
+        quests.push({id:questIdCounter++, npc, reqs, reward:20+sc+Math.floor(Math.random()*10)});
+        updateQuestUI();
+    }
+
+    function updateQuestUI() {
+        questContainer.innerHTML=''; const inv={};
+        [...boardState,...storageState].forEach(i=>{ if(i&&!i.type.includes('locked')&&!i.type.includes('generator')) inv[`${i.type}_${i.level}`]=(inv[`${i.type}_${i.level}`]||0)+1; });
+        quests.forEach((q,i)=>{
+            const d=document.createElement('div'); d.className='quest-card';
+            const tInv={...inv}; let ok=true;
+            q.reqs.forEach(r=>{ const k=`${r.type}_${r.level}`; if(tInv[k]>0)tInv[k]--; else ok=false; });
+            if(ok)d.classList.add('ready');
+            let h=`<div class="quest-npc">${q.npc}</div><div class="quest-reqs">`;
+            q.reqs.forEach(r=>{
+                let l; if(r.type==='cat')l=CATS; else if(r.type==='dog')l=DOGS; else if(r.type.includes('snack')) l=r.type.includes('cat')?CAT_SNACKS:DOG_SNACKS;
+                h+=`<div class="req-item" title="Lv.${r.level}"><span class="text-lg">${l[r.level-1].emoji}</span></div>`;
+            });
+            h+=`</div><div class="text-[9px] text-yellow-600 mb-1">보상: ${q.reward}🪙</div><div class="quest-btn ${ok?'complete':'incomplete'}" onclick="${ok?`completeQuest(${i})`:''}">${ok?'완료!':'구해줘'}</div>`;
+            d.innerHTML=h; questContainer.appendChild(d);
+        });
+    }
+
+    function completeQuest(i) {
+        const q=quests[i], rem=[...q.reqs];
+        const delArr=(arr)=>{ for(let j=0; j<arr.length; j++){ if(rem.length===0)break; const it=arr[j]; if(it&&!it.type.includes('locked')&&!it.type.includes('generator')){ const idx=rem.findIndex(r=>r.type===it.type&&r.level===it.level); if(idx!==-1){ arr[j]=null; rem.splice(idx,1); } } } };
+        delArr(boardState); if(rem.length>0) delArr(storageState);
+        coins+=q.reward; cumulativeCoins+=q.reward; questProgress++; showToast(`완료! +${q.reward}코인`);
+        if(questProgress>=userLevel*3) { userLevel++; questProgress=0; diamonds+=userLevel*5; document.getElementById('levelup-num').innerText=userLevel; document.getElementById('levelup-reward').innerText=userLevel*5; document.getElementById('levelup-overlay').style.display='flex'; }
+        quests.splice(i,1); generateNewQuest(); updateAll();
+    }
+
+    // --- 아이템 생성 ---
+    function spawnItem(baseType, inputLevel = 1, isFree = false) {
+        if(!isFree) { if(energy<=0) { openEnergyPopup(); return; } energy--; updateUI(); updateTimerUI(); }
+        const empties=[]; boardState.forEach((v,i)=>{ if(v===null) empties.push(i); });
+        if(empties.length===0) { showToast("공간 부족!"); return; }
+        let finalType=baseType, finalLevel=inputLevel, isLucky=false;
+        if(inputLevel===1 && (baseType==='cat'||baseType==='dog')) {
+            const rand=Math.random(), gl=genLevels[baseType];
+            if(rand<SNACK_CHANCE) { finalType+='_snack'; finalLevel=1; }
+            else if(rand<SNACK_CHANCE+(0.05+(gl-1)*0.01)) { finalLevel=Math.min(gl,5); isLucky=finalLevel>1; }
+        }
+        // 생성기 위치 찾기
+        const genIdx = boardState.findIndex(x => x && x.type === `${baseType}_generator`);
+        const genRow = Math.floor(genIdx / GRID_COLS), genCol = genIdx % GRID_COLS;
+        // 거리순 정렬 (맨해튼 거리)
+        empties.sort((a, b) => {
+            const aRow = Math.floor(a / GRID_COLS), aCol = a % GRID_COLS;
+            const bRow = Math.floor(b / GRID_COLS), bCol = b % GRID_COLS;
+            const aDist = Math.abs(aRow - genRow) + Math.abs(aCol - genCol);
+            const bDist = Math.abs(bRow - genRow) + Math.abs(bCol - genCol);
+            return aDist - bDist;
+        });
+        const targetIdx = empties[0];
+        boardState[targetIdx]={type:finalType, level:finalLevel};
+        renderGrid('board', boardState, boardEl);
+        const cell=boardEl.children[targetIdx];
+        if(cell&&cell.firstChild) { cell.firstChild.classList.add('pop-anim'); setTimeout(()=>cell.firstChild.classList.remove('pop-anim'),400); }
+        // 생성 위치에 이펙트
+        setTimeout(() => { spawnItemEffect(cell, isLucky); }, 50);
+        if(isLucky) { setTimeout(()=>{ showFloatText(cell, "Lucky!", "#eab308"); },150); }
+    }
+
+    function handleCellClick(zone, idx) {
+        const s=zone==='board'?boardState:storageState, it=s[idx]; if(!it)return;
+        if(it.type==='locked_board') { if(coins>=UNLOCK_COST_BOARD){ coins-=UNLOCK_COST_BOARD; s[idx]=null; showToast("해제!"); updateAll(); } else showToast("코인부족"); }
+        else if(it.type==='locked_storage') { if(idx>0 && s[idx-1]?.type==='locked_storage') { showToast("앞 칸부터!"); return; } if(diamonds>=it.cost){ diamonds-=it.cost; s[idx]=null; showToast("확장!"); updateAll(); } else showToast("다이아부족"); }
+        else if(it.type.includes('generator')) triggerGen(idx, it);
+    }
+
+    function triggerGen(idx, item) {
+        const cell=boardEl.children[idx], cage=cell.querySelector('.cage-generator');
+        if(cage){
+            cage.classList.add('cage-shake');
+            setTimeout(()=>cage.classList.remove('cage-shake'),300);
+            spawnParticles(cell);
+        }
+        const baseType=item.type.replace('_generator','');
+        if(['bird','fish','reptile'].includes(baseType)) {
+            if(item.cooldown>Date.now()){ showToast("과열!"); return; }
+            item.clicks=(item.clicks||0)+1; if(item.clicks>=6){ item.cooldown=Date.now()+60000; item.clicks=0; showToast("과열! 1분 휴식"); }
+            spawnItem(baseType, 1, true);
+        } else spawnItem(baseType, 1, false);
+    }
+    function spawnParticles(cell) {
+        const particles = ['✨', '⭐', '💫', '🌟', '✦'];
+        const rect = cell.getBoundingClientRect();
+        for(let i = 0; i < 6; i++) {
+            const p = document.createElement('div');
+            p.className = 'spawn-particle';
+            p.innerText = particles[Math.floor(Math.random() * particles.length)];
+            const angle = (i / 6) * Math.PI * 2;
+            const dist = 40 + Math.random() * 20;
+            p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+            p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+            p.style.left = `${rect.left + rect.width/2}px`;
+            p.style.top = `${rect.top + rect.height/2}px`;
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 600);
+        }
+    }
+    function spawnItemEffect(cell, isLucky) {
+        const rect = cell.getBoundingClientRect();
+        // 링 이펙트
+        const ring = document.createElement('div');
+        ring.className = 'spawn-ring';
+        ring.style.left = `${rect.left + rect.width/2}px`;
+        ring.style.top = `${rect.top + rect.height/2}px`;
+        if(isLucky) ring.classList.add('lucky');
+        document.body.appendChild(ring);
+        setTimeout(() => ring.remove(), 500);
+        // 작은 파티클
+        const sparkles = isLucky ? ['🌟', '⭐', '✨', '💎'] : ['✨', '·', '•'];
+        for(let i = 0; i < (isLucky ? 8 : 4); i++) {
+            const s = document.createElement('div');
+            s.className = 'spawn-particle';
+            s.innerText = sparkles[Math.floor(Math.random() * sparkles.length)];
+            s.style.fontSize = isLucky ? '0.9rem' : '0.6rem';
+            const angle = (i / (isLucky ? 8 : 4)) * Math.PI * 2 + Math.random() * 0.5;
+            const dist = 25 + Math.random() * 15;
+            s.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+            s.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+            s.style.left = `${rect.left + rect.width/2}px`;
+            s.style.top = `${rect.top + rect.height/2}px`;
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 500);
+        }
+    }
+
+    // --- 그리드 렌더링 ---
+    function renderGrid(zone, state, cont) {
+        const cells=cont.querySelectorAll('.cell');
+        cells.forEach((c, i) => {
+            if(dragData && dragData.zone===zone && dragData.index===i) return;
+            c.className='cell'; c.innerHTML='';
+            const item=state[i];
+            if(item) {
+                if(item.type==='locked_board') { c.classList.add('locked'); c.innerHTML=`<div class="text-xl opacity-50">🔒</div><div class="text-[8px] font-bold text-gray-500">${UNLOCK_COST_BOARD}🪙</div>`; }
+                else if(item.type==='locked_storage') { c.classList.add('storage-locked'); c.innerHTML=`<div class="text-xl">🔒</div><div class="text-[9px] font-bold mt-1">💎${item.cost}</div>`; }
+                else c.appendChild(createItem(item, zone, i));
+            }
+        });
+    }
+
+    function createItem(item, zone, index) {
+        if(item.type.includes('generator')) {
+            const d=document.createElement('div'); d.className='cage-generator';
+            let emoji='📦', label='케이지', type=item.type.replace('_generator','');
+            let specialUI='';
+            if(['bird','fish','reptile'].includes(type)) {
+                const rem=6-(item.clicks||0);
+                if(item.cooldown>Date.now()) specialUI=`<div class="cooldown-overlay"><span>💤</span><span>${Math.ceil((item.cooldown-Date.now())/1000)}s</span></div>`;
+                else specialUI=`<div class="usage-badge">${rem}/6</div>`;
+            }
+            if(type==='cat') { emoji='🐱'; label=`고양이 (Lv.${genLevels.cat})`; }
+            else if(type==='dog') { emoji='🐶'; label=`강아지 (Lv.${genLevels.dog})`; }
+            else if(type==='bird') { emoji='🐦'; label='새장'; } else if(type==='fish') { emoji='🐠'; label='어항'; } else if(type==='reptile') { emoji='🦎'; label='사육장'; }
+            d.innerHTML=`${specialUI}<div class="animal-inside">${emoji}</div><div class="cage-label">${label}</div><div class="help-btn" data-gen-type="${type}">?</div>`;
+            return d;
+        }
+        const d=document.createElement('div'); d.className='item';
+        let list, isSnack=item.type.includes('snack');
+        if(item.type==='cat') list=CATS; else if(item.type==='dog') list=DOGS;
+        else if(item.type==='cat_snack') list=CAT_SNACKS; else if(item.type==='dog_snack') list=DOG_SNACKS;
+        else if(item.type==='bird') list=BIRDS; else if(item.type==='fish') list=FISH; else if(item.type==='reptile') list=REPTILES;
+        const data=list[item.level-1]||list[list.length-1];
+        d.innerHTML=`<div class="${isSnack?'bg-square':'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:${isSnack?'1.5rem':'2rem'}">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div>`;
+        const sellBtn=document.createElement('div'); sellBtn.className='sell-btn'; sellBtn.innerText='ⓒ';
+        sellBtn.onclick=(e)=>askSellItem(zone,index,e); d.appendChild(sellBtn);
+        return d;
+    }
+
+    // --- UI 업데이트 ---
+    function updateAll() { renderGrid('board',boardState,boardEl); renderGrid('storage',storageState,storageEl); updateUI(); updateTimerUI(); updateQuestUI(); updateSpecialQuestUI(); updateRescueQuestUI(); updateSpecialMissionUI(); }
+    function updateUI() { coinEl.innerText=coins.toLocaleString(); diamondEl.innerText=diamonds.toLocaleString(); energyEl.innerText=energy; levelEl.innerText=`Lv.${userLevel}`; questProgEl.innerText=`${questProgress}/${userLevel*3}`; energyEl.className=energy===0?"text-xs font-bold text-red-500":"text-xs font-bold text-yellow-500"; }
+    function updateTimerUI() { energyTimerEl.innerText=energy>=MAX_ENERGY?"FULL":`${Math.floor(recoveryCountdown/60)}:${(recoveryCountdown%60).toString().padStart(2,'0')}`; }
+
+    function updateSpecialQuestUI() {
+        while(cumulativeCoins>=nextSpecialTarget) { if(nextSpecialTarget>SPECIAL_QUEST_GOAL){ cumulativeCoins-=SPECIAL_QUEST_GOAL; nextSpecialTarget=SPECIAL_QUEST_STEP; showToast("특별 퀘스트 리셋!"); } else { giveSpecialReward(); nextSpecialTarget+=SPECIAL_QUEST_STEP; showMilestonePopup("누적 코인 목표 달성!","50 코인"); } }
+        const disp=Math.min(cumulativeCoins,SPECIAL_QUEST_GOAL); cumulativeBar.style.width=`${(disp/SPECIAL_QUEST_GOAL)*100}%`; cumulativeText.innerText=`${Math.floor(disp).toLocaleString()} / ${SPECIAL_QUEST_GOAL.toLocaleString()}`;
+    }
+    function updateRescueQuestUI() {
+        while(cumulativeRescues>=nextRescueTarget) { if(nextRescueTarget>RESCUE_QUEST_GOAL){ cumulativeRescues-=RESCUE_QUEST_GOAL; nextRescueTarget=RESCUE_QUEST_STEP; showToast("구조 이벤트 리셋!"); } else { coins+=RESCUE_QUEST_REWARD; showToast(`구조 보상! +${RESCUE_QUEST_REWARD}코인`); nextRescueTarget+=RESCUE_QUEST_STEP; showMilestonePopup("구조 목표 달성!","100 코인"); updateUI(); } }
+        const disp=Math.min(cumulativeRescues,RESCUE_QUEST_GOAL); rescueBar.style.width=`${(disp/RESCUE_QUEST_GOAL)*100}%`; rescueText.innerText=`${disp} / ${RESCUE_QUEST_GOAL}`;
+    }
+
+    // --- 유틸리티 ---
+    function showToast(m) { const t=document.getElementById('toast'); t.innerText=m; t.style.opacity='1'; setTimeout(()=>t.style.opacity='0',2000); }
+    function showMilestonePopup(t,r){ document.getElementById('milestone-text').innerText=t; document.getElementById('milestone-reward').innerText=r; document.getElementById('milestone-overlay').style.display='flex'; }
+    function closeOverlay(id){ document.getElementById(id).style.display='none'; }
+    function giveSpecialReward() { coins+=SPECIAL_QUEST_REWARD_COINS; updateUI(); }
+    function openEnergyPopup() { document.getElementById('popup-coin-val').innerText=coins.toLocaleString(); document.getElementById('energy-err').classList.add('hidden'); document.getElementById('energy-popup').style.display='flex'; }
+    function buyEnergy() { document.getElementById('energy-err').classList.add('hidden'); if(coins>=ENERGY_COST){ coins-=ENERGY_COST; energy=MAX_ENERGY; recoveryCountdown=RECOVERY_SEC; closeOverlay('energy-popup'); showToast("충전 완료!"); updateUI(); updateTimerUI(); } else { document.getElementById('energy-err').innerText="코인 부족!"; document.getElementById('energy-err').classList.remove('hidden'); } }
+
+    // --- 스페셜 미션 ---
+    // 슬롯별 활성화 레벨: 슬롯0(새)=3,12,21..., 슬롯1(물고기)=6,15,24..., 슬롯2(파충류)=9,18,27...
+    function getSlotUnlockLevel(slotIdx, cycle) { return (slotIdx + 1) * 3 + cycle * 9; }
+    function updateSpecialMissionUI() {
+        const types = ['bird', 'fish', 'reptile'];
+        for (let i = 0; i < 3; i++) {
+            const unlockLv = getSlotUnlockLevel(i, specialMissionCycles[i]);
+            const isActive = userLevel >= unlockLv;
+            updateSlot(i, isActive, types[i], unlockLv);
+        }
+    }
+    function updateSlot(i, isActive, t, unlockLv) {
+        const c = document.getElementById(`sp-mission-${i}`), txt = document.getElementById(`sp-text-${i}`), btn = document.getElementById(`sp-btn-${i}`);
+        if (isActive) {
+            c.classList.add('active');
+            const hasGen = boardState.some(x => x && x.type === `${t}_generator`);
+            const hasMax = boardState.some(x => x && x.type === t && x.level === 7);
+            // 케이지가 없고 Lv.7도 없으면 생성
+            if (!hasGen && !hasMax) { spawnSpecialGenerator(t); }
+            if (hasMax) { txt.innerText = "목표달성!"; btn.style.display = "block"; }
+            else { txt.innerText = `Lv.7 ${t}\n만들기`; btn.style.display = "none"; }
+        } else {
+            c.classList.remove('active');
+            txt.innerText = `Lv.${unlockLv}\n오픈`;
+            btn.style.display = "none";
+        }
+    }
+    function spawnSpecialGenerator(t) { const e=boardState.findIndex(x=>x===null); if(e!==-1){ boardState[e]={type:`${t}_generator`, clicks:0, cooldown:0}; renderGrid('board',boardState,boardEl); showToast("스페셜 케이지 도착!"); } else showToast("공간 부족!"); }
+    function completeSpecialMission(idx) {
+        const type=['bird','fish','reptile'][idx]; coins+=500; diamonds+=10; showToast(`완료! +500🪙 +10💎`);
+        for(let i=0;i<BOARD_SIZE;i++){ if(boardState[i]&&(boardState[i].type===type||boardState[i].type===`${type}_generator`)) boardState[i]=null; }
+        specialMissionCycles[idx]++; // 다음 사이클로
+        const nextLv = getSlotUnlockLevel(idx, specialMissionCycles[idx]);
+        document.getElementById(`sp-text-${idx}`).innerText=`Lv.${nextLv}\n오픈`; document.getElementById(`sp-btn-${idx}`).style.display="none";
+        for(let i=0;i<SHOP_SIZE;i++){ if(shopItems[i]&&shopItems[i].type.includes(type)) shopItems[i]=generateRandomShopItem(getActiveTypes()); }
+        renderShop(); updateAll();
+    }
+
+    // --- 판매 ---
+    function askSellItem(z, i, e) {
+        e.stopPropagation(); const it=z==='board'?boardState[i]:storageState[i]; if(!it)return;
+        sellTarget={zone:z, index:i, item:it}; const p=it.level;
+        let list; if(it.type.includes('cat')) list=it.type.includes('snack')?CAT_SNACKS:CATS; else if(it.type.includes('dog')) list=it.type.includes('snack')?DOG_SNACKS:DOGS; else if(it.type.includes('bird')) list=BIRDS; else if(it.type.includes('fish')) list=FISH; else list=REPTILES;
+        const n=(list[it.level-1]||list[list.length-1]).name;
+        document.getElementById('sell-desc').innerText=`'${n} (Lv.${it.level})' - ${p}코인`;
+        document.getElementById('sell-popup').style.display='flex';
+    }
+    document.getElementById('confirm-sell-btn').onclick=()=>{ if(sellTarget){ const p=sellTarget.item.level; coins+=p; cumulativeCoins+=p; (sellTarget.zone==='board'?boardState:storageState)[sellTarget.index]=null; updateAll(); showToast(`${p}코인 획득!`); closeOverlay('sell-popup'); sellTarget=null; } };
+
+    // --- 상점 ---
+    function startShopTimer(){ setInterval(()=>{ if(Date.now()>=shopNextRefresh) refreshShop(); const d=shopNextRefresh-Date.now(), m=Math.floor(d/60000), s=Math.floor((d%60000)/1000); document.getElementById('shop-timer-badge').innerText=`갱신: ${m}:${s.toString().padStart(2,'0')}`; },1000); }
+    function getActiveTypes() { const t=[]; if(boardState.some(i=>i&&i.type==='cat_generator')) t.push('cat'); if(boardState.some(i=>i&&i.type==='dog_generator')) t.push('dog'); ['bird','fish','reptile'].forEach(x=>{ if(boardState.some(i=>i&&i.type===`${x}_generator`)) t.push(x); }); if(t.length===0) t.push('cat','dog'); return t; }
+    function refreshShop() { shopNextRefresh=Date.now()+SHOP_REFRESH_MS; const t=getActiveTypes(); for(let i=0;i<SHOP_SIZE-1;i++) shopItems[i]=generateRandomShopItem(t); shopItems[SHOP_SIZE-1]={type:'diamond_pack', amount:10, price:500}; renderShop(); }
+    function generateRandomShopItem(types) { const tb=types[Math.floor(Math.random()*types.length)], isS=Math.random()<0.3, type=isS?`${tb}_snack`:tb, lv=Math.floor(Math.random()*5)+1; return {type,level:lv}; }
+    function renderShop() {
+        shopGrid.innerHTML=''; shopItems.forEach((item,idx)=>{
+            const d=document.createElement('div'); d.className='shop-cell';
+            if(item){
+                d.onclick=()=>buyShopItem(idx);
+                if(item.type==='diamond_pack') {
+                    d.innerHTML=`<div class="bg-circle" style="background-color:#67e8f9"></div><div style="font-size:1.2rem">💎x${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">🪙${item.price}</div>`;
+                } else {
+                    let list; if(item.type.includes('cat')) list=item.type.includes('snack')?CAT_SNACKS:CATS; else if(item.type.includes('dog')) list=item.type.includes('snack')?DOG_SNACKS:DOGS; else if(item.type.includes('bird')) list=BIRDS; else if(item.type.includes('fish')) list=FISH; else list=REPTILES;
+                    const data=list[item.level-1]||list[list.length-1], isS=item.type.includes('snack');
+                    d.innerHTML=`<div class="${isS?'bg-square':'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:1.2rem">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div><div class="shop-price-tag">💎${item.level}</div>`;
+                }
+            } else d.innerHTML=`<span class="text-xs text-gray-400">품절</span>`;
+            shopGrid.appendChild(d);
+        });
+    }
+    function buyShopItem(idx) {
+        const item=shopItems[idx]; if(!item)return;
+        // 다이아 팩 구매
+        if(item.type==='diamond_pack') {
+            if(coins<item.price){ showToast("코인 부족!"); return; }
+            coins-=item.price; diamonds+=item.amount;
+            showToast(`💎 +${item.amount} 획득!`); updateAll(); return;
+        }
+        // 일반 아이템 구매
+        const p=item.level;
+        if(diamonds<p){ showToast("다이아 부족!"); return; }
+        let tz='board', eIdx=boardState.findIndex(v=>v===null);
+        if(eIdx===-1){ const si=storageState.findIndex(v=>v===null); if(si!==-1){ tz='storage'; eIdx=si; } }
+        if(eIdx===-1){ showToast("공간 부족!"); return; }
+        diamonds-=p; (tz==='board'?boardState:storageState)[eIdx]={...item};
+        shopItems[idx]=generateRandomShopItem(getActiveTypes()); showToast("구매 완료!"); updateAll(); renderShop();
+    }
+
+    // --- 아파트 & 룰렛 ---
+    function initApartment(){
+        const emojis = ['😿', '🙀'];
+        let assigned = [];
+        for(let i=0; i<APARTMENT_ROOMS; i++){
+            let emoji;
+            // 3개 모두 같은 이모지 방지
+            if(i === 2 && assigned[0] === assigned[1]) {
+                emoji = assigned[0] === emojis[0] ? emojis[1] : emojis[0];
+            } else {
+                emoji = emojis[Math.floor(Math.random() * emojis.length)];
+            }
+            assigned.push(emoji);
+            apartmentState[i] = { emoji: emoji, hp: 100, fireHp: 100, rescued: false };
+        }
+        renderApartment();
+    }
+    function startAnimalHPTimer(){ setInterval(()=>{ let ch=false; let helpRooms=[]; apartmentState.forEach((r,i)=>{ if(r && !r.rescued){ const prevHp = r.hp; r.hp-=ANIMAL_HP_DECAY; if(Math.floor(prevHp/10) > Math.floor(r.hp/10) && r.hp > 0){ helpRooms.push(i); } if(r.hp<=0){ apartmentState[i]=null; showToast("구조 실패..."); } ch=true; } }); if(ch) { const allDoneOrNull = apartmentState.every(x => !x || x.rescued); if(allDoneOrNull && apartmentState.some(x => x === null)) { setTimeout(()=>{ showToast("새 구조 요청!"); initApartment(); }, 2000); } else { renderApartment(); helpRooms.forEach(i => showHelpBubble(i)); } } }, ANIMAL_HP_DECAY_SEC*1000); }
+    function showHelpBubble(roomIdx) {
+        const room = apartmentEl.children[roomIdx];
+        if(!room) return;
+        const bubble = document.createElement('div');
+        bubble.className = 'help-bubble';
+        bubble.innerText = 'HELP!';
+        room.appendChild(bubble);
+        setTimeout(() => bubble.remove(), 1500);
+    }
+    function renderApartment(){
+        apartmentEl.innerHTML=''; apartmentState.forEach((r,i)=>{
+            const d=document.createElement('div'); d.className='apt-room';
+            if(r && r.rescued) {
+                d.classList.add('rescued');
+                const happyEmoji = r.emoji==='😿' ? '😺' : '😸';
+                d.innerHTML=`<div class="rescued-badge">✅ 구조 완료</div><div class="text-3xl z-10">${happyEmoji}</div>`;
+            } else if(r) {
+                d.onclick=()=>{ isTutorialActive=false; openRoulette(i); renderApartment(); };
+                let html=`<div class="status-badge fire-badge absolute top-1"><span>🔥</span><span>${r.fireHp}</span></div><div class="fire-icon">🔥</div><div class="text-3xl z-10">${r.emoji}</div><div class="status-badge hp-badge absolute bottom-1"><span>❤️</span><span>${r.hp}</span></div><div class="fire-overlay"></div>`;
+                if(isTutorialActive) html+=`<div class="tutorial-badge">CLICK!</div>`;
+                d.innerHTML=html;
+            } else {
+                d.classList.add('empty');
+                d.innerHTML=`<span class="text-gray-500 text-sm">빈 방</span>`;
+            }
+            apartmentEl.appendChild(d);
+        });
+    }
+    function openRoulette(i){ if(isSpinning)return; currentRouletteRoom=i; const r=apartmentState[i]; if(!r)return; currentRotation=0; rouletteWheel.style.transition='none'; rouletteWheel.style.transform='rotate(0deg)'; rouletteWheel.offsetHeight; renderRouletteLabels(); updateRoulettePopupUI(r); document.getElementById('roulette-err').classList.add('hidden'); document.getElementById('roulette-popup').style.display='flex'; }
+    function renderRouletteLabels() {
+        // 기존 라벨 제거
+        rouletteWheel.querySelectorAll('.roulette-label').forEach(el => el.remove());
+        const radius = 70; // 라벨 위치 반지름
+        ROULETTE_SEGMENTS.forEach((val, idx) => {
+            const angle = (idx * 60 + 30) * Math.PI / 180; // 각 세그먼트 중앙 (30도씩 오프셋)
+            const x = 96 + radius * Math.sin(angle); // 중심 96px 기준
+            const y = 96 - radius * Math.cos(angle);
+            const label = document.createElement('div');
+            label.className = 'roulette-label';
+            label.innerText = val;
+            label.style.left = `${x}px`;
+            label.style.top = `${y}px`;
+            label.style.transform = 'translate(-50%, -50%)';
+            rouletteWheel.appendChild(label);
+        });
+    }
+    function updateRoulettePopupUI(r){ const b=document.getElementById('popup-fire-hp-bar'), t=document.getElementById('popup-fire-hp-text'); b.style.width=`${r.fireHp}%`; t.innerText=`${r.fireHp}/100`; document.getElementById('roulette-coin-val').innerText=coins.toLocaleString(); }
+    let currentRotation = 0;
+    function startSpin(){
+        if(isSpinning)return; document.getElementById('roulette-err').classList.add('hidden');
+        if(coins<FIRE_EXTINGUISH_COST){ const e=document.getElementById('roulette-err'); e.innerText="코인 부족!"; e.classList.remove('hidden'); return; }
+        if(currentRouletteRoom===-1||!apartmentState[currentRouletteRoom])return;
+        coins-=FIRE_EXTINGUISH_COST; updateUI(); updateRoulettePopupUI(apartmentState[currentRouletteRoom]);
+        isSpinning=true;
+        const deg=Math.floor(Math.random()*360);
+        const spins = 360 * 5; // 5바퀴
+        currentRotation += spins + deg;
+        rouletteWheel.style.transition='transform 3s cubic-bezier(0.25, 0.1, 0.25, 1)';
+        rouletteWheel.style.transform=`rotate(${currentRotation}deg)`;
+        setTimeout(()=>finishSpin(currentRotation),3000);
+    }
+    function finishSpin(angle){
+        isSpinning=false; const n=angle%360, p=(360-n)%360, idx=Math.floor(p/60), dmg=ROULETTE_SEGMENTS[idx], r=apartmentState[currentRouletteRoom];
+        r.fireHp-=dmg; showToast(`🔥 불 체력 -${dmg}!`);
+        if(r.fireHp<=0){
+            cumulativeRescues++;
+            showToast(`구조 성공!`);
+            r.rescued=true; r.hp=100; // 구조 완료 상태로 변경
+            closeOverlay('roulette-popup'); updateRescueQuestUI();
+            // 모두 구조 완료되면 새 라운드
+            const allRescued = apartmentState.every(x => x && x.rescued);
+            if(allRescued) setTimeout(()=>{ showToast("모든 동물 구조 완료! 새 구조 요청!"); initApartment(); }, 2000);
+        }
+        else updateRoulettePopupUI(r); renderApartment(); updateUI();
+    }
+
+    // --- 드래그 앤 드롭 ---
+    function handleDragStart(e) {
+        if(e.target.closest('.help-btn')||e.target.closest('.quest-btn')||e.target.closest('.sp-btn')||e.target.closest('#btn-spin')||e.target.closest('.sell-btn')||e.target.closest('.shop-cell')){ if(e.target.closest('.help-btn')) openGuide(e.target.closest('.help-btn').dataset.genType); e.stopPropagation(); return; }
+        const t=e.target.closest('.item, .cage-generator'); if(!t)return;
+        const p=t.parentElement; if(p.classList.contains('locked')||p.classList.contains('storage-locked'))return;
+        e.preventDefault(); const z=p.dataset.zone, i=parseInt(p.dataset.index);
+        dragData={zone:z, index:i, el:t, startX:e.touches?e.touches[0].clientX:e.clientX, startY:e.touches?e.touches[0].clientY:e.clientY};
+        const r=t.getBoundingClientRect(); dragData.offsetX=dragData.startX-r.left; dragData.offsetY=dragData.startY-r.top;
+        t.style.position='fixed'; t.style.width=r.width+'px'; t.style.height=r.height+'px'; t.style.left=r.left+'px'; t.style.top=r.top+'px'; t.style.zIndex=1000; t.style.pointerEvents='none';
+    }
+    function handleDragMove(e) {
+        if(!dragData)return; e.preventDefault();
+        const cx=e.touches?e.touches[0].clientX:e.clientX, cy=e.touches?e.touches[0].clientY:e.clientY;
+        dragData.el.style.left=(cx-dragData.offsetX)+'px'; dragData.el.style.top=(cy-dragData.offsetY)+'px';
+    }
+    function handleDragEnd(e) {
+        if(!dragData)return;
+        const cx=e.changedTouches?e.changedTouches[0].clientX:e.clientX, cy=e.changedTouches?e.changedTouches[0].clientY:e.clientY;
+        if(Math.hypot(cx-dragData.startX, cy-dragData.startY)<5) { dragData.el.style.display=''; handleCellClick(dragData.zone, dragData.index); dragData=null; updateAll(); return; }
+        dragData.el.style.display='none'; const el=document.elementFromPoint(cx,cy); dragData.el.style.display='flex';
+        const tc=el?el.closest('.cell'):null;
+        if(tc) { const tz=tc.dataset.zone, ti=parseInt(tc.dataset.index), ts=tz==='board'?boardState:storageState; if(ts[ti]&&(ts[ti].type.includes('locked'))) showToast("잠겨있음!"); else moveItem(dragData.zone, dragData.index, tz, ti); }
+        dragData=null; updateAll();
+    }
+    function moveItem(fz, fi, tz, ti) {
+        if(fz===tz && fi===ti) return;
+        const ss=fz==='board'?boardState:storageState, ts=tz==='board'?boardState:storageState; const fIt=ss[fi], tIt=ts[ti];
+        if(!tIt) { ts[ti]=fIt; ss[fi]=null; return; }
+        if(fIt.type===tIt.type && fIt.level===tIt.level) {
+            let max=11; if(fIt.type.includes('snack')) max=5; if(['bird','fish','reptile'].includes(fIt.type)) max=7;
+            if(fIt.level<max) { ts[ti]={type:fIt.type, level:fIt.level+1}; ss[fi]=null; setTimeout(()=>{ showFloatText((tz==='board'?boardEl:storageEl).children[ti], "UP!", "#f43f5e"); },50); } else { ts[ti]=fIt; ss[fi]=tIt; }
+        } else { ts[ti]=fIt; ss[fi]=tIt; }
+    }
+    function showFloatText(c,t,col) { if(!c)return; const r=c.getBoundingClientRect(); const d=document.createElement('div'); d.className='floating-text'; d.innerText=t; d.style.color=col; d.style.left=(r.left+r.width/2-10)+'px'; d.style.top=r.top+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),1000); }
+
+    // --- 도감/모달 ---
+    function openGuide(type) {
+        currentGuideType = type;
+        currentGuideTab = 'animal';
+        document.getElementById('guide-modal').classList.add('show');
+        switchGuideTab('animal');
+    }
+
+    function closeModal() {
+        document.getElementById('guide-modal').classList.remove('show');
+    }
+
+    function switchGuideTab(tab) {
+        currentGuideTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+
+        const listContainer = document.getElementById('guide-list-container');
+        const upgradeContainer = document.getElementById('upgrade-container');
+
+        if (tab === 'upgrade') {
+            listContainer.classList.add('hidden');
+            upgradeContainer.classList.remove('hidden');
+            upgradeContainer.classList.add('flex');
+            updateUpgradeUI();
+        } else {
+            listContainer.classList.remove('hidden');
+            upgradeContainer.classList.add('hidden');
+            upgradeContainer.classList.remove('flex');
+            renderGuideList(tab);
+        }
+    }
+
+    function renderGuideList(tab) {
+        const container = document.getElementById('guide-list-container');
+        let list = [];
+
+        if (tab === 'animal') {
+            if (currentGuideType === 'cat') list = CATS;
+            else if (currentGuideType === 'dog') list = DOGS;
+            else if (currentGuideType === 'bird') list = BIRDS;
+            else if (currentGuideType === 'fish') list = FISH;
+            else if (currentGuideType === 'reptile') list = REPTILES;
+        } else if (tab === 'snack') {
+            if (currentGuideType === 'cat' || currentGuideType === 'dog') {
+                list = currentGuideType === 'cat' ? CAT_SNACKS : DOG_SNACKS;
+            } else {
+                container.innerHTML = '<div class="text-center text-gray-400 py-8">이 동물은 간식이 없어요</div>';
+                return;
+            }
+        }
+
+        // 발견한 동물 체크
+        const discovered = new Set();
+        [...boardState, ...storageState].forEach(item => {
+            if (item && !item.type.includes('locked') && !item.type.includes('generator')) {
+                discovered.add(`${item.type}_${item.level}`);
+            }
+        });
+
+        let html = '<div class="guide-list">';
+        list.forEach(item => {
+            const key = `${currentGuideType}${tab === 'snack' ? '_snack' : ''}_${item.level}`;
+            const isDiscovered = discovered.has(key);
+            html += `
+                <div class="guide-item ${isDiscovered ? '' : 'locked'}">
+                    <div class="guide-emoji">${item.emoji}</div>
+                    <div class="guide-name">${isDiscovered ? item.name : '???'}</div>
+                    <div class="guide-level">Lv.${item.level}</div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function updateUpgradeUI() {
+        const type = currentGuideType;
+        if (type !== 'cat' && type !== 'dog') {
+            document.getElementById('upgrade-container').innerHTML = '<div class="text-center text-gray-400 py-8">업그레이드 불가</div>';
+            return;
+        }
+        const currentLv = genLevels[type];
+        const nextLv = Math.min(currentLv + 1, CAGE_MAX_LEVEL);
+        document.getElementById('upg-current-lv').innerText = currentLv;
+        document.getElementById('upg-current-luck').innerText = 5 + (currentLv - 1);
+        document.getElementById('upg-next-lv').innerText = nextLv;
+        document.getElementById('upg-next-luck').innerText = 5 + (nextLv - 1);
+    }
+
+    function upgradeGenerator() {
+        const type = currentGuideType;
+        if (type !== 'cat' && type !== 'dog') return;
+        if (genLevels[type] >= CAGE_MAX_LEVEL) {
+            showToast("최대 레벨!");
+            return;
+        }
+        if (coins < CAGE_UPGRADE_COST) {
+            showToast("코인 부족!");
+            return;
+        }
+        coins -= CAGE_UPGRADE_COST;
+        genLevels[type]++;
+        showToast(`${type === 'cat' ? '고양이' : '강아지'} 케이지 Lv.${genLevels[type]}!`);
+        updateUpgradeUI();
+        updateAll();
+    }
+
+    // --- 타이머들 ---
+    function startCooldownTimer() { setInterval(() => { let needsUpdate=false; [...boardState, ...storageState].forEach(i => { if (i&&i.type.endsWith('_generator')&&i.cooldown>0&&i.cooldown<=Date.now()){ i.cooldown=0; i.clicks=0; needsUpdate=true; } }); if(needsUpdate) { renderGrid('board', boardState, boardEl); renderGrid('storage', storageState, storageEl); } }, 1000); }
+    function startEnergyRecovery() { setInterval(() => { if(energy<MAX_ENERGY) { recoveryCountdown--; if(recoveryCountdown<=0) { energy++; recoveryCountdown=RECOVERY_SEC; updateUI(); } updateTimerUI(); } else { recoveryCountdown=RECOVERY_SEC; updateTimerUI(); } }, 1000); }
+    function startRescueTimer() { setInterval(() => { let l=rescueEndTime-Date.now(); if(l<=0) { cumulativeRescues=0; nextRescueTarget=RESCUE_QUEST_STEP; rescueEndTime=Date.now()+RESCUE_TIME_LIMIT_MS; l=RESCUE_TIME_LIMIT_MS; showToast("구조 리셋!"); updateRescueQuestUI(); } const m=Math.floor(l/60000), s=Math.floor((l%60000)/1000); rescueTimerEl.innerText=`${m}:${s.toString().padStart(2,'0')}`; }, 1000); }
+
+    // 게임 시작
+    init();
+</script>
+</body>
+</html>
