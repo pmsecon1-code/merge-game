@@ -206,6 +206,19 @@
         </button>
     </div>
 
+    <!-- 1. 누적 퀘스트 -->
+    <div id="special-quest-bar" class="event-bar">
+        <div class="flex justify-between items-end mb-1">
+            <span class="text-[10px] font-bold text-gray-600">👑 누적 코인 (칸마다 50🪙)</span>
+            <span id="cumulative-text" class="text-[9px] text-yellow-600 font-bold">0 / 200</span>
+        </div>
+        <div class="progress-track">
+            <div id="cumulative-bar" class="progress-fill"></div>
+            <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
+        </div>
+    </div>
+
+    <!-- 2. 일반 퀘스트 -->
     <div id="quest-wrapper">
         <button id="quest-prev" class="quest-nav-btn" onclick="scrollQuests(-1)">‹</button>
         <div id="quest-container"></div>
@@ -213,49 +226,47 @@
     </div>
 
     <div id="board-wrapper">
-        <!-- 스페셜 미션 -->
+        <!-- 3. 맵 -->
+        <div id="scroll-area">
+            <div id="game-board" class="grid-layout"></div>
+            <!-- 4. 상시 미션 -->
+            <div id="persistent-mission-bar">
+                <span id="pm-label">🔨 100번 합성하기(100🪙)</span>
+                <div id="pm-progress-wrap"><div id="pm-bar"></div></div>
+                <span id="pm-text">0/100</span>
+            </div>
+        </div>
+
+        <!-- 5. 스페셜 퀘스트 (새/물고기/파충류) -->
         <div id="special-mission-container">
             <div id="sp-mission-0" class="sp-mission-card"><div class="sp-icon">🐦</div><div id="sp-text-0" class="sp-text">Lv.3<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-0" class="sp-btn" onclick="completeSpecialMission(0)">완료!</div></div>
             <div id="sp-mission-1" class="sp-mission-card"><div class="sp-icon">🐠</div><div id="sp-text-1" class="sp-text">Lv.6<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-1" class="sp-btn" onclick="completeSpecialMission(1)">완료!</div></div>
             <div id="sp-mission-2" class="sp-mission-card"><div class="sp-icon">🦎</div><div id="sp-text-2" class="sp-text">Lv.9<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-2" class="sp-btn" onclick="completeSpecialMission(2)">완료!</div></div>
         </div>
 
-        <div id="apartment-area"></div>
-        <div id="scroll-area">
-            <div id="game-board" class="grid-layout"></div>
-            <div id="persistent-mission-bar">
-                <span id="pm-label">🔨 100번 합성하기(100🪙)</span>
-                <div id="pm-progress-wrap"><div id="pm-bar"></div></div>
-                <span id="pm-text">0/100</span>
-            </div>
-            <div id="special-quest-bar" class="event-bar" style="margin-top:4px;">
-                <div class="flex justify-between items-end mb-1">
-                    <span class="text-[10px] font-bold text-gray-600">👑 누적 코인 (칸마다 50🪙)</span>
-                    <span id="cumulative-text" class="text-[9px] text-yellow-600 font-bold">0 / 200</span>
-                </div>
-                <div class="progress-track">
-                    <div id="cumulative-bar" class="progress-fill"></div>
-                    <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
+        <!-- 6. 구조 현장 -->
+        <div id="rescue-quest-bar" class="event-bar" style="margin:4px 10px;">
+            <div class="flex justify-between items-end mb-1">
+                <span class="text-[10px] font-bold text-blue-600">🚑 구조 달성 (칸마다 500🪙)</span>
+                <div class="flex items-center gap-2">
+                    <span id="rescue-timer" class="text-[9px] text-red-500 font-mono font-bold">59:59</span>
+                    <span id="rescue-text" class="text-[9px] text-blue-500 font-bold">0 / 15</span>
                 </div>
             </div>
-            <div id="rescue-quest-bar" class="event-bar" style="margin-top:4px;">
-                <div class="flex justify-between items-end mb-1">
-                    <span class="text-[10px] font-bold text-blue-600">🚑 구조 달성 (칸마다 500🪙)</span>
-                    <div class="flex items-center gap-2">
-                        <span id="rescue-timer" class="text-[9px] text-red-500 font-mono font-bold">59:59</span>
-                        <span id="rescue-text" class="text-[9px] text-blue-500 font-bold">0 / 15</span>
-                    </div>
-                </div>
-                <div class="progress-track">
-                    <div id="rescue-bar" class="progress-fill"></div>
-                    <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
-                </div>
+            <div class="progress-track">
+                <div id="rescue-bar" class="progress-fill"></div>
+                <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
             </div>
         </div>
+        <div id="apartment-area"></div>
+
+        <!-- 7. 상점 -->
         <div id="shop-area">
             <div id="shop-timer-badge">갱신: 05:00</div>
             <div class="grid-layout" id="shop-grid"></div>
         </div>
+
+        <!-- 8. 창고 -->
         <div id="storage-area" class="grid-layout"></div>
 
         <div id="tutorial-pointer" class="hidden">👆</div>
