@@ -1175,7 +1175,7 @@
             const allRescued = apartmentState.every(x => x && x.rescued);
             if(allRescued) setTimeout(()=>{ showToast("모든 동물 구조 완료! 새 구조 요청!"); initApartment(); }, 2000);
         }
-        else updateRoulettePopupUI(r); renderApartment(); updateUI();
+        else updateRoulettePopupUI(r); renderApartment(); updateUI(); saveGame();
     }
 
     // --- 드래그 앤 드롭 ---
