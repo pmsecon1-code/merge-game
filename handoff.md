@@ -85,6 +85,12 @@
   7. 상점
   8. 창고
 
+### 23. 로드 시 렌더링 버그 수정
+- `updateAll()`에 `renderShop()`, `renderApartment()` 추가
+- 로드 시 상점/구조현장이 표시되지 않던 문제 해결
+- 구조 현장 즉시 초기화 (2초 지연 제거)
+  - `apartmentState`가 비어있으면 `initApartment()` 즉시 호출
+
 ---
 
 ## 이전 작업 (2026-02-02)
