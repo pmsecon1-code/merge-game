@@ -255,7 +255,7 @@
             </div>
             <div class="progress-track">
                 <div id="rescue-bar" class="progress-fill"></div>
-                <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
+                <div class="milestone-marker" style="left: 33.33%"></div><div class="milestone-marker" style="left: 66.67%"></div>
             </div>
         </div>
         <div id="apartment-area"></div>
@@ -1081,7 +1081,6 @@
 
     // --- 아파트 & 룰렛 ---
     function initApartment(){
-        currentSetRescues = 0; // 새 세트 시작 시 리셋
         const emojis = ['😿', '🙀'];
         let assigned = [];
         for(let i=0; i<APARTMENT_ROOMS; i++){
@@ -1097,7 +1096,7 @@
         }
         renderApartment();
     }
-    function startAnimalHPTimer(){ setInterval(()=>{ let ch=false; let helpRooms=[]; apartmentState.forEach((r,i)=>{ if(r && !r.rescued){ const prevHp = r.hp; r.hp-=ANIMAL_HP_DECAY; if(Math.floor(prevHp/10) > Math.floor(r.hp/10) && r.hp > 0){ helpRooms.push(i); } if(r.hp<=0){ apartmentState[i]=null; showToast("구조 실패..."); } ch=true; } }); if(ch) { const allDoneOrNull = apartmentState.every(x => !x || x.rescued); if(allDoneOrNull && apartmentState.some(x => x === null)) { setTimeout(()=>{ showToast("새 구조 요청!"); initApartment(); }, 2000); } else { renderApartment(); helpRooms.forEach(i => showHelpBubble(i)); } } }, ANIMAL_HP_DECAY_SEC*1000); }
+    function startAnimalHPTimer(){ setInterval(()=>{ let ch=false; let helpRooms=[]; apartmentState.forEach((r,i)=>{ if(r && !r.rescued){ const prevHp = r.hp; r.hp-=ANIMAL_HP_DECAY; if(Math.floor(prevHp/10) > Math.floor(r.hp/10) && r.hp > 0){ helpRooms.push(i); } if(r.hp<=0){ apartmentState[i]=null; showToast("구조 실패..."); } ch=true; } }); if(ch) { const allDoneOrNull = apartmentState.every(x => !x || x.rescued); if(allDoneOrNull && apartmentState.some(x => x === null)) { currentSetRescues=0; setTimeout(()=>{ showToast("새 구조 요청!"); initApartment(); }, 2000); } else { renderApartment(); helpRooms.forEach(i => showHelpBubble(i)); } } }, ANIMAL_HP_DECAY_SEC*1000); }
     function showHelpBubble(roomIdx) {
         const room = apartmentEl.children[roomIdx];
         if(!room) return;
