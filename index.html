@@ -1169,13 +1169,14 @@
         if(r.fireHp<=0){
             currentSetRescues++;
             showToast(`구조 성공!`);
-            r.rescued=true; r.hp=100; // 구조 완료 상태로 변경
+            r.rescued=true; r.hp=100;
             closeOverlay('roulette-popup'); updateRescueQuestUI();
-            // 모두 구조 완료되면 새 라운드
             const allRescued = apartmentState.every(x => x && x.rescued);
             if(allRescued) setTimeout(()=>{ showToast("모든 동물 구조 완료! 새 구조 요청!"); initApartment(); }, 2000);
+        } else {
+            updateRoulettePopupUI(r);
         }
-        else updateRoulettePopupUI(r); renderApartment(); updateUI(); saveGame();
+        renderApartment(); updateUI(); saveGame();
     }
 
     // --- 드래그 앤 드롭 ---
