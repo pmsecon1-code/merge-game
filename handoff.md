@@ -49,6 +49,18 @@
   - 달성: 셀 해제 (사용 가능)
 - **스타일**: 미달성=노란 점선, 달성=초록 실선+✅
 
+### 20. 게임 저장/불러오기 (localStorage)
+- **자동 저장**: `updateAll()` 호출 시마다 자동 저장
+- **자동 불러오기**: `init()` 시 저장된 데이터 있으면 불러오기
+- **저장 항목**:
+  - boardState, storageState, apartmentState
+  - coins, cumulativeCoins, diamonds, energy
+  - userLevel, questProgress, quests
+  - genLevels, shopItems, shopNextRefresh
+  - discoveredItems, specialMissionCycles
+  - pmType, pmProgress, isTutorialActive
+- **새 게임 vs 불러오기**: 저장 데이터 없으면 기본 초기화 진행
+
 ---
 
 ## 이전 작업 (2026-02-02)
@@ -118,9 +130,9 @@ prevReadyCount = readyCount
 ---
 
 ## To-do
-- [ ] 게임 저장/불러오기 (localStorage)
+- [x] 게임 저장/불러오기 (localStorage) ✅
+- [x] GitHub Pages 배포 ✅
 - [ ] 사운드 효과 추가
 - [ ] 밸런스 테스트
 - [ ] 모바일 최적화 검증
 - [ ] 튜토리얼 확장
-- [ ] GitHub Pages 배포
