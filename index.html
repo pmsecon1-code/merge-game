@@ -936,7 +936,7 @@
     }
 
     // --- UI 업데이트 ---
-    function updateAll() { renderGrid('board',boardState,boardEl); renderGrid('storage',storageState,storageEl); updateUI(); updateTimerUI(); updateQuestUI(); updateSpecialQuestUI(); updateRescueQuestUI(); updateSpecialMissionUI(); updatePmUI(); saveGame(); }
+    function updateAll() { renderGrid('board',boardState,boardEl); renderGrid('storage',storageState,storageEl); renderShop(); renderApartment(); updateUI(); updateTimerUI(); updateQuestUI(); updateSpecialQuestUI(); updateRescueQuestUI(); updateSpecialMissionUI(); updatePmUI(); saveGame(); }
     function updateUI() { coinEl.innerText=coins.toLocaleString(); diamondEl.innerText=diamonds.toLocaleString(); energyEl.innerText=energy; levelEl.innerText=`Lv.${userLevel}`; questProgEl.innerText=`${questProgress}/${userLevel*2}`; energyEl.className=energy===0?"text-xs font-bold text-red-500":"text-xs font-bold text-yellow-500"; }
     function updateTimerUI() { energyTimerEl.innerText=energy>=MAX_ENERGY?"FULL":`${Math.floor(recoveryCountdown/60)}:${(recoveryCountdown%60).toString().padStart(2,'0')}`; }
 
