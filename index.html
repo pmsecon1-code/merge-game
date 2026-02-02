@@ -206,32 +206,6 @@
         </button>
     </div>
 
-    <!-- 이벤트 바 -->
-    <div id="special-quest-bar" class="event-bar">
-        <div class="flex justify-between items-end mb-1">
-            <span class="text-[10px] font-bold text-gray-600">👑 누적 코인 (칸마다 50🪙)</span>
-            <span id="cumulative-text" class="text-[9px] text-yellow-600 font-bold">0 / 200</span>
-        </div>
-        <div class="progress-track">
-            <div id="cumulative-bar" class="progress-fill"></div>
-            <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
-        </div>
-    </div>
-
-    <div id="rescue-quest-bar" class="event-bar">
-        <div class="flex justify-between items-end mb-1">
-            <span class="text-[10px] font-bold text-blue-600">🚑 구조 달성 (칸마다 500🪙)</span>
-            <div class="flex items-center gap-2">
-                <span id="rescue-timer" class="text-[9px] text-red-500 font-mono font-bold">59:59</span>
-                <span id="rescue-text" class="text-[9px] text-blue-500 font-bold">0 / 15</span>
-            </div>
-        </div>
-        <div class="progress-track">
-            <div id="rescue-bar" class="progress-fill"></div>
-            <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
-        </div>
-    </div>
-
     <div id="quest-wrapper">
         <button id="quest-prev" class="quest-nav-btn" onclick="scrollQuests(-1)">‹</button>
         <div id="quest-container"></div>
@@ -253,6 +227,29 @@
                 <span id="pm-label">🔨 100번 합성하기(100🪙)</span>
                 <div id="pm-progress-wrap"><div id="pm-bar"></div></div>
                 <span id="pm-text">0/100</span>
+            </div>
+            <div id="special-quest-bar" class="event-bar" style="margin-top:4px;">
+                <div class="flex justify-between items-end mb-1">
+                    <span class="text-[10px] font-bold text-gray-600">👑 누적 코인 (칸마다 50🪙)</span>
+                    <span id="cumulative-text" class="text-[9px] text-yellow-600 font-bold">0 / 200</span>
+                </div>
+                <div class="progress-track">
+                    <div id="cumulative-bar" class="progress-fill"></div>
+                    <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
+                </div>
+            </div>
+            <div id="rescue-quest-bar" class="event-bar" style="margin-top:4px;">
+                <div class="flex justify-between items-end mb-1">
+                    <span class="text-[10px] font-bold text-blue-600">🚑 구조 달성 (칸마다 500🪙)</span>
+                    <div class="flex items-center gap-2">
+                        <span id="rescue-timer" class="text-[9px] text-red-500 font-mono font-bold">59:59</span>
+                        <span id="rescue-text" class="text-[9px] text-blue-500 font-bold">0 / 15</span>
+                    </div>
+                </div>
+                <div class="progress-track">
+                    <div id="rescue-bar" class="progress-fill"></div>
+                    <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
+                </div>
             </div>
         </div>
         <div id="shop-area">
