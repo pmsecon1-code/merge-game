@@ -108,8 +108,18 @@
   - 보상: 세트 완료 시 500코인
   - 타이머: 가장 낮은 HP 동물의 남은 시간 표시
   - 라벨: "🚑 모두 구조 (500🪙)"
+  - 프로그레스바: 3등분 마커 (33.33%, 66.67%)
 - **변수**: `cumulativeRescues` → `currentSetRescues`
-- **리셋**: `initApartment()` 호출 시 `currentSetRescues=0`
+- **리셋**: 실패 시에만 (`initApartment()`에서 제거)
+
+### 27. 추가 버그 수정
+- **누적 코인 1000 리셋**: 보상 지급 직후 즉시 리셋 (`cumulativeCoins=0`)
+- **구조 진행도 저장**: 로드 시 `apartmentState`에서 실제 구조 수 계산
+  ```javascript
+  currentSetRescues = apartmentState.filter(x => x && x.rescued).length;
+  ```
+- **스페셜 생성기 에너지**: `spawnItem(baseType, 1, true)` → `false`로 변경
+  - 새/물고기/파충류 생성기도 에너지 소모
 
 ---
 
@@ -187,7 +197,7 @@ prevReadyCount = readyCount
 |------|------|
 | 퀘스트 완료 | 가변 (레벨 스케일링) |
 | 누적 코인 마일스톤 | 칸마다 50🪙 |
-| 구조 달성 마일스톤 | 칸마다 500🪙 |
+| 모두 구조 (3마리) | 500🪙 |
 | 스페셜 미션 | 500🪙 + 10💎 |
 | 상시 미션 | 100🪙 |
 | 레벨업 | 레벨 x 5 💎 |
