@@ -572,6 +572,10 @@
         if (loaded && apartmentState.every(x => !x || x === null)) {
             initApartment();
         }
+        // 구조 진행도를 실제 상태와 동기화
+        if (loaded) {
+            currentSetRescues = apartmentState.filter(x => x && x.rescued).length;
+        }
 
         if (!loaded) {
             // 새 게임: 초기 케이지 배치
@@ -943,7 +947,7 @@
     function updateTimerUI() { energyTimerEl.innerText=energy>=MAX_ENERGY?"FULL":`${Math.floor(recoveryCountdown/60)}:${(recoveryCountdown%60).toString().padStart(2,'0')}`; }
 
     function updateSpecialQuestUI() {
-        while(cumulativeCoins>=nextSpecialTarget) { if(nextSpecialTarget>SPECIAL_QUEST_GOAL){ cumulativeCoins-=SPECIAL_QUEST_GOAL; nextSpecialTarget=SPECIAL_QUEST_STEP; showToast("특별 퀘스트 리셋!"); } else { giveSpecialReward(); nextSpecialTarget+=SPECIAL_QUEST_STEP; showMilestonePopup("누적 코인 목표 달성!","50 코인"); } }
+        while(cumulativeCoins>=nextSpecialTarget) { giveSpecialReward(); showMilestonePopup("누적 코인 목표 달성!","50 코인"); nextSpecialTarget+=SPECIAL_QUEST_STEP; if(nextSpecialTarget>SPECIAL_QUEST_GOAL){ cumulativeCoins=0; nextSpecialTarget=SPECIAL_QUEST_STEP; showToast("누적 코인 리셋!"); break; } }
         const disp=Math.min(cumulativeCoins,SPECIAL_QUEST_GOAL); cumulativeBar.style.width=`${(disp/SPECIAL_QUEST_GOAL)*100}%`; cumulativeText.innerText=`${Math.floor(disp).toLocaleString()} / ${SPECIAL_QUEST_GOAL.toLocaleString()}`;
     }
     function updateRescueQuestUI() {
