@@ -247,7 +247,7 @@
         <!-- 6. 구조 현장 -->
         <div id="rescue-quest-bar" class="event-bar" style="margin:4px 10px;">
             <div class="flex justify-between items-end mb-1">
-                <span class="text-[10px] font-bold text-blue-600">🚑 구조 달성 (칸마다 500🪙)</span>
+                <span class="text-[10px] font-bold text-blue-600">🚑 모두 구조 (500🪙)</span>
                 <div class="flex items-center gap-2">
                     <span id="rescue-timer" class="text-[9px] text-red-500 font-mono font-bold">59:59</span>
                     <span id="rescue-text" class="text-[9px] text-blue-500 font-bold">0 / 15</span>
@@ -376,7 +376,7 @@
     const MAX_ENERGY=100, RECOVERY_SEC=30, UNLOCK_COST_BOARD=100, SNACK_CHANCE=0.15;
     const SPECIAL_QUEST_GOAL=1000, SPECIAL_QUEST_STEP=200, SPECIAL_QUEST_REWARD_COINS=50;
     const ENERGY_COST=500, CAGE_UPGRADE_COST=1000, CAGE_MAX_LEVEL=5;
-    const RESCUE_QUEST_GOAL=15, RESCUE_QUEST_STEP=3, RESCUE_QUEST_REWARD=500, RESCUE_TIME_LIMIT_MS=3600000;
+    const RESCUE_QUEST_REWARD=500; // 3마리 세트 완료 보상
     const ANIMAL_HP_DECAY=2, ANIMAL_HP_DECAY_SEC=10, FIRE_EXTINGUISH_COST=100, FIRE_EXTINGUISH_REWARD=100;
     const ROULETTE_SEGMENTS=[0,70,30,50,90,100], ROULETTE_COLORS=['#dbeafe','#3b82f6','#93c5fd','#60a5fa','#1d4ed8','#1e3a8a'];
     const NPC_AVATARS=["👩‍🌾","👨‍🍳","👮‍♀️","🧙‍♂️","👸","🕵️‍♂️","🎅","🧑‍🚀","👨‍🎨","🦸‍♀️"];
@@ -394,7 +394,7 @@
     let boardState=new Array(BOARD_SIZE).fill(null), storageState=new Array(STORAGE_SIZE).fill(null), apartmentState=new Array(APARTMENT_ROOMS).fill(null), shopItems=new Array(SHOP_SIZE).fill(null);
     for(let i=0;i<STORAGE_SIZE;i++) storageState[i]={type:'locked_storage',cost:(i+1)*5};
     let coins=0, cumulativeCoins=0, nextSpecialTarget=SPECIAL_QUEST_STEP;
-    let cumulativeRescues=0, nextRescueTarget=RESCUE_QUEST_STEP, rescueEndTime=Date.now()+RESCUE_TIME_LIMIT_MS;
+    let currentSetRescues=0; // 현재 세트에서 구조한 수 (0~3)
     let diamonds=0, energy=MAX_ENERGY, recoveryCountdown=RECOVERY_SEC;
     let userLevel=1, questProgress=0, quests=[], questIdCounter=0, questPage=0, prevReadyCount=0;
     let genLevels={cat:1,dog:1}, dragData=null, currentRouletteRoom=-1, isSpinning=false;
@@ -468,11 +468,10 @@
         return {
             boardState, storageState, apartmentState,
             coins, cumulativeCoins, nextSpecialTarget,
-            cumulativeRescues, nextRescueTarget,
+            currentSetRescues,
             diamonds, energy, recoveryCountdown,
             userLevel, questProgress, quests, questIdCounter,
             genLevels, shopItems, shopNextRefresh: shopNextRefresh - Date.now(),
-            rescueEndTime: rescueEndTime - Date.now(),
             discoveredItems: [...discoveredItems],
             specialMissionCycles, pmType, pmProgress,
             isTutorialActive, savedAt: Date.now()
@@ -486,8 +485,7 @@
         coins = d.coins ?? 0;
         cumulativeCoins = d.cumulativeCoins ?? 0;
         nextSpecialTarget = d.nextSpecialTarget ?? SPECIAL_QUEST_STEP;
-        cumulativeRescues = d.cumulativeRescues ?? 0;
-        nextRescueTarget = d.nextRescueTarget ?? RESCUE_QUEST_STEP;
+        currentSetRescues = d.currentSetRescues ?? 0;
         diamonds = d.diamonds ?? 0;
         energy = d.energy ?? MAX_ENERGY;
         recoveryCountdown = d.recoveryCountdown ?? RECOVERY_SEC;
@@ -498,9 +496,6 @@
         genLevels = d.genLevels || {cat:1, dog:1};
         shopItems = d.shopItems || shopItems;
         shopNextRefresh = Date.now() + (d.shopNextRefresh ?? SHOP_REFRESH_MS);
-        // 구조 타이머: 만료됐으면 새로 시작 (진행도는 유지)
-        const savedRescueTime = d.rescueEndTime ?? RESCUE_TIME_LIMIT_MS;
-        rescueEndTime = savedRescueTime > 0 ? Date.now() + savedRescueTime : Date.now() + RESCUE_TIME_LIMIT_MS;
         discoveredItems = new Set(d.discoveredItems || []);
         specialMissionCycles = d.specialMissionCycles || [0,0,0];
         pmType = d.pmType ?? 0;
@@ -952,8 +947,17 @@
         const disp=Math.min(cumulativeCoins,SPECIAL_QUEST_GOAL); cumulativeBar.style.width=`${(disp/SPECIAL_QUEST_GOAL)*100}%`; cumulativeText.innerText=`${Math.floor(disp).toLocaleString()} / ${SPECIAL_QUEST_GOAL.toLocaleString()}`;
     }
     function updateRescueQuestUI() {
-        while(cumulativeRescues>=nextRescueTarget) { if(nextRescueTarget>RESCUE_QUEST_GOAL){ cumulativeRescues-=RESCUE_QUEST_GOAL; nextRescueTarget=RESCUE_QUEST_STEP; showToast("구조 이벤트 리셋!"); } else { coins+=RESCUE_QUEST_REWARD; showToast(`구조 보상! +${RESCUE_QUEST_REWARD}코인`); nextRescueTarget+=RESCUE_QUEST_STEP; showMilestonePopup("구조 목표 달성!",`${RESCUE_QUEST_REWARD} 코인`); updateUI(); } }
-        const disp=Math.min(cumulativeRescues,RESCUE_QUEST_GOAL); rescueBar.style.width=`${(disp/RESCUE_QUEST_GOAL)*100}%`; rescueText.innerText=`${disp} / ${RESCUE_QUEST_GOAL}`;
+        // 3마리 세트 완료 시 보상
+        if(currentSetRescues >= 3) {
+            coins += RESCUE_QUEST_REWARD;
+            showToast(`모두 구조 완료! +${RESCUE_QUEST_REWARD}코인`);
+            showMilestonePopup("모두 구조 달성!", `${RESCUE_QUEST_REWARD} 코인`);
+            currentSetRescues = 0;
+            updateUI();
+        }
+        // UI 업데이트
+        rescueBar.style.width = `${(currentSetRescues/3)*100}%`;
+        rescueText.innerText = `${currentSetRescues} / 3`;
     }
 
     // --- 상시 미션 ---
@@ -1077,6 +1081,7 @@
 
     // --- 아파트 & 룰렛 ---
     function initApartment(){
+        currentSetRescues = 0; // 새 세트 시작 시 리셋
         const emojis = ['😿', '🙀'];
         let assigned = [];
         for(let i=0; i<APARTMENT_ROOMS; i++){
@@ -1158,7 +1163,7 @@
         isSpinning=false; const n=angle%360, p=(360-n)%360, idx=Math.floor(p/60), dmg=ROULETTE_SEGMENTS[idx], r=apartmentState[currentRouletteRoom];
         r.fireHp-=dmg; showToast(`🔥 불 체력 -${dmg}!`);
         if(r.fireHp<=0){
-            cumulativeRescues++;
+            currentSetRescues++;
             showToast(`구조 성공!`);
             r.rescued=true; r.hp=100; // 구조 완료 상태로 변경
             closeOverlay('roulette-popup'); updateRescueQuestUI();
@@ -1313,7 +1318,18 @@
     // --- 타이머들 ---
     function startCooldownTimer() { setInterval(() => { let needsUpdate=false; [...boardState, ...storageState].forEach(i => { if (i&&i.type.endsWith('_generator')&&i.cooldown>0&&i.cooldown<=Date.now()){ i.cooldown=0; i.clicks=0; needsUpdate=true; } }); if(needsUpdate) { renderGrid('board', boardState, boardEl); renderGrid('storage', storageState, storageEl); } }, 1000); }
     function startEnergyRecovery() { setInterval(() => { if(energy<MAX_ENERGY) { recoveryCountdown--; if(recoveryCountdown<=0) { energy++; recoveryCountdown=RECOVERY_SEC; updateUI(); } updateTimerUI(); } else { recoveryCountdown=RECOVERY_SEC; updateTimerUI(); } }, 1000); }
-    function startRescueTimer() { setInterval(() => { let l=rescueEndTime-Date.now(); if(l<=0) { cumulativeRescues=0; nextRescueTarget=RESCUE_QUEST_STEP; rescueEndTime=Date.now()+RESCUE_TIME_LIMIT_MS; l=RESCUE_TIME_LIMIT_MS; showToast("구조 리셋!"); updateRescueQuestUI(); } const m=Math.floor(l/60000), s=Math.floor((l%60000)/1000); rescueTimerEl.innerText=`${m}:${s.toString().padStart(2,'0')}`; }, 1000); }
+    function startRescueTimer() {
+        setInterval(() => {
+            // 구조되지 않은 동물 중 가장 낮은 HP 찾기
+            let minHp = Infinity;
+            apartmentState.forEach(r => { if(r && !r.rescued && r.hp < minHp) minHp = r.hp; });
+            if(minHp === Infinity) { rescueTimerEl.innerText = '--:--'; return; }
+            // HP가 0이 될 때까지 남은 시간 계산 (HP / 감소량 * 감소주기)
+            const remainSec = Math.ceil(minHp / ANIMAL_HP_DECAY) * ANIMAL_HP_DECAY_SEC;
+            const m = Math.floor(remainSec / 60), s = remainSec % 60;
+            rescueTimerEl.innerText = `${m}:${s.toString().padStart(2,'0')}`;
+        }, 1000);
+    }
 
     // 게임 시작
     init();
