@@ -571,6 +571,11 @@
         // 저장된 데이터 불러오기
         const loaded = loadGame();
 
+        // 구조 현장이 비어있으면 초기화
+        if (loaded && apartmentState.every(x => !x || x === null)) {
+            initApartment();
+        }
+
         if (!loaded) {
             // 새 게임: 초기 케이지 배치
             boardState[0] = { type: 'cat_generator' };
