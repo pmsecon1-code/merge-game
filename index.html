@@ -823,8 +823,9 @@
         const baseType=item.type.replace('_generator','');
         if(['bird','fish','reptile'].includes(baseType)) {
             if(item.cooldown>Date.now()){ showToast("과열!"); return; }
+            if(energy<=0) { openEnergyPopup(); return; }
             item.clicks=(item.clicks||0)+1; if(item.clicks>=6){ item.cooldown=Date.now()+60000; item.clicks=0; showToast("과열! 1분 휴식"); }
-            spawnItem(baseType, 1, true);
+            spawnItem(baseType, 1, false);
         } else spawnItem(baseType, 1, false);
     }
     function spawnParticles(cell) {
