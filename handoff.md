@@ -61,6 +61,19 @@
   - pmType, pmProgress, isTutorialActive
 - **새 게임 vs 불러오기**: 저장 데이터 없으면 기본 초기화 진행
 
+### 21. Firebase 연동 (클라우드 저장)
+- **Firebase 프로젝트**: `merge-game-7cf5f`
+- **인증**: Google 로그인
+- **DB**: Firestore (`/saves/{userId}`)
+- **저장 주기**:
+  - localStorage: 즉시 (매 액션)
+  - Firestore: 3초 디바운스
+- **동기화 로직**:
+  - 로그인 시 클라우드 vs 로컬 `savedAt` 비교
+  - 최신 데이터 자동 적용
+- **보안 규칙**: 본인 UID 문서만 읽기/쓰기 허용
+- **UI**: 상단바 🔑 로그인 버튼
+
 ---
 
 ## 이전 작업 (2026-02-02)
@@ -89,6 +102,7 @@
 | 스페셜 미션 | 새/물고기/파충류 (Lv.3,6,9 + 9n 순환) |
 | 일반 퀘스트 | 6개, 자동 정렬, 새 완료 가능 시 자동 이동 |
 | 상시 미션 | 합성 100회 ↔ 생성 200회, 100🪙 |
+| 저장 | localStorage + Firebase (Google 로그인 시) |
 
 ### 퀘스트 자동 이동 로직
 ```
@@ -132,6 +146,7 @@ prevReadyCount = readyCount
 ## To-do
 - [x] 게임 저장/불러오기 (localStorage) ✅
 - [x] GitHub Pages 배포 ✅
+- [x] Firebase 클라우드 저장 ✅
 - [ ] 사운드 효과 추가
 - [ ] 밸런스 테스트
 - [ ] 모바일 최적화 검증
