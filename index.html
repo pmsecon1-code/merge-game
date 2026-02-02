@@ -1037,7 +1037,7 @@
     function startShopTimer(){ setInterval(()=>{ if(Date.now()>=shopNextRefresh) refreshShop(); const d=shopNextRefresh-Date.now(), m=Math.floor(d/60000), s=Math.floor((d%60000)/1000); document.getElementById('shop-timer-badge').innerText=`갱신: ${m}:${s.toString().padStart(2,'0')}`; },1000); }
     function getActiveTypes() { const t=[]; if(boardState.some(i=>i&&i.type==='cat_generator')) t.push('cat'); if(boardState.some(i=>i&&i.type==='dog_generator')) t.push('dog'); ['bird','fish','reptile'].forEach(x=>{ if(boardState.some(i=>i&&i.type===`${x}_generator`)) t.push(x); }); if(t.length===0) t.push('cat','dog'); return t; }
     function refreshShop() { shopNextRefresh=Date.now()+SHOP_REFRESH_MS; const t=getActiveTypes(); for(let i=0;i<SHOP_SIZE-1;i++) shopItems[i]=generateRandomShopItem(t); shopItems[SHOP_SIZE-1]={type:'diamond_pack', amount:10, price:500}; renderShop(); }
-    function generateRandomShopItem(types) { const tb=types[Math.floor(Math.random()*types.length)], isS=Math.random()<0.3, type=isS?`${tb}_snack`:tb, lv=Math.floor(Math.random()*5)+1; return {type,level:lv}; }
+    function generateRandomShopItem(types) { const tb=types[Math.floor(Math.random()*types.length)], canSnack=(tb==='cat'||tb==='dog'), isS=canSnack&&Math.random()<0.3, type=isS?`${tb}_snack`:tb, lv=Math.floor(Math.random()*5)+1; return {type,level:lv}; }
     function renderShop() {
         shopGrid.innerHTML=''; shopItems.forEach((item,idx)=>{
             const d=document.createElement('div'); d.className='shop-cell';
