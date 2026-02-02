@@ -400,6 +400,56 @@
     const shopTimerBadge=document.getElementById('shop-timer-badge'), rouletteWheel=document.getElementById('roulette-wheel');
     const tutorialPointer=document.getElementById('tutorial-pointer');
 
+    // --- 저장/불러오기 ---
+    function saveGame() {
+        const data = {
+            boardState, storageState, apartmentState,
+            coins, cumulativeCoins, nextSpecialTarget,
+            cumulativeRescues, nextRescueTarget,
+            diamonds, energy, recoveryCountdown,
+            userLevel, questProgress, quests, questIdCounter,
+            genLevels, shopItems, shopNextRefresh: shopNextRefresh - Date.now(),
+            rescueEndTime: rescueEndTime - Date.now(),
+            discoveredItems: [...discoveredItems],
+            specialMissionCycles, pmType, pmProgress,
+            isTutorialActive
+        };
+        localStorage.setItem('mergeGame', JSON.stringify(data));
+    }
+
+    function loadGame() {
+        const saved = localStorage.getItem('mergeGame');
+        if (!saved) return false;
+        try {
+            const d = JSON.parse(saved);
+            boardState = d.boardState || boardState;
+            storageState = d.storageState || storageState;
+            apartmentState = d.apartmentState || apartmentState;
+            coins = d.coins ?? 0;
+            cumulativeCoins = d.cumulativeCoins ?? 0;
+            nextSpecialTarget = d.nextSpecialTarget ?? SPECIAL_QUEST_STEP;
+            cumulativeRescues = d.cumulativeRescues ?? 0;
+            nextRescueTarget = d.nextRescueTarget ?? RESCUE_QUEST_STEP;
+            diamonds = d.diamonds ?? 0;
+            energy = d.energy ?? MAX_ENERGY;
+            recoveryCountdown = d.recoveryCountdown ?? RECOVERY_SEC;
+            userLevel = d.userLevel ?? 1;
+            questProgress = d.questProgress ?? 0;
+            quests = d.quests || [];
+            questIdCounter = d.questIdCounter ?? 0;
+            genLevels = d.genLevels || {cat:1, dog:1};
+            shopItems = d.shopItems || shopItems;
+            shopNextRefresh = Date.now() + (d.shopNextRefresh ?? SHOP_REFRESH_MS);
+            rescueEndTime = Date.now() + (d.rescueEndTime ?? RESCUE_TIME_LIMIT_MS);
+            discoveredItems = new Set(d.discoveredItems || []);
+            specialMissionCycles = d.specialMissionCycles || [0,0,0];
+            pmType = d.pmType ?? 0;
+            pmProgress = d.pmProgress ?? 0;
+            isTutorialActive = d.isTutorialActive ?? true;
+            return true;
+        } catch(e) { console.error('Load failed:', e); return false; }
+    }
+
     // --- 초기화 함수 ---
     function init() {
         // 보드 셀 생성
@@ -407,28 +457,33 @@
         createStorageCells();
         createShopCells();
 
-        // 초기 케이지 배치
-        boardState[0] = { type: 'cat_generator' };
-        boardState[4] = { type: 'dog_generator' };
+        // 저장된 데이터 불러오기
+        const loaded = loadGame();
 
-        // 일부 보드 셀 잠금 (하단부 - 7행)
-        boardState[30] = { type: 'upgrade_mission', target: 'cat', reqLevel: 2 };
-        boardState[31] = { type: 'upgrade_mission', target: 'dog', reqLevel: 2 };
-        for (let i = 32; i < 35; i++) {
-            if (boardState[i] === null) {
-                boardState[i] = { type: 'locked_board' };
+        if (!loaded) {
+            // 새 게임: 초기 케이지 배치
+            boardState[0] = { type: 'cat_generator' };
+            boardState[4] = { type: 'dog_generator' };
+
+            // 일부 보드 셀 잠금 (하단부 - 7행)
+            boardState[30] = { type: 'upgrade_mission', target: 'cat', reqLevel: 2 };
+            boardState[31] = { type: 'upgrade_mission', target: 'dog', reqLevel: 2 };
+            for (let i = 32; i < 35; i++) {
+                if (boardState[i] === null) {
+                    boardState[i] = { type: 'locked_board' };
+                }
             }
-        }
 
-        // 아파트 초기화
-        initApartment();
+            // 아파트 초기화
+            initApartment();
 
-        // 상점 초기화
-        refreshShop();
+            // 상점 초기화
+            refreshShop();
 
-        // 퀘스트 생성 (6개)
-        for (let i = 0; i < 6; i++) {
-            generateNewQuest();
+            // 퀘스트 생성 (6개)
+            for (let i = 0; i < 6; i++) {
+                generateNewQuest();
+            }
         }
 
         // 타이머 시작
@@ -449,7 +504,7 @@
         // 초기 렌더링
         updateAll();
 
-        console.log('Game initialized!');
+        console.log(loaded ? 'Game loaded!' : 'New game started!');
     }
 
     function createBoardCells() {
@@ -770,7 +825,7 @@
     }
 
     // --- UI 업데이트 ---
-    function updateAll() { renderGrid('board',boardState,boardEl); renderGrid('storage',storageState,storageEl); updateUI(); updateTimerUI(); updateQuestUI(); updateSpecialQuestUI(); updateRescueQuestUI(); updateSpecialMissionUI(); updatePmUI(); }
+    function updateAll() { renderGrid('board',boardState,boardEl); renderGrid('storage',storageState,storageEl); updateUI(); updateTimerUI(); updateQuestUI(); updateSpecialQuestUI(); updateRescueQuestUI(); updateSpecialMissionUI(); updatePmUI(); saveGame(); }
     function updateUI() { coinEl.innerText=coins.toLocaleString(); diamondEl.innerText=diamonds.toLocaleString(); energyEl.innerText=energy; levelEl.innerText=`Lv.${userLevel}`; questProgEl.innerText=`${questProgress}/${userLevel*2}`; energyEl.className=energy===0?"text-xs font-bold text-red-500":"text-xs font-bold text-yellow-500"; }
     function updateTimerUI() { energyTimerEl.innerText=energy>=MAX_ENERGY?"FULL":`${Math.floor(recoveryCountdown/60)}:${(recoveryCountdown%60).toString().padStart(2,'0')}`; }
 
