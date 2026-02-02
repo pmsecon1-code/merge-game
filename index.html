@@ -498,7 +498,9 @@
         genLevels = d.genLevels || {cat:1, dog:1};
         shopItems = d.shopItems || shopItems;
         shopNextRefresh = Date.now() + (d.shopNextRefresh ?? SHOP_REFRESH_MS);
-        rescueEndTime = Date.now() + (d.rescueEndTime ?? RESCUE_TIME_LIMIT_MS);
+        // 구조 타이머: 만료됐으면 새로 시작 (진행도는 유지)
+        const savedRescueTime = d.rescueEndTime ?? RESCUE_TIME_LIMIT_MS;
+        rescueEndTime = savedRescueTime > 0 ? Date.now() + savedRescueTime : Date.now() + RESCUE_TIME_LIMIT_MS;
         discoveredItems = new Set(d.discoveredItems || []);
         specialMissionCycles = d.specialMissionCycles || [0,0,0];
         pmType = d.pmType ?? 0;
