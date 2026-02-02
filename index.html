@@ -17,6 +17,11 @@
         /* 2. 이벤트 진행바 */
         .event-bar { width: 95%; background: white; border-radius: 10px; padding: 4px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; margin: 0 auto; }
         #special-quest-bar { border: 2px solid #fcd34d; }
+        #persistent-mission-bar { display: flex; align-items: center; gap: 8px; background: white; border: 2px solid #a78bfa; border-radius: 8px; padding: 6px 10px; margin-top: 4px; font-size: 0.75rem; font-weight: bold; }
+        #pm-label { color: #7c3aed; white-space: nowrap; }
+        #pm-progress-wrap { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        #pm-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #c4b5fd, #8b5cf6); transition: width 0.3s; }
+        #pm-text { color: #6b7280; white-space: nowrap; }
         #rescue-quest-bar { border: 2px solid #60a5fa; }
         .progress-track { width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; position: relative; }
         .progress-fill { height: 100%; width: 0%; transition: width 0.5s ease-out; }
@@ -25,8 +30,13 @@
         .milestone-marker { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.8); z-index: 10; }
 
         /* 3. 퀘스트 카드 */
-        #quest-container { width: 100%; padding: 0 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex-shrink: 0; }
-        .quest-card { background: white; border-radius: 10px; border: 2px solid #e2e8f0; aspect-ratio: 1.4; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 4px; position: relative; box-shadow: 0 2px 2px rgba(0,0,0,0.05); }
+        #quest-wrapper { width: 100%; display: flex; align-items: center; gap: 4px; padding: 0 4px; flex-shrink: 0; }
+        .quest-nav-btn { width: 24px; height: 60px; background: #e2e8f0; border: none; border-radius: 6px; font-size: 1.2rem; color: #64748b; cursor: pointer; flex-shrink: 0; }
+        .quest-nav-btn:hover { background: #cbd5e1; }
+        .quest-nav-btn:active { background: #94a3b8; }
+        .quest-nav-btn:disabled { background: #f1f5f9; color: #cbd5e1; cursor: default; }
+        #quest-container { flex: 1; display: flex; gap: 6px; overflow: hidden; }
+        .quest-card { background: white; border-radius: 10px; border: 2px solid #e2e8f0; flex: 1; min-width: 0; aspect-ratio: 1.4; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 4px; position: relative; box-shadow: 0 2px 2px rgba(0,0,0,0.05); }
         .quest-card.ready { background-color: #fff1f2; transform: translateY(-2px); animation: rainbow-border 2s linear infinite; }
         @keyframes rainbow-border { 0% { border-color: #ff0000; } 14% { border-color: #ff7f00; } 28% { border-color: #ffff00; } 42% { border-color: #00ff00; } 57% { border-color: #0000ff; } 71% { border-color: #4b0082; } 85% { border-color: #9400d3; } 100% { border-color: #ff0000; } }
         .quest-npc { font-size: 1.1rem; line-height: 1; }
@@ -68,7 +78,7 @@
         /* 메인 보드 (고정) */
         #scroll-area { padding: 8px; display: flex; flex-direction: column; gap: 8px; }
         .grid-layout { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; }
-        #game-board { grid-template-rows: repeat(8, 1fr); }
+        #game-board { grid-template-rows: repeat(7, 1fr); }
         #game-board .cell { aspect-ratio: 1 / 1 !important; width: 100%; height: auto; }
 
         /* 상점 */
@@ -86,6 +96,8 @@
         .cell { background: rgba(255, 255, 255, 0.6); border-radius: 8px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; justify-content: center; align-items: center; overflow: hidden; aspect-ratio: 1; }
         .cell.locked { background: rgba(0, 0, 0, 0.15); cursor: pointer; flex-direction: column; }
         .storage-locked { background: repeating-linear-gradient(45deg, #cbd5e1, #cbd5e1 10px, #94a3b8 10px, #94a3b8 20px); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: #475569; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+        .upgrade-mission-cell { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 2px dashed #f59e0b; cursor: pointer; flex-direction: column; }
+        .upgrade-mission-cell.done { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 2px solid #10b981; }
 
         .item { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; cursor: grab; position: absolute; top: 0; left: 0; z-index: 10; }
         .bg-circle { position: absolute; width: 85%; height: 85%; border-radius: 50%; opacity: 0.5; z-index: -1; }
@@ -108,8 +120,15 @@
         .spawn-particle { position: absolute; pointer-events: none; font-size: 1rem; animation: particle-burst 0.6s ease-out forwards; z-index: 100; }
         @keyframes particle-burst { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
         .spawn-ring { position: fixed; pointer-events: none; width: 10px; height: 10px; border: 3px solid #f472b6; border-radius: 50%; transform: translate(-50%, -50%); animation: ring-expand 0.5s ease-out forwards; z-index: 99; }
-        .spawn-ring.lucky { border-color: #fbbf24; border-width: 4px; }
+        .spawn-ring.lucky { border-color: #fbbf24; border-width: 6px; box-shadow: 0 0 20px #fbbf24, 0 0 40px #f59e0b; animation: ring-expand-lucky 0.7s ease-out forwards; }
         @keyframes ring-expand { 0% { width: 10px; height: 10px; opacity: 1; } 100% { width: 60px; height: 60px; opacity: 0; } }
+        @keyframes ring-expand-lucky { 0% { width: 10px; height: 10px; opacity: 1; } 100% { width: 100px; height: 100px; opacity: 0; } }
+        .lucky-glow { animation: lucky-glow 0.8s ease-out; }
+        @keyframes lucky-glow { 0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.8); } 50% { box-shadow: 0 0 30px 15px rgba(251, 191, 36, 0.6); } 100% { box-shadow: none; } }
+        .lucky-flash { position: fixed; inset: 0; background: radial-gradient(circle, rgba(251,191,36,0.4) 0%, transparent 70%); pointer-events: none; z-index: 1000; animation: flash-fade 0.5s ease-out forwards; }
+        @keyframes flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
+        .lucky-text { position: fixed; left: 50%; top: 30%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: bold; color: #fbbf24; text-shadow: 0 0 10px #f59e0b, 0 0 20px #fbbf24, 2px 2px 0 #92400e; pointer-events: none; z-index: 1001; animation: lucky-text-anim 1s ease-out forwards; }
+        @keyframes lucky-text-anim { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 30% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; } 50% { transform: translate(-50%, -50%) scale(1); } 100% { transform: translate(-50%, -50%) translateY(-30px); opacity: 0; } }
         .cage-shake { animation: cage-shake 0.3s ease-in-out; }
         @keyframes cage-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-4px) rotate(-2deg); } 40% { transform: translateX(4px) rotate(2deg); } 60% { transform: translateX(-3px) rotate(-1deg); } 80% { transform: translateX(3px) rotate(1deg); } }
         .floating-text { position: absolute; font-weight: bold; font-size: 1.2rem; pointer-events: none; animation: floatUp 1s forwards; z-index: 100; }
@@ -207,7 +226,11 @@
         </div>
     </div>
 
-    <div id="quest-container"></div>
+    <div id="quest-wrapper">
+        <button id="quest-prev" class="quest-nav-btn" onclick="scrollQuests(-1)">‹</button>
+        <div id="quest-container"></div>
+        <button id="quest-next" class="quest-nav-btn" onclick="scrollQuests(1)">›</button>
+    </div>
 
     <div id="board-wrapper">
         <!-- 스페셜 미션 -->
@@ -218,7 +241,14 @@
         </div>
 
         <div id="apartment-area"></div>
-        <div id="scroll-area"><div id="game-board" class="grid-layout"></div></div>
+        <div id="scroll-area">
+            <div id="game-board" class="grid-layout"></div>
+            <div id="persistent-mission-bar">
+                <span id="pm-label">🔨 100번 합성하기(100🪙)</span>
+                <div id="pm-progress-wrap"><div id="pm-bar"></div></div>
+                <span id="pm-text">0/100</span>
+            </div>
+        </div>
         <div id="shop-area">
             <div id="shop-timer-badge">갱신: 05:00</div>
             <div class="grid-layout" id="shop-grid"></div>
@@ -305,18 +335,21 @@
         </div>
         <div id="guide-list-container" class="flex-1 overflow-y-auto min-h-[200px]"></div>
         <div id="upgrade-container" class="hidden flex-col items-center justify-center py-4 space-y-4">
-            <div class="text-center">
-                <p class="text-gray-500 text-sm mb-1">현재 레벨</p>
-                <div class="text-3xl font-bold text-rose-500">Lv.<span id="upg-current-lv">1</span></div>
-                <p class="text-xs text-gray-400">행운: <span id="upg-current-luck">5</span>%</p>
+            <div id="upgrade-msg" class="text-center text-gray-400 py-8" style="display:none;">업그레이드 불가</div>
+            <div id="upgrade-content">
+                <div class="text-center">
+                    <p class="text-gray-500 text-sm mb-1">현재 레벨</p>
+                    <div class="text-3xl font-bold text-rose-500">Lv.<span id="upg-current-lv">1</span></div>
+                    <p class="text-xs text-gray-400">행운: <span id="upg-current-luck">5</span>%</p>
+                </div>
+                <div class="text-2xl text-gray-300 text-center my-2">⬇️</div>
+                <div class="text-center">
+                    <p class="text-gray-500 text-sm mb-1">다음 레벨</p>
+                    <div class="text-3xl font-bold text-green-500">Lv.<span id="upg-next-lv">2</span></div>
+                    <p class="text-xs text-gray-400">행운: <span id="upg-next-luck">6</span>%</p>
+                </div>
+                <button onclick="upgradeGenerator()" class="bg-blue-500 text-white w-full py-3 rounded-xl font-bold shadow-md mt-4 flex justify-center items-center gap-2"><span>1,000🪙</span> 업그레이드</button>
             </div>
-            <div class="text-2xl text-gray-300">⬇️</div>
-            <div class="text-center">
-                <p class="text-gray-500 text-sm mb-1">다음 레벨</p>
-                <div class="text-3xl font-bold text-green-500">Lv.<span id="upg-next-lv">2</span></div>
-                <p class="text-xs text-gray-400">행운: <span id="upg-next-luck">6</span>%</p>
-            </div>
-            <button onclick="upgradeGenerator()" class="bg-blue-500 text-white w-full py-3 rounded-xl font-bold shadow-md mt-4 flex justify-center items-center gap-2"><span>1,000🪙</span> 업그레이드</button>
         </div>
         <button onclick="closeModal()" class="w-full mt-4 bg-gray-200 py-2 rounded-lg text-gray-600 font-bold">닫기</button>
     </div>
@@ -324,7 +357,7 @@
 
 <script>
     // --- 상수 정의 ---
-    const GRID_COLS=5, GRID_ROWS=8, BOARD_SIZE=40, STORAGE_SIZE=5, APARTMENT_ROOMS=3;
+    const GRID_COLS=5, GRID_ROWS=7, BOARD_SIZE=35, STORAGE_SIZE=5, APARTMENT_ROOMS=3;
     const SHOP_SIZE=5, SHOP_REFRESH_MS=300000;
     const MAX_ENERGY=100, RECOVERY_SEC=30, UNLOCK_COST_BOARD=100, SNACK_CHANCE=0.15;
     const SPECIAL_QUEST_GOAL=1000, SPECIAL_QUEST_STEP=200, SPECIAL_QUEST_REWARD_COINS=50;
@@ -349,10 +382,14 @@
     let coins=0, cumulativeCoins=0, nextSpecialTarget=SPECIAL_QUEST_STEP;
     let cumulativeRescues=0, nextRescueTarget=RESCUE_QUEST_STEP, rescueEndTime=Date.now()+RESCUE_TIME_LIMIT_MS;
     let diamonds=0, energy=MAX_ENERGY, recoveryCountdown=RECOVERY_SEC;
-    let userLevel=1, questProgress=0, quests=[], questIdCounter=0;
+    let userLevel=1, questProgress=0, quests=[], questIdCounter=0, questPage=0, prevReadyCount=0;
     let genLevels={cat:1,dog:1}, dragData=null, currentRouletteRoom=-1, isSpinning=false;
     let currentGuideType='cat', currentGuideTab='animal', sellTarget=null, shopNextRefresh=Date.now()+SHOP_REFRESH_MS;
+    let discoveredItems = new Set();
     let specialMissionCycles=[0,0,0], isTutorialActive=true;
+    // 상시 미션: 0=합성, 1=생성
+    let pmType=0, pmProgress=0;
+    const PM_GOALS=[100, 200], PM_TITLES=['100번 합성하기','200번 생성하기'], PM_ICONS=['🔨','✨'], PM_REWARD=100;
 
     // DOM
     const boardEl=document.getElementById('game-board'), storageEl=document.getElementById('storage-area'), apartmentEl=document.getElementById('apartment-area'), shopGrid=document.getElementById('shop-grid');
@@ -374,8 +411,10 @@
         boardState[0] = { type: 'cat_generator' };
         boardState[4] = { type: 'dog_generator' };
 
-        // 일부 보드 셀 잠금 (하단부)
-        for (let i = 30; i < 40; i++) {
+        // 일부 보드 셀 잠금 (하단부 - 7행)
+        boardState[30] = { type: 'upgrade_mission', target: 'cat', reqLevel: 2 };
+        boardState[31] = { type: 'upgrade_mission', target: 'dog', reqLevel: 2 };
+        for (let i = 32; i < 35; i++) {
             if (boardState[i] === null) {
                 boardState[i] = { type: 'locked_board' };
             }
@@ -387,8 +426,8 @@
         // 상점 초기화
         refreshShop();
 
-        // 퀘스트 생성
-        for (let i = 0; i < 3; i++) {
+        // 퀘스트 생성 (6개)
+        for (let i = 0; i < 6; i++) {
             generateNewQuest();
         }
 
@@ -447,16 +486,29 @@
         }
     }
 
+    // --- 발견 기록 ---
+    function discoverItem(type, level) {
+        discoveredItems.add(`${type}_${level}`);
+    }
+
     // --- 퀘스트 함수 ---
     function generateNewQuest() {
         const npc=NPC_AVATARS[Math.floor(Math.random()*NPC_AVATARS.length)];
-        const cnt=Math.random()>0.7?2:1, reqs=[]; let sc=0;
+        // 레벨별 난이도 스케일링
+        const twoItemChance = Math.min(0.3 + userLevel * 0.05, 0.8); // 30%~80%
+        const cnt = Math.random() < twoItemChance ? 2 : 1;
+        const minLv = Math.min(Math.max(2, Math.floor(userLevel / 2)), 6); // 2~6
+        const maxLvAnimal = Math.min(minLv + 3 + Math.floor(userLevel / 4), 10); // ~10
+        const maxLvSnack = Math.min(Math.ceil(minLv / 2) + 2, 5); // ~5
+        const reqs = []; let sc = 0;
         for(let i=0; i<cnt; i++) {
-            const isSnack=Math.random()<0.15; const base=Math.random()>0.5?'cat':'dog';
-            const type=isSnack?base+'_snack':base;
-            const min=2, max=isSnack?3:5;
-            const lv=Math.floor(Math.random()*(max-min+1))+min;
-            reqs.push({type, level:lv}); sc+=(lv*(isSnack?15:10));
+            const isSnack = Math.random() < 0.15;
+            const base = Math.random() > 0.5 ? 'cat' : 'dog';
+            const type = isSnack ? base + '_snack' : base;
+            const min = isSnack ? Math.max(2, minLv - 1) : minLv;
+            const max = isSnack ? maxLvSnack : maxLvAnimal;
+            const lv = Math.floor(Math.random() * (max - min + 1)) + min;
+            reqs.push({type, level: lv}); sc += (lv * (isSnack ? 15 : 10));
         }
         quests.push({id:questIdCounter++, npc, reqs, reward:20+sc+Math.floor(Math.random()*10)});
         updateQuestUI();
@@ -464,12 +516,39 @@
 
     function updateQuestUI() {
         questContainer.innerHTML=''; const inv={};
-        [...boardState,...storageState].forEach(i=>{ if(i&&!i.type.includes('locked')&&!i.type.includes('generator')) inv[`${i.type}_${i.level}`]=(inv[`${i.type}_${i.level}`]||0)+1; });
-        quests.forEach((q,i)=>{
+        [...boardState,...storageState].forEach(i=>{ if(i&&!i.type.includes('locked')&&!i.type.includes('generator')&&!i.type.includes('mission')) inv[`${i.type}_${i.level}`]=(inv[`${i.type}_${i.level}`]||0)+1; });
+
+        // 완료 가능 여부 체크 함수
+        const canComplete = (q) => {
+            const tInv={...inv};
+            for(const r of q.reqs) {
+                const k=`${r.type}_${r.level}`;
+                if(tInv[k]>0) tInv[k]--; else return false;
+            }
+            return true;
+        };
+
+        // 완료 가능한 퀘스트 먼저 정렬
+        quests.sort((a, b) => canComplete(b) - canComplete(a));
+
+        // 완료 가능 퀘스트 수 체크
+        const readyCount = quests.filter(q => canComplete(q)).length;
+        // 새로운 완료 가능 퀘스트 생기면 1페이지로 자동 이동
+        if(readyCount > prevReadyCount && questPage > 0) {
+            questPage = 0;
+        }
+        prevReadyCount = readyCount;
+
+        // 페이지 범위 체크
+        const maxPage = Math.ceil(quests.length / 3) - 1;
+        if (questPage > maxPage) questPage = Math.max(0, maxPage);
+        const start = questPage * 3, end = start + 3;
+
+        quests.slice(start, end).forEach((q, idx)=>{
+            const i = start + idx;
             const d=document.createElement('div'); d.className='quest-card';
-            const tInv={...inv}; let ok=true;
-            q.reqs.forEach(r=>{ const k=`${r.type}_${r.level}`; if(tInv[k]>0)tInv[k]--; else ok=false; });
-            if(ok)d.classList.add('ready');
+            const ok = canComplete(q);
+            if(ok) d.classList.add('ready');
             let h=`<div class="quest-npc">${q.npc}</div><div class="quest-reqs">`;
             q.reqs.forEach(r=>{
                 let l; if(r.type==='cat')l=CATS; else if(r.type==='dog')l=DOGS; else if(r.type.includes('snack')) l=r.type.includes('cat')?CAT_SNACKS:DOG_SNACKS;
@@ -478,6 +557,15 @@
             h+=`</div><div class="text-[9px] text-yellow-600 mb-1">보상: ${q.reward}🪙</div><div class="quest-btn ${ok?'complete':'incomplete'}" onclick="${ok?`completeQuest(${i})`:''}">${ok?'완료!':'구해줘'}</div>`;
             d.innerHTML=h; questContainer.appendChild(d);
         });
+        // 버튼 상태 업데이트
+        document.getElementById('quest-prev').disabled = questPage === 0;
+        document.getElementById('quest-next').disabled = questPage >= maxPage;
+    }
+
+    function scrollQuests(dir) {
+        const maxPage = Math.ceil(quests.length / 3) - 1;
+        questPage = Math.max(0, Math.min(maxPage, questPage + dir));
+        updateQuestUI();
     }
 
     function completeQuest(i) {
@@ -485,7 +573,7 @@
         const delArr=(arr)=>{ for(let j=0; j<arr.length; j++){ if(rem.length===0)break; const it=arr[j]; if(it&&!it.type.includes('locked')&&!it.type.includes('generator')){ const idx=rem.findIndex(r=>r.type===it.type&&r.level===it.level); if(idx!==-1){ arr[j]=null; rem.splice(idx,1); } } } };
         delArr(boardState); if(rem.length>0) delArr(storageState);
         coins+=q.reward; cumulativeCoins+=q.reward; questProgress++; showToast(`완료! +${q.reward}코인`);
-        if(questProgress>=userLevel*3) { userLevel++; questProgress=0; diamonds+=userLevel*5; document.getElementById('levelup-num').innerText=userLevel; document.getElementById('levelup-reward').innerText=userLevel*5; document.getElementById('levelup-overlay').style.display='flex'; }
+        if(questProgress>=userLevel*2) { userLevel++; questProgress=0; diamonds+=userLevel*5; document.getElementById('levelup-num').innerText=userLevel; document.getElementById('levelup-reward').innerText=userLevel*5; document.getElementById('levelup-overlay').style.display='flex'; }
         quests.splice(i,1); generateNewQuest(); updateAll();
     }
 
@@ -497,8 +585,18 @@
         let finalType=baseType, finalLevel=inputLevel, isLucky=false;
         if(inputLevel===1 && (baseType==='cat'||baseType==='dog')) {
             const rand=Math.random(), gl=genLevels[baseType];
-            if(rand<SNACK_CHANCE) { finalType+='_snack'; finalLevel=1; }
-            else if(rand<SNACK_CHANCE+(0.05+(gl-1)*0.01)) { finalLevel=Math.min(gl,5); isLucky=finalLevel>1; }
+            const luckChance = 0.05 + (gl-1)*0.01; // 5%~9%
+            if(rand < luckChance) {
+                // 행운: Lv1→2, Lv2→3, Lv3+→4
+                const luckyLv = gl >= 3 ? 4 : gl + 1;
+                const isSnack = Math.random() < 0.5; // 50% 확률로 간식
+                if(isSnack) { finalType += '_snack'; finalLevel = Math.min(luckyLv, 5); }
+                else { finalLevel = luckyLv; }
+                isLucky = true;
+            } else if(rand < luckChance + SNACK_CHANCE) {
+                // 일반 간식 (15%)
+                finalType += '_snack'; finalLevel = 1;
+            }
         }
         // 생성기 위치 찾기
         const genIdx = boardState.findIndex(x => x && x.type === `${baseType}_generator`);
@@ -513,18 +611,33 @@
         });
         const targetIdx = empties[0];
         boardState[targetIdx]={type:finalType, level:finalLevel};
+        discoverItem(finalType, finalLevel);
+        addPmProgress(1); // 생성 미션 진행
         renderGrid('board', boardState, boardEl);
         const cell=boardEl.children[targetIdx];
         if(cell&&cell.firstChild) { cell.firstChild.classList.add('pop-anim'); setTimeout(()=>cell.firstChild.classList.remove('pop-anim'),400); }
         // 생성 위치에 이펙트
         setTimeout(() => { spawnItemEffect(cell, isLucky); }, 50);
-        if(isLucky) { setTimeout(()=>{ showFloatText(cell, "Lucky!", "#eab308"); },150); }
+        if(isLucky) { showLuckyEffect(cell); }
     }
 
     function handleCellClick(zone, idx) {
         const s=zone==='board'?boardState:storageState, it=s[idx]; if(!it)return;
         if(it.type==='locked_board') { if(coins>=UNLOCK_COST_BOARD){ coins-=UNLOCK_COST_BOARD; s[idx]=null; showToast("해제!"); updateAll(); } else showToast("코인부족"); }
         else if(it.type==='locked_storage') { if(idx>0 && s[idx-1]?.type==='locked_storage') { showToast("앞 칸부터!"); return; } if(diamonds>=it.cost){ diamonds-=it.cost; s[idx]=null; showToast("확장!"); updateAll(); } else showToast("다이아부족"); }
+        else if(it.type==='upgrade_mission') {
+            const done = genLevels[it.target] >= it.reqLevel;
+            if(done) {
+                // 달성 완료 - 셀 해제
+                s[idx] = null;
+                showToast("미션 완료! 칸 해제!");
+                updateAll();
+            } else {
+                // 미달성 - 업그레이드 탭으로 이동
+                openGuide(it.target);
+                switchGuideTab('upgrade');
+            }
+        }
         else if(it.type.includes('generator')) triggerGen(idx, it);
     }
 
@@ -570,21 +683,39 @@
         document.body.appendChild(ring);
         setTimeout(() => ring.remove(), 500);
         // 작은 파티클
-        const sparkles = isLucky ? ['🌟', '⭐', '✨', '💎'] : ['✨', '·', '•'];
-        for(let i = 0; i < (isLucky ? 8 : 4); i++) {
+        const sparkles = isLucky ? ['🌟', '⭐', '✨', '💎', '🎉'] : ['✨', '·', '•'];
+        const particleCount = isLucky ? 12 : 4;
+        for(let i = 0; i < particleCount; i++) {
             const s = document.createElement('div');
             s.className = 'spawn-particle';
             s.innerText = sparkles[Math.floor(Math.random() * sparkles.length)];
-            s.style.fontSize = isLucky ? '0.9rem' : '0.6rem';
-            const angle = (i / (isLucky ? 8 : 4)) * Math.PI * 2 + Math.random() * 0.5;
-            const dist = 25 + Math.random() * 15;
+            s.style.fontSize = isLucky ? '1.2rem' : '0.6rem';
+            const angle = (i / particleCount) * Math.PI * 2 + Math.random() * 0.5;
+            const dist = isLucky ? (40 + Math.random() * 30) : (25 + Math.random() * 15);
             s.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
             s.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
             s.style.left = `${rect.left + rect.width/2}px`;
             s.style.top = `${rect.top + rect.height/2}px`;
             document.body.appendChild(s);
-            setTimeout(() => s.remove(), 500);
+            setTimeout(() => s.remove(), isLucky ? 700 : 500);
         }
+    }
+
+    function showLuckyEffect(cell) {
+        // 셀 글로우
+        cell.classList.add('lucky-glow');
+        setTimeout(() => cell.classList.remove('lucky-glow'), 800);
+        // 화면 플래시
+        const flash = document.createElement('div');
+        flash.className = 'lucky-flash';
+        document.body.appendChild(flash);
+        setTimeout(() => flash.remove(), 500);
+        // 큰 Lucky! 텍스트
+        const txt = document.createElement('div');
+        txt.className = 'lucky-text';
+        txt.innerText = '✨ Lucky! ✨';
+        document.body.appendChild(txt);
+        setTimeout(() => txt.remove(), 1000);
     }
 
     // --- 그리드 렌더링 ---
@@ -597,6 +728,14 @@
             if(item) {
                 if(item.type==='locked_board') { c.classList.add('locked'); c.innerHTML=`<div class="text-xl opacity-50">🔒</div><div class="text-[8px] font-bold text-gray-500">${UNLOCK_COST_BOARD}🪙</div>`; }
                 else if(item.type==='locked_storage') { c.classList.add('storage-locked'); c.innerHTML=`<div class="text-xl">🔒</div><div class="text-[9px] font-bold mt-1">💎${item.cost}</div>`; }
+                else if(item.type==='upgrade_mission') {
+                    const done = genLevels[item.target] >= item.reqLevel;
+                    const name = item.target === 'cat' ? '캣타워' : '개집';
+                    c.classList.add('upgrade-mission-cell');
+                    if(done) c.classList.add('done');
+                    c.innerHTML=`<div class="text-lg">${done ? '✅' : '🎯'}</div><div class="text-[8px] font-bold">${name} Lv.${item.reqLevel}</div>`;
+                    c.dataset.missionTarget = item.target;
+                }
                 else c.appendChild(createItem(item, zone, i));
             }
         });
@@ -612,8 +751,8 @@
                 if(item.cooldown>Date.now()) specialUI=`<div class="cooldown-overlay"><span>💤</span><span>${Math.ceil((item.cooldown-Date.now())/1000)}s</span></div>`;
                 else specialUI=`<div class="usage-badge">${rem}/6</div>`;
             }
-            if(type==='cat') { emoji='🐱'; label=`고양이 (Lv.${genLevels.cat})`; }
-            else if(type==='dog') { emoji='🐶'; label=`강아지 (Lv.${genLevels.dog})`; }
+            if(type==='cat') { emoji='🐱'; label=`캣타워 (Lv.${genLevels.cat})`; }
+            else if(type==='dog') { emoji='🐶'; label=`개집 (Lv.${genLevels.dog})`; }
             else if(type==='bird') { emoji='🐦'; label='새장'; } else if(type==='fish') { emoji='🐠'; label='어항'; } else if(type==='reptile') { emoji='🦎'; label='사육장'; }
             d.innerHTML=`${specialUI}<div class="animal-inside">${emoji}</div><div class="cage-label">${label}</div><div class="help-btn" data-gen-type="${type}">?</div>`;
             return d;
@@ -631,8 +770,8 @@
     }
 
     // --- UI 업데이트 ---
-    function updateAll() { renderGrid('board',boardState,boardEl); renderGrid('storage',storageState,storageEl); updateUI(); updateTimerUI(); updateQuestUI(); updateSpecialQuestUI(); updateRescueQuestUI(); updateSpecialMissionUI(); }
-    function updateUI() { coinEl.innerText=coins.toLocaleString(); diamondEl.innerText=diamonds.toLocaleString(); energyEl.innerText=energy; levelEl.innerText=`Lv.${userLevel}`; questProgEl.innerText=`${questProgress}/${userLevel*3}`; energyEl.className=energy===0?"text-xs font-bold text-red-500":"text-xs font-bold text-yellow-500"; }
+    function updateAll() { renderGrid('board',boardState,boardEl); renderGrid('storage',storageState,storageEl); updateUI(); updateTimerUI(); updateQuestUI(); updateSpecialQuestUI(); updateRescueQuestUI(); updateSpecialMissionUI(); updatePmUI(); }
+    function updateUI() { coinEl.innerText=coins.toLocaleString(); diamondEl.innerText=diamonds.toLocaleString(); energyEl.innerText=energy; levelEl.innerText=`Lv.${userLevel}`; questProgEl.innerText=`${questProgress}/${userLevel*2}`; energyEl.className=energy===0?"text-xs font-bold text-red-500":"text-xs font-bold text-yellow-500"; }
     function updateTimerUI() { energyTimerEl.innerText=energy>=MAX_ENERGY?"FULL":`${Math.floor(recoveryCountdown/60)}:${(recoveryCountdown%60).toString().padStart(2,'0')}`; }
 
     function updateSpecialQuestUI() {
@@ -640,8 +779,29 @@
         const disp=Math.min(cumulativeCoins,SPECIAL_QUEST_GOAL); cumulativeBar.style.width=`${(disp/SPECIAL_QUEST_GOAL)*100}%`; cumulativeText.innerText=`${Math.floor(disp).toLocaleString()} / ${SPECIAL_QUEST_GOAL.toLocaleString()}`;
     }
     function updateRescueQuestUI() {
-        while(cumulativeRescues>=nextRescueTarget) { if(nextRescueTarget>RESCUE_QUEST_GOAL){ cumulativeRescues-=RESCUE_QUEST_GOAL; nextRescueTarget=RESCUE_QUEST_STEP; showToast("구조 이벤트 리셋!"); } else { coins+=RESCUE_QUEST_REWARD; showToast(`구조 보상! +${RESCUE_QUEST_REWARD}코인`); nextRescueTarget+=RESCUE_QUEST_STEP; showMilestonePopup("구조 목표 달성!","100 코인"); updateUI(); } }
+        while(cumulativeRescues>=nextRescueTarget) { if(nextRescueTarget>RESCUE_QUEST_GOAL){ cumulativeRescues-=RESCUE_QUEST_GOAL; nextRescueTarget=RESCUE_QUEST_STEP; showToast("구조 이벤트 리셋!"); } else { coins+=RESCUE_QUEST_REWARD; showToast(`구조 보상! +${RESCUE_QUEST_REWARD}코인`); nextRescueTarget+=RESCUE_QUEST_STEP; showMilestonePopup("구조 목표 달성!",`${RESCUE_QUEST_REWARD} 코인`); updateUI(); } }
         const disp=Math.min(cumulativeRescues,RESCUE_QUEST_GOAL); rescueBar.style.width=`${(disp/RESCUE_QUEST_GOAL)*100}%`; rescueText.innerText=`${disp} / ${RESCUE_QUEST_GOAL}`;
+    }
+
+    // --- 상시 미션 ---
+    function addPmProgress(type) {
+        if(type !== pmType) return; // 현재 미션 타입이 아니면 무시
+        pmProgress++;
+        if(pmProgress >= PM_GOALS[pmType]) {
+            coins += PM_REWARD;
+            showToast(`상시 미션 완료! +${PM_REWARD}🪙`);
+            showMilestonePopup(PM_TITLES[pmType] + " 완료!", `${PM_REWARD} 코인`);
+            pmProgress = 0;
+            pmType = pmType === 0 ? 1 : 0; // 타입 전환
+            updateUI();
+        }
+        updatePmUI();
+    }
+    function updatePmUI() {
+        const goal = PM_GOALS[pmType];
+        document.getElementById('pm-label').innerText = `${PM_ICONS[pmType]} ${PM_TITLES[pmType]}(${PM_REWARD}🪙)`;
+        document.getElementById('pm-bar').style.width = `${(pmProgress / goal) * 100}%`;
+        document.getElementById('pm-text').innerText = `${pmProgress}/${goal}`;
     }
 
     // --- 유틸리티 ---
@@ -671,8 +831,9 @@
             const hasMax = boardState.some(x => x && x.type === t && x.level === 7);
             // 케이지가 없고 Lv.7도 없으면 생성
             if (!hasGen && !hasMax) { spawnSpecialGenerator(t); }
+            const nameKo = t === 'bird' ? '새' : t === 'fish' ? '물고기' : '파충류';
             if (hasMax) { txt.innerText = "목표달성!"; btn.style.display = "block"; }
-            else { txt.innerText = `Lv.7 ${t}\n만들기`; btn.style.display = "none"; }
+            else { txt.innerText = `Lv.7 ${nameKo}\n만들기`; btn.style.display = "none"; }
         } else {
             c.classList.remove('active');
             txt.innerText = `Lv.${unlockLv}\n오픈`;
@@ -737,6 +898,7 @@
         if(eIdx===-1){ const si=storageState.findIndex(v=>v===null); if(si!==-1){ tz='storage'; eIdx=si; } }
         if(eIdx===-1){ showToast("공간 부족!"); return; }
         diamonds-=p; (tz==='board'?boardState:storageState)[eIdx]={...item};
+        discoverItem(item.type, item.level);
         shopItems[idx]=generateRandomShopItem(getActiveTypes()); showToast("구매 완료!"); updateAll(); renderShop();
     }
 
@@ -864,7 +1026,7 @@
         if(!tIt) { ts[ti]=fIt; ss[fi]=null; return; }
         if(fIt.type===tIt.type && fIt.level===tIt.level) {
             let max=11; if(fIt.type.includes('snack')) max=5; if(['bird','fish','reptile'].includes(fIt.type)) max=7;
-            if(fIt.level<max) { ts[ti]={type:fIt.type, level:fIt.level+1}; ss[fi]=null; setTimeout(()=>{ showFloatText((tz==='board'?boardEl:storageEl).children[ti], "UP!", "#f43f5e"); },50); } else { ts[ti]=fIt; ss[fi]=tIt; }
+            if(fIt.level<max) { const newLv=fIt.level+1; ts[ti]={type:fIt.type, level:newLv}; ss[fi]=null; discoverItem(fIt.type, newLv); addPmProgress(0); setTimeout(()=>{ showFloatText((tz==='board'?boardEl:storageEl).children[ti], "UP!", "#f43f5e"); },50); } else { ts[ti]=fIt; ss[fi]=tIt; }
         } else { ts[ti]=fIt; ss[fi]=tIt; }
     }
     function showFloatText(c,t,col) { if(!c)return; const r=c.getBoundingClientRect(); const d=document.createElement('div'); d.className='floating-text'; d.innerText=t; d.style.color=col; d.style.left=(r.left+r.width/2-10)+'px'; d.style.top=r.top+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),1000); }
@@ -921,18 +1083,11 @@
             }
         }
 
-        // 발견한 동물 체크
-        const discovered = new Set();
-        [...boardState, ...storageState].forEach(item => {
-            if (item && !item.type.includes('locked') && !item.type.includes('generator')) {
-                discovered.add(`${item.type}_${item.level}`);
-            }
-        });
-
+        // 발견한 동물 체크 - 전역 discoveredItems 사용
         let html = '<div class="guide-list">';
         list.forEach(item => {
             const key = `${currentGuideType}${tab === 'snack' ? '_snack' : ''}_${item.level}`;
-            const isDiscovered = discovered.has(key);
+            const isDiscovered = discoveredItems.has(key);
             html += `
                 <div class="guide-item ${isDiscovered ? '' : 'locked'}">
                     <div class="guide-emoji">${item.emoji}</div>
@@ -947,10 +1102,15 @@
 
     function updateUpgradeUI() {
         const type = currentGuideType;
+        const upgradeContent = document.getElementById('upgrade-content');
+        const upgradeMsg = document.getElementById('upgrade-msg');
         if (type !== 'cat' && type !== 'dog') {
-            document.getElementById('upgrade-container').innerHTML = '<div class="text-center text-gray-400 py-8">업그레이드 불가</div>';
+            if(upgradeContent) upgradeContent.style.display = 'none';
+            if(upgradeMsg) upgradeMsg.style.display = 'block';
             return;
         }
+        if(upgradeContent) upgradeContent.style.display = 'block';
+        if(upgradeMsg) upgradeMsg.style.display = 'none';
         const currentLv = genLevels[type];
         const nextLv = Math.min(currentLv + 1, CAGE_MAX_LEVEL);
         document.getElementById('upg-current-lv').innerText = currentLv;
@@ -972,7 +1132,7 @@
         }
         coins -= CAGE_UPGRADE_COST;
         genLevels[type]++;
-        showToast(`${type === 'cat' ? '고양이' : '강아지'} 케이지 Lv.${genLevels[type]}!`);
+        showToast(`${type === 'cat' ? '캣타워' : '개집'} Lv.${genLevels[type]}!`);
         updateUpgradeUI();
         updateAll();
     }
