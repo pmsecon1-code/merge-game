@@ -91,6 +91,16 @@
 - 구조 현장 즉시 초기화 (2초 지연 제거)
   - `apartmentState`가 비어있으면 `initApartment()` 즉시 호출
 
+### 24. 상점 아이템 버그 수정
+- 새/물고기/파충류 간식 생성 방지
+  - `bird_snack`, `fish_snack`, `reptile_snack` 데이터 없음
+  - `generateRandomShopItem()`에서 cat/dog만 간식 생성
+
+### 25. 구조 달성 저장 버그 수정
+- **원인**: 로드 시 타이머 만료되면 `cumulativeRescues=0` 리셋
+- **수정**: 타이머 만료 시 진행도 유지, 타이머만 새로 시작
+  - `d.rescueEndTime <= 0`이면 `RESCUE_TIME_LIMIT_MS`로 재시작
+
 ---
 
 ## 이전 작업 (2026-02-02)
