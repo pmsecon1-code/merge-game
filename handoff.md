@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.2.1)
+# 멍냥 머지 게임 - Architecture (v4.2.2)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.2.1
+- **버전**: 4.2.2
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -372,6 +372,20 @@ SNACK_CHANCE = 0.08       // 8%
 getEnergyPrice() → 500, 600, 700, ...
 ```
 
+### 퀘스트 난이도 (v4.2.2)
+```javascript
+// 유저 레벨에 따른 요구 레벨 스케일링
+baseLevel = 1 + Math.floor(userLevel / 3)  // Lv.1~3 → 1, Lv.4~6 → 2, ...
+maxLevel = baseLevel + 3
+최소 보장: 6개 중 2개는 항상 Lv.3 이하
+
+// 간식 요구 확률
+isSnack = Math.random() < 0.40  // 40%
+
+// 퀘스트 요구 개수
+1~2개 랜덤 (Math.floor(Math.random()*2)+1)
+```
+
 ---
 
 ## 배포
@@ -423,6 +437,12 @@ firebase deploy --only hosting
 ---
 
 ## 변경 이력
+
+### v4.2.2 (2026-02-03)
+- 퀘스트 간식 확률 25% → 40%
+- 미션 셀 드래그 버그 수정
+  - 7행 미션 셀로 아이템 드래그 시 자리 바뀜 방지
+  - `locked` + `mission` 타입 모두 드래그 차단
 
 ### v4.2.1 (2026-02-03)
 - 퀘스트 카드 아이템 정렬 개선
