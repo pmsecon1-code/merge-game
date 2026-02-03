@@ -295,6 +295,17 @@ match /sessions/{userId} {
 | 상시 미션 | 100🪙 |
 | 레벨업 | ceil(레벨/5)×5 💎 (구간제) |
 
+### 도감 시스템 (v4.2.6)
+| 생성기 타입 | 표시 탭 |
+|------------|---------|
+| cat / dog | 동물, 간식, 업그레이드 |
+| bird / fish / reptile | 동물 |
+| toy | 🐱장난감, 🐶장난감 |
+
+- `openGuide(type)`: 타입에 따라 탭 표시/숨김
+- `switchGuideTab(tab)`: 탭 전환 및 목록 렌더링
+- `renderGuideList(tab)`: 발견한 아이템 표시 (NEW 뱃지 10초)
+
 ---
 
 ## 주요 함수 목록
