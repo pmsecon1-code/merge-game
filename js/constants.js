@@ -32,7 +32,7 @@ const SPECIAL_QUEST_REWARD_COINS = 50;
 
 // --- 게임 밸런스 ---
 const CAGE_MAX_LEVEL = 5;
-const SNACK_CHANCE = 0.15;
+const SNACK_CHANCE = 0.08;
 const ANIMAL_HP_DECAY = 2;
 const ANIMAL_HP_DECAY_SEC = 10;
 
