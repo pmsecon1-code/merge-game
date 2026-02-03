@@ -521,6 +521,11 @@
 
         // 7행 미션 복구 (v4.1.6 마이그레이션)
         migrateRow7Missions();
+        // 장난감 생성기 마이그레이션 (v4.2.6)
+        if(userLevel >= 5 && !boardState.some(x => x && x.type === 'toy_generator')) {
+            const e = boardState.findIndex(x => x === null);
+            if(e !== -1) boardState[e] = { type: 'toy_generator', clicks: 0, cooldown: 0 };
+        }
     }
 
     // 7행 미션 마이그레이션: 미달성 상태인데 열려있으면 다시 잠금
@@ -872,13 +877,17 @@
         const maxLvSnack = needEasy ? 4 : Math.min(Math.ceil(minLv / 2) + 2, 5);
         const reqs = []; let sc = 0;
         for(let i=0; i<cnt; i++) {
-            const isSnack = Math.random() < 0.40;
+            const rand = Math.random();
+            const hasToyGen = userLevel >= 5;
+            // 40% 간식, 20% 장난감 (레벨5+), 나머지 동물
+            const isSnack = rand < 0.40;
+            const isToy = !isSnack && hasToyGen && rand < 0.60;
             const base = Math.random() > 0.5 ? 'cat' : 'dog';
-            const type = isSnack ? base + '_snack' : base;
-            const min = isSnack ? 2 : minLv;
-            const max = isSnack ? maxLvSnack : maxLvAnimal;
+            const type = isSnack ? base + '_snack' : (isToy ? base + '_toy' : base);
+            const min = (isSnack || isToy) ? 2 : minLv;
+            const max = (isSnack || isToy) ? maxLvSnack : maxLvAnimal;
             const lv = Math.floor(Math.random() * (max - min + 1)) + min;
-            reqs.push({type, level: lv}); sc += (lv * (isSnack ? 15 : 10));
+            reqs.push({type, level: lv}); sc += (lv * ((isSnack || isToy) ? 15 : 10));
         }
         quests.push({id:questIdCounter++, npc, reqs, reward:20+sc+Math.floor(Math.random()*10), expiresAt:Date.now()+10*60*1000});
         updateQuestUI();
@@ -921,7 +930,7 @@
             if(ok) d.classList.add('ready');
             let h=`<div class="quest-top"><div class="quest-npc">${q.npc}</div><div class="quest-reqs">`;
             q.reqs.forEach(r=>{
-                let l; if(r.type==='cat')l=CATS; else if(r.type==='dog')l=DOGS; else if(r.type.includes('snack')) l=r.type.includes('cat')?CAT_SNACKS:DOG_SNACKS;
+                let l; if(r.type==='cat')l=CATS; else if(r.type==='dog')l=DOGS; else if(r.type.includes('snack')) l=r.type.includes('cat')?CAT_SNACKS:DOG_SNACKS; else if(r.type.includes('toy')) l=r.type.includes('cat')?CAT_TOYS:DOG_TOYS;
                 h+=`<div class="req-item" title="Lv.${r.level}"><span class="text-lg">${l[r.level-1].emoji}</span></div>`;
             });
             const remaining = q.expiresAt ? q.expiresAt - Date.now() : 0;
@@ -945,7 +954,7 @@
         const delArr=(arr)=>{ for(let j=0; j<arr.length; j++){ if(rem.length===0)break; const it=arr[j]; if(it&&!it.type.includes('locked')&&!it.type.includes('generator')){ const idx=rem.findIndex(r=>r.type===it.type&&r.level===it.level); if(idx!==-1){ arr[j]=null; rem.splice(idx,1); } } } };
         delArr(boardState); if(rem.length>0) delArr(storageState);
         coins+=q.reward; cumulativeCoins+=q.reward; questProgress++; totalQuestsCompleted++; checkAutoCompleteMissions(); showToast(`완료! +${q.reward}코인`);
-        if(questProgress>=userLevel*2) { const reward=Math.ceil(userLevel/5)*5; userLevel++; questProgress=0; diamonds+=reward; document.getElementById('levelup-num').innerText=userLevel; document.getElementById('levelup-reward').innerText=reward; document.getElementById('levelup-overlay').style.display='flex'; }
+        if(questProgress>=userLevel*2) { const reward=Math.ceil(userLevel/5)*5; userLevel++; questProgress=0; diamonds+=reward; document.getElementById('levelup-num').innerText=userLevel; document.getElementById('levelup-reward').innerText=reward; document.getElementById('levelup-overlay').style.display='flex'; checkToyGeneratorUnlock(); }
         quests.splice(i,1); generateNewQuest(); updateAll();
     }
 
@@ -1014,6 +1023,30 @@
         if(isLucky) { showLuckyEffect(cell); }
     }
 
+    function spawnToy() {
+        if(energy<=0) { openEnergyPopup(); return; }
+        energy--; updateUI(); updateTimerUI();
+        const empties=[]; boardState.forEach((v,i)=>{ if(v===null) empties.push(i); });
+        if(empties.length===0) { showToast("공간 부족!"); return; }
+        const base = Math.random() > 0.5 ? 'cat' : 'dog';
+        const finalType = base + '_toy';
+        const genIdx = boardState.findIndex(x => x && x.type === 'toy_generator');
+        const genRow = Math.floor(genIdx / GRID_COLS), genCol = genIdx % GRID_COLS;
+        empties.sort((a, b) => {
+            const aRow = Math.floor(a / GRID_COLS), aCol = a % GRID_COLS;
+            const bRow = Math.floor(b / GRID_COLS), bCol = b % GRID_COLS;
+            return (Math.abs(aRow - genRow) + Math.abs(aCol - genCol)) - (Math.abs(bRow - genRow) + Math.abs(bCol - genCol));
+        });
+        const targetIdx = empties[0];
+        boardState[targetIdx] = { type: finalType, level: 1 };
+        discoverItem(finalType, 1);
+        addPmProgress(1);
+        renderGrid('board', boardState, boardEl);
+        const cell = boardEl.children[targetIdx];
+        if(cell && cell.firstChild) { cell.firstChild.classList.add('pop-anim'); setTimeout(()=>cell.firstChild.classList.remove('pop-anim'),400); }
+        setTimeout(() => { spawnItemEffect(cell, false); }, 50);
+    }
+
     function handleCellClick(zone, idx) {
         const s=zone==='board'?boardState:storageState, it=s[idx]; if(!it)return;
         if(it.type==='locked_board') { if(coins>=UNLOCK_COST_BOARD){ coins-=UNLOCK_COST_BOARD; s[idx]=null; showToast("해제!"); updateAll(); } else showToast("코인부족"); }
@@ -1069,6 +1102,11 @@
             if(energy<=0) { openEnergyPopup(); return; }
             item.clicks=(item.clicks||0)+1; if(item.clicks>=6){ item.cooldown=Date.now()+60000; item.clicks=0; showToast("과열! 1분 휴식"); }
             spawnItem(baseType, 1, false);
+        } else if(baseType === 'toy') {
+            if(item.cooldown>Date.now()){ showToast("과열!"); return; }
+            if(energy<=0) { openEnergyPopup(); return; }
+            item.clicks=(item.clicks||0)+1; if(item.clicks>=6){ item.cooldown=Date.now()+60000; item.clicks=0; showToast("과열! 1분 휴식"); }
+            spawnToy();
         } else spawnItem(baseType, 1, false);
     }
     function spawnParticles(cell) {
@@ -1176,7 +1214,7 @@
             const d=document.createElement('div'); d.className='cage-generator';
             let emoji='📦', label='케이지', type=item.type.replace('_generator','');
             let specialUI='';
-            if(['bird','fish','reptile'].includes(type)) {
+            if(['bird','fish','reptile','toy'].includes(type)) {
                 const rem=6-(item.clicks||0);
                 if(item.cooldown>Date.now()) specialUI=`<div class="cooldown-overlay"><span>💤</span><span>${Math.ceil((item.cooldown-Date.now())/1000)}s</span></div>`;
                 else specialUI=`<div class="usage-badge">${rem}/6</div>`;
@@ -1184,13 +1222,15 @@
             if(type==='cat') { emoji='🐱'; label=`캣타워 (Lv.${genLevels.cat})`; }
             else if(type==='dog') { emoji='🐶'; label=`개집 (Lv.${genLevels.dog})`; }
             else if(type==='bird') { emoji='🐦'; label='새장'; } else if(type==='fish') { emoji='🐠'; label='어항'; } else if(type==='reptile') { emoji='🦎'; label='사육장'; }
+            else if(type==='toy') { emoji='🧸'; label='장난감 생성기'; }
             d.innerHTML=`${specialUI}<div class="animal-inside">${emoji}</div><div class="cage-label">${label}</div><div class="help-btn" data-gen-type="${type}">?</div>`;
             return d;
         }
         const d=document.createElement('div'); d.className='item';
-        let list, isSnack=item.type.includes('snack');
+        let list, isSnack=item.type.includes('snack'), isToy=item.type.includes('toy');
         if(item.type==='cat') list=CATS; else if(item.type==='dog') list=DOGS;
         else if(item.type==='cat_snack') list=CAT_SNACKS; else if(item.type==='dog_snack') list=DOG_SNACKS;
+        else if(item.type==='cat_toy') list=CAT_TOYS; else if(item.type==='dog_toy') list=DOG_TOYS;
         else if(item.type==='bird') list=BIRDS; else if(item.type==='fish') list=FISH; else if(item.type==='reptile') list=REPTILES;
         const data=list[item.level-1]||list[list.length-1];
         // NEW 뱃지 체크 (10초 이내)
@@ -1198,7 +1238,7 @@
         const discoveredAt = newlyDiscoveredItems.get(itemKey);
         const isNew = discoveredAt && (Date.now() - discoveredAt < 10000);
         const newBadge = isNew ? '<div class="new-badge">NEW</div>' : '';
-        d.innerHTML=`<div class="${isSnack?'bg-square':'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:${isSnack?'1.5rem':'2rem'}">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div>${newBadge}`;
+        d.innerHTML=`<div class="${(isSnack||isToy)?'bg-square':'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:${(isSnack||isToy)?'1.5rem':'2rem'}">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div>${newBadge}`;
         const sellBtn=document.createElement('div'); sellBtn.className='sell-btn'; sellBtn.innerText='ⓒ';
         sellBtn.onclick=(e)=>askSellItem(zone,index,e); d.appendChild(sellBtn);
         return d;
@@ -1365,6 +1405,16 @@
         }
     }
     function spawnSpecialGenerator(t) { const e=boardState.findIndex(x=>x===null); if(e!==-1){ boardState[e]={type:`${t}_generator`, clicks:0, cooldown:0}; renderGrid('board',boardState,boardEl); showToast("스페셜 케이지 도착!"); } else showToast("공간 부족!"); }
+    function checkToyGeneratorUnlock() {
+        if(userLevel >= 5 && !boardState.some(x => x && x.type === 'toy_generator')) {
+            const e = boardState.findIndex(x => x === null);
+            if(e !== -1) {
+                boardState[e] = { type: 'toy_generator', clicks: 0, cooldown: 0 };
+                renderGrid('board', boardState, boardEl);
+                showToast("🧸 장난감 생성기 해제!");
+            }
+        }
+    }
     function completeSpecialMission(idx) {
         const type=['bird','fish','reptile'][idx]; coins+=500; diamonds+=10; showToast(`완료! +500🪙 +10💎`);
         for(let i=0;i<BOARD_SIZE;i++){ if(boardState[i]&&(boardState[i].type===type||boardState[i].type===`${type}_generator`)) boardState[i]=null; }
@@ -1379,7 +1429,7 @@
     function askSellItem(z, i, e) {
         e.stopPropagation(); const it=z==='board'?boardState[i]:storageState[i]; if(!it)return;
         sellTarget={zone:z, index:i, item:it}; const p=it.level;
-        let list; if(it.type.includes('cat')) list=it.type.includes('snack')?CAT_SNACKS:CATS; else if(it.type.includes('dog')) list=it.type.includes('snack')?DOG_SNACKS:DOGS; else if(it.type.includes('bird')) list=BIRDS; else if(it.type.includes('fish')) list=FISH; else list=REPTILES;
+        let list; if(it.type.includes('cat')) list=it.type.includes('snack')?CAT_SNACKS:(it.type.includes('toy')?CAT_TOYS:CATS); else if(it.type.includes('dog')) list=it.type.includes('snack')?DOG_SNACKS:(it.type.includes('toy')?DOG_TOYS:DOGS); else if(it.type.includes('bird')) list=BIRDS; else if(it.type.includes('fish')) list=FISH; else list=REPTILES;
         const n=(list[it.level-1]||list[list.length-1]).name;
         document.getElementById('sell-desc').innerText=`'${n} (Lv.${it.level})' - ${p}코인`;
         document.getElementById('sell-popup').style.display='flex';
@@ -1399,9 +1449,9 @@
                 if(item.type==='diamond_pack') {
                     d.innerHTML=`<div class="bg-circle" style="background-color:#67e8f9"></div><div style="font-size:1.2rem">💎x${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">🪙${item.price}</div>`;
                 } else {
-                    let list; if(item.type.includes('cat')) list=item.type.includes('snack')?CAT_SNACKS:CATS; else if(item.type.includes('dog')) list=item.type.includes('snack')?DOG_SNACKS:DOGS; else if(item.type.includes('bird')) list=BIRDS; else if(item.type.includes('fish')) list=FISH; else list=REPTILES;
-                    const data=list[item.level-1]||list[list.length-1], isS=item.type.includes('snack');
-                    d.innerHTML=`<div class="${isS?'bg-square':'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:1.2rem">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div><div class="shop-price-tag">💎${item.level}</div>`;
+                    let list; if(item.type.includes('cat')) list=item.type.includes('snack')?CAT_SNACKS:(item.type.includes('toy')?CAT_TOYS:CATS); else if(item.type.includes('dog')) list=item.type.includes('snack')?DOG_SNACKS:(item.type.includes('toy')?DOG_TOYS:DOGS); else if(item.type.includes('bird')) list=BIRDS; else if(item.type.includes('fish')) list=FISH; else list=REPTILES;
+                    const data=list[item.level-1]||list[list.length-1], isS=item.type.includes('snack'), isT=item.type.includes('toy');
+                    d.innerHTML=`<div class="${(isS||isT)?'bg-square':'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:1.2rem">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div><div class="shop-price-tag">💎${item.level}</div>`;
                 }
             } else d.innerHTML=`<span class="text-xs text-gray-400">품절</span>`;
             shopGrid.appendChild(d);
@@ -1550,7 +1600,7 @@
         const ss=fz==='board'?boardState:storageState, ts=tz==='board'?boardState:storageState; const fIt=ss[fi], tIt=ts[ti];
         if(!tIt) { ts[ti]=fIt; ss[fi]=null; return; }
         if(fIt.type===tIt.type && fIt.level===tIt.level) {
-            let max=11; if(fIt.type.includes('snack')) max=5; if(['bird','fish','reptile'].includes(fIt.type)) max=7;
+            let max=11; if(fIt.type.includes('snack') || fIt.type.includes('toy')) max=5; if(['bird','fish','reptile'].includes(fIt.type)) max=7;
             if(fIt.level<max) { const newLv=fIt.level+1; ts[ti]={type:fIt.type, level:newLv}; ss[fi]=null; discoverItem(fIt.type, newLv); addPmProgress(0); checkAutoCompleteMissions(); const cell=(tz==='board'?boardEl:storageEl).children[ti]; setTimeout(()=>{ showFloatText(cell, "UP!", "#f43f5e"); },50); } else { ts[ti]=fIt; ss[fi]=tIt; }
         } else { ts[ti]=fIt; ss[fi]=tIt; }
     }

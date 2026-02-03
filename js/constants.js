@@ -132,6 +132,26 @@ const DOG_SNACKS = [
 ];
 
 // ============================================
+// 장난감 데이터
+// ============================================
+
+const CAT_TOYS = [
+    { level: 1, emoji: "🧶", name: "털실", color: "#fce7f3" },
+    { level: 2, emoji: "🪶", name: "깃털", color: "#fbcfe8" },
+    { level: 3, emoji: "🐭", name: "쥐인형", color: "#f9a8d4" },
+    { level: 4, emoji: "🎣", name: "낚싯대", color: "#f472b6" },
+    { level: 5, emoji: "🏠", name: "숨숨집", color: "#ec4899" }
+];
+
+const DOG_TOYS = [
+    { level: 1, emoji: "🎾", name: "공", color: "#d9f99d" },
+    { level: 2, emoji: "🦆", name: "오리인형", color: "#bef264" },
+    { level: 3, emoji: "🥏", name: "프리스비", color: "#a3e635" },
+    { level: 4, emoji: "🪢", name: "터그로프", color: "#84cc16" },
+    { level: 5, emoji: "🛝", name: "미끄럼틀", color: "#65a30d" }
+];
+
+// ============================================
 // 헬퍼 함수
 // ============================================
 
@@ -146,7 +166,9 @@ function getItemList(type) {
         fish: FISH,
         reptile: REPTILES,
         cat_snack: CAT_SNACKS,
-        dog_snack: DOG_SNACKS
+        dog_snack: DOG_SNACKS,
+        cat_toy: CAT_TOYS,
+        dog_toy: DOG_TOYS
     };
     return lists[type] || null;
 }
