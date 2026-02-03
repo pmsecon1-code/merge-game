@@ -230,6 +230,9 @@ body {
 .quest-npc {
     font-size: 1.1rem;
     line-height: 1;
+    padding-right: 6px;
+    margin-right: 6px;
+    border-right: 2px solid #e2e8f0;
 }
 
 .quest-reqs {
