@@ -84,6 +84,7 @@
     </div>
 
     <!-- 2. 일반 퀘스트 -->
+    <div class="section-label">📋 일반 퀘스트</div>
     <div id="quest-wrapper">
         <button id="quest-prev" class="quest-nav-btn" onclick="scrollQuests(-1)">‹</button>
         <div id="quest-container"></div>
@@ -103,6 +104,7 @@
         </div>
 
         <!-- 5. 스페셜 퀘스트 (새/물고기/파충류) -->
+        <div class="section-label" style="margin:4px 10px 2px;">⭐ 스페셜 퀘스트</div>
         <div id="special-mission-container">
             <div id="sp-mission-0" class="sp-mission-card"><div class="sp-icon">🐦</div><div id="sp-text-0" class="sp-text">Lv.3<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-0" class="sp-btn" onclick="completeSpecialMission(0)">완료!</div></div>
             <div id="sp-mission-1" class="sp-mission-card"><div class="sp-icon">🐠</div><div id="sp-text-1" class="sp-text">Lv.6<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-1" class="sp-btn" onclick="completeSpecialMission(1)">완료!</div></div>
@@ -261,6 +263,8 @@
     let pmType=0, pmProgress=0;
     // 에너지 구매: 3시간마다 리셋, 구매할 때마다 100코인씩 증가
     let energyPurchaseCount=0, energyPurchaseResetTime=Date.now()+3*60*60*1000;
+    // 총 완료한 일반 퀘스트 수
+    let totalQuestsCompleted=0;
 
     // DOM (나중에 init에서 초기화)
     let boardEl, storageEl, apartmentEl, shopGrid;
@@ -457,7 +461,7 @@
         return {
             boardState, storageState, apartmentState,
             coins, cumulativeCoins, nextSpecialTarget,
-            currentSetRescues,
+            currentSetRescues, totalQuestsCompleted,
             diamonds, energy, recoveryCountdown,
             userLevel, questProgress, quests, questIdCounter,
             genLevels, shopItems, shopNextRefresh: shopNextRefresh - Date.now(),
@@ -476,6 +480,7 @@
         cumulativeCoins = d.cumulativeCoins ?? 0;
         nextSpecialTarget = d.nextSpecialTarget ?? SPECIAL_QUEST_STEP;
         currentSetRescues = d.currentSetRescues ?? 0;
+        totalQuestsCompleted = d.totalQuestsCompleted ?? 0;
         diamonds = d.diamonds ?? 0;
         energy = d.energy ?? MAX_ENERGY;
         recoveryCountdown = d.recoveryCountdown ?? RECOVERY_SEC;
@@ -686,12 +691,12 @@
         boardState[0] = { type: 'cat_generator' };
         boardState[4] = { type: 'dog_generator' };
 
-        // 7행 잠금
+        // 7행 미션
         boardState[30] = { type: 'upgrade_mission', target: 'cat', reqLevel: 2 };
         boardState[31] = { type: 'upgrade_mission', target: 'dog', reqLevel: 2 };
-        for (let i = 32; i < 35; i++) {
-            boardState[i] = { type: 'locked_board' };
-        }
+        boardState[32] = { type: 'animal_mission', target: 'cat', reqLevel: 11 }; // 사자
+        boardState[33] = { type: 'animal_mission', target: 'dog', reqLevel: 11 }; // 북극곰
+        boardState[34] = { type: 'quest_count_mission', reqCount: 100 }; // 퀘스트 100개
 
         // 아파트 초기화
         initApartment();
@@ -887,7 +892,7 @@
         const q=quests[i], rem=[...q.reqs];
         const delArr=(arr)=>{ for(let j=0; j<arr.length; j++){ if(rem.length===0)break; const it=arr[j]; if(it&&!it.type.includes('locked')&&!it.type.includes('generator')){ const idx=rem.findIndex(r=>r.type===it.type&&r.level===it.level); if(idx!==-1){ arr[j]=null; rem.splice(idx,1); } } } };
         delArr(boardState); if(rem.length>0) delArr(storageState);
-        coins+=q.reward; cumulativeCoins+=q.reward; questProgress++; showToast(`완료! +${q.reward}코인`);
+        coins+=q.reward; cumulativeCoins+=q.reward; questProgress++; totalQuestsCompleted++; checkAutoCompleteMissions(); showToast(`완료! +${q.reward}코인`);
         if(questProgress>=userLevel*2) { userLevel++; questProgress=0; diamonds+=userLevel*5; document.getElementById('levelup-num').innerText=userLevel; document.getElementById('levelup-reward').innerText=userLevel*5; document.getElementById('levelup-overlay').style.display='flex'; }
         quests.splice(i,1); generateNewQuest(); updateAll();
     }
@@ -951,6 +956,28 @@
                 // 미달성 - 업그레이드 탭으로 이동
                 openGuide(it.target);
                 switchGuideTab('upgrade');
+            }
+        }
+        else if(it.type==='animal_mission') {
+            const list = it.target === 'cat' ? CATS : DOGS;
+            const targetData = list[it.reqLevel - 1];
+            const done = boardState.some(b => b && b.type === it.target && b.level >= it.reqLevel) || storageState.some(st => st && st.type === it.target && st.level >= it.reqLevel);
+            if(done) {
+                s[idx] = null;
+                showToast(`${targetData.name} 미션 완료! 칸 해제!`);
+                updateAll();
+            } else {
+                showToast(`${targetData.name}를 만들어주세요!`);
+            }
+        }
+        else if(it.type==='quest_count_mission') {
+            const done = totalQuestsCompleted >= it.reqCount;
+            if(done) {
+                s[idx] = null;
+                showToast("퀘스트 미션 완료! 칸 해제!");
+                updateAll();
+            } else {
+                showToast(`퀘스트 ${totalQuestsCompleted}/${it.reqCount} 완료`);
             }
         }
         else if(it.type.includes('generator')) triggerGen(idx, it);
@@ -1052,6 +1079,21 @@
                     c.innerHTML=`<div class="text-lg">${done ? '✅' : '🎯'}</div><div class="text-[8px] font-bold">${name} Lv.${item.reqLevel}</div>`;
                     c.dataset.missionTarget = item.target;
                 }
+                else if(item.type==='animal_mission') {
+                    const list = item.target === 'cat' ? CATS : DOGS;
+                    const maxLv = list.length;
+                    const targetData = list[item.reqLevel - 1];
+                    const done = boardState.some(b => b && b.type === item.target && b.level >= item.reqLevel) || storageState.some(s => s && s.type === item.target && s.level >= item.reqLevel);
+                    c.classList.add('upgrade-mission-cell');
+                    if(done) c.classList.add('done');
+                    c.innerHTML=`<div class="text-lg">${done ? '✅' : targetData.emoji}</div><div class="text-[8px] font-bold">${targetData.name} 만들기</div>`;
+                }
+                else if(item.type==='quest_count_mission') {
+                    const done = totalQuestsCompleted >= item.reqCount;
+                    c.classList.add('upgrade-mission-cell');
+                    if(done) c.classList.add('done');
+                    c.innerHTML=`<div class="text-lg">${done ? '✅' : '📋'}</div><div class="text-[8px] font-bold">퀘스트 ${item.reqCount}개</div>`;
+                }
                 else c.appendChild(createItem(item, zone, i));
             }
         });
@@ -1132,6 +1174,32 @@
         document.getElementById('pm-label').innerText = `${PM_ICONS[pmType]} ${PM_TITLES[pmType]}(${PM_REWARD}🪙)`;
         document.getElementById('pm-bar').style.width = `${(pmProgress / goal) * 100}%`;
         document.getElementById('pm-text').innerText = `${pmProgress}/${goal}`;
+    }
+
+    // --- 미션 자동 완료 체크 ---
+    function checkAutoCompleteMissions() {
+        let changed = false;
+        boardState.forEach((item, idx) => {
+            if (!item) return;
+            if (item.type === 'animal_mission') {
+                const hasAnimal = boardState.some(b => b && b.type === item.target && b.level >= item.reqLevel) ||
+                                  storageState.some(s => s && s.type === item.target && s.level >= item.reqLevel);
+                if (hasAnimal) {
+                    const list = item.target === 'cat' ? CATS : DOGS;
+                    const targetData = list[item.reqLevel - 1];
+                    boardState[idx] = null;
+                    showToast(`${targetData.name} 미션 완료! 칸 해제!`);
+                    changed = true;
+                }
+            } else if (item.type === 'quest_count_mission') {
+                if (totalQuestsCompleted >= item.reqCount) {
+                    boardState[idx] = null;
+                    showToast("퀘스트 미션 완료! 칸 해제!");
+                    changed = true;
+                }
+            }
+        });
+        return changed;
     }
 
     // --- 유틸리티 ---
@@ -1411,7 +1479,7 @@
         if(!tIt) { ts[ti]=fIt; ss[fi]=null; return; }
         if(fIt.type===tIt.type && fIt.level===tIt.level) {
             let max=11; if(fIt.type.includes('snack')) max=5; if(['bird','fish','reptile'].includes(fIt.type)) max=7;
-            if(fIt.level<max) { const newLv=fIt.level+1; ts[ti]={type:fIt.type, level:newLv}; ss[fi]=null; discoverItem(fIt.type, newLv); addPmProgress(0); const cell=(tz==='board'?boardEl:storageEl).children[ti]; setTimeout(()=>{ showFloatText(cell, "UP!", "#f43f5e"); },50); } else { ts[ti]=fIt; ss[fi]=tIt; }
+            if(fIt.level<max) { const newLv=fIt.level+1; ts[ti]={type:fIt.type, level:newLv}; ss[fi]=null; discoverItem(fIt.type, newLv); addPmProgress(0); checkAutoCompleteMissions(); const cell=(tz==='board'?boardEl:storageEl).children[ti]; setTimeout(()=>{ showFloatText(cell, "UP!", "#f43f5e"); },50); } else { ts[ti]=fIt; ss[fi]=tIt; }
         } else { ts[ti]=fIt; ss[fi]=tIt; }
     }
     function showFloatText(c,t,col) { if(!c)return; const r=c.getBoundingClientRect(); const d=document.createElement('div'); d.className='floating-text'; d.innerText=t; d.style.color=col; d.style.left=(r.left+r.width/2-10)+'px'; d.style.top=r.top+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),1000); }
