@@ -856,9 +856,8 @@
         // 쉬운 퀘스트가 2개 미만이면 강제로 쉬운 퀘스트 생성
         const needEasy = forceEasy || countEasyQuests() < 2;
         const npc=NPC_AVATARS[Math.floor(Math.random()*NPC_AVATARS.length)];
-        // 레벨별 난이도 스케일링
-        const twoItemChance = Math.min(0.3 + userLevel * 0.05, 0.8); // 30%~80%
-        const cnt = Math.random() < twoItemChance ? 2 : 1;
+        // 항상 2개 아이템 요구
+        const cnt = 2;
         const minLv = needEasy ? 4 : Math.min(Math.max(2, Math.floor(userLevel / 2)), 6);
         const maxLvAnimal = needEasy ? 5 : Math.min(minLv + 3 + Math.floor(userLevel / 4), 10);
         const maxLvSnack = needEasy ? 4 : Math.min(Math.ceil(minLv / 2) + 2, 5);
