@@ -1123,18 +1123,17 @@
                 }
                 else if(item.type==='animal_mission') {
                     const list = item.target === 'cat' ? CATS : DOGS;
-                    const maxLv = list.length;
                     const targetData = list[item.reqLevel - 1];
                     const done = boardState.some(b => b && b.type === item.target && b.level >= item.reqLevel) || storageState.some(s => s && s.type === item.target && s.level >= item.reqLevel);
                     c.classList.add('upgrade-mission-cell');
                     if(done) c.classList.add('done');
-                    c.innerHTML=`<div class="text-lg">${done ? '✅' : targetData.emoji}</div><div class="text-[8px] font-bold">${targetData.name} 만들기</div>`;
+                    c.innerHTML=`<div class="text-lg">${done ? '✅' : targetData.emoji}</div><div class="text-[8px] font-bold text-center">${targetData.name}<br>만들기</div>`;
                 }
                 else if(item.type==='quest_count_mission') {
                     const done = totalQuestsCompleted >= item.reqCount;
                     c.classList.add('upgrade-mission-cell');
                     if(done) c.classList.add('done');
-                    c.innerHTML=`<div class="text-lg">${done ? '✅' : '📋'}</div><div class="text-[8px] font-bold">일반 퀘스트<br>${totalQuestsCompleted}/${item.reqCount}</div>`;
+                    c.innerHTML=`<div class="text-lg">${done ? '✅' : '📋'}</div><div class="text-[8px] font-bold text-center">일반 퀘스트<br>${totalQuestsCompleted}/${item.reqCount}</div>`;
                 }
                 else c.appendChild(createItem(item, zone, i));
             }
