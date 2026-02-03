@@ -90,6 +90,14 @@ body {
     border: 2px solid #a78bfa;
 }
 
+#pm-label {
+    white-space: nowrap;
+}
+
+#pm-text {
+    white-space: nowrap;
+}
+
 #pm-bar {
     height: 100%;
     width: 0%;
