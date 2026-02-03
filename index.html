@@ -506,7 +506,7 @@
         recoveryCountdown = d.recoveryCountdown ?? RECOVERY_SEC;
         userLevel = d.userLevel ?? 1;
         questProgress = d.questProgress ?? 0;
-        quests = d.quests || [];
+        quests = (d.quests || []).map(q => ({ ...q, expiresAt: q.expiresAt || Date.now() + 10*60*1000 }));
         questIdCounter = d.questIdCounter ?? 0;
         genLevels = d.genLevels || {cat:1, dog:1};
         shopItems = d.shopItems || shopItems;
@@ -797,6 +797,7 @@
         startAnimalHPTimer();
         startRescueTimer();
         startCooldownTimer();
+        startQuestTimer();
 
         // 드래그 이벤트 등록
         document.addEventListener('mousedown', handleDragStart);
@@ -879,7 +880,7 @@
             const lv = Math.floor(Math.random() * (max - min + 1)) + min;
             reqs.push({type, level: lv}); sc += (lv * (isSnack ? 15 : 10));
         }
-        quests.push({id:questIdCounter++, npc, reqs, reward:20+sc+Math.floor(Math.random()*10)});
+        quests.push({id:questIdCounter++, npc, reqs, reward:20+sc+Math.floor(Math.random()*10), expiresAt:Date.now()+10*60*1000});
         updateQuestUI();
     }
 
@@ -923,7 +924,9 @@
                 let l; if(r.type==='cat')l=CATS; else if(r.type==='dog')l=DOGS; else if(r.type.includes('snack')) l=r.type.includes('cat')?CAT_SNACKS:DOG_SNACKS;
                 h+=`<div class="req-item" title="Lv.${r.level}"><span class="text-lg">${l[r.level-1].emoji}</span></div>`;
             });
-            h+=`</div></div><div class="text-[9px] text-yellow-600 mb-1">보상: ${q.reward}🪙</div><div class="quest-btn ${ok?'complete':'incomplete'}" onclick="${ok?`completeQuest(${i})`:''}">${ok?'완료!':'구해줘'}</div>`;
+            const remaining = q.expiresAt ? q.expiresAt - Date.now() : 0;
+            const timerText = remaining > 0 ? formatQuestTimer(remaining) : '만료';
+            h+=`</div></div><div class="flex justify-between text-[9px] mb-1"><span class="text-yellow-600">보상: ${q.reward}🪙</span><span class="text-gray-400">⏱${timerText}</span></div><div class="quest-btn ${ok?'complete':'incomplete'}" onclick="${ok?`completeQuest(${i})`:''}">${ok?'완료!':'구해줘'}</div>`;
             d.innerHTML=h; questContainer.appendChild(d);
         });
         // 버튼 상태 업데이트
@@ -944,6 +947,27 @@
         coins+=q.reward; cumulativeCoins+=q.reward; questProgress++; totalQuestsCompleted++; checkAutoCompleteMissions(); showToast(`완료! +${q.reward}코인`);
         if(questProgress>=userLevel*2) { const reward=Math.ceil(userLevel/5)*5; userLevel++; questProgress=0; diamonds+=reward; document.getElementById('levelup-num').innerText=userLevel; document.getElementById('levelup-reward').innerText=reward; document.getElementById('levelup-overlay').style.display='flex'; }
         quests.splice(i,1); generateNewQuest(); updateAll();
+    }
+
+    function checkExpiredQuests() {
+        const now = Date.now();
+        let changed = false;
+        for(let i = quests.length - 1; i >= 0; i--) {
+            if(quests[i].expiresAt && now >= quests[i].expiresAt) {
+                quests.splice(i, 1);
+                generateNewQuest();
+                changed = true;
+            }
+        }
+        if(changed) updateQuestUI();
+    }
+
+    function formatQuestTimer(ms) {
+        if(ms <= 0) return '0:00';
+        const sec = Math.floor(ms / 1000);
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
     }
 
     // --- 아이템 생성 ---
@@ -1656,6 +1680,12 @@
             const remainSec = Math.ceil(minHp / ANIMAL_HP_DECAY) * ANIMAL_HP_DECAY_SEC;
             const m = Math.floor(remainSec / 60), s = remainSec % 60;
             rescueTimerEl.innerText = `${m}:${s.toString().padStart(2,'0')}`;
+        }, 1000);
+    }
+    function startQuestTimer() {
+        setInterval(() => {
+            checkExpiredQuests();
+            updateQuestUI();
         }, 1000);
     }
 
