@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.2.4)
+# 멍냥 머지 게임 - Architecture (v4.2.5)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.2.4
+- **버전**: 4.2.5
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -438,6 +438,13 @@ firebase deploy --only hosting
 ---
 
 ## 변경 이력
+
+### v4.2.5 (2026-02-03)
+- 일반 퀘스트 10분 타이머 추가
+  - 각 퀘스트에 `expiresAt` 타임스탬프 저장
+  - 퀘스트 카드에 남은 시간 표시 (⏱m:ss)
+  - 만료 시 자동 삭제 → 새 퀘스트 생성
+  - `startQuestTimer()`: 1초마다 만료 체크 및 UI 업데이트
 
 ### v4.2.4 (2026-02-03)
 - 레벨업 보상 구간제 도입
