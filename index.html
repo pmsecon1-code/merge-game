@@ -111,7 +111,7 @@
     <!-- 4-1. 레벨업 진행도 -->
     <div id="levelup-progress-bar" class="event-bar">
         <div class="flex justify-between items-center mb-1">
-            <span class="text-[10px] font-bold text-blue-600">📋 일반 퀘스트 완료하기 (Lv.업 + 💎)</span>
+            <span class="text-[10px] font-bold text-blue-600">📋 일반 퀘스트 완료하기 (Lv.업 + <span id="levelup-reward-preview">5</span>💎)</span>
             <span id="levelup-progress-text" class="text-[9px] text-blue-500 font-bold">0/2</span>
         </div>
         <div class="progress-track">
@@ -942,7 +942,7 @@
         const delArr=(arr)=>{ for(let j=0; j<arr.length; j++){ if(rem.length===0)break; const it=arr[j]; if(it&&!it.type.includes('locked')&&!it.type.includes('generator')){ const idx=rem.findIndex(r=>r.type===it.type&&r.level===it.level); if(idx!==-1){ arr[j]=null; rem.splice(idx,1); } } } };
         delArr(boardState); if(rem.length>0) delArr(storageState);
         coins+=q.reward; cumulativeCoins+=q.reward; questProgress++; totalQuestsCompleted++; checkAutoCompleteMissions(); showToast(`완료! +${q.reward}코인`);
-        if(questProgress>=userLevel*2) { userLevel++; questProgress=0; diamonds+=userLevel*5; document.getElementById('levelup-num').innerText=userLevel; document.getElementById('levelup-reward').innerText=userLevel*5; document.getElementById('levelup-overlay').style.display='flex'; }
+        if(questProgress>=userLevel*2) { const reward=Math.ceil(userLevel/5)*5; userLevel++; questProgress=0; diamonds+=reward; document.getElementById('levelup-num').innerText=userLevel; document.getElementById('levelup-reward').innerText=reward; document.getElementById('levelup-overlay').style.display='flex'; }
         quests.splice(i,1); generateNewQuest(); updateAll();
     }
 
@@ -1183,7 +1183,7 @@
     // --- UI 업데이트 ---
     function updateAll() { renderGrid('board',boardState,boardEl); renderGrid('storage',storageState,storageEl); renderShop(); renderApartment(); updateUI(); updateTimerUI(); updateQuestUI(); updateSpecialQuestUI(); updateRescueQuestUI(); updateSpecialMissionUI(); updatePmUI(); saveGame(); }
     function updateUI() { coinEl.innerText=coins.toLocaleString(); diamondEl.innerText=diamonds.toLocaleString(); energyEl.innerText=energy; levelEl.innerText=`Lv.${userLevel}`; energyEl.className=energy===0?"text-xs font-bold text-red-500":"text-xs font-bold text-yellow-500"; updateLevelupProgressUI(); }
-    function updateLevelupProgressUI() { const goal=userLevel*2; document.getElementById('levelup-progress-text').innerText=`${questProgress}/${goal}`; document.getElementById('levelup-progress-fill').style.width=`${(questProgress/goal)*100}%`; }
+    function updateLevelupProgressUI() { const goal=userLevel*2; const reward=Math.ceil(userLevel/5)*5; document.getElementById('levelup-progress-text').innerText=`${questProgress}/${goal}`; document.getElementById('levelup-progress-fill').style.width=`${(questProgress/goal)*100}%`; document.getElementById('levelup-reward-preview').innerText=reward; }
     function updateTimerUI() { energyTimerEl.innerText=energy>=MAX_ENERGY?"FULL":`${Math.floor(recoveryCountdown/60)}:${(recoveryCountdown%60).toString().padStart(2,'0')}`; }
 
     function updateSpecialQuestUI() {
