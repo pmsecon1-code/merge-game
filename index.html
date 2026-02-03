@@ -339,23 +339,23 @@
     const googleProvider = new firebase.auth.GoogleAuthProvider();
 
     // 로그인 버튼 클릭
-    function startGoogleLogin() {
+    async function startGoogleLogin() {
         console.log('[Auth] startGoogleLogin called');
         document.getElementById('login-status').textContent = '로그인 처리 중...';
         document.getElementById('login-status').classList.remove('hidden');
         document.getElementById('google-login-btn').disabled = true;
 
-        console.log('[Auth] Calling signInWithRedirect...');
-        auth.signInWithRedirect(googleProvider)
-            .then(() => {
-                console.log('[Auth] Redirect initiated');
-            })
-            .catch((e) => {
-                console.error('[Auth] signInWithRedirect error:', e);
-                alert('로그인 실패: ' + e.message);
-                document.getElementById('login-status').textContent = '로그인 실패: ' + e.message;
-                document.getElementById('google-login-btn').disabled = false;
-            });
+        try {
+            // 팝업 방식으로 로그인
+            console.log('[Auth] Calling signInWithPopup...');
+            const result = await auth.signInWithPopup(googleProvider);
+            console.log('[Auth] Popup login success:', result.user.email);
+        } catch (e) {
+            console.error('[Auth] Login error:', e);
+            alert('로그인 실패: ' + e.message);
+            document.getElementById('login-status').textContent = '로그인 실패';
+            document.getElementById('google-login-btn').disabled = false;
+        }
     }
 
     // 상단바 로그인/로그아웃 버튼
