@@ -845,12 +845,12 @@
             const d=document.createElement('div'); d.className='quest-card';
             const ok = canComplete(q);
             if(ok) d.classList.add('ready');
-            let h=`<div class="quest-npc">${q.npc}</div><div class="quest-reqs">`;
+            let h=`<div class="quest-top"><div class="quest-npc">${q.npc}</div><div class="quest-divider"></div><div class="quest-reqs">`;
             q.reqs.forEach(r=>{
                 let l; if(r.type==='cat')l=CATS; else if(r.type==='dog')l=DOGS; else if(r.type.includes('snack')) l=r.type.includes('cat')?CAT_SNACKS:DOG_SNACKS;
                 h+=`<div class="req-item" title="Lv.${r.level}"><span class="text-lg">${l[r.level-1].emoji}</span></div>`;
             });
-            h+=`</div><div class="text-[9px] text-yellow-600 mb-1">보상: ${q.reward}🪙</div><div class="quest-btn ${ok?'complete':'incomplete'}" onclick="${ok?`completeQuest(${i})`:''}">${ok?'완료!':'구해줘'}</div>`;
+            h+=`</div></div><div class="text-[9px] text-yellow-600 mb-1">보상: ${q.reward}🪙</div><div class="quest-btn ${ok?'complete':'incomplete'}" onclick="${ok?`completeQuest(${i})`:''}">${ok?'완료!':'구해줘'}</div>`;
             d.innerHTML=h; questContainer.appendChild(d);
         });
         // 버튼 상태 업데이트

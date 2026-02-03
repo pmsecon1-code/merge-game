@@ -227,12 +227,24 @@ body {
     100% { border-color: #ff0000; }
 }
 
+.quest-top {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    justify-content: center;
+}
+
 .quest-npc {
     font-size: 1.1rem;
     line-height: 1;
-    padding-right: 6px;
-    margin-right: 6px;
-    border-right: 2px solid #e2e8f0;
+}
+
+.quest-divider {
+    width: 2px;
+    height: 20px;
+    background: #e2e8f0;
+    border-radius: 1px;
 }
 
 .quest-reqs {
