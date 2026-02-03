@@ -806,15 +806,15 @@
         // 레벨별 난이도 스케일링
         const twoItemChance = Math.min(0.3 + userLevel * 0.05, 0.8); // 30%~80%
         const cnt = Math.random() < twoItemChance ? 2 : 1;
-        const minLv = needEasy ? 2 : Math.min(Math.max(2, Math.floor(userLevel / 2)), 6);
-        const maxLvAnimal = needEasy ? 3 : Math.min(minLv + 3 + Math.floor(userLevel / 4), 10);
-        const maxLvSnack = needEasy ? 3 : Math.min(Math.ceil(minLv / 2) + 2, 5);
+        const minLv = needEasy ? 4 : Math.min(Math.max(2, Math.floor(userLevel / 2)), 6);
+        const maxLvAnimal = needEasy ? 5 : Math.min(minLv + 3 + Math.floor(userLevel / 4), 10);
+        const maxLvSnack = needEasy ? 4 : Math.min(Math.ceil(minLv / 2) + 2, 5);
         const reqs = []; let sc = 0;
         for(let i=0; i<cnt; i++) {
             const isSnack = Math.random() < 0.25;
             const base = Math.random() > 0.5 ? 'cat' : 'dog';
             const type = isSnack ? base + '_snack' : base;
-            const min = isSnack ? Math.max(2, minLv - 1) : minLv;
+            const min = isSnack ? 2 : minLv;
             const max = isSnack ? maxLvSnack : maxLvAnimal;
             const lv = Math.floor(Math.random() * (max - min + 1)) + min;
             reqs.push({type, level: lv}); sc += (lv * (isSnack ? 15 : 10));
