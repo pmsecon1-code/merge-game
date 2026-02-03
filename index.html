@@ -407,7 +407,8 @@
         if (user) {
             try {
                 currentUser = user;
-                document.getElementById('login-text').innerText = user.displayName?.split(' ')[0] || '유저';
+                const name = user.displayName?.split(' ')[0] || '유저';
+                document.getElementById('login-text').innerText = name.length > 3 ? name.substring(0, 3) : name;
 
                 // 항상 새 세션 등록 (로그인 시마다)
                 console.log('[Auth] Registering session...');
