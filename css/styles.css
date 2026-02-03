@@ -230,9 +230,9 @@ body {
 .quest-top {
     display: flex;
     align-items: center;
-    gap: 4px;
     width: 100%;
     justify-content: center;
+    gap: 8px;
 }
 
 .quest-npc {
@@ -248,11 +248,15 @@ body {
     display: flex;
     gap: 2px;
     flex-wrap: nowrap;
+    min-width: 50px;
+    justify-content: flex-start;
 }
 
 .req-item {
     font-size: 1.2rem;
     flex-shrink: 0;
+    width: 24px;
+    text-align: center;
 }
 
 .quest-btn {
