@@ -168,7 +168,7 @@
         <p class="text-xs text-blue-500 mb-4">🔄 가격 리셋: <span id="energy-reset-timer" class="font-mono font-bold">00:00:00</span></p>
         <p id="energy-err" class="text-xs text-red-500 font-bold mb-2 hidden"></p>
         <div class="flex gap-2 justify-center">
-            <button onclick="closeOverlay('energy-popup')" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">취소</button>
+            <button onclick="closeEnergyPopup()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">취소</button>
             <button onclick="buyEnergy()" class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold shadow-md"><span id="energy-price">500</span>🪙 구매</button>
         </div>
     </div>
@@ -1154,14 +1154,30 @@
         const s = Math.floor((ms % 60000) / 1000);
         return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
     }
+    let energyPopupTimer = null;
+    function updateEnergyPopupTimer() {
+        const remaining = energyPurchaseResetTime - Date.now();
+        document.getElementById('energy-reset-timer').innerText = formatTime(remaining);
+        if (remaining <= 0) {
+            // 리셋 발생 - 가격 업데이트
+            const price = getEnergyPrice();
+            document.getElementById('energy-price').innerText = price;
+        }
+    }
     function openEnergyPopup() {
         const price = getEnergyPrice();
-        const remaining = energyPurchaseResetTime - Date.now();
         document.getElementById('popup-coin-val').innerText=coins.toLocaleString();
         document.getElementById('energy-price').innerText=price;
-        document.getElementById('energy-reset-timer').innerText=formatTime(remaining);
+        updateEnergyPopupTimer();
         document.getElementById('energy-err').classList.add('hidden');
         document.getElementById('energy-popup').style.display='flex';
+        // 실시간 타이머 시작
+        if (energyPopupTimer) clearInterval(energyPopupTimer);
+        energyPopupTimer = setInterval(updateEnergyPopupTimer, 1000);
+    }
+    function closeEnergyPopup() {
+        if (energyPopupTimer) { clearInterval(energyPopupTimer); energyPopupTimer = null; }
+        closeOverlay('energy-popup');
     }
     function buyEnergy() {
         const price = getEnergyPrice();
@@ -1171,7 +1187,7 @@
             energy=MAX_ENERGY;
             recoveryCountdown=RECOVERY_SEC;
             energyPurchaseCount++;
-            closeOverlay('energy-popup');
+            closeEnergyPopup();
             showToast("충전 완료!");
             updateUI(); updateTimerUI(); saveGame();
         } else {
