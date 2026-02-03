@@ -347,8 +347,15 @@ MAX_ENERGY = 100
 RECOVERY_SEC = 30
 SHOP_REFRESH_MS = 300000  // 5분
 UNLOCK_COST_BOARD = 100
-ENERGY_COST = 500
 RESCUE_QUEST_REWARD = 1000
+SNACK_CHANCE = 0.08       // 8%
+```
+
+### 에너지 구매 (v4.1.5)
+```javascript
+// 가격 = 500 + 구매횟수 × 100
+// 3시간마다 리셋
+getEnergyPrice() → 500, 600, 700, ...
 ```
 
 ---
