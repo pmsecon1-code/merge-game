@@ -81,16 +81,16 @@ body {
     border: 2px solid #60a5fa;
 }
 
+#storage-wrapper {
+    border: 2px solid #10b981;
+}
+
 /* 상시 미션 바 */
 #persistent-mission-bar {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: white;
     border: 2px solid #a78bfa;
-    border-radius: 8px;
-    padding: 6px 10px;
-    margin-top: 4px;
     font-size: 0.75rem;
     font-weight: bold;
 }
