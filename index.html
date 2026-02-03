@@ -164,11 +164,12 @@
     <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-yellow-300">
         <div class="text-5xl mb-3">⚡</div><h2 class="text-2xl font-bold text-gray-800 mb-2">에너지 부족!</h2>
         <p class="text-sm text-gray-500 mb-2">에너지 100개 충전</p>
-        <p class="text-xs text-yellow-600 font-bold mb-4">보유: <span id="popup-coin-val">0</span>🪙</p>
+        <p class="text-xs text-yellow-600 font-bold mb-2">보유: <span id="popup-coin-val">0</span>🪙</p>
+        <p class="text-xs text-blue-500 mb-4">🔄 가격 리셋: <span id="energy-reset-timer" class="font-mono font-bold">00:00:00</span></p>
         <p id="energy-err" class="text-xs text-red-500 font-bold mb-2 hidden"></p>
         <div class="flex gap-2 justify-center">
             <button onclick="closeOverlay('energy-popup')" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">취소</button>
-            <button onclick="buyEnergy()" class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold shadow-md"><span>500🪙</span> 구매</button>
+            <button onclick="buyEnergy()" class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold shadow-md"><span id="energy-price">500</span>🪙 구매</button>
         </div>
     </div>
 </div>
@@ -258,6 +259,8 @@
     let specialMissionCycles=[0,0,0], isTutorialActive=true;
     // 상시 미션: 0=합성, 1=생성
     let pmType=0, pmProgress=0;
+    // 에너지 구매: 3시간마다 리셋, 구매할 때마다 100코인씩 증가
+    let energyPurchaseCount=0, energyPurchaseResetTime=Date.now()+3*60*60*1000;
 
     // DOM (나중에 init에서 초기화)
     let boardEl, storageEl, apartmentEl, shopGrid;
@@ -460,6 +463,7 @@
             genLevels, shopItems, shopNextRefresh: shopNextRefresh - Date.now(),
             discoveredItems: [...discoveredItems],
             specialMissionCycles, pmType, pmProgress,
+            energyPurchaseCount, energyPurchaseResetTime: energyPurchaseResetTime - Date.now(),
             isTutorialActive, savedAt: Date.now()
         };
     }
@@ -486,6 +490,8 @@
         specialMissionCycles = d.specialMissionCycles || [0,0,0];
         pmType = d.pmType ?? 0;
         pmProgress = d.pmProgress ?? 0;
+        energyPurchaseCount = d.energyPurchaseCount ?? 0;
+        energyPurchaseResetTime = Date.now() + (d.energyPurchaseResetTime ?? 3*60*60*1000);
         isTutorialActive = d.isTutorialActive ?? true;
     }
 
@@ -1133,8 +1139,46 @@
     function showMilestonePopup(t,r){ document.getElementById('milestone-text').innerText=t; document.getElementById('milestone-reward').innerText=r; document.getElementById('milestone-overlay').style.display='flex'; }
     function closeOverlay(id){ document.getElementById(id).style.display='none'; }
     function giveSpecialReward() { coins+=SPECIAL_QUEST_REWARD_COINS; updateUI(); }
-    function openEnergyPopup() { document.getElementById('popup-coin-val').innerText=coins.toLocaleString(); document.getElementById('energy-err').classList.add('hidden'); document.getElementById('energy-popup').style.display='flex'; }
-    function buyEnergy() { document.getElementById('energy-err').classList.add('hidden'); if(coins>=ENERGY_COST){ coins-=ENERGY_COST; energy=MAX_ENERGY; recoveryCountdown=RECOVERY_SEC; closeOverlay('energy-popup'); showToast("충전 완료!"); updateUI(); updateTimerUI(); } else { document.getElementById('energy-err').innerText="코인 부족!"; document.getElementById('energy-err').classList.remove('hidden'); } }
+    function getEnergyPrice() {
+        // 3시간 리셋 체크
+        if (Date.now() >= energyPurchaseResetTime) {
+            energyPurchaseCount = 0;
+            energyPurchaseResetTime = Date.now() + 3*60*60*1000;
+        }
+        return 500 + energyPurchaseCount * 100;
+    }
+    function formatTime(ms) {
+        if (ms <= 0) return '00:00:00';
+        const h = Math.floor(ms / 3600000);
+        const m = Math.floor((ms % 3600000) / 60000);
+        const s = Math.floor((ms % 60000) / 1000);
+        return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+    function openEnergyPopup() {
+        const price = getEnergyPrice();
+        const remaining = energyPurchaseResetTime - Date.now();
+        document.getElementById('popup-coin-val').innerText=coins.toLocaleString();
+        document.getElementById('energy-price').innerText=price;
+        document.getElementById('energy-reset-timer').innerText=formatTime(remaining);
+        document.getElementById('energy-err').classList.add('hidden');
+        document.getElementById('energy-popup').style.display='flex';
+    }
+    function buyEnergy() {
+        const price = getEnergyPrice();
+        document.getElementById('energy-err').classList.add('hidden');
+        if(coins>=price){
+            coins-=price;
+            energy=MAX_ENERGY;
+            recoveryCountdown=RECOVERY_SEC;
+            energyPurchaseCount++;
+            closeOverlay('energy-popup');
+            showToast("충전 완료!");
+            updateUI(); updateTimerUI(); saveGame();
+        } else {
+            document.getElementById('energy-err').innerText="코인 부족!";
+            document.getElementById('energy-err').classList.remove('hidden');
+        }
+    }
 
     // --- 스페셜 미션 ---
     // 슬롯별 활성화 레벨: 슬롯0(새)=3,12,21..., 슬롯1(물고기)=6,15,24..., 슬롯2(파충류)=9,18,27...
