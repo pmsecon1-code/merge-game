@@ -1,0 +1,1120 @@
+/* ============================================
+   styles.css - 게임 스타일시트
+   ============================================ */
+
+/* --- 기본 스타일 --- */
+body {
+    font-family: 'Jua', sans-serif;
+    touch-action: pan-y;
+    user-select: none;
+    background-color: #fdf2f8;
+    overflow-y: auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#game-container {
+    width: 100%;
+    max-width: 420px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+/* ============================================
+   1. 상단바
+   ============================================ */
+.status-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    height: 40px;
+    scrollbar-width: none;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    flex-shrink: 0;
+    height: 28px;
+    font-size: 0.8rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* ============================================
+   2. 이벤트 진행바
+   ============================================ */
+.event-bar {
+    width: 95%;
+    background: white;
+    border-radius: 10px;
+    padding: 4px 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0 auto;
+}
+
+#special-quest-bar {
+    border: 2px solid #fcd34d;
+}
+
+#rescue-quest-bar {
+    border: 2px solid #60a5fa;
+}
+
+/* 상시 미션 바 */
+#persistent-mission-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 2px solid #a78bfa;
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+#pm-label {
+    color: #7c3aed;
+    white-space: nowrap;
+}
+
+#pm-progress-wrap {
+    flex: 1;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#pm-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #c4b5fd, #8b5cf6);
+    transition: width 0.3s;
+}
+
+#pm-text {
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+/* 진행 트랙 */
+.progress-track {
+    width: 100%;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease-out;
+}
+
+#cumulative-bar {
+    background: linear-gradient(90deg, #fcd34d, #f59e0b);
+}
+
+#rescue-bar {
+    background: linear-gradient(90deg, #60a5fa, #2563eb);
+}
+
+.milestone-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(255,255,255,0.8);
+    z-index: 10;
+}
+
+/* ============================================
+   3. 퀘스트 카드
+   ============================================ */
+#quest-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 4px;
+    flex-shrink: 0;
+}
+
+.quest-nav-btn {
+    width: 24px;
+    height: 60px;
+    background: #e2e8f0;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.2rem;
+    color: #64748b;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.quest-nav-btn:hover {
+    background: #cbd5e1;
+}
+
+.quest-nav-btn:active {
+    background: #94a3b8;
+}
+
+.quest-nav-btn:disabled {
+    background: #f1f5f9;
+    color: #cbd5e1;
+    cursor: default;
+}
+
+#quest-container {
+    flex: 1;
+    display: flex;
+    gap: 6px;
+    overflow: hidden;
+}
+
+.quest-card {
+    background: white;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    flex: 1;
+    min-width: 0;
+    aspect-ratio: 1.4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px;
+    position: relative;
+    box-shadow: 0 2px 2px rgba(0,0,0,0.05);
+}
+
+.quest-card.ready {
+    background-color: #fff1f2;
+    transform: translateY(-2px);
+    animation: rainbow-border 2s linear infinite;
+}
+
+@keyframes rainbow-border {
+    0% { border-color: #ff0000; }
+    14% { border-color: #ff7f00; }
+    28% { border-color: #ffff00; }
+    42% { border-color: #00ff00; }
+    57% { border-color: #0000ff; }
+    71% { border-color: #4b0082; }
+    85% { border-color: #9400d3; }
+    100% { border-color: #ff0000; }
+}
+
+.quest-npc {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.quest-reqs {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.req-item {
+    font-size: 0.8rem;
+}
+
+.quest-btn {
+    width: 100%;
+    padding: 1px 0;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    text-align: center;
+    cursor: default;
+}
+
+.quest-btn.incomplete {
+    background: #f3f4f6;
+    color: #9ca3af;
+}
+
+.quest-btn.complete {
+    background: #f43f5e;
+    color: white;
+    animation: pulse 1.5s infinite;
+    cursor: pointer;
+}
+
+/* ============================================
+   4. 보드 래퍼
+   ============================================ */
+#board-wrapper {
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    background: #fbcfe8;
+    position: relative;
+    margin: 0 auto;
+}
+
+/* 스페셜 미션 헤더 */
+#special-mission-container {
+    width: 100%;
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    padding: 4px;
+    background: #f1f5f9;
+    border-bottom: 1px solid #cbd5e1;
+}
+
+.sp-mission-card {
+    flex: 1;
+    background: white;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    height: 70px;
+    opacity: 0.6;
+    transition: all 0.3s;
+}
+
+.sp-mission-card.active {
+    opacity: 1;
+    border-color: #8b5cf6;
+    background: #f5f3ff;
+    box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
+}
+
+.sp-icon {
+    font-size: 1.4rem;
+}
+
+.sp-text {
+    font-size: 0.6rem;
+    color: #64748b;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.sp-reward-text {
+    font-size: 0.5rem;
+    color: #7c3aed;
+    font-weight: bold;
+}
+
+.sp-btn {
+    display: none;
+    margin-top: 2px;
+    background: #8b5cf6;
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    animation: pulse 1s infinite;
+}
+
+/* ============================================
+   5. 구조 현장 (아파트)
+   ============================================ */
+#apartment-area {
+    background: #cbd5e1;
+    border-top: 4px solid #64748b;
+    border-bottom: 4px solid #64748b;
+    padding: 8px;
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    position: relative;
+}
+
+#apartment-area::before {
+    content: '🔥 구조 현장 🔥';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+.apt-room {
+    background: #334155;
+    border: 2px solid #94a3b8;
+    border-radius: 6px;
+    aspect-ratio: 1.1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.apt-room.empty {
+    background: #1e293b;
+    opacity: 0.5;
+    cursor: default;
+}
+
+.apt-room.rescued {
+    background: linear-gradient(135deg, #86efac, #4ade80);
+    border-color: #22c55e;
+    cursor: default;
+}
+
+.rescued-badge {
+    position: absolute;
+    top: 4px;
+    background: #22c55e;
+    color: white;
+    font-size: 0.55rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    z-index: 20;
+}
+
+.help-bubble {
+    position: absolute;
+    top: 25%;
+    right: -10px;
+    background: white;
+    color: #ef4444;
+    font-size: 0.6rem;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 8px;
+    border: 2px solid #ef4444;
+    z-index: 30;
+    animation: bubble-pop 1.5s ease-out forwards;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.help-bubble::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -6px;
+    transform: translateY(-50%);
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-right: 6px solid #ef4444;
+}
+
+@keyframes bubble-pop {
+    0% { transform: scale(0); opacity: 0; }
+    20% { transform: scale(1.2); opacity: 1; }
+    40% { transform: scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+
+.fire-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(239,68,68,0.5) 0%, transparent 80%);
+    animation: burn 0.5s infinite alternate;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.status-badge {
+    background: white;
+    border-radius: 4px;
+    padding: 1px 4px;
+    font-size: 0.6rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    z-index: 20;
+    position: absolute;
+}
+
+.fire-badge {
+    top: 2px;
+    color: #ef4444;
+}
+
+.hp-badge {
+    bottom: 2px;
+    color: #16a34a;
+}
+
+.fire-icon {
+    font-size: 1.2rem;
+    animation: fireFloat 0.5s ease-in-out infinite alternate;
+    z-index: 15;
+}
+
+@keyframes fireFloat {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-3px) scale(1.1); }
+}
+
+/* ============================================
+   6. 메인 보드
+   ============================================ */
+#scroll-area {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    width: 100%;
+}
+
+#game-board {
+    grid-template-rows: repeat(7, 1fr);
+}
+
+#game-board .cell {
+    aspect-ratio: 1 / 1 !important;
+    width: 100%;
+    height: auto;
+}
+
+/* ============================================
+   7. 상점
+   ============================================ */
+#shop-area {
+    background: #fffbeb;
+    border-top: 4px solid #f59e0b;
+    padding: 8px;
+    flex-shrink: 0;
+    z-index: 15;
+    position: relative;
+}
+
+#shop-area::before {
+    content: '🛒 상점 🛒';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f59e0b;
+    color: white;
+    font-size: 0.7rem;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+#shop-timer-badge {
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    background: #f59e0b;
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.shop-cell {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #fde68a;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    aspect-ratio: 1;
+    cursor: pointer;
+}
+
+.shop-cell:active {
+    transform: scale(0.95);
+}
+
+.shop-price-tag {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(0,0,0,0.7);
+    color: #22d3ee;
+    font-size: 0.6rem;
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+/* ============================================
+   8. 창고
+   ============================================ */
+#storage-area {
+    background: #e2e8f0;
+    border-top: 4px solid #94a3b8;
+    padding: 8px;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+/* ============================================
+   9. 셀 공통
+   ============================================ */
+.cell {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    aspect-ratio: 1;
+}
+
+.cell.locked {
+    background: rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    flex-direction: column;
+}
+
+.storage-locked {
+    background: repeating-linear-gradient(45deg, #cbd5e1, #cbd5e1 10px, #94a3b8 10px, #94a3b8 20px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #475569;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+}
+
+.upgrade-mission-cell {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 2px dashed #f59e0b;
+    cursor: pointer;
+    flex-direction: column;
+}
+
+.upgrade-mission-cell.done {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border: 2px solid #10b981;
+}
+
+/* ============================================
+   10. 아이템
+   ============================================ */
+.item {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: grab;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+.bg-circle {
+    position: absolute;
+    width: 85%;
+    height: 85%;
+    border-radius: 50%;
+    opacity: 0.5;
+    z-index: -1;
+}
+
+.bg-square {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    border-radius: 20%;
+    opacity: 0.6;
+    z-index: -1;
+    border: 2px dashed rgba(255,255,255,0.5);
+}
+
+.level-badge {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 0.5rem;
+    padding: 0 3px;
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+.sell-btn {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 14px;
+    height: 14px;
+    background: #fbbf24;
+    border: 1px solid #d97706;
+    color: white;
+    border-radius: 50%;
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 50;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* ============================================
+   11. 케이지 (생성기)
+   ============================================ */
+.cage-generator {
+    width: 95%;
+    height: 95%;
+    background: #f1f5f9;
+    border: 2px solid #64748b;
+    border-radius: 6px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+    overflow: hidden;
+    box-shadow: 0 3px 0 #475569;
+    cursor: grab;
+}
+
+.cage-generator:active {
+    cursor: grabbing;
+}
+
+.cage-generator::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(100,116,139,0.6) 10px, rgba(100,116,139,0.6) 13px);
+}
+
+.cage-label {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: #64748b;
+    color: white;
+    font-size: 0.5rem;
+    text-align: center;
+    z-index: 3;
+}
+
+.animal-inside {
+    z-index: 1;
+    filter: grayscale(0.2);
+}
+
+.help-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 14px;
+    height: 14px;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+    color: #64748b;
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 50;
+}
+
+.cooldown-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 20;
+    color: white;
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 6px;
+}
+
+.usage-badge {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    font-size: 0.5rem;
+    padding: 1px 3px;
+    border-radius: 4px;
+    z-index: 40;
+    pointer-events: none;
+}
+
+/* ============================================
+   12. 애니메이션
+   ============================================ */
+.pop-anim {
+    animation: pop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes pop {
+    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+    50% { transform: scale(1.3) rotate(10deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.spawn-particle {
+    position: absolute;
+    pointer-events: none;
+    font-size: 1rem;
+    animation: particle-burst 0.6s ease-out forwards;
+    z-index: 100;
+}
+
+@keyframes particle-burst {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
+.spawn-ring {
+    position: fixed;
+    pointer-events: none;
+    width: 10px;
+    height: 10px;
+    border: 3px solid #f472b6;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: ring-expand 0.5s ease-out forwards;
+    z-index: 99;
+}
+
+.spawn-ring.lucky {
+    border-color: #fbbf24;
+    border-width: 6px;
+    box-shadow: 0 0 20px #fbbf24, 0 0 40px #f59e0b;
+    animation: ring-expand-lucky 0.7s ease-out forwards;
+}
+
+@keyframes ring-expand {
+    0% { width: 10px; height: 10px; opacity: 1; }
+    100% { width: 60px; height: 60px; opacity: 0; }
+}
+
+@keyframes ring-expand-lucky {
+    0% { width: 10px; height: 10px; opacity: 1; }
+    100% { width: 100px; height: 100px; opacity: 0; }
+}
+
+.lucky-glow {
+    animation: lucky-glow 0.8s ease-out;
+}
+
+@keyframes lucky-glow {
+    0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.8); }
+    50% { box-shadow: 0 0 30px 15px rgba(251, 191, 36, 0.6); }
+    100% { box-shadow: none; }
+}
+
+.lucky-flash {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle, rgba(251,191,36,0.4) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1000;
+    animation: flash-fade 0.5s ease-out forwards;
+}
+
+@keyframes flash-fade {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.lucky-text {
+    position: fixed;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    font-weight: bold;
+    color: #fbbf24;
+    text-shadow: 0 0 10px #f59e0b, 0 0 20px #fbbf24, 2px 2px 0 #92400e;
+    pointer-events: none;
+    z-index: 1001;
+    animation: lucky-text-anim 1s ease-out forwards;
+}
+
+@keyframes lucky-text-anim {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    30% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1); }
+    100% { transform: translate(-50%, -50%) translateY(-30px); opacity: 0; }
+}
+
+.cage-shake {
+    animation: cage-shake 0.3s ease-in-out;
+}
+
+@keyframes cage-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px) rotate(-2deg); }
+    40% { transform: translateX(4px) rotate(2deg); }
+    60% { transform: translateX(-3px) rotate(-1deg); }
+    80% { transform: translateX(3px) rotate(1deg); }
+}
+
+.floating-text {
+    position: absolute;
+    font-weight: bold;
+    font-size: 1.2rem;
+    pointer-events: none;
+    animation: floatUp 1s forwards;
+    z-index: 100;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-50px); opacity: 0; }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+@keyframes burn {
+    0% { opacity: 0.5; }
+    100% { opacity: 0.8; }
+}
+
+/* ============================================
+   13. 튜토리얼
+   ============================================ */
+.tutorial-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ef4444;
+    color: white;
+    font-weight: bold;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+    animation: pulse-scale 1s infinite;
+    z-index: 50;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+@keyframes pulse-scale {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+/* ============================================
+   14. 오버레이
+   ============================================ */
+.overlay-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.95);
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.overlay-content {
+    animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: 80%;
+    max-width: 300px;
+}
+
+/* ============================================
+   15. 토스트
+   ============================================ */
+#toast {
+    position: fixed;
+    bottom: 32px;
+    background: #1f2937;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 3000;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+/* ============================================
+   16. 도감 모달
+   ============================================ */
+.clip-triangle {
+    clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 2500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    width: 90%;
+    max-width: 320px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: pop 0.3s ease-out;
+}
+
+.tab-container {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 8px 4px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    background: #f43f5e;
+    color: white;
+}
+
+.guide-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.guide-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 4px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.guide-item.locked {
+    opacity: 0.4;
+    filter: grayscale(1);
+}
+
+.guide-emoji {
+    font-size: 1.5rem;
+}
+
+.guide-name {
+    font-size: 0.6rem;
+    color: #475569;
+    margin-top: 2px;
+}
+
+.guide-level {
+    font-size: 0.5rem;
+    color: #94a3b8;
+}
+
+/* ============================================
+   17. 룰렛
+   ============================================ */
+#roulette-wheel {
+    background: conic-gradient(
+        #dbeafe 0deg 60deg,
+        #3b82f6 60deg 120deg,
+        #93c5fd 120deg 180deg,
+        #60a5fa 180deg 240deg,
+        #1d4ed8 240deg 300deg,
+        #1e3a8a 300deg 360deg
+    );
+}
+
+.roulette-label {
+    position: absolute;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    transform-origin: center center;
+    pointer-events: none;
+}

@@ -1,5 +1,77 @@
 # 멍냥 머지 게임 - Handoff
 
+## 2026-02-03 작업 내용
+
+### 28. Firebase 아키텍처 전면 개선
+
+#### P0: 중복 로그인 처리 수정
+- **문제**: `getRedirectResult` + `onAuthStateChanged` 둘 다 실행 → `loadFromCloud()` 2번 호출
+- **해결**: `authProcessed` 플래그로 중복 방지
+- **공통 함수**: `handleLoginSuccess(user, isNewLogin)` 도입
+
+#### P1: 저장 Race Condition 수정
+- **문제**: `saveToCloud`가 `await` 없이 호출 → 순서 꼬임
+- **해결**:
+  - 클라우드 저장 500ms 디바운스
+  - `cloudSavePromise`로 순차 저장 보장
+  - 중요 액션용 `saveGameNow()` 함수 추가
+
+#### P1: 저장 시점 최적화
+- 페이지 이탈 시 `beforeunload`로 localStorage 즉시 저장
+- 탭 비활성화 시 `visibilitychange`로 클라우드 저장
+- 세션 체크 탭 활성화 시에만 실행
+
+#### P2: 에러 핸들링 및 피드백
+- **저장 상태 UI**: 상단바 💾 아이콘
+  - ⏳: 저장 중
+  - ✓: 저장 완료
+  - ✗: 저장 실패
+  - 📴: 오프라인
+- **오프라인 감지**: `online`/`offline` 이벤트 리스너
+- **재시도 로직**: 저장 실패 시 1회 자동 재시도
+
+### 29. 모바일 로그인 지원
+- PC: `signInWithPopup` (팝업)
+- 모바일: `signInWithRedirect` (페이지 이동)
+- User-Agent 기반 자동 분기
+
+### 30. 크로스 디바이스 동기화
+- **문제**: 새 기기에서 로그인 시 로컬 데이터가 더 최신으로 인식
+- **해결**: `hadLocalSave` 플래그
+  - 새 기기 (localStorage 없음) → 클라우드 무조건 로드
+  - 기존 기기 → 타임스탬프 비교
+
+### 31. 단일 세션 정책
+- **세션 관리**: Firestore `sessions/{uid}` 컬렉션
+- **동작**:
+  - 로그인 시 `registerSession()` → 고유 세션 ID 저장
+  - 10초마다 `checkSession()` (탭 활성화 시만)
+  - 다른 기기 로그인 시 기존 기기 자동 로그아웃
+
+### 32. 보안 강화
+- **Firestore 보안 규칙 파일 생성**: `firestore.rules`
+  - 인증 검증 (`isAuthenticated`, `isOwner`)
+  - 숫자 범위 검증 (coins 0~999만, energy 0~100 등)
+  - 배열 크기 검증 (boardState 35칸, storageState 10칸 등)
+  - 타임스탬프 검증 (미래 시간 방지)
+- **클라이언트 데이터 검증**: `validateGameData()` 함수
+- **적용 필요**: Firebase Console에서 규칙 배포
+
+### 33. 파일 분리 (코드 모듈화)
+- **css/styles.css** (신규)
+  - 모든 인라인 CSS 분리 (600+ 줄)
+  - 섹션별 구조화 (상단바, 퀘스트, 보드, 상점 등)
+- **js/constants.js** (신규)
+  - 게임 상수 (GRID_*, SHOP_*, ENERGY_* 등)
+  - 동물/간식 데이터 (CATS, DOGS, BIRDS, FISH, REPTILES)
+  - 헬퍼 함수 (`getItemList`, `getMaxLevel`, `getItemData` 등)
+- **index.html**
+  - 외부 파일 import 추가
+  - 중복 상수/CSS 제거
+  - 게임 로직만 유지
+
+---
+
 ## 2026-02-02 작업 내용 (계속)
 
 ### 12. 도감 시스템 개선
@@ -153,6 +225,17 @@
 | 8 | 상점 |
 | 9 | 창고 |
 
+### 파일 구조
+```
+merge2/
+├── index.html          # 메인 (HTML + 게임 로직)
+├── css/
+│   └── styles.css      # 모든 CSS (600+ 줄)
+├── js/
+│   └── constants.js    # 상수 + 데이터 + 헬퍼
+└── firestore.rules     # Firebase 보안 규칙
+```
+
 ### 시스템 상태
 | 시스템 | 상태 |
 |--------|------|
@@ -163,7 +246,28 @@
 | 스페셜 미션 | 새/물고기/파충류 (Lv.3,6,9 + 9n 순환) |
 | 일반 퀘스트 | 6개, 자동 정렬, 새 완료 가능 시 자동 이동 |
 | 상시 미션 | 합성 100회 ↔ 생성 200회, 100🪙 |
-| 저장 | localStorage + Firebase (Google 로그인 시) |
+| 저장 | localStorage + Firebase (500ms 디바운스) |
+| 세션 | 단일 세션 정책 (다른 기기 로그인 시 기존 로그아웃) |
+
+### Firebase 구조
+| 컬렉션 | 문서 | 용도 |
+|--------|------|------|
+| `saves` | `{uid}` | 게임 전체 상태 |
+| `sessions` | `{uid}` | 세션 관리 (단일 로그인) |
+
+### 저장 흐름
+```
+[일반 액션]
+updateAll() → saveGame() → localStorage (즉시)
+                        → Firestore (500ms 디바운스)
+
+[중요 액션 (구조 성공 등)]
+saveGameNow() → localStorage + Firestore (즉시)
+
+[페이지 이탈]
+beforeunload → localStorage (즉시)
+visibilitychange (탭 전환) → saveGameNow()
+```
 
 ### 퀘스트 자동 이동 로직
 ```
@@ -208,6 +312,12 @@ prevReadyCount = readyCount
 - [x] 게임 저장/불러오기 (localStorage) ✅
 - [x] GitHub Pages 배포 ✅
 - [x] Firebase 클라우드 저장 ✅
+- [x] 크로스 디바이스 동기화 ✅
+- [x] 단일 세션 정책 ✅
+- [x] 저장 아키텍처 개선 (P0~P2) ✅
+- [x] 보안 강화 (Firestore 규칙, 데이터 검증) ✅
+- [x] 파일 분리 (CSS, 상수) ✅
+- [ ] Firebase Console에서 firestore.rules 배포
 - [ ] 사운드 효과 추가
 - [ ] 밸런스 테스트
 - [ ] 모바일 최적화 검증

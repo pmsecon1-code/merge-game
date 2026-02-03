@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 공통 함수: 인증 확인
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // 공통 함수: 본인 문서 확인
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // 공통 함수: 숫자 범위 검증
+    function isValidNumber(value, min, max) {
+      return value is number && value >= min && value <= max;
+    }
+
+    // 공통 함수: 배열 크기 검증
+    function isValidArray(value, maxSize) {
+      return value is list && value.size() <= maxSize;
+    }
+
+    // ========================================
+    // 게임 저장 데이터 (/saves/{userId})
+    // ========================================
+    match /saves/{userId} {
+      // 읽기: 본인만 가능
+      allow read: if isOwner(userId);
+
+      // 쓰기: 본인만 + 데이터 검증
+      allow write: if isOwner(userId) && isValidSaveData(request.resource.data);
+
+      // 저장 데이터 검증 함수
+      function isValidSaveData(data) {
+        return data.keys().hasAll(['coins', 'diamonds', 'energy', 'userLevel', 'savedAt'])
+          // 숫자 필드 범위 검증
+          && isValidNumber(data.coins, 0, 9999999)           // 코인: 0 ~ 999만
+          && isValidNumber(data.diamonds, 0, 99999)          // 다이아: 0 ~ 9만
+          && isValidNumber(data.energy, 0, 100)              // 에너지: 0 ~ 100
+          && isValidNumber(data.userLevel, 1, 999)           // 레벨: 1 ~ 999
+          && isValidNumber(data.cumulativeCoins, 0, 9999999) // 누적코인
+          && isValidNumber(data.currentSetRescues, 0, 3)     // 구조 진행: 0~3
+          && isValidNumber(data.questProgress, 0, 100)       // 퀘스트 진행
+          && isValidNumber(data.pmProgress, 0, 200)          // 상시미션 진행
+          // 배열 크기 검증
+          && isValidArray(data.boardState, 35)               // 보드: 최대 35칸
+          && isValidArray(data.storageState, 10)             // 창고: 최대 10칸
+          && isValidArray(data.apartmentState, 5)            // 구조현장: 최대 5칸
+          && isValidArray(data.quests, 10)                   // 퀘스트: 최대 10개
+          && isValidArray(data.shopItems, 10)                // 상점: 최대 10개
+          && isValidArray(data.discoveredItems, 100)         // 도감: 최대 100개
+          // 타임스탬프 검증 (미래 시간 방지)
+          && data.savedAt <= request.time.toMillis() + 60000; // 1분 여유
+      }
+    }
+
+    // ========================================
+    // 세션 관리 (/sessions/{userId})
+    // ========================================
+    match /sessions/{userId} {
+      // 읽기: 본인만 가능
+      allow read: if isOwner(userId);
+
+      // 쓰기: 본인만 + 데이터 검증
+      allow write: if isOwner(userId) && isValidSessionData(request.resource.data);
+
+      // 세션 데이터 검증 함수
+      function isValidSessionData(data) {
+        return data.keys().hasAll(['sessionId', 'loginAt'])
+          && data.sessionId is string
+          && data.sessionId.size() <= 50              // 세션 ID 길이 제한
+          && data.loginAt is number
+          && data.loginAt <= request.time.toMillis() + 60000; // 미래 시간 방지
+      }
+    }
+
+    // ========================================
+    // 기타 모든 문서: 접근 거부
+    // ========================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
