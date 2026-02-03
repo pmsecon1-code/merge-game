@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.1.7)
+# 멍냥 머지 게임 - Architecture (v4.1.8)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.1.7
+- **버전**: 4.1.8
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -423,6 +423,11 @@ firebase deploy --only hosting
 ---
 
 ## 변경 이력
+
+### v4.1.8 (2026-02-03)
+- 상시 미션 UI를 누적 코인/구조 현장 스타일로 통일
+  - flex 레이아웃 (라벨 좌측, 진행도 우측)
+  - progress-track 프로그레스바 적용
 
 ### v4.1.7 (2026-02-03)
 - UI 통일: 모든 섹션 event-bar 스타일 적용
