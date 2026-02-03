@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.1.5)
+# 멍냥 머지 게임 - Architecture (v4.1.6)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.1.5
+- **버전**: 4.1.6
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -178,6 +178,7 @@ v4.x: 클라우드 데이터만 사용 (로컬은 백업용)
   questProgress: number,
   quests: [{id, type, reqs, reward}, ...],
   currentSetRescues: number,
+  totalQuestsCompleted: number,   // 총 완료한 퀘스트 수 (v4.1.6)
 
   // 생성기
   genLevels: {cat: number, dog: number},
@@ -238,10 +239,10 @@ match /sessions/{userId} {
 | 0 | 로그인 화면 (비로그인 시) |
 | 1 | 상단바 (에너지, 코인, 다이아, 레벨, 로그아웃) |
 | 2 | 👑 누적 코인 (1000 달성 시 보상) |
-| 3 | 일반 퀘스트 (6개, 3개씩 페이지) |
+| 3 | 📋 일반 퀘스트 (라벨 + 6개, 3개씩 페이지) |
 | 4 | 맵 (5×7 = 35칸) |
 | 5 | 🔨 상시 미션 |
-| 6 | 스페셜 퀘스트 (🐦🐠🦎) |
+| 6 | ⭐ 스페셜 퀘스트 (라벨 + 🐦🐠🦎) |
 | 7 | 🚑 구조 현장 (3마리) |
 | 8 | 상점 (5칸) |
 | 9 | 창고 (5칸) |
@@ -254,8 +255,20 @@ match /sessions/{userId} {
 [15][16][17][18][19]
 [20][21][22][23][24]
 [25][26][27][28][29]
-[30][31][32][33][34]   ← 미션(30,31 자동해제), 잠금(32~34)
+[30][31][32][33][34]   ← 7행 미션 (아래 참조)
 ```
+
+### 7행 미션 (v4.1.6)
+| 칸 | 타입 | 조건 |
+|----|------|------|
+| 30 | upgrade_mission | 캣타워 Lv.2 |
+| 31 | upgrade_mission | 개집 Lv.2 |
+| 32 | animal_mission | 🦁 사자 만들기 (cat Lv.11) |
+| 33 | animal_mission | 🐻‍❄️ 북극곰 만들기 (dog Lv.11) |
+| 34 | quest_count_mission | 퀘스트 100개 완료 |
+
+- 조건 달성 시 자동 해제 (클릭 불필요)
+- `checkAutoCompleteMissions()` 함수가 합성/퀘스트 완료 시 자동 체크
 
 ### 생성기 (케이지)
 | 타입 | 이름 | 최대 레벨 | 생성물 |
@@ -325,6 +338,7 @@ match /sessions/{userId} {
 | `spawnItem()` | 동물/간식 생성 |
 | `mergeItems()` | 아이템 합성 |
 | `upgradeGenerator()` | 생성기 업그레이드 + 미션 자동 완료 |
+| `checkAutoCompleteMissions()` | 7행 미션 자동 완료 체크 |
 | `updateAll()` | 전체 UI 갱신 + 저장 |
 
 ---
@@ -409,6 +423,15 @@ firebase deploy --only hosting
 ---
 
 ## 변경 이력
+
+### v4.1.6 (2026-02-03)
+- 7행 미션 타입 확장 (animal_mission, quest_count_mission)
+  - 32번 칸: 사자(Lv.11) 만들기
+  - 33번 칸: 북극곰(Lv.11) 만들기
+  - 34번 칸: 퀘스트 100개 완료
+- 섹션 라벨 추가 (📋 일반 퀘스트, ⭐ 스페셜 퀘스트)
+- 미션 자동 완료 기능 (checkAutoCompleteMissions)
+- totalQuestsCompleted 변수 추가
 
 ### v4.1.5 (2026-02-03)
 - 에너지 구매 가격 증가 시스템 (500 + 구매횟수×100, 3시간 리셋)

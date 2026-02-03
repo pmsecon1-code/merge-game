@@ -69,7 +69,11 @@ body {
     margin: 0 auto;
 }
 
-#special-quest-bar {
+#quest-area {
+    border: 2px solid #c084fc;
+}
+
+#special-quest-area {
     border: 2px solid #fcd34d;
 }
 
@@ -166,7 +170,6 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 0 4px;
     flex-shrink: 0;
 }
 

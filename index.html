@@ -84,11 +84,13 @@
     </div>
 
     <!-- 2. 일반 퀘스트 -->
-    <div class="section-label">📋 일반 퀘스트</div>
-    <div id="quest-wrapper">
-        <button id="quest-prev" class="quest-nav-btn" onclick="scrollQuests(-1)">‹</button>
-        <div id="quest-container"></div>
-        <button id="quest-next" class="quest-nav-btn" onclick="scrollQuests(1)">›</button>
+    <div id="quest-area" class="event-bar">
+        <span class="text-[10px] font-bold text-purple-600">📋 일반 퀘스트</span>
+        <div id="quest-wrapper">
+            <button id="quest-prev" class="quest-nav-btn" onclick="scrollQuests(-1)">‹</button>
+            <div id="quest-container"></div>
+            <button id="quest-next" class="quest-nav-btn" onclick="scrollQuests(1)">›</button>
+        </div>
     </div>
 
     <div id="board-wrapper">
@@ -104,11 +106,13 @@
         </div>
 
         <!-- 5. 스페셜 퀘스트 (새/물고기/파충류) -->
-        <div class="section-label" style="margin:4px 10px 2px;">⭐ 스페셜 퀘스트</div>
-        <div id="special-mission-container">
-            <div id="sp-mission-0" class="sp-mission-card"><div class="sp-icon">🐦</div><div id="sp-text-0" class="sp-text">Lv.3<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-0" class="sp-btn" onclick="completeSpecialMission(0)">완료!</div></div>
-            <div id="sp-mission-1" class="sp-mission-card"><div class="sp-icon">🐠</div><div id="sp-text-1" class="sp-text">Lv.6<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-1" class="sp-btn" onclick="completeSpecialMission(1)">완료!</div></div>
-            <div id="sp-mission-2" class="sp-mission-card"><div class="sp-icon">🦎</div><div id="sp-text-2" class="sp-text">Lv.9<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-2" class="sp-btn" onclick="completeSpecialMission(2)">완료!</div></div>
+        <div id="special-quest-area" class="event-bar" style="margin:4px 10px;">
+            <span class="text-[10px] font-bold text-yellow-600">⭐ 스페셜 퀘스트</span>
+            <div id="special-mission-container">
+                <div id="sp-mission-0" class="sp-mission-card"><div class="sp-icon">🐦</div><div id="sp-text-0" class="sp-text">Lv.3<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-0" class="sp-btn" onclick="completeSpecialMission(0)">완료!</div></div>
+                <div id="sp-mission-1" class="sp-mission-card"><div class="sp-icon">🐠</div><div id="sp-text-1" class="sp-text">Lv.6<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-1" class="sp-btn" onclick="completeSpecialMission(1)">완료!</div></div>
+                <div id="sp-mission-2" class="sp-mission-card"><div class="sp-icon">🦎</div><div id="sp-text-2" class="sp-text">Lv.9<br>오픈</div><div class="sp-reward-text">보상: 500🪙 10💎</div><div id="sp-btn-2" class="sp-btn" onclick="completeSpecialMission(2)">완료!</div></div>
+            </div>
         </div>
 
         <!-- 6. 구조 현장 -->
@@ -498,6 +502,37 @@
         energyPurchaseCount = d.energyPurchaseCount ?? 0;
         energyPurchaseResetTime = Date.now() + (d.energyPurchaseResetTime ?? 3*60*60*1000);
         isTutorialActive = d.isTutorialActive ?? true;
+
+        // 7행 미션 복구 (v4.1.6 마이그레이션)
+        migrateRow7Missions();
+    }
+
+    // 7행 미션 마이그레이션: 미달성 상태인데 열려있으면 다시 잠금
+    function migrateRow7Missions() {
+        // 30번: 캣타워 Lv.2
+        if (genLevels.cat < 2 && (!boardState[30] || boardState[30].type !== 'upgrade_mission')) {
+            boardState[30] = { type: 'upgrade_mission', target: 'cat', reqLevel: 2 };
+        }
+        // 31번: 개집 Lv.2
+        if (genLevels.dog < 2 && (!boardState[31] || boardState[31].type !== 'upgrade_mission')) {
+            boardState[31] = { type: 'upgrade_mission', target: 'dog', reqLevel: 2 };
+        }
+        // 32번: 사자 (cat Lv.11)
+        const hasCatMax = boardState.some(b => b && b.type === 'cat' && b.level >= 11) ||
+                          storageState.some(s => s && s.type === 'cat' && s.level >= 11);
+        if (!hasCatMax && (!boardState[32] || boardState[32].type !== 'animal_mission')) {
+            boardState[32] = { type: 'animal_mission', target: 'cat', reqLevel: 11 };
+        }
+        // 33번: 북극곰 (dog Lv.11)
+        const hasDogMax = boardState.some(b => b && b.type === 'dog' && b.level >= 11) ||
+                          storageState.some(s => s && s.type === 'dog' && s.level >= 11);
+        if (!hasDogMax && (!boardState[33] || boardState[33].type !== 'animal_mission')) {
+            boardState[33] = { type: 'animal_mission', target: 'dog', reqLevel: 11 };
+        }
+        // 34번: 퀘스트 100개
+        if (totalQuestsCompleted < 100 && (!boardState[34] || boardState[34].type !== 'quest_count_mission')) {
+            boardState[34] = { type: 'quest_count_mission', reqCount: 100 };
+        }
     }
 
     // 클라우드 저장 디바운스 (500ms)
