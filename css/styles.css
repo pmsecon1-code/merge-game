@@ -87,37 +87,13 @@ body {
 
 /* 상시 미션 바 */
 #persistent-mission-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     border: 2px solid #a78bfa;
-    font-size: 0.75rem;
-    font-weight: bold;
-}
-
-#pm-label {
-    color: #7c3aed;
-    white-space: nowrap;
-}
-
-#pm-progress-wrap {
-    flex: 1;
-    height: 8px;
-    background: #e2e8f0;
-    border-radius: 4px;
-    overflow: hidden;
 }
 
 #pm-bar {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #c4b5fd, #8b5cf6);
     transition: width 0.3s;
-}
-
-#pm-text {
-    color: #6b7280;
-    white-space: nowrap;
 }
 
 /* 진행 트랙 */

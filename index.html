@@ -102,9 +102,13 @@
 
     <!-- 4. 상시 미션 -->
     <div id="persistent-mission-bar" class="event-bar">
-        <span id="pm-label">🔨 100번 합성하기(100🪙)</span>
-        <div id="pm-progress-wrap"><div id="pm-bar"></div></div>
-        <span id="pm-text">0/100</span>
+        <div class="flex justify-between items-end mb-1">
+            <span id="pm-label" class="text-[10px] font-bold text-purple-600">🔨 100번 합성하기 (100🪙)</span>
+            <span id="pm-text" class="text-[9px] text-purple-500 font-bold">0/100</span>
+        </div>
+        <div class="progress-track">
+            <div id="pm-bar" class="progress-fill" style="background: linear-gradient(90deg, #a78bfa, #7c3aed);"></div>
+        </div>
     </div>
 
     <!-- 5. 스페셜 퀘스트 (새/물고기/파충류) -->
