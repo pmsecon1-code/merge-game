@@ -254,6 +254,7 @@
     let genLevels={cat:1,dog:1}, dragData=null, currentRouletteRoom=-1, isSpinning=false;
     let currentGuideType='cat', currentGuideTab='animal', sellTarget=null, shopNextRefresh=Date.now()+SHOP_REFRESH_MS;
     let discoveredItems = new Set();
+    let newlyDiscoveredItems = new Map(); // key -> timestamp (10초간 NEW 뱃지)
     let specialMissionCycles=[0,0,0], isTutorialActive=true;
     // 상시 미션: 0=합성, 1=생성
     let pmType=0, pmProgress=0;
@@ -784,7 +785,11 @@
 
     // --- 발견 기록 ---
     function discoverItem(type, level) {
-        discoveredItems.add(`${type}_${level}`);
+        const key = `${type}_${level}`;
+        if (!discoveredItems.has(key)) {
+            newlyDiscoveredItems.set(key, Date.now());
+        }
+        discoveredItems.add(key);
     }
 
     // --- 퀘스트 함수 ---
@@ -1060,7 +1065,12 @@
         else if(item.type==='cat_snack') list=CAT_SNACKS; else if(item.type==='dog_snack') list=DOG_SNACKS;
         else if(item.type==='bird') list=BIRDS; else if(item.type==='fish') list=FISH; else if(item.type==='reptile') list=REPTILES;
         const data=list[item.level-1]||list[list.length-1];
-        d.innerHTML=`<div class="${isSnack?'bg-square':'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:${isSnack?'1.5rem':'2rem'}">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div>`;
+        // NEW 뱃지 체크
+        const itemKey = `${item.type}_${item.level}`;
+        const discoveredAt = newlyDiscoveredItems.get(itemKey);
+        const isNew = discoveredAt && (Date.now() - discoveredAt < 10000);
+        const newBadge = isNew ? '<div class="new-badge">NEW</div>' : '';
+        d.innerHTML=`<div class="${isSnack?'bg-square':'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:${isSnack?'1.5rem':'2rem'}">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div>${newBadge}`;
         const sellBtn=document.createElement('div'); sellBtn.className='sell-btn'; sellBtn.innerText='ⓒ';
         sellBtn.onclick=(e)=>askSellItem(zone,index,e); d.appendChild(sellBtn);
         return d;
