@@ -1510,7 +1510,7 @@
         if(Math.hypot(cx-dragData.startX, cy-dragData.startY)<5) { dragData.el.style.display=''; handleCellClick(dragData.zone, dragData.index); dragData=null; updateAll(); return; }
         dragData.el.style.display='none'; const el=document.elementFromPoint(cx,cy); dragData.el.style.display='flex';
         const tc=el?el.closest('.cell'):null;
-        if(tc) { const tz=tc.dataset.zone, ti=parseInt(tc.dataset.index), ts=tz==='board'?boardState:storageState; if(ts[ti]&&(ts[ti].type.includes('locked'))) showToast("잠겨있음!"); else moveItem(dragData.zone, dragData.index, tz, ti); }
+        if(tc) { const tz=tc.dataset.zone, ti=parseInt(tc.dataset.index), ts=tz==='board'?boardState:storageState; if(ts[ti]&&(ts[ti].type.includes('locked') || ts[ti].type.includes('mission'))) showToast("잠겨있음!"); else moveItem(dragData.zone, dragData.index, tz, ti); }
         dragData=null; updateAll();
     }
     function moveItem(fz, fi, tz, ti) {
