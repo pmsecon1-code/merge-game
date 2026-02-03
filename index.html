@@ -1019,7 +1019,7 @@
                 showToast("퀘스트 미션 완료! 칸 해제!");
                 updateAll();
             } else {
-                showToast(`퀘스트 ${totalQuestsCompleted}/${it.reqCount} 완료`);
+                showToast(`일반 퀘스트 ${totalQuestsCompleted}/${it.reqCount} 완료`);
             }
         }
         else if(it.type.includes('generator')) triggerGen(idx, it);
