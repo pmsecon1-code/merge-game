@@ -864,7 +864,7 @@
         const maxLvSnack = needEasy ? 4 : Math.min(Math.ceil(minLv / 2) + 2, 5);
         const reqs = []; let sc = 0;
         for(let i=0; i<cnt; i++) {
-            const isSnack = Math.random() < 0.25;
+            const isSnack = Math.random() < 0.40;
             const base = Math.random() > 0.5 ? 'cat' : 'dog';
             const type = isSnack ? base + '_snack' : base;
             const min = isSnack ? 2 : minLv;
