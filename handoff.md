@@ -176,7 +176,7 @@ v4.x: 클라우드 데이터만 사용 (로컬은 백업용)
   // 진행도
   userLevel: number,
   questProgress: number,
-  quests: [{id, type, reqs, reward}, ...],
+  quests: [{id, npc, reqs, reward, expiresAt}, ...],  // expiresAt: 10분 타이머 (v4.2.5)
   currentSetRescues: number,
   totalQuestsCompleted: number,   // 총 완료한 퀘스트 수 (v4.1.6)
 
@@ -385,6 +385,18 @@ isSnack = Math.random() < 0.40  // 40%
 
 // 퀘스트 요구 개수
 1~2개 랜덤 (Math.floor(Math.random()*2)+1)
+```
+
+### 퀘스트 타이머 (v4.2.5)
+```javascript
+// 퀘스트 생성 시 만료 시간 설정
+expiresAt = Date.now() + 10*60*1000  // 10분
+
+// 1초마다 체크
+startQuestTimer() → checkExpiredQuests() + updateQuestUI()
+
+// 만료 시 자동 교체
+if(now >= quest.expiresAt) → quests.splice(i,1) + generateNewQuest()
 ```
 
 ---
