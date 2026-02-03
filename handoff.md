@@ -428,6 +428,7 @@ firebase deploy --only hosting
 - 상시 미션 UI를 누적 코인/구조 현장 스타일로 통일
   - flex 레이아웃 (라벨 좌측, 진행도 우측)
   - progress-track 프로그레스바 적용
+  - white-space: nowrap으로 줄바꿈 방지
 
 ### v4.1.7 (2026-02-03)
 - UI 통일: 모든 섹션 event-bar 스타일 적용
