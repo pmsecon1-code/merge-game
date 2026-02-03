@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.1.3)
+# 멍냥 머지 게임 - Architecture (v4.1.4)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.1.3
+- **버전**: 4.1.4
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -275,7 +275,7 @@ match /sessions/{userId} {
 |------|------|
 | 퀘스트 완료 | 가변 (레벨 스케일링) |
 | 누적 코인 1000 | 칸마다 50🪙 |
-| 구조 완료 (3마리) | 500🪙 |
+| 구조 완료 (3마리) | 1000🪙 |
 | 스페셜 미션 | 500🪙 + 10💎 |
 | 상시 미션 | 100🪙 |
 | 레벨업 | 레벨 × 5 💎 |
@@ -348,7 +348,7 @@ RECOVERY_SEC = 30
 SHOP_REFRESH_MS = 300000  // 5분
 UNLOCK_COST_BOARD = 100
 ENERGY_COST = 500
-RESCUE_QUEST_REWARD = 500
+RESCUE_QUEST_REWARD = 1000
 ```
 
 ---
@@ -394,15 +394,20 @@ firebase deploy --only hosting
 - [x] 실시간 세션 감지 (v4.1.0) ✅
 - [x] Firebase Hosting 배포 ✅
 - [x] 파일 분리 (CSS, 상수) ✅
-- [ ] Firebase Console에서 firestore.rules 배포
+- [x] Firebase Console에서 firestore.rules 배포 ✅
+- [x] 모바일 최적화 검증 ✅
 - [ ] 사운드 효과 추가
-- [ ] 밸런스 테스트
-- [ ] 모바일 최적화 검증
 - [ ] 튜토리얼 확장
 
 ---
 
 ## 변경 이력
+
+### v4.1.4 (2026-02-03)
+- 모바일 터치 타겟 크기 개선 (퀘스트 버튼, 판매/도움말 버튼)
+- 퀘스트 간식 요구 확률 15%→25%
+- 쉬운 퀘스트 난이도 상향 (동물 Lv.4~5, 간식 Lv.2~4)
+- 모두 구조 보상 500→1000 코인
 
 ### v4.1.3 (2026-02-03)
 - 최초 발견 시 NEW 뱃지 표시 (좌상단, 10초간)
