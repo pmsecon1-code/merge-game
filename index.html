@@ -1439,6 +1439,13 @@
         coins -= CAGE_UPGRADE_COST;
         genLevels[type]++;
         showToast(`${type === 'cat' ? '캣타워' : '개집'} Lv.${genLevels[type]}!`);
+        // 업그레이드 미션 자동 완료
+        boardState.forEach((item, idx) => {
+            if (item && item.type === 'upgrade_mission' && item.target === type && genLevels[type] >= item.reqLevel) {
+                boardState[idx] = null;
+                showToast("미션 완료! 칸 해제!");
+            }
+        });
         updateUpgradeUI();
         updateAll();
     }
