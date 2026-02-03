@@ -122,24 +122,20 @@
     </div>
 
     <!-- 6. 구조 현장 -->
-    <div id="rescue-quest-bar" class="event-bar">
-        <div class="flex justify-between items-end mb-1">
-            <span class="text-[10px] font-bold text-blue-600">🚑 모두 구조 (1000🪙)</span>
-            <div class="flex items-center gap-2">
-                <span id="rescue-timer" class="text-[9px] text-red-500 font-mono font-bold">59:59</span>
-                <span id="rescue-text" class="text-[9px] text-blue-500 font-bold">0 / 15</span>
-            </div>
+    <div id="rescue-wrapper" class="event-bar">
+        <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-blue-600">🚑 구조 현장 (1000🪙)</span>
+            <span id="rescue-text" class="text-[9px] text-blue-500 font-bold">0/3</span>
         </div>
-        <div class="progress-track">
-            <div id="rescue-bar" class="progress-fill"></div>
-            <div class="milestone-marker" style="left: 33.33%"></div><div class="milestone-marker" style="left: 66.67%"></div>
-        </div>
+        <div id="apartment-area"></div>
     </div>
-    <div id="apartment-area"></div>
 
     <!-- 7. 상점 -->
-    <div id="shop-area">
-        <div id="shop-timer-badge">갱신: 05:00</div>
+    <div id="shop-wrapper" class="event-bar">
+        <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-orange-600">🛒 상점</span>
+            <span id="shop-timer-badge" class="text-[9px] text-orange-500 font-bold">갱신: 05:00</span>
+        </div>
         <div class="grid-layout" id="shop-grid"></div>
     </div>
 
@@ -284,7 +280,7 @@
     let coinEl, diamondEl, energyEl, energyTimerEl;
     let levelEl, questProgEl, questContainer;
     let cumulativeBar, cumulativeText;
-    let rescueBar, rescueText, rescueTimerEl;
+    let rescueText;
     let shopTimerBadge, rouletteWheel;
     let tutorialPointer;
 
@@ -774,9 +770,7 @@
         questContainer = document.getElementById('quest-container');
         cumulativeBar = document.getElementById('cumulative-bar');
         cumulativeText = document.getElementById('cumulative-text');
-        rescueBar = document.getElementById('rescue-bar');
         rescueText = document.getElementById('rescue-text');
-        rescueTimerEl = document.getElementById('rescue-timer');
         shopTimerBadge = document.getElementById('shop-timer-badge');
         rouletteWheel = document.getElementById('roulette-wheel');
         tutorialPointer = document.getElementById('tutorial-pointer');
@@ -1195,8 +1189,7 @@
             updateUI();
         }
         // UI 업데이트
-        rescueBar.style.width = `${(currentSetRescues/3)*100}%`;
-        rescueText.innerText = `${currentSetRescues} / 3`;
+        rescueText.innerText = `${currentSetRescues}/3`;
     }
 
     // --- 상시 미션 ---
@@ -1645,16 +1638,7 @@
     function startCooldownTimer() { setInterval(() => { let needsUpdate=false; [...boardState, ...storageState].forEach(i => { if (i&&i.type.endsWith('_generator')&&i.cooldown>0&&i.cooldown<=Date.now()){ i.cooldown=0; i.clicks=0; needsUpdate=true; } }); if(needsUpdate) { renderGrid('board', boardState, boardEl); renderGrid('storage', storageState, storageEl); } }, 1000); }
     function startEnergyRecovery() { setInterval(() => { if(energy<MAX_ENERGY) { recoveryCountdown--; if(recoveryCountdown<=0) { energy++; recoveryCountdown=RECOVERY_SEC; updateUI(); } updateTimerUI(); } else { recoveryCountdown=RECOVERY_SEC; updateTimerUI(); } }, 1000); }
     function startRescueTimer() {
-        setInterval(() => {
-            // 구조되지 않은 동물 중 가장 낮은 HP 찾기
-            let minHp = Infinity;
-            apartmentState.forEach(r => { if(r && !r.rescued && r.hp < minHp) minHp = r.hp; });
-            if(minHp === Infinity) { rescueTimerEl.innerText = '--:--'; return; }
-            // HP가 0이 될 때까지 남은 시간 계산 (HP / 감소량 * 감소주기)
-            const remainSec = Math.ceil(minHp / ANIMAL_HP_DECAY) * ANIMAL_HP_DECAY_SEC;
-            const m = Math.floor(remainSec / 60), s = remainSec % 60;
-            rescueTimerEl.innerText = `${m}:${s.toString().padStart(2,'0')}`;
-        }, 1000);
+        // 타이머 UI 제거됨 - 빈 함수로 유지
     }
 
     // 페이지 이탈/탭 전환 시 즉시 저장
