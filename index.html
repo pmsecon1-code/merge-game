@@ -791,20 +791,26 @@
     }
 
     // --- 퀘스트 함수 ---
-    function generateNewQuest() {
+    function countEasyQuests() {
+        return quests.filter(q => q.reqs.every(r => r.level <= 3)).length;
+    }
+
+    function generateNewQuest(forceEasy = false) {
+        // 쉬운 퀘스트가 2개 미만이면 강제로 쉬운 퀘스트 생성
+        const needEasy = forceEasy || countEasyQuests() < 2;
         const npc=NPC_AVATARS[Math.floor(Math.random()*NPC_AVATARS.length)];
         // 레벨별 난이도 스케일링
         const twoItemChance = Math.min(0.3 + userLevel * 0.05, 0.8); // 30%~80%
         const cnt = Math.random() < twoItemChance ? 2 : 1;
-        const minLv = Math.min(Math.max(2, Math.floor(userLevel / 2)), 6); // 2~6
-        const maxLvAnimal = Math.min(minLv + 3 + Math.floor(userLevel / 4), 10); // ~10
-        const maxLvSnack = Math.min(Math.ceil(minLv / 2) + 2, 5); // ~5
+        const minLv = needEasy ? 1 : Math.min(Math.max(2, Math.floor(userLevel / 2)), 6);
+        const maxLvAnimal = needEasy ? 3 : Math.min(minLv + 3 + Math.floor(userLevel / 4), 10);
+        const maxLvSnack = needEasy ? 3 : Math.min(Math.ceil(minLv / 2) + 2, 5);
         const reqs = []; let sc = 0;
         for(let i=0; i<cnt; i++) {
             const isSnack = Math.random() < 0.15;
             const base = Math.random() > 0.5 ? 'cat' : 'dog';
             const type = isSnack ? base + '_snack' : base;
-            const min = isSnack ? Math.max(2, minLv - 1) : minLv;
+            const min = isSnack ? Math.max(1, minLv - 1) : minLv;
             const max = isSnack ? maxLvSnack : maxLvAnimal;
             const lv = Math.floor(Math.random() * (max - min + 1)) + min;
             reqs.push({type, level: lv}); sc += (lv * (isSnack ? 15 : 10));
