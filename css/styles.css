@@ -230,7 +230,7 @@ body {
 .quest-top {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     width: 100%;
     justify-content: center;
 }
@@ -241,17 +241,18 @@ body {
     background: #f1f5f9;
     padding: 3px 6px;
     border-radius: 6px;
+    flex-shrink: 0;
 }
 
 .quest-reqs {
     display: flex;
     gap: 2px;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-wrap: nowrap;
 }
 
 .req-item {
-    font-size: 0.8rem;
+    font-size: 1.2rem;
+    flex-shrink: 0;
 }
 
 .quest-btn {
