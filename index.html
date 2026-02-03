@@ -60,10 +60,7 @@
         <div class="status-item border-yellow-500"><span class="text-xs">🪙</span><span id="coin-val" class="text-xs text-yellow-600 font-bold">0</span></div>
         <div class="status-item border-cyan-400"><span class="text-xs">💎</span><span id="diamond-val" class="text-xs text-cyan-600 font-bold">0</span></div>
         <div class="status-item border-purple-400">
-            <div class="flex flex-col items-center leading-none">
-                <span id="level-val" class="text-xs font-bold text-purple-600">Lv.1</span>
-                <span id="quest-progress" class="text-[8px] text-gray-500 font-bold mt-0.5">0/3</span>
-            </div>
+            <span id="level-val" class="text-xs font-bold text-purple-600">Lv.1</span>
         </div>
         <button id="login-btn" onclick="handleGoogleLogin()" class="status-item border-blue-400 cursor-pointer hover:bg-blue-50">
             <span class="text-xs">🔑</span><span id="login-text" class="text-xs text-blue-600 font-bold">로그인</span>
@@ -108,6 +105,17 @@
         </div>
         <div class="progress-track">
             <div id="pm-bar" class="progress-fill" style="background: linear-gradient(90deg, #a78bfa, #7c3aed);"></div>
+        </div>
+    </div>
+
+    <!-- 4-1. 레벨업 진행도 -->
+    <div id="levelup-progress-bar" class="event-bar">
+        <div class="flex justify-between items-center mb-1">
+            <span class="text-[10px] font-bold text-blue-600">📋 일반 퀘스트 완료하기 (Lv.업 + 💎)</span>
+            <span id="levelup-progress-text" class="text-[9px] text-blue-500 font-bold">0/2</span>
+        </div>
+        <div class="progress-track">
+            <div id="levelup-progress-fill" class="progress-fill" style="background: linear-gradient(90deg, #60a5fa, #3b82f6);"></div>
         </div>
     </div>
 
@@ -281,7 +289,7 @@
     // DOM (나중에 init에서 초기화)
     let boardEl, storageEl, apartmentEl, shopGrid;
     let coinEl, diamondEl, energyEl, energyTimerEl;
-    let levelEl, questProgEl, questContainer;
+    let levelEl, questContainer;
     let cumulativeBar, cumulativeText;
     let rescueText, rescueTimerEl;
     let shopTimerBadge, rouletteWheel;
@@ -769,7 +777,6 @@
         energyEl = document.getElementById('energy-val');
         energyTimerEl = document.getElementById('energy-timer');
         levelEl = document.getElementById('level-val');
-        questProgEl = document.getElementById('quest-progress');
         questContainer = document.getElementById('quest-container');
         cumulativeBar = document.getElementById('cumulative-bar');
         cumulativeText = document.getElementById('cumulative-text');
@@ -1175,7 +1182,8 @@
 
     // --- UI 업데이트 ---
     function updateAll() { renderGrid('board',boardState,boardEl); renderGrid('storage',storageState,storageEl); renderShop(); renderApartment(); updateUI(); updateTimerUI(); updateQuestUI(); updateSpecialQuestUI(); updateRescueQuestUI(); updateSpecialMissionUI(); updatePmUI(); saveGame(); }
-    function updateUI() { coinEl.innerText=coins.toLocaleString(); diamondEl.innerText=diamonds.toLocaleString(); energyEl.innerText=energy; levelEl.innerText=`Lv.${userLevel}`; questProgEl.innerText=`${questProgress}/${userLevel*2}`; energyEl.className=energy===0?"text-xs font-bold text-red-500":"text-xs font-bold text-yellow-500"; }
+    function updateUI() { coinEl.innerText=coins.toLocaleString(); diamondEl.innerText=diamonds.toLocaleString(); energyEl.innerText=energy; levelEl.innerText=`Lv.${userLevel}`; energyEl.className=energy===0?"text-xs font-bold text-red-500":"text-xs font-bold text-yellow-500"; updateLevelupProgressUI(); }
+    function updateLevelupProgressUI() { const goal=userLevel*2; document.getElementById('levelup-progress-text').innerText=`${questProgress}/${goal}`; document.getElementById('levelup-progress-fill').style.width=`${(questProgress/goal)*100}%`; }
     function updateTimerUI() { energyTimerEl.innerText=energy>=MAX_ENERGY?"FULL":`${Math.floor(recoveryCountdown/60)}:${(recoveryCountdown%60).toString().padStart(2,'0')}`; }
 
     function updateSpecialQuestUI() {
