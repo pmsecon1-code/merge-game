@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.0.0)
+# 멍냥 머지 게임 - Architecture (v4.1.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.0.0
+- **버전**: 4.1.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -14,18 +14,21 @@
 
 ```
 merge2/
-├── index.html          # 메인 (HTML + 게임 로직, ~1400줄)
+├── index.html          # 메인 (HTML + 게임 로직, ~1500줄)
 ├── css/
 │   └── styles.css      # 모든 CSS (600+ 줄)
 ├── js/
 │   └── constants.js    # 상수 + 데이터 + 헬퍼 함수
-├── firestore.rules     # Firebase 보안 규칙 (Console에서 배포 필요)
+├── firestore.rules     # Firebase 보안 규칙
+├── firebase.json       # Firebase Hosting 설정
+├── .firebaserc         # Firebase 프로젝트 연결
+├── 404.html            # 404 페이지
 └── handoff.md          # 이 문서
 ```
 
 ---
 
-## 인증 시스템 (v4.0.0)
+## 인증 시스템 (v4.1.0)
 
 ### 로그인 필수
 - 게임 시작 전 Google 로그인 필수
@@ -46,12 +49,14 @@ merge2/
 │       ↓ (로그인 성공)                            │
 │  ┌─────────────────┐                            │
 │  │  세션 등록       │  → Firestore sessions/{uid} │
+│  │  세션 리스너 시작 │  → onSnapshot 실시간 감시   │
 │  │  클라우드 로드   │  → Firestore saves/{uid}    │
 │  │  게임 화면 표시  │                            │
 │  └─────────────────┘                            │
-│       ↓ (로그아웃 또는 다른 기기 로그인)           │
+│       ↓ (다른 기기 로그인 감지)                   │
 │  ┌─────────────────┐                            │
-│  │  로그인 화면     │  ← 자동 이동                │
+│  │  즉시 로그아웃   │  ← onSnapshot 실시간 감지   │
+│  │  로그인 화면     │                            │
 │  └─────────────────┘                            │
 │                                                 │
 └─────────────────────────────────────────────────┘
@@ -59,42 +64,47 @@ merge2/
 
 ### 인증 코드 흐름
 ```javascript
-// 1. 페이지 로드 시
-auth.getRedirectResult()  // redirect 결과 처리
-
-// 2. 로그인 버튼 클릭
+// 1. 로그인 버튼 클릭 (팝업 방식)
 startGoogleLogin()
-  → auth.signInWithRedirect(googleProvider)
+  → auth.signInWithPopup(googleProvider)
 
-// 3. 인증 상태 변경 감지
+// 2. 인증 상태 변경 감지
 auth.onAuthStateChanged(user => {
   if (user) {
-    registerSession()     // 세션 등록
-    loadFromCloud()       // 클라우드 로드
-    showGameScreen()      // 게임 표시
+    registerSession()        // 세션 등록
+    startSessionListener()   // 실시간 세션 감시 시작
+    loadFromCloud()          // 클라우드 로드
+    showGameScreen()         // 게임 표시
   } else {
-    showLoginScreen()     // 로그인 화면
+    stopSessionListener()    // 세션 감시 중지
+    showLoginScreen()        // 로그인 화면
   }
 })
 ```
 
+### Firebase Hosting 필수
+- `authDomain: "merge-game-7cf5f.firebaseapp.com"` 사용
+- Firebase Hosting 배포 필수 (인증 핸들러 제공)
+- 배포 명령: `firebase deploy --only hosting`
+
 ---
 
-## 단일 세션 정책
+## 단일 세션 정책 (실시간)
 
 ### 목적
 한 계정으로 동시에 여러 기기에서 플레이 방지
 
-### 동작 방식
+### 동작 방식 (v4.1.0 - 실시간)
 ```
 [기기 A에서 로그인]
   → registerSession() → sessions/{uid} = { sessionId: "abc123", ... }
+  → startSessionListener() → onSnapshot 리스너 시작
   → currentSessionId = "abc123"
 
 [기기 B에서 같은 계정 로그인]
   → registerSession() → sessions/{uid} = { sessionId: "xyz789", ... }
 
-[기기 A: 10초마다 checkSession()]
+[기기 A: onSnapshot 즉시 감지]
   → Firestore sessionId ("xyz789") ≠ local sessionId ("abc123")
   → "다른 기기에서 로그인되어 로그아웃됩니다" 토스트
   → auth.signOut() → 로그인 화면으로 이동
@@ -105,7 +115,15 @@ auth.onAuthStateChanged(user => {
 |------|------|
 | `generateSessionId()` | 고유 세션 ID 생성 |
 | `registerSession()` | Firestore에 세션 등록 |
-| `checkSession()` | 10초마다 세션 유효성 확인 |
+| `startSessionListener()` | onSnapshot 실시간 감시 시작 |
+| `stopSessionListener()` | 리스너 해제 |
+
+### 이전 방식 vs 현재 방식
+| 항목 | v4.0.0 (이전) | v4.1.0 (현재) |
+|------|---------------|---------------|
+| 감지 방식 | 10초 폴링 | onSnapshot 실시간 |
+| 로그아웃 속도 | 최대 10초 | 즉시 (~1초) |
+| 서버 요청 | 주기적 | 변경 시에만 |
 
 ---
 
@@ -133,7 +151,7 @@ visibilitychange → saveGameNow()
 
 ### 데이터 우선순위
 ```
-v4.0.0: 클라우드 데이터만 사용 (로컬은 백업용)
+v4.x: 클라우드 데이터만 사용 (로컬은 백업용)
 
 [로그인 시]
   → loadFromCloud()
@@ -187,6 +205,11 @@ v4.0.0: 클라우드 데이터만 사용 (로컬은 백업용)
 | `saves` | `{uid}` | 게임 전체 상태 |
 | `sessions` | `{uid}` | 세션 관리 (단일 로그인) |
 
+### Firebase Hosting
+- **URL**: https://merge-game-7cf5f.web.app
+- **용도**: 인증 핸들러 (`/__/auth/handler`) 제공
+- **배포**: `firebase deploy --only hosting`
+
 ### 보안 규칙 (firestore.rules)
 ```javascript
 // 본인 문서만 접근 가능
@@ -204,8 +227,6 @@ match /sessions/{userId} {
 - 배열 크기: boardState 35칸, storageState 10칸, ...
 - 타임스탬프: 미래 시간 방지
 ```
-
-**주의**: Firebase Console에서 규칙 배포 필요!
 
 ---
 
@@ -262,7 +283,7 @@ match /sessions/{userId} {
 ### 인증
 | 함수 | 역할 |
 |------|------|
-| `startGoogleLogin()` | Google 로그인 시작 |
+| `startGoogleLogin()` | Google 로그인 (팝업) |
 | `handleGoogleLogin()` | 상단바 로그아웃 버튼 |
 | `showLoginScreen()` | 로그인 화면 표시 |
 | `showGameScreen()` | 게임 화면 표시 |
@@ -270,8 +291,10 @@ match /sessions/{userId} {
 ### 세션
 | 함수 | 역할 |
 |------|------|
+| `generateSessionId()` | 고유 세션 ID 생성 |
 | `registerSession()` | Firestore에 세션 등록 |
-| `checkSession()` | 세션 유효성 확인 (10초 주기) |
+| `startSessionListener()` | onSnapshot 실시간 감시 시작 |
+| `stopSessionListener()` | 리스너 해제 |
 
 ### 저장/로드
 | 함수 | 역할 |
@@ -325,14 +348,48 @@ RESCUE_QUEST_REWARD = 500
 
 ---
 
+## 배포
+
+### GitHub Pages (게임)
+```bash
+git add -A
+git commit -m "message"
+git push
+```
+→ 자동 배포 (1~2분)
+
+### Firebase Hosting (인증 핸들러)
+```bash
+firebase deploy --only hosting
+```
+
+---
+
+## 트러블슈팅
+
+### 로그인 안 됨 (404 에러)
+- **원인**: Firebase Hosting 미배포
+- **해결**: `firebase deploy --only hosting`
+
+### 로그인 버튼 반응 없음
+- **원인**: JavaScript 에러로 함수 미정의
+- **확인**: 개발자 도구(F12) → Console 에러 확인
+
+### 다른 기기 로그인 시 로그아웃 안 됨
+- **원인**: onSnapshot 리스너 미시작
+- **확인**: `startSessionListener()` 호출 확인
+
+---
+
 ## To-do
 
 - [x] 로그인 필수 시스템 (v4.0.0) ✅
 - [x] 클라우드 데이터 우선 ✅
 - [x] 단일 세션 정책 ✅
+- [x] 실시간 세션 감지 (v4.1.0) ✅
+- [x] Firebase Hosting 배포 ✅
 - [x] 파일 분리 (CSS, 상수) ✅
-- [x] 캐시 비활성화 메타 태그 ✅
-- [ ] **Firebase Console에서 firestore.rules 배포**
+- [ ] Firebase Console에서 firestore.rules 배포
 - [ ] 사운드 효과 추가
 - [ ] 밸런스 테스트
 - [ ] 모바일 최적화 검증
@@ -342,18 +399,22 @@ RESCUE_QUEST_REWARD = 500
 
 ## 변경 이력
 
+### v4.1.0 (2026-02-03)
+- 실시간 세션 감지 (10초 폴링 → onSnapshot)
+- 다른 기기 로그인 시 즉시 로그아웃
+- Firebase Hosting 배포 (인증 핸들러)
+- signInWithPopup 방식으로 변경
+- 트러블슈팅 섹션 추가
+
 ### v4.0.0 (2026-02-03)
 - 로그인 필수 시스템 도입
 - 랜딩 페이지 (타이틀 + Google 로그인)
-- 클라우드 데이터만 사용 (로컬 vs 클라우드 비교 제거)
+- 클라우드 데이터만 사용
 - 매 로그인 시 세션 등록
-- FirebaseUI 제거 → 직접 Google 인증
-- 캐시 비활성화 메타 태그
 
 ### v3.x (2026-02-03)
-- Firebase 아키텍처 개선 (P0~P2)
+- Firebase 아키텍처 개선
 - 모바일 redirect 로그인 지원
-- 크로스 디바이스 동기화
 - Firestore 보안 규칙
 - 파일 분리 (CSS, 상수)
 
@@ -362,7 +423,6 @@ RESCUE_QUEST_REWARD = 500
 - 단일 세션 정책
 - 구조 시스템 개편
 - 퀘스트 시스템 개선
-- 상시 미션 추가
 
 ### v1.x (2026-02-02)
 - 초기 구현
