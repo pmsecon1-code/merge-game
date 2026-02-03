@@ -254,6 +254,7 @@
     let genLevels={cat:1,dog:1}, dragData=null, currentRouletteRoom=-1, isSpinning=false;
     let currentGuideType='cat', currentGuideTab='animal', sellTarget=null, shopNextRefresh=Date.now()+SHOP_REFRESH_MS;
     let discoveredItems = new Set();
+    let newlyDiscoveredItems = new Map(); // key -> timestamp (10초간 NEW 뱃지)
     let specialMissionCycles=[0,0,0], isTutorialActive=true;
     // 상시 미션: 0=합성, 1=생성
     let pmType=0, pmProgress=0;
@@ -786,6 +787,9 @@
     function discoverItem(type, level) {
         const key = `${type}_${level}`;
         const isNew = !discoveredItems.has(key);
+        if (isNew) {
+            newlyDiscoveredItems.set(key, Date.now());
+        }
         discoveredItems.add(key);
         return isNew;
     }
@@ -916,7 +920,7 @@
         });
         const targetIdx = empties[0];
         boardState[targetIdx]={type:finalType, level:finalLevel};
-        const isNewDiscovery = discoverItem(finalType, finalLevel);
+        discoverItem(finalType, finalLevel);
         addPmProgress(1); // 생성 미션 진행
         renderGrid('board', boardState, boardEl);
         const cell=boardEl.children[targetIdx];
@@ -924,7 +928,6 @@
         // 생성 위치에 이펙트
         setTimeout(() => { spawnItemEffect(cell, isLucky); }, 50);
         if(isLucky) { showLuckyEffect(cell); }
-        if(isNewDiscovery) { setTimeout(() => { showFloatText(cell, "NEW!", "#10b981"); }, 100); }
     }
 
     function handleCellClick(zone, idx) {
@@ -1070,7 +1073,12 @@
         else if(item.type==='cat_snack') list=CAT_SNACKS; else if(item.type==='dog_snack') list=DOG_SNACKS;
         else if(item.type==='bird') list=BIRDS; else if(item.type==='fish') list=FISH; else if(item.type==='reptile') list=REPTILES;
         const data=list[item.level-1]||list[list.length-1];
-        d.innerHTML=`<div class="${isSnack?'bg-square':'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:${isSnack?'1.5rem':'2rem'}">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div>`;
+        // NEW 뱃지 체크 (10초 이내)
+        const itemKey = `${item.type}_${item.level}`;
+        const discoveredAt = newlyDiscoveredItems.get(itemKey);
+        const isNew = discoveredAt && (Date.now() - discoveredAt < 10000);
+        const newBadge = isNew ? '<div class="new-badge">NEW</div>' : '';
+        d.innerHTML=`<div class="${isSnack?'bg-square':'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:${isSnack?'1.5rem':'2rem'}">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div>${newBadge}`;
         const sellBtn=document.createElement('div'); sellBtn.className='sell-btn'; sellBtn.innerText='ⓒ';
         sellBtn.onclick=(e)=>askSellItem(zone,index,e); d.appendChild(sellBtn);
         return d;
@@ -1214,9 +1222,8 @@
         if(eIdx===-1){ const si=storageState.findIndex(v=>v===null); if(si!==-1){ tz='storage'; eIdx=si; } }
         if(eIdx===-1){ showToast("공간 부족!"); return; }
         diamonds-=p; (tz==='board'?boardState:storageState)[eIdx]={...item};
-        const isNewDiscovery = discoverItem(item.type, item.level);
+        discoverItem(item.type, item.level);
         shopItems[idx]=generateRandomShopItem(getActiveTypes()); showToast("구매 완료!"); updateAll(); renderShop();
-        if(isNewDiscovery) { const cell=(tz==='board'?boardEl:storageEl).children[eIdx]; setTimeout(() => { showFloatText(cell, "NEW!", "#10b981"); }, 100); }
     }
 
     // --- 아파트 & 룰렛 ---
@@ -1344,7 +1351,7 @@
         if(!tIt) { ts[ti]=fIt; ss[fi]=null; return; }
         if(fIt.type===tIt.type && fIt.level===tIt.level) {
             let max=11; if(fIt.type.includes('snack')) max=5; if(['bird','fish','reptile'].includes(fIt.type)) max=7;
-            if(fIt.level<max) { const newLv=fIt.level+1; ts[ti]={type:fIt.type, level:newLv}; ss[fi]=null; const isNew=discoverItem(fIt.type, newLv); addPmProgress(0); const cell=(tz==='board'?boardEl:storageEl).children[ti]; setTimeout(()=>{ showFloatText(cell, "UP!", "#f43f5e"); if(isNew) showFloatText(cell, "NEW!", "#10b981"); },50); } else { ts[ti]=fIt; ss[fi]=tIt; }
+            if(fIt.level<max) { const newLv=fIt.level+1; ts[ti]={type:fIt.type, level:newLv}; ss[fi]=null; discoverItem(fIt.type, newLv); addPmProgress(0); const cell=(tz==='board'?boardEl:storageEl).children[ti]; setTimeout(()=>{ showFloatText(cell, "UP!", "#f43f5e"); },50); } else { ts[ti]=fIt; ss[fi]=tIt; }
         } else { ts[ti]=fIt; ss[fi]=tIt; }
     }
     function showFloatText(c,t,col) { if(!c)return; const r=c.getBoundingClientRect(); const d=document.createElement('div'); d.className='floating-text'; d.innerText=t; d.style.color=col; d.style.left=(r.left+r.width/2-10)+'px'; d.style.top=r.top+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),1000); }
