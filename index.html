@@ -1118,7 +1118,7 @@
                     const name = item.target === 'cat' ? '캣타워' : '개집';
                     c.classList.add('upgrade-mission-cell');
                     if(done) c.classList.add('done');
-                    c.innerHTML=`<div class="text-lg">${done ? '✅' : '🎯'}</div><div class="text-[8px] font-bold">${name} Lv.${item.reqLevel}</div>`;
+                    c.innerHTML=`<div class="text-lg">${done ? '✅' : '🎯'}</div><div class="text-[8px] font-bold text-center">${name}<br>Lv.${item.reqLevel}</div>`;
                     c.dataset.missionTarget = item.target;
                 }
                 else if(item.type==='animal_mission') {
