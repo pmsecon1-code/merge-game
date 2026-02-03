@@ -252,14 +252,14 @@
     // 상시 미션: 0=합성, 1=생성
     let pmType=0, pmProgress=0;
 
-    // DOM
-    const boardEl=document.getElementById('game-board'), storageEl=document.getElementById('storage-area'), apartmentEl=document.getElementById('apartment-area'), shopGrid=document.getElementById('shop-grid');
-    const coinEl=document.getElementById('coin-val'), diamondEl=document.getElementById('diamond-val'), energyEl=document.getElementById('energy-val'), energyTimerEl=document.getElementById('energy-timer');
-    const levelEl=document.getElementById('level-val'), questProgEl=document.getElementById('quest-progress'), questContainer=document.getElementById('quest-container');
-    const cumulativeBar=document.getElementById('cumulative-bar'), cumulativeText=document.getElementById('cumulative-text');
-    const rescueBar=document.getElementById('rescue-bar'), rescueText=document.getElementById('rescue-text'), rescueTimerEl=document.getElementById('rescue-timer');
-    const shopTimerBadge=document.getElementById('shop-timer-badge'), rouletteWheel=document.getElementById('roulette-wheel');
-    const tutorialPointer=document.getElementById('tutorial-pointer');
+    // DOM (나중에 init에서 초기화)
+    let boardEl, storageEl, apartmentEl, shopGrid;
+    let coinEl, diamondEl, energyEl, energyTimerEl;
+    let levelEl, questProgEl, questContainer;
+    let cumulativeBar, cumulativeText;
+    let rescueBar, rescueText, rescueTimerEl;
+    let shopTimerBadge, rouletteWheel;
+    let tutorialPointer;
 
     // --- Firebase 초기화 ---
     const firebaseConfig = {
@@ -664,6 +664,27 @@
 
     // --- 초기화 함수 (UI 셋업만) ---
     function init() {
+        // DOM 요소 초기화
+        boardEl = document.getElementById('game-board');
+        storageEl = document.getElementById('storage-area');
+        apartmentEl = document.getElementById('apartment-area');
+        shopGrid = document.getElementById('shop-grid');
+        coinEl = document.getElementById('coin-val');
+        diamondEl = document.getElementById('diamond-val');
+        energyEl = document.getElementById('energy-val');
+        energyTimerEl = document.getElementById('energy-timer');
+        levelEl = document.getElementById('level-val');
+        questProgEl = document.getElementById('quest-progress');
+        questContainer = document.getElementById('quest-container');
+        cumulativeBar = document.getElementById('cumulative-bar');
+        cumulativeText = document.getElementById('cumulative-text');
+        rescueBar = document.getElementById('rescue-bar');
+        rescueText = document.getElementById('rescue-text');
+        rescueTimerEl = document.getElementById('rescue-timer');
+        shopTimerBadge = document.getElementById('shop-timer-badge');
+        rouletteWheel = document.getElementById('roulette-wheel');
+        tutorialPointer = document.getElementById('tutorial-pointer');
+
         // 보드 셀 생성
         createBoardCells();
         createStorageCells();
