@@ -495,9 +495,22 @@
     }
 
     function applyGameData(d) {
-        boardState = d.boardState || boardState;
-        storageState = d.storageState || storageState;
-        apartmentState = d.apartmentState || apartmentState;
+        // 배열 데이터 검증 후 적용 (손상된 경우 기존 값 유지)
+        if (d.boardState && Array.isArray(d.boardState) && d.boardState.length === BOARD_SIZE) {
+            boardState = d.boardState;
+        } else if (d.boardState) {
+            console.warn('[applyGameData] boardState 손상 감지, 기존 값 유지');
+        }
+        if (d.storageState && Array.isArray(d.storageState) && d.storageState.length === STORAGE_SIZE) {
+            storageState = d.storageState;
+        } else if (d.storageState) {
+            console.warn('[applyGameData] storageState 손상 감지, 기존 값 유지');
+        }
+        if (d.apartmentState && Array.isArray(d.apartmentState) && d.apartmentState.length === APARTMENT_ROOMS) {
+            apartmentState = d.apartmentState;
+        } else if (d.apartmentState) {
+            console.warn('[applyGameData] apartmentState 손상 감지, 기존 값 유지');
+        }
         coins = d.coins ?? 0;
         cumulativeCoins = d.cumulativeCoins ?? 0;
         nextSpecialTarget = d.nextSpecialTarget ?? SPECIAL_QUEST_STEP;
@@ -611,6 +624,20 @@
         }
     }
 
+    // Firestore는 undefined를 저장하지 않으므로 null로 변환
+    function sanitizeForFirestore(data) {
+        if (Array.isArray(data)) {
+            return data.map(item => item === undefined ? null : sanitizeForFirestore(item));
+        } else if (data && typeof data === 'object') {
+            const result = {};
+            for (const [key, value] of Object.entries(data)) {
+                result[key] = value === undefined ? null : sanitizeForFirestore(value);
+            }
+            return result;
+        }
+        return data;
+    }
+
     async function saveToCloud(data) {
         if (!currentUser) return;
         if (!navigator.onLine) {
@@ -621,16 +648,18 @@
         if (cloudSavePromise) {
             await cloudSavePromise;
         }
+        // undefined → null 변환
+        const sanitizedData = sanitizeForFirestore(data);
         updateSaveStatus('saving');
         cloudSavePromise = (async () => {
             try {
-                await db.collection('saves').doc(currentUser.uid).set(data);
+                await db.collection('saves').doc(currentUser.uid).set(sanitizedData);
                 updateSaveStatus('saved');
             } catch (e) {
                 console.error('Cloud save failed:', e);
                 // 1회 재시도
                 try {
-                    await db.collection('saves').doc(currentUser.uid).set(data);
+                    await db.collection('saves').doc(currentUser.uid).set(sanitizedData);
                     updateSaveStatus('saved');
                 } catch (e2) {
                     console.error('Cloud save retry failed:', e2);
@@ -692,7 +721,7 @@
             }
         }
 
-        // 배열 필드 검증
+        // 배열 필드 검증 및 복구
         const arrChecks = [
             ['boardState', BOARD_SIZE],
             ['storageState', STORAGE_SIZE],
@@ -702,9 +731,25 @@
         ];
 
         for (const [key, maxLen] of arrChecks) {
-            if (data[key] && (!Array.isArray(data[key]) || data[key].length > maxLen)) {
-                errors.push(`${key}: 배열 오류`);
-                if (Array.isArray(data[key])) data[key] = data[key].slice(0, maxLen);
+            // 배열이 없거나 배열이 아닌 경우
+            if (!data[key] || !Array.isArray(data[key])) {
+                errors.push(`${key}: 배열 없음/오류 - 기본값 사용`);
+                data[key] = null; // applyGameData에서 기본값 사용하도록
+                continue;
+            }
+            // 배열이 너무 긴 경우
+            if (data[key].length > maxLen) {
+                errors.push(`${key}: 길이 초과`);
+                data[key] = data[key].slice(0, maxLen);
+            }
+            // 배열이 너무 짧은 경우 (boardState, storageState만) - null로 패딩
+            if ((key === 'boardState' || key === 'storageState' || key === 'apartmentState') && data[key].length < maxLen) {
+                errors.push(`${key}: 길이 부족 (${data[key].length}/${maxLen}) - null 패딩`);
+                while (data[key].length < maxLen) data[key].push(null);
+            }
+            // 배열이 비어있으면 기본값 사용
+            if (key !== 'quests' && key !== 'shopItems' && data[key].every(x => x === null || x === undefined)) {
+                errors.push(`${key}: 모든 요소가 null - 데이터 손상 의심`);
             }
         }
 
