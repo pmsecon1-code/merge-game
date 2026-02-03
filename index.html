@@ -304,36 +304,45 @@
         }
     }
 
-    // 세션 확인 (다른 기기에서 로그인했는지)
-    async function checkSession() {
-        if (!currentUser || !currentSessionId) {
-            console.log('[Session] Check skipped - no user or sessionId');
-            return;
+    // 세션 리스너 (실시간 감지)
+    let sessionUnsubscribe = null;
+
+    // 실시간 세션 감시 시작
+    function startSessionListener() {
+        if (!currentUser || !currentSessionId) return;
+
+        // 기존 리스너 해제
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
         }
-        try {
-            const doc = await db.collection('sessions').doc(currentUser.uid).get();
-            if (doc.exists) {
-                const serverSessionId = doc.data().sessionId;
-                console.log('[Session] Check - local:', currentSessionId, 'server:', serverSessionId);
-                if (serverSessionId !== currentSessionId) {
-                    // 다른 기기에서 로그인함
-                    console.log('[Session] Different session detected, logging out...');
-                    showToast('다른 기기에서 로그인되어 로그아웃됩니다.');
-                    await auth.signOut();
-                    currentUser = null;
-                    currentSessionId = null;
-                    document.getElementById('login-text').innerText = '로그인';
+
+        console.log('[Session] Starting realtime listener...');
+        sessionUnsubscribe = db.collection('sessions').doc(currentUser.uid)
+            .onSnapshot((doc) => {
+                if (doc.exists && currentSessionId) {
+                    const serverSessionId = doc.data().sessionId;
+                    if (serverSessionId !== currentSessionId) {
+                        console.log('[Session] Different session detected, logging out...');
+                        showToast('다른 기기에서 로그인되어 로그아웃됩니다.');
+                        if (sessionUnsubscribe) {
+                            sessionUnsubscribe();
+                            sessionUnsubscribe = null;
+                        }
+                        auth.signOut();
+                    }
                 }
-            }
-        } catch (e) {
-            console.error('[Session] Check error:', e);
-        }
+            }, (e) => {
+                console.error('[Session] Listener error:', e);
+            });
     }
 
-    // 10초마다 세션 확인 (탭 활성화 시에만)
-    setInterval(() => {
-        if (!document.hidden && currentUser) checkSession();
-    }, 10000);
+    // 세션 리스너 중지
+    function stopSessionListener() {
+        if (sessionUnsubscribe) {
+            sessionUnsubscribe();
+            sessionUnsubscribe = null;
+        }
+    }
 
     // --- Google 로그인 ---
     const googleProvider = new firebase.auth.GoogleAuthProvider();
@@ -405,6 +414,9 @@
                 await registerSession();
                 console.log('[Auth] Session registered OK');
 
+                // 실시간 세션 감시 시작
+                startSessionListener();
+
                 // 클라우드에서 데이터 로드
                 console.log('[Auth] Loading from cloud...');
                 const loaded = await loadFromCloud();
@@ -427,6 +439,7 @@
             }
         } else {
             // 로그아웃 상태
+            stopSessionListener();
             currentUser = null;
             currentSessionId = null;
             document.getElementById('login-text').innerText = '로그인';
