@@ -236,7 +236,13 @@
 </div>
 
 <script>
+    console.log('[Script] Loading...');
+
     // --- 상수/데이터는 js/constants.js에서 로드됨 ---
+    if (typeof BOARD_SIZE === 'undefined') {
+        console.error('[Script] constants.js not loaded!');
+        alert('게임 로드 실패: constants.js를 찾을 수 없습니다.');
+    }
 
     // 변수
     let boardState=new Array(BOARD_SIZE).fill(null), storageState=new Array(STORAGE_SIZE).fill(null), apartmentState=new Array(APARTMENT_ROOMS).fill(null), shopItems=new Array(SHOP_SIZE).fill(null);
@@ -378,27 +384,35 @@
         console.log('[Auth] State changed:', user ? user.email : 'logged out');
 
         if (user) {
-            currentUser = user;
-            document.getElementById('login-text').innerText = user.displayName?.split(' ')[0] || '유저';
+            try {
+                currentUser = user;
+                document.getElementById('login-text').innerText = user.displayName?.split(' ')[0] || '유저';
 
-            // 항상 새 세션 등록 (로그인 시마다)
-            console.log('[Auth] Registering session...');
-            await registerSession();
+                // 항상 새 세션 등록 (로그인 시마다)
+                console.log('[Auth] Registering session...');
+                await registerSession();
+                console.log('[Auth] Session registered OK');
 
-            // 클라우드에서 데이터 로드
-            console.log('[Auth] Loading from cloud...');
-            const loaded = await loadFromCloud();
+                // 클라우드에서 데이터 로드
+                console.log('[Auth] Loading from cloud...');
+                const loaded = await loadFromCloud();
+                console.log('[Auth] Cloud load result:', loaded);
 
-            if (!loaded) {
-                // 클라우드에 데이터 없으면 새 게임 초기화
-                console.log('[Auth] No cloud data, initializing new game');
-                initNewGame();
+                if (!loaded) {
+                    // 클라우드에 데이터 없으면 새 게임 초기화
+                    console.log('[Auth] No cloud data, initializing new game');
+                    initNewGame();
+                }
+
+                // 게임 화면 표시
+                console.log('[Auth] Showing game screen...');
+                showGameScreen();
+                showToast(`환영합니다, ${user.displayName}!`);
+
+            } catch (e) {
+                console.error('[Auth] Login process error:', e);
+                alert('로그인 처리 중 오류: ' + e.message);
             }
-
-            // 게임 화면 표시
-            showGameScreen();
-            showToast(`환영합니다, ${user.displayName}!`);
-
         } else {
             // 로그아웃 상태
             currentUser = null;
