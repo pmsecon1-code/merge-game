@@ -287,6 +287,8 @@
     let energyPurchaseCount=0, energyPurchaseResetTime=Date.now()+3*60*60*1000;
     // 총 완료한 일반 퀘스트 수
     let totalQuestsCompleted=0;
+    // 최초 에너지 소진 보상 여부
+    let firstEnergyRewardGiven=false;
 
     // DOM (나중에 init에서 초기화)
     let boardEl, storageEl, apartmentEl, shopGrid;
@@ -509,7 +511,7 @@
             discoveredItems: [...discoveredItems],
             specialMissionCycles, pmType, pmProgress,
             energyPurchaseCount, energyPurchaseResetTime: energyPurchaseResetTime - Date.now(),
-            isTutorialActive, savedAt: Date.now()
+            isTutorialActive, firstEnergyRewardGiven, savedAt: Date.now()
         };
     }
 
@@ -567,6 +569,7 @@
         energyPurchaseCount = d.energyPurchaseCount ?? 0;
         energyPurchaseResetTime = Date.now() + (d.energyPurchaseResetTime ?? 3*60*60*1000);
         isTutorialActive = d.isTutorialActive ?? true;
+        firstEnergyRewardGiven = d.firstEnergyRewardGiven ?? false;
 
         // 7행 미션 복구 (v4.1.6 마이그레이션)
         migrateRow7Missions();
@@ -1093,7 +1096,7 @@
 
     // --- 아이템 생성 ---
     function spawnItem(baseType, inputLevel = 1, isFree = false) {
-        if(!isFree) { if(energy<=0) { openEnergyPopup(); return; } energy--; updateUI(); updateTimerUI(); }
+        if(!isFree) { if(energy<=0) { openEnergyPopup(); return; } energy--; updateUI(); updateTimerUI(); checkEnergyAfterUse(); }
         const empties=[]; boardState.forEach((v,i)=>{ if(v===null) empties.push(i); });
         if(empties.length===0) { showToast("공간 부족!"); return; }
         let finalType=baseType, finalLevel=inputLevel, isLucky=false;
@@ -1137,7 +1140,7 @@
 
     function spawnToy() {
         if(energy<=0) { openEnergyPopup(); return; }
-        energy--; updateUI(); updateTimerUI();
+        energy--; updateUI(); updateTimerUI(); checkEnergyAfterUse();
         const empties=[]; boardState.forEach((v,i)=>{ if(v===null) empties.push(i); });
         if(empties.length===0) { showToast("공간 부족!"); return; }
         const base = Math.random() > 0.5 ? 'cat' : 'dog';
@@ -1456,6 +1459,24 @@
             document.getElementById('energy-price').innerText = price;
         }
     }
+    // 에너지 사용 후 체크 (0이 되면 최초 보상 또는 팝업)
+    function checkEnergyAfterUse() {
+        if (energy <= 0) {
+            if (!firstEnergyRewardGiven) {
+                // 최초 에너지 소진: 무료 100개 충전
+                firstEnergyRewardGiven = true;
+                energy = MAX_ENERGY;
+                recoveryCountdown = RECOVERY_SEC;
+                showToast("🎁 첫 에너지 소진 보상! +100⚡");
+                updateUI();
+                updateTimerUI();
+                saveGame();
+            } else {
+                openEnergyPopup();
+            }
+        }
+    }
+
     function openEnergyPopup() {
         const price = getEnergyPrice();
         document.getElementById('popup-coin-val').innerText=coins.toLocaleString();
