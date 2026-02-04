@@ -482,30 +482,7 @@
                 if (user.uid === 'aPkJ71wbXNeKHjHLe7NLGEE9tRo1' && userLevel < 17) {
                     console.log('[Recovery] Restoring data for user:', user.uid);
 
-                    // boardState 완전 초기화 (35칸)
-                    boardState = new Array(BOARD_SIZE).fill(null);
-                    boardState[0] = { type: 'cat_generator', level: 4 };
-                    boardState[4] = { type: 'dog_generator', level: 4 };
-                    boardState[20] = { type: 'toy_generator', clicks: 0, cooldown: 0 };
-                    // 7행 미션 (이미 달성한 것들은 null로)
-                    boardState[30] = null; // 캣타워 Lv.2 달성
-                    boardState[31] = null; // 개집 Lv.2 달성
-                    boardState[32] = { type: 'animal_mission', target: 'cat', reqLevel: 11 };
-                    boardState[33] = { type: 'animal_mission', target: 'dog', reqLevel: 11 };
-                    boardState[34] = { type: 'quest_count_mission', reqCount: 100 };
-
-                    // storageState 초기화
-                    storageState = new Array(STORAGE_SIZE).fill(null);
-                    for(let i=0; i<STORAGE_SIZE; i++) storageState[i] = {type:'locked_storage', cost:(i+1)*5};
-
-                    // apartmentState 초기화
-                    apartmentState = [
-                        {type: 'cat', level: 3, hp: 100, rescued: false},
-                        {type: 'dog', level: 3, hp: 100, rescued: false},
-                        {type: 'cat', level: 2, hp: 100, rescued: false}
-                    ];
-
-                    // 재화 및 진행도
+                    // 재화 및 진행도 먼저 설정
                     coins = 20000;
                     cumulativeCoins = 20000;
                     diamonds = 22;
@@ -515,19 +492,56 @@
                     genLevels = {cat: 4, dog: 4};
                     totalQuestsCompleted = 30;
                     currentSetRescues = 0;
-                    specialMissionCycles = [0, 0, 0];
+                    nextSpecialTarget = 200;
+                    specialMissionCycles = [0, 0, 0]; // 스페셜 미션: 파충류(18), 새(21), 물고기(24)에 열림
                     pmType = 0;
                     pmProgress = 0;
+                    isTutorialActive = false;
+
+                    // boardState 완전 초기화 (35칸)
+                    boardState = new Array(BOARD_SIZE).fill(null);
+                    boardState[0] = { type: 'cat_generator' };  // 캣타워 (레벨은 genLevels에서 관리)
+                    boardState[4] = { type: 'dog_generator' };  // 개집
+                    boardState[20] = { type: 'toy_generator', clicks: 0, cooldown: 0 }; // 장난감 생성기
+                    // 7행 미션: 32, 33만 잠금 (사자왕, 북극곰), 나머지는 null (열림)
+                    boardState[30] = null; // 캣타워 Lv.2 달성 → 열림
+                    boardState[31] = null; // 개집 Lv.2 달성 → 열림
+                    boardState[32] = { type: 'animal_mission', target: 'cat', reqLevel: 11 }; // 사자왕
+                    boardState[33] = { type: 'animal_mission', target: 'dog', reqLevel: 11 }; // 북극곰
+                    boardState[34] = null; // 퀘스트 100개 미션 → 열림 (30개 완료했으니 아직 진행중이지만 칸은 열림)
+
+                    // storageState 초기화 (전부 잠금)
+                    storageState = new Array(STORAGE_SIZE).fill(null);
+                    for(let i=0; i<STORAGE_SIZE; i++) storageState[i] = {type:'locked_storage', cost:(i+1)*5};
+
+                    // apartmentState 초기화 (구조 현장)
+                    apartmentState = new Array(APARTMENT_ROOMS).fill(null);
+                    initApartment();
 
                     // 퀘스트 생성
                     quests = [];
+                    questIdCounter = 0;
                     for (let i = 0; i < 6; i++) generateNewQuest();
+
+                    // 상점 초기화
+                    refreshShop();
 
                     // 발견 아이템
                     discoveredItems = new Set(['cat_1','cat_2','cat_3','cat_4','cat_5','dog_1','dog_2','dog_3','dog_4','dog_5']);
 
-                    // 저장
-                    updateAll();
+                    // 렌더링 및 저장
+                    renderGrid('board', boardState, boardEl);
+                    renderGrid('storage', storageState, storageEl);
+                    renderShop();
+                    renderApartment();
+                    updateUI();
+                    updateTimerUI();
+                    updateQuestUI();
+                    updateSpecialQuestUI();
+                    updateRescueQuestUI();
+                    updateSpecialMissionUI();
+                    updatePmUI();
+                    saveGame();
                     showToast('🎉 데이터가 복구되었습니다!');
                 }
                 // === 복구 코드 끝 ===
