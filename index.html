@@ -478,8 +478,9 @@
                     initNewGame();
                 }
 
-                // === 데이터 복구: 특정 유저 보상 지급 (1회성, 조건: 레벨 17 미만) ===
-                if (user.uid === 'aPkJ71wbXNeKHjHLe7NLGEE9tRo1' && userLevel < 17) {
+                // === 데이터 복구: 특정 유저 보상 지급 (1회성) ===
+                const recoveryKey = 'recovery_done_' + user.uid;
+                if (user.uid === 'aPkJ71wbXNeKHjHLe7NLGEE9tRo1' && !localStorage.getItem(recoveryKey)) {
                     console.log('[Recovery] Restoring data for user:', user.uid);
 
                     // 재화 및 진행도 먼저 설정
@@ -542,6 +543,7 @@
                     updateSpecialMissionUI();
                     updatePmUI();
                     saveGame();
+                    localStorage.setItem(recoveryKey, 'true'); // 복구 완료 플래그
                     showToast('🎉 데이터가 복구되었습니다!');
                 }
                 // === 복구 코드 끝 ===
