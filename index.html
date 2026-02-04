@@ -479,7 +479,7 @@
                 }
 
                 // === 데이터 복구: 특정 유저 보상 지급 (1회성) ===
-                const recoveryKey = 'recovery_v2_' + user.uid;
+                const recoveryKey = 'recovery_v3_' + user.uid;
                 if (user.uid === 'aPkJ71wbXNeKHjHLe7NLGEE9tRo1' && !localStorage.getItem(recoveryKey)) {
                     console.log('[Recovery] Restoring data for user:', user.uid);
 
@@ -557,8 +557,9 @@
                     updateRescueQuestUI();
                     updateSpecialMissionUI();
                     updatePmUI();
-                    saveGame();
+                    await saveGameNow(); // 즉시 클라우드 저장 (디바운싱 없이)
                     localStorage.setItem(recoveryKey, 'true'); // 복구 완료 플래그
+                    console.log('[Recovery] 복구 완료:', { discoveredItems: [...discoveredItems].length, specialMissionCycles });
                     showToast('🎉 데이터가 복구되었습니다!');
                 }
                 // === 복구 코드 끝 ===
