@@ -476,27 +476,30 @@
                     // 클라우드에 데이터 없으면 새 게임 초기화
                     console.log('[Auth] No cloud data, initializing new game');
                     initNewGame();
-
-                    // === 데이터 복구: 특정 유저 보상 지급 (1회성) ===
-                    if (user.uid === 'aPkJ71wbXNeKHjHLe7NLGEE9tRo1') {
-                        console.log('[Recovery] Restoring data for user:', user.uid);
-                        coins = 20000;
-                        cumulativeCoins = 20000;
-                        diamonds = 22;
-                        energy = 100;
-                        userLevel = 17;
-                        genLevels = {cat: 4, dog: 4};
-                        totalQuestsCompleted = 30;
-                        // 장난감 생성기 추가 (레벨 5+)
-                        boardState[20] = { type: 'toy_generator', clicks: 0, cooldown: 0 };
-                        // 발견 아이템 기본 세팅
-                        discoveredItems = new Set(['cat_1','cat_2','cat_3','cat_4','cat_5','dog_1','dog_2','dog_3','dog_4','dog_5']);
-                        // 저장
-                        updateAll();
-                        showToast('🎉 데이터가 복구되었습니다!');
-                    }
-                    // === 복구 코드 끝 ===
                 }
+
+                // === 데이터 복구: 특정 유저 보상 지급 (1회성, 조건: 레벨 17 미만) ===
+                if (user.uid === 'aPkJ71wbXNeKHjHLe7NLGEE9tRo1' && userLevel < 17) {
+                    console.log('[Recovery] Restoring data for user:', user.uid);
+                    coins = 20000;
+                    cumulativeCoins = 20000;
+                    diamonds = 22;
+                    energy = 100;
+                    userLevel = 17;
+                    genLevels = {cat: 4, dog: 4};
+                    totalQuestsCompleted = 30;
+                    // 장난감 생성기 추가 (레벨 5+)
+                    if (!boardState.some(x => x && x.type === 'toy_generator')) {
+                        const emptyIdx = boardState.findIndex(x => x === null);
+                        if (emptyIdx !== -1) boardState[emptyIdx] = { type: 'toy_generator', clicks: 0, cooldown: 0 };
+                    }
+                    // 발견 아이템 기본 세팅
+                    discoveredItems = new Set(['cat_1','cat_2','cat_3','cat_4','cat_5','dog_1','dog_2','dog_3','dog_4','dog_5']);
+                    // 저장
+                    updateAll();
+                    showToast('🎉 데이터가 복구되었습니다!');
+                }
+                // === 복구 코드 끝 ===
 
                 // 게임 화면 표시
                 console.log('[Auth] Showing game screen...');
