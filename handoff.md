@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.2.6)
+# 멍냥 머지 게임 - Architecture (v4.2.9)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.2.6
+- **버전**: 4.2.9
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -331,17 +331,19 @@ match /sessions/{userId} {
 |------|------|
 | `saveGame()` | 로컬 + 클라우드 저장 (디바운스) |
 | `saveGameNow()` | 즉시 저장 |
-| `saveToCloud()` | Firestore 저장 |
-| `loadFromCloud()` | Firestore 로드 |
+| `saveToCloud()` | Firestore 저장 (isValidSaveData 검증) |
+| `loadFromCloud()` | Firestore 로드 (에러/데이터없음 구분) |
 | `getGameData()` | 저장할 데이터 객체 생성 |
-| `applyGameData()` | 로드한 데이터 적용 |
-| `validateGameData()` | 데이터 무결성 검증 |
+| `applyGameData()` | 로드한 데이터 적용 (배열 길이 검증) |
+| `validateGameData()` | 데이터 무결성 검증 (배열 패딩) |
+| `sanitizeForFirestore()` | undefined → null 변환 (v4.2.7) |
+| `isValidSaveData()` | 저장 전 데이터 유효성 검증 (v4.2.8) |
 
 ### 게임 초기화
 | 함수 | 역할 |
 |------|------|
 | `init()` | UI 셀 생성, 타이머 시작, 이벤트 등록 |
-| `initNewGame()` | 새 게임 데이터 초기화 |
+| `initNewGame()` | 새 게임 데이터 초기화 (즉시 저장 안 함) |
 | `initApartment()` | 구조 현장 동물 배치 |
 | `refreshShop()` | 상점 아이템 갱신 |
 
@@ -444,6 +446,14 @@ firebase deploy --only hosting
 - **원인**: onSnapshot 리스너 미시작
 - **확인**: `startSessionListener()` 호출 확인
 
+### 유저 데이터 손실 (v4.2.8 이전)
+- **원인**: 네트워크 오류 시 `loadFromCloud()` 실패 → `initNewGame()` 호출 → 빈 데이터 저장
+- **해결**: 3중 방어 체계 구축 (v4.2.8)
+  1. `loadFromCloud()`: 에러/데이터없음 구분, 에러 시 localStorage fallback
+  2. `initNewGame()`: 즉시 저장 제거 (첫 액션 시 저장)
+  3. `isValidSaveData()`: 생성기 없는 빈 데이터 저장 차단
+- **복구**: Firebase Console에서 직접 수정 또는 1회성 복구 코드 사용
+
 ---
 
 ## To-do
@@ -462,6 +472,41 @@ firebase deploy --only hosting
 ---
 
 ## 변경 이력
+
+### v4.2.9 (2026-02-04)
+- 특정 유저 데이터 복구 완료
+  - 원인: 네트워크 오류 시 loadFromCloud 실패 → initNewGame 호출 → 빈 데이터 저장
+  - Firebase Console에서 직접 수정:
+    - boardState[1,2,3] 비움 (새장/어항/사육장 제거)
+    - specialMissionCycles = [2, 2, 1] (새21, 물고기24, 파충류18 오픈)
+    - totalQuestsCompleted = 100 (7행 퀘스트 미션 달성)
+    - discoveredItems에 도감 데이터 추가
+  - 1회성 복구 코드 제거 완료
+
+### v4.2.8 (2026-02-04)
+- 데이터 손실 방지 3중 방어 체계 구축
+  - **원인**: 네트워크 오류 시 loadFromCloud() 실패 → initNewGame() 호출 → 빈 데이터 저장
+  - `loadFromCloud`: 에러/데이터없음 구분 반환
+    - `{ success, reason: 'loaded' | 'no_data' | 'error' }`
+    - 에러 시 localStorage fallback 사용
+  - `initNewGame`: 즉시 저장 제거
+    - 렌더링만 수행, 첫 액션 시 저장
+  - `isValidSaveData`: 저장 전 데이터 유효성 검증
+    - boardState 배열 존재/길이 확인
+    - 생성기 존재 확인 (빈 데이터 저장 차단)
+
+### v4.2.7 (2026-02-04)
+- 데이터 손상 방지 방어 코드 추가
+  - `validateGameData`: 배열 길이 검증 강화
+    - 배열 없음/오류 시 기본값 사용
+    - 길이 부족 시 null로 패딩
+    - 모든 요소 null 시 경고 로그
+  - `applyGameData`: 배열 무결성 검증
+    - boardState/storageState/apartmentState 길이 불일치 시 기존 값 유지
+    - 손상 감지 시 콘솔 경고
+  - `sanitizeForFirestore`: Firestore 저장 전 데이터 정제
+    - 재귀적으로 undefined → null 변환
+    - Firestore가 undefined를 무시하는 문제 해결
 
 ### v4.2.6 (2026-02-03)
 - 장난감 생성기 추가 (🧸)
