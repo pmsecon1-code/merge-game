@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.2.9)
+# 멍냥 머지 게임 - Architecture (v4.3.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.2.9
+- **버전**: 4.3.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -472,6 +472,14 @@ firebase deploy --only hosting
 ---
 
 ## 변경 이력
+
+### v4.3.0 (2026-02-04)
+- 오프라인 에너지 회복 기능 추가
+  - `savedAt` 기준 경과 시간 계산
+  - 회복량 = 경과 시간 / RECOVERY_SEC (30초)
+  - MAX_ENERGY (100) 상한 적용
+  - `recoveryCountdown` 남은 시간 자동 조정
+  - 콘솔 로그: `[Energy] 오프라인 회복: +n (현재: m)`
 
 ### v4.2.9 (2026-02-04)
 - 특정 유저 데이터 복구 완료
