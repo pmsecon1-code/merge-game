@@ -68,15 +68,14 @@
         <div id="save-status" class="text-[10px] text-gray-400 hidden">💾</div>
     </div>
 
-    <!-- 1. 누적 퀘스트 -->
-    <div id="special-quest-bar" class="event-bar">
-        <div class="flex justify-between items-end mb-1">
-            <span class="text-[10px] font-bold text-gray-600">👑 누적 코인 (칸마다 50🪙)</span>
-            <span id="cumulative-text" class="text-[9px] text-yellow-600 font-bold">0 / 200</span>
+    <!-- 1. 레벨업 진행도 -->
+    <div id="levelup-progress-bar" class="event-bar">
+        <div class="flex justify-between items-center mb-1">
+            <span class="text-[10px] font-bold text-blue-600">📋 일반 퀘스트 완료하기 (Lv.업 + <span id="levelup-reward-preview">5</span>💎)</span>
+            <span id="levelup-progress-text" class="text-[9px] text-blue-500 font-bold">0/2</span>
         </div>
         <div class="progress-track">
-            <div id="cumulative-bar" class="progress-fill"></div>
-            <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
+            <div id="levelup-progress-fill" class="progress-fill" style="background: linear-gradient(90deg, #60a5fa, #3b82f6);"></div>
         </div>
     </div>
 
@@ -108,14 +107,15 @@
         </div>
     </div>
 
-    <!-- 4-1. 레벨업 진행도 -->
-    <div id="levelup-progress-bar" class="event-bar">
-        <div class="flex justify-between items-center mb-1">
-            <span class="text-[10px] font-bold text-blue-600">📋 일반 퀘스트 완료하기 (Lv.업 + <span id="levelup-reward-preview">5</span>💎)</span>
-            <span id="levelup-progress-text" class="text-[9px] text-blue-500 font-bold">0/2</span>
+    <!-- 4-1. 누적 코인 -->
+    <div id="special-quest-bar" class="event-bar">
+        <div class="flex justify-between items-end mb-1">
+            <span class="text-[10px] font-bold text-gray-600">👑 누적 코인 (칸마다 50🪙)</span>
+            <span id="cumulative-text" class="text-[9px] text-yellow-600 font-bold">0 / 200</span>
         </div>
         <div class="progress-track">
-            <div id="levelup-progress-fill" class="progress-fill" style="background: linear-gradient(90deg, #60a5fa, #3b82f6);"></div>
+            <div id="cumulative-bar" class="progress-fill"></div>
+            <div class="milestone-marker" style="left: 20%"></div><div class="milestone-marker" style="left: 40%"></div><div class="milestone-marker" style="left: 60%"></div><div class="milestone-marker" style="left: 80%"></div>
         </div>
     </div>
 
