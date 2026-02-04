@@ -994,17 +994,17 @@
         for(let i=0; i<cnt; i++) {
             const rand = Math.random();
             const hasToyGen = userLevel >= 5;
-            // 40% 간식, 20% 장난감 (레벨5+), 나머지 동물
-            const isSnack = rand < 0.40;
-            const isToy = !isSnack && hasToyGen && rand < 0.60;
+            // 30% 간식, 20% 장난감 (레벨5+), 나머지 동물
+            const isSnack = rand < 0.30;
+            const isToy = !isSnack && hasToyGen && rand < 0.50;
             const base = Math.random() > 0.5 ? 'cat' : 'dog';
             const type = isSnack ? base + '_snack' : (isToy ? base + '_toy' : base);
             const min = (isSnack || isToy) ? 2 : minLv;
             const max = (isSnack || isToy) ? maxLvSnack : maxLvAnimal;
             const lv = Math.floor(Math.random() * (max - min + 1)) + min;
-            reqs.push({type, level: lv}); sc += (lv * ((isSnack || isToy) ? 15 : 10));
+            reqs.push({type, level: lv}); sc += (lv * ((isSnack || isToy) ? 7 : 5));
         }
-        quests.push({id:questIdCounter++, npc, reqs, reward:20+sc+Math.floor(Math.random()*10), expiresAt:Date.now()+10*60*1000});
+        quests.push({id:questIdCounter++, npc, reqs, reward:10+sc+Math.floor(Math.random()*5), expiresAt:Date.now()+10*60*1000});
         updateQuestUI();
     }
 
