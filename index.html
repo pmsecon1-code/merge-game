@@ -1050,7 +1050,7 @@
             });
             const remaining = q.expiresAt ? q.expiresAt - Date.now() : 0;
             const timerText = remaining > 0 ? formatQuestTimer(remaining) : '만료';
-            h+=`</div></div><div class="text-[9px] mb-1"><div class="text-yellow-600">보상: ${q.reward}🪙</div><div class="text-red-500 text-center">⏱${timerText}</div></div><div class="quest-btn ${ok?'complete':'incomplete'}" onclick="${ok?`completeQuest(${i})`:''}">${ok?'완료!':'구해줘'}</div>`;
+            h+=`</div></div><div class="text-[9px] mb-1 text-center"><div class="text-yellow-600">보상: ${q.reward}🪙</div><div class="text-red-500">⏱${timerText}</div></div><div class="quest-btn ${ok?'complete':'incomplete'}" onclick="${ok?`completeQuest(${i})`:''}">${ok?'완료!':'구해줘'}</div>`;
             d.innerHTML=h; questContainer.appendChild(d);
         });
         // 버튼 상태 업데이트
