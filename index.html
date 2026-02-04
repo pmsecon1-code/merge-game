@@ -479,7 +479,7 @@
                 }
 
                 // === 데이터 복구: 특정 유저 보상 지급 (1회성) ===
-                const recoveryKey = 'recovery_done_' + user.uid;
+                const recoveryKey = 'recovery_v2_' + user.uid;
                 if (user.uid === 'aPkJ71wbXNeKHjHLe7NLGEE9tRo1' && !localStorage.getItem(recoveryKey)) {
                     console.log('[Recovery] Restoring data for user:', user.uid);
 
