@@ -479,7 +479,7 @@
                 }
 
                 // === 데이터 복구: 특정 유저 보상 지급 (1회성) ===
-                const recoveryKey = 'recovery_v4_' + user.uid;
+                const recoveryKey = 'recovery_v5_' + user.uid;
                 if (user.uid === 'aPkJ71wbXNeKHjHLe7NLGEE9tRo1' && !localStorage.getItem(recoveryKey)) {
                     console.log('[Recovery] Restoring data for user:', user.uid);
 
@@ -491,7 +491,7 @@
                     userLevel = 17;
                     questProgress = 0;
                     genLevels = {cat: 4, dog: 4};
-                    totalQuestsCompleted = 30;
+                    totalQuestsCompleted = 100; // 퀘스트 100개 완료 (7행 미션 달성)
                     currentSetRescues = 0;
                     nextSpecialTarget = 200;
                     specialMissionCycles = [2, 2, 1]; // 스페셜 미션: 새(21), 물고기(24), 파충류(18)에 열림
