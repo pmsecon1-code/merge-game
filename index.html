@@ -481,20 +481,51 @@
                 // === 데이터 복구: 특정 유저 보상 지급 (1회성, 조건: 레벨 17 미만) ===
                 if (user.uid === 'aPkJ71wbXNeKHjHLe7NLGEE9tRo1' && userLevel < 17) {
                     console.log('[Recovery] Restoring data for user:', user.uid);
+
+                    // boardState 완전 초기화 (35칸)
+                    boardState = new Array(BOARD_SIZE).fill(null);
+                    boardState[0] = { type: 'cat_generator', level: 4 };
+                    boardState[4] = { type: 'dog_generator', level: 4 };
+                    boardState[20] = { type: 'toy_generator', clicks: 0, cooldown: 0 };
+                    // 7행 미션 (이미 달성한 것들은 null로)
+                    boardState[30] = null; // 캣타워 Lv.2 달성
+                    boardState[31] = null; // 개집 Lv.2 달성
+                    boardState[32] = { type: 'animal_mission', target: 'cat', reqLevel: 11 };
+                    boardState[33] = { type: 'animal_mission', target: 'dog', reqLevel: 11 };
+                    boardState[34] = { type: 'quest_count_mission', reqCount: 100 };
+
+                    // storageState 초기화
+                    storageState = new Array(STORAGE_SIZE).fill(null);
+                    for(let i=0; i<STORAGE_SIZE; i++) storageState[i] = {type:'locked_storage', cost:(i+1)*5};
+
+                    // apartmentState 초기화
+                    apartmentState = [
+                        {type: 'cat', level: 3, hp: 100, rescued: false},
+                        {type: 'dog', level: 3, hp: 100, rescued: false},
+                        {type: 'cat', level: 2, hp: 100, rescued: false}
+                    ];
+
+                    // 재화 및 진행도
                     coins = 20000;
                     cumulativeCoins = 20000;
                     diamonds = 22;
                     energy = 100;
                     userLevel = 17;
+                    questProgress = 0;
                     genLevels = {cat: 4, dog: 4};
                     totalQuestsCompleted = 30;
-                    // 장난감 생성기 추가 (레벨 5+)
-                    if (!boardState.some(x => x && x.type === 'toy_generator')) {
-                        const emptyIdx = boardState.findIndex(x => x === null);
-                        if (emptyIdx !== -1) boardState[emptyIdx] = { type: 'toy_generator', clicks: 0, cooldown: 0 };
-                    }
-                    // 발견 아이템 기본 세팅
+                    currentSetRescues = 0;
+                    specialMissionCycles = [0, 0, 0];
+                    pmType = 0;
+                    pmProgress = 0;
+
+                    // 퀘스트 생성
+                    quests = [];
+                    for (let i = 0; i < 6; i++) generateNewQuest();
+
+                    // 발견 아이템
                     discoveredItems = new Set(['cat_1','cat_2','cat_3','cat_4','cat_5','dog_1','dog_2','dog_3','dog_4','dog_5']);
+
                     // 저장
                     updateAll();
                     showToast('🎉 데이터가 복구되었습니다!');
