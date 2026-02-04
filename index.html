@@ -450,10 +450,29 @@
 
                 // 클라우드에서 데이터 로드
                 console.log('[Auth] Loading from cloud...');
-                const loaded = await loadFromCloud();
-                console.log('[Auth] Cloud load result:', loaded);
+                const loadResult = await loadFromCloud();
+                console.log('[Auth] Cloud load result:', loadResult);
 
-                if (!loaded) {
+                if (loadResult.reason === 'error') {
+                    // 로드 실패 시 - 새 게임 초기화 하지 않음!
+                    console.error('[Auth] Cloud load failed, trying localStorage fallback');
+                    const localData = localStorage.getItem('mergeGame');
+                    if (localData) {
+                        try {
+                            const parsed = JSON.parse(localData);
+                            const validated = validateGameData(parsed);
+                            applyGameData(validated);
+                            showToast('⚠️ 오프라인 데이터 사용 중');
+                        } catch (e) {
+                            console.error('[Auth] LocalStorage parse failed:', e);
+                            showToast('⚠️ 데이터 로드 실패. 새로고침 해주세요.');
+                            return; // 게임 시작 안 함
+                        }
+                    } else {
+                        showToast('⚠️ 데이터 로드 실패. 새로고침 해주세요.');
+                        return; // 게임 시작 안 함
+                    }
+                } else if (loadResult.reason === 'no_data') {
                     // 클라우드에 데이터 없으면 새 게임 초기화
                     console.log('[Auth] No cloud data, initializing new game');
                     initNewGame();
@@ -638,10 +657,31 @@
         return data;
     }
 
+    // 데이터가 유효한지 확인 (빈 게임 데이터 저장 방지)
+    function isValidSaveData(data) {
+        // boardState가 없거나 배열이 아니면 무효
+        if (!data.boardState || !Array.isArray(data.boardState)) return false;
+        // boardState 길이가 틀리면 무효
+        if (data.boardState.length !== BOARD_SIZE) return false;
+        // 생성기가 하나도 없으면 무효 (초기 게임에도 cat_generator, dog_generator 있음)
+        const hasGenerator = data.boardState.some(x => x && x.type && x.type.includes('generator'));
+        if (!hasGenerator) {
+            console.warn('[saveToCloud] 생성기 없음 - 저장 차단');
+            return false;
+        }
+        return true;
+    }
+
     async function saveToCloud(data) {
         if (!currentUser) return;
         if (!navigator.onLine) {
             updateSaveStatus('offline');
+            return;
+        }
+        // 빈 데이터/손상 데이터 저장 방지
+        if (!isValidSaveData(data)) {
+            console.error('[saveToCloud] 무효한 데이터 - 저장 차단됨', data);
+            updateSaveStatus('error');
             return;
         }
         // 이전 저장이 진행 중이면 대기
@@ -676,7 +716,7 @@
     // 클라우드에서 데이터 로드 (항상 클라우드 우선)
     async function loadFromCloud() {
         console.log('[Cloud] Loading from cloud...');
-        if (!currentUser) return false;
+        if (!currentUser) return { success: false, reason: 'no_user' };
         try {
             const doc = await db.collection('saves').doc(currentUser.uid).get();
             if (doc.exists) {
@@ -686,13 +726,13 @@
                 applyGameData(validatedData);
                 localStorage.setItem('mergeGame', JSON.stringify(validatedData));
                 updateAll();
-                return true;
+                return { success: true, reason: 'loaded' };
             }
             console.log('[Cloud] No data found');
-            return false;
+            return { success: false, reason: 'no_data' };
         } catch (e) {
             console.error('[Cloud] Load failed:', e);
-            return false;
+            return { success: false, reason: 'error', error: e };
         }
     }
 
@@ -812,9 +852,19 @@
             generateNewQuest();
         }
 
-        // 렌더링 및 저장
-        updateAll();
-        saveGame();
+        // 렌더링만 (저장은 사용자가 실제 플레이 시)
+        renderGrid('board', boardState, boardEl);
+        renderGrid('storage', storageState, storageEl);
+        renderShop();
+        renderApartment();
+        updateUI();
+        updateTimerUI();
+        updateQuestUI();
+        updateSpecialQuestUI();
+        updateRescueQuestUI();
+        updateSpecialMissionUI();
+        updatePmUI();
+        // 새 게임은 첫 액션 시 저장됨 (initNewGame에서 즉시 저장 안 함)
     }
 
     // --- 초기화 함수 (UI 셋업만) ---
