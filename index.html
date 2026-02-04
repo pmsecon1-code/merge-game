@@ -536,8 +536,23 @@
         currentSetRescues = d.currentSetRescues ?? 0;
         totalQuestsCompleted = d.totalQuestsCompleted ?? 0;
         diamonds = d.diamonds ?? 0;
+
+        // 오프라인 에너지 회복 (v4.3.0)
         energy = d.energy ?? MAX_ENERGY;
         recoveryCountdown = d.recoveryCountdown ?? RECOVERY_SEC;
+        if (d.savedAt && energy < MAX_ENERGY) {
+            const elapsed = Date.now() - d.savedAt; // 경과 시간 (ms)
+            const recoveryMs = RECOVERY_SEC * 1000; // 회복 주기 (ms)
+            const fullRecoveries = Math.floor(elapsed / recoveryMs); // 완전 회복 횟수
+            const remainingMs = elapsed % recoveryMs; // 남은 시간
+
+            if (fullRecoveries > 0) {
+                energy = Math.min(MAX_ENERGY, energy + fullRecoveries);
+                // 남은 시간으로 recoveryCountdown 조정
+                recoveryCountdown = Math.max(0, RECOVERY_SEC - Math.floor(remainingMs / 1000));
+                console.log(`[Energy] 오프라인 회복: +${fullRecoveries} (현재: ${energy})`);
+            }
+        }
         userLevel = d.userLevel ?? 1;
         questProgress = d.questProgress ?? 0;
         quests = (d.quests || []).map(q => ({ ...q, expiresAt: q.expiresAt || Date.now() + 10*60*1000 }));
