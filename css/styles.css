@@ -50,7 +50,7 @@ body {
     flex-shrink: 0;
     height: 28px;
     font-size: 0.8rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* ============================================
@@ -61,7 +61,7 @@ body {
     background: white;
     border-radius: 10px;
     padding: 4px 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -148,7 +148,7 @@ body {
     top: 0;
     bottom: 0;
     width: 1px;
-    background: rgba(255,255,255,0.8);
+    background: rgba(255, 255, 255, 0.8);
     z-index: 10;
 }
 
@@ -218,7 +218,7 @@ body {
     justify-content: space-between;
     padding: 4px;
     position: relative;
-    box-shadow: 0 2px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05);
 }
 
 .quest-card.ready {
@@ -228,14 +228,30 @@ body {
 }
 
 @keyframes rainbow-border {
-    0% { border-color: #ff0000; }
-    14% { border-color: #ff7f00; }
-    28% { border-color: #ffff00; }
-    42% { border-color: #00ff00; }
-    57% { border-color: #0000ff; }
-    71% { border-color: #4b0082; }
-    85% { border-color: #9400d3; }
-    100% { border-color: #ff0000; }
+    0% {
+        border-color: #ff0000;
+    }
+    14% {
+        border-color: #ff7f00;
+    }
+    28% {
+        border-color: #ffff00;
+    }
+    42% {
+        border-color: #00ff00;
+    }
+    57% {
+        border-color: #0000ff;
+    }
+    71% {
+        border-color: #4b0082;
+    }
+    85% {
+        border-color: #9400d3;
+    }
+    100% {
+        border-color: #ff0000;
+    }
 }
 
 .quest-top {
@@ -302,7 +318,7 @@ body {
     gap: 0;
     overflow: hidden;
     border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     background: #fbcfe8;
     position: relative;
     margin: 0 auto;
@@ -451,7 +467,7 @@ body {
     border: 2px solid #ef4444;
     z-index: 30;
     animation: bubble-pop 1.5s ease-out forwards;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .help-bubble::after {
@@ -466,17 +482,30 @@ body {
 }
 
 @keyframes bubble-pop {
-    0% { transform: scale(0); opacity: 0; }
-    20% { transform: scale(1.2); opacity: 1; }
-    40% { transform: scale(1); }
-    80% { opacity: 1; }
-    100% { opacity: 0; transform: translateY(-10px); }
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    20% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    40% {
+        transform: scale(1);
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
 }
 
 .fire-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(0deg, rgba(239,68,68,0.5) 0%, transparent 80%);
+    background: linear-gradient(0deg, rgba(239, 68, 68, 0.5) 0%, transparent 80%);
     animation: burn 0.5s infinite alternate;
     z-index: 5;
     pointer-events: none;
@@ -491,7 +520,7 @@ body {
     display: flex;
     align-items: center;
     gap: 2px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     z-index: 20;
     position: absolute;
 }
@@ -513,8 +542,12 @@ body {
 }
 
 @keyframes fireFloat {
-    0% { transform: translateY(0) scale(1); }
-    100% { transform: translateY(-3px) scale(1.1); }
+    0% {
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        transform: translateY(-3px) scale(1.1);
+    }
 }
 
 /* ============================================
@@ -570,7 +603,7 @@ body {
     position: absolute;
     bottom: 2px;
     right: 2px;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.7);
     color: #22d3ee;
     font-size: 0.6rem;
     padding: 1px 4px;
@@ -596,7 +629,7 @@ body {
     background: rgba(255, 255, 255, 0.6);
     border-radius: 8px;
     position: relative;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -618,7 +651,7 @@ body {
     align-items: center;
     cursor: pointer;
     color: #475569;
-    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .upgrade-mission-cell {
@@ -665,7 +698,7 @@ body {
     border-radius: 20%;
     opacity: 0.6;
     z-index: -1;
-    border: 2px dashed rgba(255,255,255,0.5);
+    border: 2px dashed rgba(255, 255, 255, 0.5);
 }
 
 .new-badge {
@@ -685,7 +718,7 @@ body {
     position: absolute;
     bottom: 1px;
     right: 1px;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
     color: white;
     font-size: 0.5rem;
     padding: 0 3px;
@@ -709,7 +742,7 @@ body {
     justify-content: center;
     cursor: pointer;
     z-index: 50;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* ============================================
@@ -741,7 +774,13 @@ body {
     inset: 0;
     pointer-events: none;
     z-index: 2;
-    background: repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(100,116,139,0.6) 10px, rgba(100,116,139,0.6) 13px);
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 10px,
+        rgba(100, 116, 139, 0.6) 10px,
+        rgba(100, 116, 139, 0.6) 13px
+    );
 }
 
 .cage-label {
@@ -781,7 +820,7 @@ body {
 .cooldown-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.7);
     z-index: 20;
     color: white;
     font-size: 0.8rem;
@@ -797,7 +836,7 @@ body {
     position: absolute;
     top: 2px;
     left: 2px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     color: white;
     font-size: 0.5rem;
     padding: 1px 3px;
@@ -814,9 +853,17 @@ body {
 }
 
 @keyframes pop {
-    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
-    50% { transform: scale(1.3) rotate(10deg); }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    0% {
+        transform: scale(0) rotate(-20deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.3) rotate(10deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
 }
 
 .spawn-particle {
@@ -828,8 +875,14 @@ body {
 }
 
 @keyframes particle-burst {
-    0% { transform: translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+    }
 }
 
 .spawn-ring {
@@ -847,18 +900,36 @@ body {
 .spawn-ring.lucky {
     border-color: #fbbf24;
     border-width: 6px;
-    box-shadow: 0 0 20px #fbbf24, 0 0 40px #f59e0b;
+    box-shadow:
+        0 0 20px #fbbf24,
+        0 0 40px #f59e0b;
     animation: ring-expand-lucky 0.7s ease-out forwards;
 }
 
 @keyframes ring-expand {
-    0% { width: 10px; height: 10px; opacity: 1; }
-    100% { width: 60px; height: 60px; opacity: 0; }
+    0% {
+        width: 10px;
+        height: 10px;
+        opacity: 1;
+    }
+    100% {
+        width: 60px;
+        height: 60px;
+        opacity: 0;
+    }
 }
 
 @keyframes ring-expand-lucky {
-    0% { width: 10px; height: 10px; opacity: 1; }
-    100% { width: 100px; height: 100px; opacity: 0; }
+    0% {
+        width: 10px;
+        height: 10px;
+        opacity: 1;
+    }
+    100% {
+        width: 100px;
+        height: 100px;
+        opacity: 0;
+    }
 }
 
 .lucky-glow {
@@ -866,23 +937,33 @@ body {
 }
 
 @keyframes lucky-glow {
-    0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.8); }
-    50% { box-shadow: 0 0 30px 15px rgba(251, 191, 36, 0.6); }
-    100% { box-shadow: none; }
+    0% {
+        box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.8);
+    }
+    50% {
+        box-shadow: 0 0 30px 15px rgba(251, 191, 36, 0.6);
+    }
+    100% {
+        box-shadow: none;
+    }
 }
 
 .lucky-flash {
     position: fixed;
     inset: 0;
-    background: radial-gradient(circle, rgba(251,191,36,0.4) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, transparent 70%);
     pointer-events: none;
     z-index: 1000;
     animation: flash-fade 0.5s ease-out forwards;
 }
 
 @keyframes flash-fade {
-    0% { opacity: 1; }
-    100% { opacity: 0; }
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
 .lucky-text {
@@ -893,17 +974,31 @@ body {
     font-size: 3rem;
     font-weight: bold;
     color: #fbbf24;
-    text-shadow: 0 0 10px #f59e0b, 0 0 20px #fbbf24, 2px 2px 0 #92400e;
+    text-shadow:
+        0 0 10px #f59e0b,
+        0 0 20px #fbbf24,
+        2px 2px 0 #92400e;
     pointer-events: none;
     z-index: 1001;
     animation: lucky-text-anim 1s ease-out forwards;
 }
 
 @keyframes lucky-text-anim {
-    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-    30% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
-    50% { transform: translate(-50%, -50%) scale(1); }
-    100% { transform: translate(-50%, -50%) translateY(-30px); opacity: 0; }
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+    30% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        transform: translate(-50%, -50%) translateY(-30px);
+        opacity: 0;
+    }
 }
 
 .cage-shake {
@@ -911,11 +1006,22 @@ body {
 }
 
 @keyframes cage-shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-4px) rotate(-2deg); }
-    40% { transform: translateX(4px) rotate(2deg); }
-    60% { transform: translateX(-3px) rotate(-1deg); }
-    80% { transform: translateX(3px) rotate(1deg); }
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-4px) rotate(-2deg);
+    }
+    40% {
+        transform: translateX(4px) rotate(2deg);
+    }
+    60% {
+        transform: translateX(-3px) rotate(-1deg);
+    }
+    80% {
+        transform: translateX(3px) rotate(1deg);
+    }
 }
 
 .floating-text {
@@ -928,18 +1034,33 @@ body {
 }
 
 @keyframes floatUp {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(-50px); opacity: 0; }
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
 }
 
 @keyframes burn {
-    0% { opacity: 0.5; }
-    100% { opacity: 0.8; }
+    0% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0.8;
+    }
 }
 
 /* ============================================
@@ -964,8 +1085,13 @@ body {
 }
 
 @keyframes pulse-scale {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.1); }
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
 }
 
 /* ============================================
@@ -974,7 +1100,7 @@ body {
 .overlay-bg {
     position: fixed;
     inset: 0;
-    background: rgba(255,255,255,0.95);
+    background: rgba(255, 255, 255, 0.95);
     z-index: 2000;
     display: none;
     flex-direction: column;
@@ -1017,7 +1143,7 @@ body {
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 2500;
     display: none;
     align-items: center;
@@ -1119,7 +1245,7 @@ body {
     font-size: 0.7rem;
     font-weight: bold;
     color: white;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
     transform-origin: center center;
     pointer-events: none;
 }

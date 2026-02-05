@@ -1,0 +1,19 @@
+{
+    "name": "merge-game",
+    "version": "4.3.2",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "format": "prettier --write \"**/*.{html,css,js,json}\"",
+        "format:check": "prettier --check \"**/*.{html,css,js,json}\""
+    },
+    "devDependencies": {
+        "eslint": "^9.0.0",
+        "eslint-config-prettier": "^10.0.0",
+        "eslint-plugin-html": "^8.0.0",
+        "globals": "^15.0.0",
+        "prettier": "^3.0.0"
+    }
+}

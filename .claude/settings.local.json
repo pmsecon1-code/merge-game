@@ -1,21 +1,20 @@
 {
   "permissions": {
     "allow": [
-      "Skill(init-project)",
-      "Bash(git init:*)",
-      "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: 멍냥 머지 게임 초기 버전\n\n- 고양이/강아지 머지 시스템\n- 구조 현장 룰렛 미니게임\n- 퀘스트 시스템\n- 스페셜 미션 \\(새/물고기/파충류\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git config:*)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(npm *)",
+      "Bash(firebase *)",
       "Bash(powershell -Command:*)",
-      "Bash(git remote add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: 대규모 게임 시스템 개선\n\n- 도감: discoveredItems로 발견 아이템 추적\n- 퀘스트: 6개로 확장, 레벨별 난이도, 자동 정렬/이동\n- 생성기: 행운 시스템 개선 \\(Lv+1 동물/간식\\)\n- Lucky 이펙트: 화면 플래시, 파티클 강화\n- 상시 미션: 합성 100회/생성 200회 순환\n- 7행: 캣타워/개집 Lv.2 미션 셀 추가\n- 생성기 이름: 고양이→캣타워, 강아지→개집\n- 버그 수정: 구조 보상, 스페셜 퀘스트 한글화\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git push:*)",
-      "Bash(git remote set-url:*)",
-      "Bash(gh repo view:*)",
-      "Bash(gh api:*)",
-      "Bash(git commit:*)",
-      "Bash(npm install:*)",
-      "Bash(firebase login)"
+      "Skill(*)",
+      "Bash(node --version:*)",
+      "Bash(npm --version:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx prettier:*)",
+      "Bash(git -C \"C:\\\\Users\\\\DG-2501-PN-001\\\\Desktop\\\\merge2\" status)",
+      "Bash(git -C \"C:\\\\Users\\\\DG-2501-PN-001\\\\Desktop\\\\merge2\" diff --stat)",
+      "Bash(git -C \"C:\\\\Users\\\\DG-2501-PN-001\\\\Desktop\\\\merge2\" log --oneline -5)",
+      "Bash(git -C \"C:\\\\Users\\\\DG-2501-PN-001\\\\Desktop\\\\merge2\" add .prettierignore .prettierrc CLAUDE.md eslint.config.js package.json package-lock.json .claude/commands/handoff.md .claude/commands/deploy.md .claude/settings.local.json 404.html css/styles.css firebase.json index.html js/constants.js)"
     ]
   }
 }
