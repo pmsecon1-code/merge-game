@@ -65,7 +65,6 @@
         <div id="game-container" style="display: none">
             <!-- 상태바 -->
             <div class="status-bar">
-                <h1 class="text-sm font-bold text-rose-500 mr-1 flex-shrink-0">멍냥 머지</h1>
                 <div class="status-item border-yellow-300">
                     <span class="text-xs">⚡</span>
                     <div class="flex flex-col leading-none">
@@ -80,6 +79,10 @@
                 <div class="status-item border-cyan-400">
                     <span class="text-xs">💎</span>
                     <span id="diamond-val" class="text-xs text-cyan-600 font-bold">0</span>
+                </div>
+                <div class="status-item border-fuchsia-400">
+                    <span class="text-xs">🃏</span>
+                    <span id="card-val" class="text-xs text-fuchsia-600 font-bold">0</span>
                 </div>
                 <div class="status-item border-purple-400">
                     <span id="level-val" class="text-xs font-bold text-purple-600">Lv.1</span>
@@ -172,6 +175,14 @@
                     <div class="flex gap-1 items-center">
                         <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold">⏱14일</span>
                         <button
+                            id="draw-btn"
+                            onclick="openPhotoDraw()"
+                            disabled
+                            class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold disabled:opacity-40"
+                        >
+                            뽑기 (30🃏)
+                        </button>
+                        <button
                             onclick="openAlbum()"
                             class="text-[9px] bg-fuchsia-100 text-fuchsia-600 px-2 py-0.5 rounded-full font-bold"
                         >
@@ -179,20 +190,9 @@
                         </button>
                     </div>
                 </div>
-                <div class="flex justify-between items-center mb-1">
-                    <span id="card-count" class="text-[10px] font-bold text-fuchsia-500">🃏 0/30</span>
-                    <button
-                        id="draw-btn"
-                        onclick="openPhotoDraw()"
-                        disabled
-                        class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold disabled:opacity-40"
-                    >
-                        뽑기 (30🃏)
-                    </button>
-                </div>
                 <div class="progress-track">
                     <div
-                        id="album-card-bar"
+                        id="album-photo-bar"
                         class="progress-fill"
                         style="background: linear-gradient(90deg, #d946ef, #a855f7)"
                     ></div>

@@ -212,14 +212,14 @@ function updateAlbumBarUI() {
     const progress = getAlbumProgress();
     const totalPhotos = ALBUM_THEMES.reduce((s, t) => s + t.photos.length, 0);
     const progressEl = document.getElementById('album-progress-text');
-    const cardEl = document.getElementById('card-count');
     const drawBtn = document.getElementById('draw-btn');
     const timerEl = document.getElementById('album-timer');
-    const cardBar = document.getElementById('album-card-bar');
+    const photoBar = document.getElementById('album-photo-bar');
+    const cardValEl = document.getElementById('card-val');
 
     if (progressEl) progressEl.innerText = `${progress}/${totalPhotos}`;
-    if (cardEl) cardEl.innerText = `🃏 ${Math.min(cards, ALBUM_CARD_COST)}/${ALBUM_CARD_COST}`;
     if (drawBtn) drawBtn.disabled = cards < ALBUM_CARD_COST;
     if (timerEl) timerEl.innerText = `⏱${formatAlbumTimer()}`;
-    if (cardBar) cardBar.style.width = `${Math.min((cards / ALBUM_CARD_COST) * 100, 100)}%`;
+    if (photoBar) photoBar.style.width = `${Math.min((progress / totalPhotos) * 100, 100)}%`;
+    if (cardValEl) cardValEl.innerText = cards;
 }
