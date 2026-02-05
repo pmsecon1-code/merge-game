@@ -161,7 +161,45 @@
                 </div>
             </div>
 
-            <!-- 5. 스페셜 퀘스트 (새/물고기/파충류) -->
+            <!-- 5. 앨범 -->
+            <div id="album-bar" class="event-bar" style="border: 2px solid #e879f9">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] font-bold text-fuchsia-600">
+                        📸 앨범
+                        <span id="album-progress-text" class="text-[9px] text-fuchsia-400">0/81</span>
+                        <span class="text-[9px] text-fuchsia-300">(완성 500🪙)</span>
+                    </span>
+                    <div class="flex gap-1 items-center">
+                        <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold">⏱14일</span>
+                        <button
+                            onclick="openAlbum()"
+                            class="text-[9px] bg-fuchsia-100 text-fuchsia-600 px-2 py-0.5 rounded-full font-bold"
+                        >
+                            앨범 보기
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mb-1">
+                    <span id="card-count" class="text-[10px] font-bold text-fuchsia-500">🃏 0/30</span>
+                    <button
+                        id="draw-btn"
+                        onclick="openPhotoDraw()"
+                        disabled
+                        class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold disabled:opacity-40"
+                    >
+                        뽑기 (30🃏)
+                    </button>
+                </div>
+                <div class="progress-track">
+                    <div
+                        id="album-card-bar"
+                        class="progress-fill"
+                        style="background: linear-gradient(90deg, #d946ef, #a855f7)"
+                    ></div>
+                </div>
+            </div>
+
+            <!-- 6. 스페셜 퀘스트 (새/물고기/파충류) -->
             <div id="special-quest-area" class="event-bar">
                 <span class="text-[10px] font-bold text-yellow-600">⭐ 스페셜 퀘스트</span>
                 <div id="special-mission-container">
@@ -219,40 +257,7 @@
                 <div class="grid-layout" id="shop-grid"></div>
             </div>
 
-            <!-- 8. 앨범 -->
-            <div id="album-bar" class="event-bar" style="border: 2px solid #e879f9">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-[10px] font-bold text-fuchsia-600">
-                        📸 앨범
-                        <span id="album-progress-text" class="text-[9px] text-fuchsia-400">0/81</span>
-                    </span>
-                    <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold">⏱14일</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <div class="flex gap-2 items-center">
-                        <span id="album-theme-count" class="text-[9px] font-bold text-fuchsia-400">🏆0/9</span>
-                        <span id="card-count" class="text-[10px] font-bold text-fuchsia-500">🃏 0</span>
-                    </div>
-                    <div class="flex gap-1 items-center">
-                        <button
-                            id="draw-btn"
-                            onclick="openPhotoDraw()"
-                            disabled
-                            class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold disabled:opacity-40"
-                        >
-                            뽑기 (30🃏)
-                        </button>
-                        <button
-                            onclick="openAlbum()"
-                            class="text-[9px] bg-fuchsia-100 text-fuchsia-600 px-2 py-0.5 rounded-full font-bold"
-                        >
-                            앨범
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 9. 창고 -->
+            <!-- 8. 창고 -->
             <div id="storage-wrapper" class="event-bar">
                 <span class="text-[10px] font-bold text-emerald-600">📦 창고</span>
                 <div id="storage-area" class="grid-layout"></div>
@@ -486,7 +491,7 @@
             <div class="modal-content">
                 <h2 class="text-center text-xl text-fuchsia-600 font-bold mb-3">📸 앨범</h2>
                 <div id="album-tabs" class="flex gap-1 mb-3 overflow-x-auto pb-1"></div>
-                <div id="album-grid" class="grid grid-cols-3 gap-2 mb-3"></div>
+                <div id="album-grid" class="mb-3"></div>
                 <div id="album-theme-reward" class="text-center text-[10px] text-gray-400 mb-2"></div>
                 <button onclick="closeAlbum()" class="w-full bg-gray-200 py-2 rounded-lg text-gray-600 font-bold">
                     닫기

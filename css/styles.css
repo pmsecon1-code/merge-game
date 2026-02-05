@@ -1355,3 +1355,10 @@ body {
     background: #fef3c7;
     border: 1px solid #f59e0b;
 }
+
+.album-rarity-label {
+    font-size: 0.6rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+    padding-left: 2px;
+}
