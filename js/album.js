@@ -130,31 +130,18 @@ function renderAlbumGrid(idx) {
     const collected = theme.photos.filter((p) => album.includes(`${theme.id}_${p.id}`)).length;
     const isComplete = collected === theme.photos.length;
 
-    const grouped = { N: [], R: [], SR: [] };
-    for (const p of theme.photos) grouped[p.rarity].push(p);
-
-    let html = '';
-    const sections = [
-        { rarity: 'N', label: '일반', color: '#9ca3af' },
-        { rarity: 'R', label: '레어', color: '#3b82f6' },
-        { rarity: 'SR', label: '슈퍼레어', color: '#f59e0b' },
-    ];
-    for (const sec of sections) {
-        if (grouped[sec.rarity].length === 0) continue;
-        html += `<div class="album-rarity-label" style="color:${sec.color}">${sec.label}</div>`;
-        html += '<div class="grid grid-cols-3 gap-2 mb-2">';
-        for (const p of grouped[sec.rarity]) {
-            const key = `${theme.id}_${p.id}`;
-            const has = album.includes(key);
-            html += `
+    let html = '<div class="grid grid-cols-3 gap-2">';
+    for (const p of theme.photos) {
+        const key = `${theme.id}_${p.id}`;
+        const has = album.includes(key);
+        html += `
             <div class="album-photo ${has ? 'collected' : 'locked'} rarity-${p.rarity}">
                 <div class="photo-emoji">${has ? p.emoji : '❓'}</div>
                 <div class="photo-name">${has ? p.name : '???'}</div>
                 <div class="photo-rarity ${p.rarity}">${p.rarity}</div>
             </div>`;
-        }
-        html += '</div>';
     }
+    html += '</div>';
     gridEl.innerHTML = html;
 
     if (isComplete) {
