@@ -168,7 +168,8 @@ function startShopTimer() {
 function refreshShop() {
     shopNextRefresh = Date.now() + SHOP_REFRESH_MS;
     const t = getActiveTypes();
-    for (let i = 0; i < SHOP_SIZE - 1; i++) shopItems[i] = generateRandomShopItem(t);
+    for (let i = 0; i < SHOP_SIZE - 2; i++) shopItems[i] = generateRandomShopItem(t);
+    shopItems[SHOP_SIZE - 2] = { type: 'card_pack', amount: 30, price: 20 };
     shopItems[SHOP_SIZE - 1] = { type: 'diamond_pack', amount: 10, price: 500 };
     renderShop();
 }
@@ -189,7 +190,9 @@ function renderShop() {
         d.className = 'shop-cell';
         if (item) {
             d.onclick = () => buyShopItem(idx);
-            if (item.type === 'diamond_pack') {
+            if (item.type === 'card_pack') {
+                d.innerHTML = `<div class="bg-circle" style="background-color:#f0abfc"></div><div style="font-size:1.2rem">🃏x${item.amount}</div><div class="shop-price-tag">💎${item.price}</div>`;
+            } else if (item.type === 'diamond_pack') {
                 d.innerHTML = `<div class="bg-circle" style="background-color:#67e8f9"></div><div style="font-size:1.2rem">💎x${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">🪙${item.price}</div>`;
             } else {
                 let list;
@@ -213,6 +216,17 @@ function renderShop() {
 function buyShopItem(idx) {
     const item = shopItems[idx];
     if (!item) return;
+    if (item.type === 'card_pack') {
+        if (diamonds < item.price) {
+            showToast('다이아 부족!');
+            return;
+        }
+        diamonds -= item.price;
+        cards += item.amount;
+        showToast(`🃏 +${item.amount} 획득!`);
+        updateAll();
+        return;
+    }
     if (item.type === 'diamond_pack') {
         if (coins < item.price) {
             showToast('코인 부족!');
