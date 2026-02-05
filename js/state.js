@@ -63,6 +63,9 @@ let cards = 0,
 let currentAlbumTheme = 0;
 let albumResetTime = Date.now() + ALBUM_CYCLE_MS;
 
+// --- 일일 보너스 ---
+let lastDailyBonusDate = '';
+
 // --- 클라우드 저장 ---
 let cloudSaveTimeout = null;
 let cloudSavePromise = null;

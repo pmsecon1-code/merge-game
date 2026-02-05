@@ -91,7 +91,7 @@ function completeQuest(i) {
         cumulativeCoins += q.reward;
         showToast(`완료! +${q.reward}코인`);
     }
-    if (questProgress >= userLevel * 2) {
+    if (questProgress >= Math.min(userLevel * 2, 20)) {
         const reward = Math.ceil(userLevel / 5) * 5;
         userLevel++;
         questProgress = 0;
@@ -466,4 +466,17 @@ function moveItem(fz, fi, tz, ti) {
         ts[ti] = fIt;
         ss[fi] = tIt;
     }
+}
+
+// --- 일일 보너스 ---
+function checkDailyBonus() {
+    const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+    if (lastDailyBonusDate === today) return;
+    lastDailyBonusDate = today;
+    coins += DAILY_BONUS.coins;
+    cumulativeCoins += DAILY_BONUS.coins;
+    diamonds += DAILY_BONUS.diamonds;
+    cards += DAILY_BONUS.cards;
+    showMilestonePopup('🎁 일일 보너스!', `${DAILY_BONUS.coins}🪙 ${DAILY_BONUS.diamonds}💎 ${DAILY_BONUS.cards}🃏`);
+    saveGame();
 }

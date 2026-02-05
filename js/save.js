@@ -34,6 +34,7 @@ function getGameData() {
         cards,
         album: [...album],
         albumResetTime: albumResetTime - Date.now(),
+        lastDailyBonusDate,
         savedAt: Date.now(),
     };
 }
@@ -95,6 +96,7 @@ function applyGameData(d) {
     cards = d.cards ?? 0;
     album = d.album || [];
     albumResetTime = Date.now() + (d.albumResetTime ?? ALBUM_CYCLE_MS);
+    lastDailyBonusDate = d.lastDailyBonusDate || '';
 
     // 앨범 주기 초기화 (14일)
     if (Date.now() >= albumResetTime) {
@@ -360,6 +362,7 @@ function initNewGame() {
     cards = 0;
     album = [];
     albumResetTime = Date.now() + ALBUM_CYCLE_MS;
+    lastDailyBonusDate = '';
 
     boardState[0] = { type: 'cat_generator' };
     boardState[4] = { type: 'dog_generator' };

@@ -63,6 +63,7 @@ export default [
                 ALBUM_COMPLETE_COINS: 'readonly',
                 ALBUM_ALL_COMPLETE_DIAMONDS: 'readonly',
                 ALBUM_CYCLE_MS: 'readonly',
+                DAILY_BONUS: 'readonly',
                 getItemData: 'readonly',
                 getMaxLevel: 'readonly',
                 getItemList: 'readonly',
@@ -134,6 +135,7 @@ export default [
                 album: 'writable',
                 currentAlbumTheme: 'writable',
                 albumResetTime: 'writable',
+                lastDailyBonusDate: 'writable',
                 // auth.js globals
                 auth: 'readonly',
                 db: 'readonly',
@@ -179,6 +181,7 @@ export default [
                 getActiveTypes: 'readonly',
                 checkToyGeneratorUnlock: 'readonly',
                 moveItem: 'readonly',
+                checkDailyBonus: 'readonly',
                 // systems.js globals
                 getSlotUnlockLevel: 'readonly',
                 updateSpecialMissionUI: 'readonly',

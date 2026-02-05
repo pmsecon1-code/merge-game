@@ -28,7 +28,7 @@ const RESCUE_QUEST_REWARD = 1000;
 const FIRE_EXTINGUISH_REWARD = 100;
 const SPECIAL_QUEST_GOAL = 1000;
 const SPECIAL_QUEST_STEP = 200;
-const SPECIAL_QUEST_REWARD_COINS = 50;
+const SPECIAL_QUEST_REWARD_COINS = 100;
 
 // --- 게임 밸런스 ---
 const CAGE_MAX_LEVEL = 5;
@@ -47,7 +47,7 @@ const NPC_AVATARS = ['👩‍🌾', '👨‍🍳', '👮‍♀️', '🧙‍♂�
 const PM_GOALS = [100, 200];
 const PM_TITLES = ['100번 합성하기', '200번 생성하기'];
 const PM_ICONS = ['🔨', '✨'];
-const PM_REWARD = 100;
+const PM_REWARD = 200;
 
 // ============================================
 // 동물 데이터
@@ -158,12 +158,15 @@ const DOG_TOYS = [
 const ALBUM_CARD_COST = 30;
 const ALBUM_DRAW_COUNT = 2;
 const ALBUM_CARD_CHANCE = 0.3;
-const ALBUM_CARD_MIN = 1;
-const ALBUM_CARD_MAX = 5;
+const ALBUM_CARD_MIN = 2;
+const ALBUM_CARD_MAX = 6;
 const ALBUM_DUPE_REWARD = { N: 3, R: 8, SR: 20 };
 const ALBUM_COMPLETE_COINS = 500;
 const ALBUM_ALL_COMPLETE_DIAMONDS = 100;
-const ALBUM_CYCLE_MS = 14 * 24 * 60 * 60 * 1000; // 14일
+const ALBUM_CYCLE_MS = 21 * 24 * 60 * 60 * 1000; // 21일
+
+// --- 일일 보너스 ---
+const DAILY_BONUS = { coins: 50, diamonds: 5, cards: 5 };
 
 const ALBUM_THEMES = [
     {
