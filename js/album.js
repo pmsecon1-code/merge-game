@@ -212,13 +212,11 @@ function updateAlbumBarUI() {
     const progress = getAlbumProgress();
     const totalPhotos = ALBUM_THEMES.reduce((s, t) => s + t.photos.length, 0);
     const progressEl = document.getElementById('album-progress-text');
-    const drawBtn = document.getElementById('draw-btn');
     const timerEl = document.getElementById('album-timer');
     const photoBar = document.getElementById('album-photo-bar');
     const cardValEl = document.getElementById('card-val');
 
     if (progressEl) progressEl.innerText = `${progress}/${totalPhotos}`;
-    if (drawBtn) drawBtn.innerText = `뽑기 (${cards}/${ALBUM_CARD_COST}🃏)`;
     if (timerEl) timerEl.innerText = `⏱${formatAlbumTimer()}`;
     if (photoBar) photoBar.style.width = `${Math.min((progress / totalPhotos) * 100, 100)}%`;
     if (cardValEl) cardValEl.innerText = cards;
