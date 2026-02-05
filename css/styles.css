@@ -1281,8 +1281,7 @@ body {
     background: white;
 }
 .album-photo.locked {
-    opacity: 0.35;
-    filter: grayscale(1);
+    opacity: 0.5;
 }
 
 .album-photo.rarity-N {
