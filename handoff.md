@@ -46,11 +46,11 @@ merge2/
 |------|------|--------|
 | 0 | 로그인 화면 (비로그인 시) | 전체 화면 |
 | 1 | 상단바 (⚡에너지, 🪙코인, 💎다이아, 🃏카드, Lv.n, 🔑로그아웃) | status-bar |
-| 2 | 📋 레벨업 진행도 (n/레벨×2) | event-bar 파랑 |
+| 2 | 📋 레벨업 진행도 (n/min(레벨×2,20)) | event-bar 파랑 |
 | 3 | 📋 일반 퀘스트 (6개, 3개씩 페이지) | event-bar 보라 |
 | 4 | 맵 (5×7 = 35칸) | board-wrapper 분홍 |
 | 5 | 🔨 상시 미션 | event-bar 보라 |
-| 6 | 👑 누적 코인 (칸마다 50🪙) | event-bar |
+| 6 | 👑 누적 코인 (칸마다 100🪙) | event-bar |
 | 7 | 📸 앨범 (진행도/타이머/뽑기/앨범보기) | event-bar 보라 |
 | 8 | ⭐ 스페셜 퀘스트 (🐦🐠🦎) | event-bar 노랑 |
 | 9 | 🚑 구조 현장 (3마리, 1000🪙) | event-bar 파랑 |
@@ -120,6 +120,9 @@ merge2/
   cards,                    // 보유 카드 수
   album: ["0_3", "2_7"],   // 수집한 사진 키
   albumResetTime,           // 다음 초기화까지 ms
+
+  // 일일 보너스
+  lastDailyBonusDate,              // "YYYY-MM-DD" 형식
 
   // 기타
   discoveredItems, specialMissionCycles, pmType, pmProgress,
@@ -199,14 +202,15 @@ merge2/
 | 항목 | 보상 |
 |------|------|
 | 퀘스트 완료 (일반) | 가변 코인 (레벨 스케일링) |
-| 퀘스트 완료 (카드) | 1~5장 🃏 |
-| 누적 코인 1000 | 칸마다 50🪙 |
+| 퀘스트 완료 (카드) | 2~6장 🃏 |
+| 누적 코인 1000 | 칸마다 100🪙 |
 | 구조 완료 (3마리) | 1000🪙 |
 | 스페셜 미션 | 500🪙 + 10💎 |
-| 상시 미션 | 100🪙 |
+| 상시 미션 | 200🪙 |
 | 레벨업 | ceil(레벨/5)×5 💎 |
 | 테마 완성 (9/9) | 500🪙 (×9 테마) |
 | 앨범 완성 (81/81) | 100💎 + 리셋 |
+| 일일 보너스 | 50🪙 + 5💎 + 5🃏 (매일 첫 접속) |
 
 ---
 
@@ -221,17 +225,17 @@ merge2/
 ALBUM_CARD_COST = 30        // 뽑기 필요 카드
 ALBUM_DRAW_COUNT = 2         // 1회 뽑기 사진 수
 ALBUM_CARD_CHANCE = 0.30     // 퀘스트 카드 보상 확률 (30%)
-ALBUM_CARD_MIN = 1           // 카드 최소
-ALBUM_CARD_MAX = 5           // 카드 최대
+ALBUM_CARD_MIN = 2           // 카드 최소
+ALBUM_CARD_MAX = 6           // 카드 최대
 ALBUM_DUPE_REWARD = { N: 3, R: 8, SR: 20 }
 ALBUM_COMPLETE_COINS = 500   // 테마 완성 보상
 ALBUM_ALL_COMPLETE_DIAMONDS = 100  // 전체 완성 보상
-ALBUM_CYCLE_MS = 14일        // 초기화 주기
+ALBUM_CYCLE_MS = 21일        // 초기화 주기
 ```
 
 ### 흐름
 ```
-[퀘스트 완료] → 30% 확률 카드 1~5장 (생성 시 결정)
+[퀘스트 완료] → 30% 확률 카드 2~6장 (생성 시 결정)
       ↓
 [카드 30장] → 뽑기 → 사진 2장
       ↓         ↓
@@ -246,7 +250,7 @@ ALBUM_CYCLE_MS = 14일        // 초기화 주기
 | 조건 | 동작 |
 |------|------|
 | 81장 수집 | 100💎 + cards/album/timer 초기화 |
-| 14일 경과 | 토스트 알림 + 초기화 (보상 없음) |
+| 21일 경과 | 토스트 알림 + 초기화 (보상 없음) |
 
 ### 테마 목록
 | # | 테마 | 아이콘 |
@@ -275,7 +279,7 @@ ALBUM_CYCLE_MS = 14일        // 초기화 주기
 | `processDrawResult()` | 신규/중복 처리 |
 | `drawPhotos()` | 30카드 소비 → 2장 뽑기 |
 | `openPhotoDraw()` / `closePhotoDraw()` | 뽑기 팝업 |
-| `checkAlbumReset()` | 14일 주기 초기화 |
+| `checkAlbumReset()` | 21일 주기 초기화 |
 | `openAlbum()` / `closeAlbum()` | 앨범 모달 |
 | `renderAlbumTabs()` | 테마 탭 (진행도) |
 | `switchAlbumTheme()` | 테마 전환 |
@@ -289,8 +293,8 @@ ALBUM_CYCLE_MS = 14일        // 초기화 주기
 
 ## 주요 함수 목록 (파일별)
 
-### game.js (19개)
-`discoverItem`, `countEasyQuests`, `generateNewQuest`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`
+### game.js (20개)
+`discoverItem`, `countEasyQuests`, `generateNewQuest`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyBonus`
 
 ### systems.js (26개)
 `getSlotUnlockLevel`, `updateSpecialMissionUI`, `updateSlot`, `spawnSpecialGenerator`, `completeSpecialMission`, `addPmProgress`, `updatePmUI`, `checkAutoCompleteMissions`, `updateSpecialQuestUI`, `giveSpecialReward`, `updateRescueQuestUI`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `initApartment`, `startAnimalHPTimer`, `showHelpBubble`, `renderApartment`, `openRoulette`, `renderRouletteLabels`, `updateRoulettePopupUI`, `startSpin`, `finishSpin`, `askSellItem`
@@ -373,6 +377,12 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 밸런스 조정
   - SR 확률: 5% → 8%, N 확률: 75% → 72%
   - 카드팩 가격: 20💎 → 10💎
+  - 상시미션 보상: 100 → 200🪙
+  - 카드 수량: 1~5 → 2~6장
+  - 누적코인 보상: 50 → 100🪙
+  - 레벨업 퀘스트 상한: 무제한 → 최대 20개
+  - 앨범 주기: 14일 → 21일
+  - 일일 보너스 추가: 50🪙 + 5💎 + 5🃏 (매일 첫 접속)
 
 ### v4.4.0 (2026-02-05)
 - 앨범 시스템 (사진 수집) 추가
