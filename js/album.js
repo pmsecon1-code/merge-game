@@ -168,10 +168,13 @@ function checkThemeComplete(themeIdx) {
 
 function checkAlbumAllComplete() {
     const totalPhotos = ALBUM_THEMES.reduce((s, t) => s + t.photos.length, 0);
-    if (getAlbumProgress() === totalPhotos && !album.includes('album_all_complete')) {
-        album.push('album_all_complete');
+    if (getAlbumProgress() === totalPhotos) {
         diamonds += ALBUM_ALL_COMPLETE_DIAMONDS;
-        showMilestonePopup('📸 앨범 완성!', `${ALBUM_ALL_COMPLETE_DIAMONDS}💎`);
+        showMilestonePopup('📸 앨범 완성! 새 주기 시작', `${ALBUM_ALL_COMPLETE_DIAMONDS}💎`);
+        cards = 0;
+        album = [];
+        albumResetTime = Date.now() + ALBUM_CYCLE_MS;
+        updateAlbumBarUI();
     }
 }
 
