@@ -73,7 +73,7 @@ function drawPhotos() {
 
 function openPhotoDraw() {
     if (cards < ALBUM_CARD_COST) {
-        showToast('카드가 부족해요!');
+        showToast(`카드가 부족해요! (${cards}/${ALBUM_CARD_COST})`);
         return;
     }
     drawPhotos();
@@ -218,7 +218,7 @@ function updateAlbumBarUI() {
     const cardValEl = document.getElementById('card-val');
 
     if (progressEl) progressEl.innerText = `${progress}/${totalPhotos}`;
-    if (drawBtn) drawBtn.disabled = cards < ALBUM_CARD_COST;
+    if (drawBtn) drawBtn.innerText = `뽑기 (${cards}/${ALBUM_CARD_COST}🃏)`;
     if (timerEl) timerEl.innerText = `⏱${formatAlbumTimer()}`;
     if (photoBar) photoBar.style.width = `${Math.min((progress / totalPhotos) * 100, 100)}%`;
     if (cardValEl) cardValEl.innerText = cards;
