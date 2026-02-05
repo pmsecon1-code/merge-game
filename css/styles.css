@@ -1249,3 +1249,109 @@ body {
     transform-origin: center center;
     pointer-events: none;
 }
+
+/* ============================================
+   앨범 시스템
+   ============================================ */
+
+.album-photo {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    background: #f8fafc;
+    position: relative;
+}
+
+.album-photo.collected {
+    background: white;
+}
+.album-photo.locked {
+    opacity: 0.35;
+    filter: grayscale(1);
+}
+
+.album-photo.rarity-N {
+    border-color: #9ca3af;
+}
+.album-photo.rarity-R {
+    border-color: #3b82f6;
+    box-shadow: 0 0 6px rgba(59, 130, 246, 0.3);
+}
+.album-photo.rarity-SR {
+    border-color: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.album-photo .photo-emoji {
+    font-size: 1.8rem;
+}
+.album-photo .photo-name {
+    font-size: 0.55rem;
+    color: #475569;
+    margin-top: 2px;
+}
+.album-photo .photo-rarity {
+    font-size: 0.5rem;
+    font-weight: bold;
+    position: absolute;
+    top: 2px;
+    right: 4px;
+}
+.photo-rarity.N {
+    color: #9ca3af;
+}
+.photo-rarity.R {
+    color: #3b82f6;
+}
+.photo-rarity.SR {
+    color: #f59e0b;
+}
+
+.draw-card {
+    width: 100px;
+    padding: 12px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    animation: pop 0.5s ease-out;
+    position: relative;
+}
+
+.draw-card.new {
+    border: 3px solid #10b981;
+}
+.draw-card.dupe {
+    border: 3px solid #9ca3af;
+}
+
+.draw-card .photo-rarity {
+    font-size: 0.5rem;
+    font-weight: bold;
+    position: absolute;
+    top: 4px;
+    right: 6px;
+}
+
+.album-tab {
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.album-tab.active {
+    background: #e879f9;
+    color: white;
+}
+.album-tab.complete {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+}

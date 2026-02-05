@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.3.2)
+# 멍냥 머지 게임 - Architecture (v4.4.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.3.1
+- **버전**: 4.4.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -14,11 +14,19 @@
 
 ```
 merge2/
-├── index.html          # 메인 (HTML + 게임 로직, ~1500줄)
+├── index.html          # 메인 HTML (~500줄)
 ├── css/
-│   └── styles.css      # 모든 CSS (600+ 줄)
+│   └── styles.css      # 모든 CSS (~1350줄)
 ├── js/
-│   └── constants.js    # 상수 + 데이터 + 헬퍼 함수
+│   ├── constants.js    # 상수 + 데이터 + 헬퍼 함수 (~350줄)
+│   ├── state.js        # 전역 변수 + DOM 참조 (~85줄)
+│   ├── auth.js         # 인증 + 세션 관리
+│   ├── save.js         # 저장/로드/검증 (~380줄)
+│   ├── game.js         # 코어 게임 메커닉 (~470줄)
+│   ├── systems.js      # 스페셜 미션/구조/상점 (~450줄)
+│   ├── album.js        # 앨범 (사진 수집) 시스템 (~210줄, v4.4.0)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감 (~515줄)
+│   └── main.js         # 초기화 + 타이머
 ├── firestore.rules     # Firebase 보안 규칙
 ├── firebase.json       # Firebase Hosting 설정
 ├── .firebaserc         # Firebase 프로젝트 연결
@@ -187,6 +195,11 @@ v4.x: 클라우드 데이터만 사용 (로컬은 백업용)
   shopItems: [...],
   shopNextRefresh: number,
 
+  // 앨범 (v4.4.0)
+  cards: number,                       // 보유 카드 수
+  album: ["0_3", "2_7", ...],         // 수집한 사진 키 (테마_사진id)
+  albumResetTime: number,              // 다음 초기화까지 남은 ms (14일 주기)
+
   // 기타
   discoveredItems: [...],
   specialMissionCycles: [n, n, n],
@@ -246,7 +259,8 @@ match /sessions/{userId} {
 | 7 | ⭐ 스페셜 퀘스트 (🐦🐠🦎) | event-bar 노랑 |
 | 8 | 🚑 구조 현장 (3마리) | event-bar 파랑 |
 | 9 | 🛒 상점 (5칸) | event-bar 주황 |
-| 10 | 📦 창고 (5칸) | event-bar 초록 |
+| 10 | 📸 앨범 (카드/진행도/타이머) | event-bar 보라 |
+| 11 | 📦 창고 (5칸) | event-bar 초록 |
 
 ### 보드 구성 (5×7)
 ```
@@ -356,6 +370,20 @@ match /sessions/{userId} {
 | `checkAutoCompleteMissions()` | 7행 미션 자동 완료 체크 |
 | `updateAll()` | 전체 UI 갱신 + 저장 |
 
+### 앨범 (v4.4.0)
+| 함수 | 역할 |
+|------|------|
+| `getRandomPhoto()` | 등급 확률로 랜덤 사진 1장 선택 |
+| `processDrawResult()` | 신규/중복 처리 (중복 시 카드 반환) |
+| `drawPhotos()` | 카드 30장 소비 → 사진 2장 뽑기 |
+| `openPhotoDraw()` | 뽑기 팝업 열기 |
+| `checkAlbumReset()` | 14일 주기 초기화 체크 |
+| `openAlbum()` / `closeAlbum()` | 앨범 모달 열기/닫기 |
+| `renderAlbumTabs()` | 테마 탭 렌더링 (진행도 표시) |
+| `renderAlbumGrid()` | 사진 3×3 그리드 렌더링 |
+| `checkThemeComplete()` | 테마 완성 시 500코인 보상 |
+| `updateAlbumBarUI()` | event-bar UI 업데이트 |
+
 ---
 
 ## 상수 (js/constants.js)
@@ -419,6 +447,24 @@ startQuestTimer() → checkExpiredQuests() + updateQuestUI()
 if(now >= quest.expiresAt) → quests.splice(i,1) + generateNewQuest()
 ```
 
+### 앨범 시스템 (v4.4.0)
+```javascript
+// 9테마 × 9장 = 81장 사진
+// 등급: N(6장, 75%), R(2장, 20%), SR(1장, 5%)
+
+ALBUM_CARD_COST = 30        // 뽑기 1회 필요 카드
+ALBUM_DRAW_COUNT = 2         // 1회 뽑기 시 사진 수
+ALBUM_CARD_CHANCE = 0.10     // 퀘스트 카드 보상 확률
+ALBUM_CARD_MIN = 1           // 카드 최소
+ALBUM_CARD_MAX = 5           // 카드 최대
+ALBUM_DUPE_REWARD = { N: 3, R: 8, SR: 20 }  // 중복 시 카드 반환
+ALBUM_COMPLETE_COINS = 500   // 테마 완성 보상 코인
+ALBUM_CYCLE_MS = 14일        // 초기화 주기
+
+// 흐름: 퀘스트 완료 → 10% 카드 → 30장 모아 뽑기 → 앨범 수집
+// 14일마다 album + cards 초기화
+```
+
 ---
 
 ## 배포
@@ -478,6 +524,20 @@ firebase deploy --only hosting
 ---
 
 ## 변경 이력
+
+### v4.4.0 (2026-02-05)
+- 앨범 시스템 (사진 수집) 추가
+  - 퀘스트 완료 시 10% 확률로 카드 1~5장 획득
+  - 카드 30장으로 사진 뽑기 (2장, 등급 확률: N 75%, R 20%, SR 5%)
+  - 9 테마 × 9장 = 총 81장 수집
+  - 중복 시 등급별 카드 반환 (N:3, R:8, SR:20)
+  - 테마 완성 시 500코인 보상
+  - 14일 주기 자동 초기화 (타이머 표시)
+  - 앨범 모달: 테마 탭 + 3×3 사진 그리드 + 등급 테두리
+  - event-bar: 카드 수, 진행도, 테마 완성 수, 초기화 타이머
+- 신규 파일: `js/album.js` (~210줄)
+- 신규 저장 필드: `cards`, `album`, `albumResetTime`
+- firestore.rules: 앨범 필드 검증 추가
 
 ### v4.3.2 (2026-02-04)
 - 퀘스트 UI 개선

@@ -51,6 +51,9 @@ service cloud.firestore {
           && isValidArray(data.quests, 10)                   // 퀘스트: 최대 10개
           && isValidArray(data.shopItems, 10)                // 상점: 최대 10개
           && isValidArray(data.discoveredItems, 100)         // 도감: 최대 100개
+          // 앨범 검증
+          && isValidNumber(data.cards, 0, 9999)                // 카드: 0 ~ 9999
+          && isValidArray(data.album, 100)                     // 앨범: 최대 100개 (81사진+9보상키)
           // 타임스탬프 검증 (미래 시간 방지)
           && data.savedAt <= request.time.toMillis() + 60000; // 1분 여유
       }

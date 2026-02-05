@@ -152,6 +152,175 @@ const DOG_TOYS = [
 ];
 
 // ============================================
+// 앨범 데이터
+// ============================================
+
+const ALBUM_CARD_COST = 30;
+const ALBUM_DRAW_COUNT = 2;
+const ALBUM_CARD_CHANCE = 0.1;
+const ALBUM_CARD_MIN = 1;
+const ALBUM_CARD_MAX = 5;
+const ALBUM_DUPE_REWARD = { N: 3, R: 8, SR: 20 };
+const ALBUM_COMPLETE_COINS = 500;
+const ALBUM_CYCLE_MS = 14 * 24 * 60 * 60 * 1000; // 14일
+
+const ALBUM_THEMES = [
+    {
+        id: 0,
+        name: '고양이의 하루',
+        icon: '🐱',
+        color: '#fecdd3',
+        photos: [
+            { id: 0, emoji: '😺', name: '기지개', rarity: 'N' },
+            { id: 1, emoji: '😸', name: '밥 먹기', rarity: 'N' },
+            { id: 2, emoji: '😻', name: '그루밍', rarity: 'N' },
+            { id: 3, emoji: '🙀', name: '깜짝!', rarity: 'N' },
+            { id: 4, emoji: '😽', name: '낮잠', rarity: 'N' },
+            { id: 5, emoji: '😿', name: '목욕 시간', rarity: 'N' },
+            { id: 6, emoji: '🐈', name: '상자 탐험', rarity: 'R' },
+            { id: 7, emoji: '🐈‍⬛', name: '달빛 산책', rarity: 'R' },
+            { id: 8, emoji: '🦁', name: '사자왕 변신', rarity: 'SR' },
+        ],
+    },
+    {
+        id: 1,
+        name: '강아지의 하루',
+        icon: '🐶',
+        color: '#fde68a',
+        photos: [
+            { id: 0, emoji: '🐕', name: '산책', rarity: 'N' },
+            { id: 1, emoji: '🦮', name: '공놀이', rarity: 'N' },
+            { id: 2, emoji: '🐕‍🦺', name: '훈련', rarity: 'N' },
+            { id: 3, emoji: '🐩', name: '목욕', rarity: 'N' },
+            { id: 4, emoji: '🐶', name: '간식 시간', rarity: 'N' },
+            { id: 5, emoji: '🦊', name: '숨바꼭질', rarity: 'N' },
+            { id: 6, emoji: '🐺', name: '늑대 흉내', rarity: 'R' },
+            { id: 7, emoji: '🐻', name: '곰과 친구', rarity: 'R' },
+            { id: 8, emoji: '🐻‍❄️', name: '북극곰 변신', rarity: 'SR' },
+        ],
+    },
+    {
+        id: 2,
+        name: '새들의 세계',
+        icon: '🐦',
+        color: '#bae6fd',
+        photos: [
+            { id: 0, emoji: '🐣', name: '부화', rarity: 'N' },
+            { id: 1, emoji: '🐤', name: '첫 비행', rarity: 'N' },
+            { id: 2, emoji: '🐦', name: '노래하기', rarity: 'N' },
+            { id: 3, emoji: '🕊️', name: '편지 배달', rarity: 'N' },
+            { id: 4, emoji: '🦢', name: '호수 산책', rarity: 'N' },
+            { id: 5, emoji: '🦜', name: '수다쟁이', rarity: 'N' },
+            { id: 6, emoji: '🦅', name: '하늘의 왕', rarity: 'R' },
+            { id: 7, emoji: '🦉', name: '밤의 현자', rarity: 'R' },
+            { id: 8, emoji: '🦚', name: '공작의 춤', rarity: 'SR' },
+        ],
+    },
+    {
+        id: 3,
+        name: '수중 모험',
+        icon: '🐟',
+        color: '#a5f3fc',
+        photos: [
+            { id: 0, emoji: '🐟', name: '첫 수영', rarity: 'N' },
+            { id: 1, emoji: '🐠', name: '산호초 탐험', rarity: 'N' },
+            { id: 2, emoji: '🐡', name: '부풀기', rarity: 'N' },
+            { id: 3, emoji: '🦑', name: '먹물 공격', rarity: 'N' },
+            { id: 4, emoji: '🐙', name: '숨바꼭질', rarity: 'N' },
+            { id: 5, emoji: '🦐', name: '해저 댄스', rarity: 'N' },
+            { id: 6, emoji: '🦈', name: '상어 서핑', rarity: 'R' },
+            { id: 7, emoji: '🐬', name: '돌고래 점프', rarity: 'R' },
+            { id: 8, emoji: '🐳', name: '고래의 노래', rarity: 'SR' },
+        ],
+    },
+    {
+        id: 4,
+        name: '파충류 탐험',
+        icon: '🦎',
+        color: '#bbf7d0',
+        photos: [
+            { id: 0, emoji: '🐸', name: '연잎 위에서', rarity: 'N' },
+            { id: 1, emoji: '🦎', name: '일광욕', rarity: 'N' },
+            { id: 2, emoji: '🐍', name: '탈피', rarity: 'N' },
+            { id: 3, emoji: '🐢', name: '느긋한 산책', rarity: 'N' },
+            { id: 4, emoji: '🐊', name: '물속 매복', rarity: 'N' },
+            { id: 5, emoji: '🦕', name: '초원 나들이', rarity: 'N' },
+            { id: 6, emoji: '🐲', name: '용의 비늘', rarity: 'R' },
+            { id: 7, emoji: '🦖', name: '공룡 시대', rarity: 'R' },
+            { id: 8, emoji: '🐉', name: '드래곤 비행', rarity: 'SR' },
+        ],
+    },
+    {
+        id: 5,
+        name: '간식 파티',
+        icon: '🍰',
+        color: '#fce7f3',
+        photos: [
+            { id: 0, emoji: '🥛', name: '우유 파티', rarity: 'N' },
+            { id: 1, emoji: '🦴', name: '뼈다귀 축제', rarity: 'N' },
+            { id: 2, emoji: '🥫', name: '통조림 탑', rarity: 'N' },
+            { id: 3, emoji: '🍡', name: '츄르 천국', rarity: 'N' },
+            { id: 4, emoji: '🥩', name: '고기 잔치', rarity: 'N' },
+            { id: 5, emoji: '🍖', name: '바베큐 파티', rarity: 'N' },
+            { id: 6, emoji: '🌿', name: '캣닢 정원', rarity: 'R' },
+            { id: 7, emoji: '🍰', name: '생일 케이크', rarity: 'R' },
+            { id: 8, emoji: '🎂', name: '뷔페 풀코스', rarity: 'SR' },
+        ],
+    },
+    {
+        id: 6,
+        name: '장난감 왕국',
+        icon: '🧸',
+        color: '#e9d5ff',
+        photos: [
+            { id: 0, emoji: '🧶', name: '털실 미로', rarity: 'N' },
+            { id: 1, emoji: '🎾', name: '공 던지기', rarity: 'N' },
+            { id: 2, emoji: '🪶', name: '깃털 사냥', rarity: 'N' },
+            { id: 3, emoji: '🦆', name: '오리 친구', rarity: 'N' },
+            { id: 4, emoji: '🐭', name: '쥐잡기 대회', rarity: 'N' },
+            { id: 5, emoji: '🥏', name: '프리스비 묘기', rarity: 'N' },
+            { id: 6, emoji: '🎣', name: '낚시 대결', rarity: 'R' },
+            { id: 7, emoji: '🛝', name: '놀이공원', rarity: 'R' },
+            { id: 8, emoji: '🧸', name: '인형의 왕', rarity: 'SR' },
+        ],
+    },
+    {
+        id: 7,
+        name: '구조 이야기',
+        icon: '🚑',
+        color: '#fecaca',
+        photos: [
+            { id: 0, emoji: '🚑', name: '출동!', rarity: 'N' },
+            { id: 1, emoji: '🏥', name: '치료 중', rarity: 'N' },
+            { id: 2, emoji: '💊', name: '약 먹기', rarity: 'N' },
+            { id: 3, emoji: '🩹', name: '붕대 감기', rarity: 'N' },
+            { id: 4, emoji: '🛁', name: '깨끗 목욕', rarity: 'N' },
+            { id: 5, emoji: '🍼', name: '분유 시간', rarity: 'N' },
+            { id: 6, emoji: '🏠', name: '새 가족', rarity: 'R' },
+            { id: 7, emoji: '💕', name: '행복한 재회', rarity: 'R' },
+            { id: 8, emoji: '🌈', name: '무지개 다리', rarity: 'SR' },
+        ],
+    },
+    {
+        id: 8,
+        name: '특별한 순간',
+        icon: '🌟',
+        color: '#fef3c7',
+        photos: [
+            { id: 0, emoji: '🎄', name: '크리스마스', rarity: 'N' },
+            { id: 1, emoji: '🎃', name: '할로윈', rarity: 'N' },
+            { id: 2, emoji: '🎆', name: '새해 불꽃', rarity: 'N' },
+            { id: 3, emoji: '🎁', name: '선물 개봉', rarity: 'N' },
+            { id: 4, emoji: '🎵', name: '음악회', rarity: 'N' },
+            { id: 5, emoji: '📸', name: '가족 사진', rarity: 'N' },
+            { id: 6, emoji: '🏆', name: '우승!', rarity: 'R' },
+            { id: 7, emoji: '👑', name: '왕관 수여', rarity: 'R' },
+            { id: 8, emoji: '✨', name: '기적의 순간', rarity: 'SR' },
+        ],
+    },
+];
+
+// ============================================
 // 헬퍼 함수
 // ============================================
 
