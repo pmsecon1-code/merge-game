@@ -157,7 +157,7 @@ const DOG_TOYS = [
 
 const ALBUM_CARD_COST = 30;
 const ALBUM_DRAW_COUNT = 2;
-const ALBUM_CARD_CHANCE = 0.1;
+const ALBUM_CARD_CHANCE = 0.3;
 const ALBUM_CARD_MIN = 1;
 const ALBUM_CARD_MAX = 5;
 const ALBUM_DUPE_REWARD = { N: 3, R: 8, SR: 20 };

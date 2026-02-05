@@ -41,11 +41,16 @@ function generateNewQuest(forceEasy = false) {
         reqs.push({ type, level: lv });
         sc += lv * (isSnack || isToy ? 7 : 5);
     }
+    const isCardQuest = Math.random() < ALBUM_CARD_CHANCE;
+    const cardReward = isCardQuest
+        ? ALBUM_CARD_MIN + Math.floor(Math.random() * (ALBUM_CARD_MAX - ALBUM_CARD_MIN + 1))
+        : 0;
     quests.push({
         id: questIdCounter++,
         npc,
         reqs,
         reward: 10 + sc + Math.floor(Math.random() * 5),
+        cardReward,
         expiresAt: Date.now() + 10 * 60 * 1000,
     });
     updateQuestUI();
@@ -78,14 +83,12 @@ function completeQuest(i) {
     questProgress++;
     totalQuestsCompleted++;
     checkAutoCompleteMissions();
-    const isCardReward = Math.random() < ALBUM_CARD_CHANCE;
-    if (isCardReward) {
-        const cardCount = ALBUM_CARD_MIN + Math.floor(Math.random() * (ALBUM_CARD_MAX - ALBUM_CARD_MIN + 1));
-        cards += cardCount;
-        showToast(`완료! +${cardCount}🃏`);
+    coins += q.reward;
+    cumulativeCoins += q.reward;
+    if (q.cardReward > 0) {
+        cards += q.cardReward;
+        showToast(`완료! +${q.reward}코인 +${q.cardReward}🃏`);
     } else {
-        coins += q.reward;
-        cumulativeCoins += q.reward;
         showToast(`완료! +${q.reward}코인`);
     }
     if (questProgress >= userLevel * 2) {
