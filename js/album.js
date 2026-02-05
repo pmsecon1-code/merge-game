@@ -67,6 +67,7 @@ function drawPhotos() {
         if (!r.isDupe) checkThemeComplete(r.themeId);
     });
 
+    checkAlbumAllComplete();
     saveGame();
 }
 
@@ -162,6 +163,15 @@ function checkThemeComplete(themeIdx) {
             cumulativeCoins += ALBUM_COMPLETE_COINS;
             showMilestonePopup(`${theme.icon} ${theme.name} 완성!`, `${ALBUM_COMPLETE_COINS}🪙`);
         }
+    }
+}
+
+function checkAlbumAllComplete() {
+    const totalPhotos = ALBUM_THEMES.reduce((s, t) => s + t.photos.length, 0);
+    if (getAlbumProgress() === totalPhotos && !album.includes('album_all_complete')) {
+        album.push('album_all_complete');
+        diamonds += ALBUM_ALL_COMPLETE_DIAMONDS;
+        showMilestonePopup('📸 앨범 완성!', `${ALBUM_ALL_COMPLETE_DIAMONDS}💎`);
     }
 }
 

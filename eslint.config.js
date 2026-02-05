@@ -61,6 +61,7 @@ export default [
                 ALBUM_CARD_MAX: 'readonly',
                 ALBUM_DUPE_REWARD: 'readonly',
                 ALBUM_COMPLETE_COINS: 'readonly',
+                ALBUM_ALL_COMPLETE_DIAMONDS: 'readonly',
                 ALBUM_CYCLE_MS: 'readonly',
                 getItemData: 'readonly',
                 getMaxLevel: 'readonly',
@@ -221,6 +222,7 @@ export default [
                 getCompletedThemes: 'readonly',
                 formatAlbumTimer: 'readonly',
                 checkAlbumReset: 'readonly',
+                checkAlbumAllComplete: 'readonly',
                 updateAlbumBarUI: 'readonly',
                 // ui.js globals
                 renderGrid: 'readonly',

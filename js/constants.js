@@ -162,6 +162,7 @@ const ALBUM_CARD_MIN = 1;
 const ALBUM_CARD_MAX = 5;
 const ALBUM_DUPE_REWARD = { N: 3, R: 8, SR: 20 };
 const ALBUM_COMPLETE_COINS = 500;
+const ALBUM_ALL_COMPLETE_DIAMONDS = 100;
 const ALBUM_CYCLE_MS = 14 * 24 * 60 * 60 * 1000; // 14일
 
 const ALBUM_THEMES = [
