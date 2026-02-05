@@ -83,12 +83,12 @@ function completeQuest(i) {
     questProgress++;
     totalQuestsCompleted++;
     checkAutoCompleteMissions();
-    coins += q.reward;
-    cumulativeCoins += q.reward;
     if (q.cardReward > 0) {
         cards += q.cardReward;
-        showToast(`완료! +${q.reward}코인 +${q.cardReward}🃏`);
+        showToast(`완료! +${q.cardReward}🃏`);
     } else {
+        coins += q.reward;
+        cumulativeCoins += q.reward;
         showToast(`완료! +${q.reward}코인`);
     }
     if (questProgress >= userLevel * 2) {

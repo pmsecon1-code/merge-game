@@ -196,8 +196,8 @@ function updateQuestUI() {
         });
         const remaining = q.expiresAt ? q.expiresAt - Date.now() : 0;
         const timerText = remaining > 0 ? formatQuestTimer(remaining) : '만료';
-        const cardText = q.cardReward > 0 ? ` +${q.cardReward}🃏` : '';
-        h += `</div></div><div class="text-[9px] mb-1 text-center"><div class="text-yellow-600">보상: ${q.reward}🪙${cardText}</div><div class="text-red-500">⏱${timerText}</div></div><div class="quest-btn ${ok ? 'complete' : 'incomplete'}" onclick="${ok ? `completeQuest(${i})` : ''}">${ok ? '완료!' : '구해줘'}</div>`;
+        const rewardText = q.cardReward > 0 ? `${q.cardReward}🃏` : `${q.reward}🪙`;
+        h += `</div></div><div class="text-[9px] mb-1 text-center"><div class="text-yellow-600">보상: ${rewardText}</div><div class="text-red-500">⏱${timerText}</div></div><div class="quest-btn ${ok ? 'complete' : 'incomplete'}" onclick="${ok ? `completeQuest(${i})` : ''}">${ok ? '완료!' : '구해줘'}</div>`;
         d.innerHTML = h;
         questContainer.appendChild(d);
     });
