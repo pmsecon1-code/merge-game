@@ -6,8 +6,8 @@
 function getRandomPhoto() {
     const roll = Math.random();
     let rarity;
-    if (roll < 0.05) rarity = 'SR';
-    else if (roll < 0.25) rarity = 'R';
+    if (roll < 0.08) rarity = 'SR';
+    else if (roll < 0.28) rarity = 'R';
     else rarity = 'N';
 
     const candidates = [];
