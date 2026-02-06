@@ -35,6 +35,11 @@ function getGameData() {
         album: [...album],
         albumResetTime: albumResetTime - Date.now(),
         lastDailyBonusDate,
+        currentRaceId,
+        lastRaceDate,
+        todayRaceCount,
+        raceWins,
+        raceLosses,
         savedAt: Date.now(),
     };
 }
@@ -97,6 +102,19 @@ function applyGameData(d) {
     album = d.album || [];
     albumResetTime = Date.now() + (d.albumResetTime ?? ALBUM_CYCLE_MS);
     lastDailyBonusDate = d.lastDailyBonusDate || '';
+    currentRaceId = d.currentRaceId || null;
+    lastRaceDate = d.lastRaceDate || '';
+    todayRaceCount = d.todayRaceCount ?? 0;
+    raceWins = d.raceWins ?? 0;
+    raceLosses = d.raceLosses ?? 0;
+
+    // 레이스 일일 리셋 체크
+    const today = new Date().toISOString().slice(0, 10);
+    if (lastRaceDate !== today) {
+        lastRaceDate = today;
+        todayRaceCount = 0;
+        currentRaceId = null;
+    }
 
     // 앨범 주기 초기화 (14일)
     if (Date.now() >= albumResetTime) {
@@ -287,6 +305,9 @@ function validateGameData(data) {
         ['questProgress', 0, 100],
         ['pmProgress', 0, 200],
         ['cards', 0, 9999],
+        ['todayRaceCount', 0, 10],
+        ['raceWins', 0, 9999],
+        ['raceLosses', 0, 9999],
     ];
 
     for (const [key, min, max] of numChecks) {
@@ -363,6 +384,11 @@ function initNewGame() {
     album = [];
     albumResetTime = Date.now() + ALBUM_CYCLE_MS;
     lastDailyBonusDate = '';
+    currentRaceId = null;
+    lastRaceDate = '';
+    todayRaceCount = 0;
+    raceWins = 0;
+    raceLosses = 0;
 
     boardState[0] = { type: 'cat_generator' };
     boardState[4] = { type: 'dog_generator' };

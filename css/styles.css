@@ -1372,3 +1372,81 @@ body {
     margin-bottom: 4px;
     padding-left: 2px;
 }
+
+/* ============================================
+   데일리 레이스
+   ============================================ */
+
+#race-bar {
+    border: 2px solid #06b6d4;
+}
+
+.race-track-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.race-lane {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.race-label {
+    font-size: 0.6rem;
+    font-weight: bold;
+    color: #475569;
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.race-road {
+    flex: 1;
+    height: 24px;
+    background: linear-gradient(180deg, #4b5563 0%, #374151 50%, #4b5563 100%);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.race-road::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, #fbbf24 0px, #fbbf24 10px, transparent 10px, transparent 20px);
+    transform: translateY(-50%);
+}
+
+.race-car {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    transition: left 0.3s ease-out;
+    z-index: 10;
+}
+
+.race-finish {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.race-progress {
+    font-size: 0.6rem;
+    font-weight: bold;
+    color: #06b6d4;
+    width: 32px;
+    text-align: left;
+    flex-shrink: 0;
+}

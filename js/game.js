@@ -103,6 +103,7 @@ function completeQuest(i) {
     }
     quests.splice(i, 1);
     generateNewQuest();
+    updateRaceProgress();
     updateAll();
 }
 

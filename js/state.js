@@ -66,6 +66,14 @@ let albumResetTime = Date.now() + ALBUM_CYCLE_MS;
 // --- 일일 보너스 ---
 let lastDailyBonusDate = '';
 
+// --- 레이스 ---
+let currentRaceId = null;
+let lastRaceDate = '';
+let todayRaceCount = 0;
+let raceWins = 0;
+let raceLosses = 0;
+let raceUnsubscribe = null;
+
 // --- 클라우드 저장 ---
 let cloudSaveTimeout = null;
 let cloudSavePromise = null;

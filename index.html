@@ -164,6 +164,35 @@
                 </div>
             </div>
 
+            <!-- 4-2. 데일리 레이스 -->
+            <div id="race-bar" class="event-bar" style="border: 2px solid #06b6d4">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] font-bold text-cyan-600">
+                        🏁 데일리 레이스
+                        <span id="race-count" class="text-[9px] text-cyan-400">3/3</span>
+                    </span>
+                    <div class="flex gap-1 items-center">
+                        <span id="race-timer" class="text-[9px] text-cyan-400 font-bold font-mono">23:59:59</span>
+                        <button
+                            id="race-invite-btn"
+                            onclick="openRaceInvitePopup()"
+                            class="text-[9px] bg-cyan-500 text-white px-2 py-0.5 rounded-full font-bold"
+                        >
+                            친구 초대
+                        </button>
+                        <button
+                            onclick="openRaceJoinPopup()"
+                            class="text-[9px] bg-cyan-100 text-cyan-600 px-2 py-0.5 rounded-full font-bold"
+                        >
+                            코드 입력
+                        </button>
+                    </div>
+                </div>
+                <div id="race-track" class="race-track-container">
+                    <div class="text-gray-400 text-[10px] py-2">친구를 초대해서 경쟁하세요!</div>
+                </div>
+            </div>
+
             <!-- 5. 앨범 -->
             <div id="album-bar" class="event-bar" style="border: 2px solid #e879f9">
                 <div class="flex justify-between items-center mb-1">
@@ -500,6 +529,65 @@
             </div>
         </div>
 
+        <!-- 레이스 초대 팝업 -->
+        <div id="race-invite-popup" class="overlay-bg">
+            <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-cyan-400">
+                <div class="text-5xl mb-3">🏁</div>
+                <h2 class="text-2xl font-bold text-cyan-600 mb-2">친구 초대</h2>
+                <p class="text-sm text-gray-500 mb-4">아래 코드를 친구에게 공유하세요</p>
+                <div
+                    id="race-code-display"
+                    class="text-4xl font-bold text-cyan-700 bg-cyan-50 py-3 px-6 rounded-xl mb-3 font-mono tracking-widest"
+                >
+                    ------
+                </div>
+                <p class="text-[10px] text-gray-400 mb-3">코드는 10분간 유효합니다</p>
+                <p id="race-invite-error" class="text-xs text-red-500 font-bold mb-2 hidden">생성 실패</p>
+                <div class="flex gap-2 justify-center">
+                    <button
+                        onclick="closeOverlay('race-invite-popup')"
+                        class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold"
+                    >
+                        닫기
+                    </button>
+                    <button
+                        onclick="copyRaceCode(document.getElementById('race-code-display').innerText)"
+                        class="bg-cyan-500 text-white px-4 py-2 rounded-lg font-bold shadow-md"
+                    >
+                        📋 복사
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 레이스 참가 팝업 -->
+        <div id="race-join-popup" class="overlay-bg">
+            <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-cyan-400">
+                <div class="text-5xl mb-3">🎫</div>
+                <h2 class="text-2xl font-bold text-cyan-600 mb-2">코드 입력</h2>
+                <p class="text-sm text-gray-500 mb-4">친구에게 받은 6자리 코드를 입력하세요</p>
+                <input
+                    id="race-code-input"
+                    type="text"
+                    maxlength="6"
+                    placeholder="XXXXXX"
+                    class="text-2xl font-bold text-center bg-cyan-50 py-3 px-6 rounded-xl mb-3 w-full font-mono tracking-widest uppercase border-2 border-cyan-200 focus:border-cyan-400 outline-none"
+                />
+                <p id="race-join-error" class="text-xs text-red-500 font-bold mb-2 hidden">참가 실패</p>
+                <div class="flex gap-2 justify-center">
+                    <button
+                        onclick="closeOverlay('race-join-popup')"
+                        class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold"
+                    >
+                        취소
+                    </button>
+                    <button onclick="submitRaceCode()" class="bg-cyan-500 text-white px-4 py-2 rounded-lg font-bold shadow-md">
+                        참가하기
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- 분리된 JS 모듈 -->
         <script src="js/state.js"></script>
         <script src="js/auth.js"></script>
@@ -507,6 +595,7 @@
         <script src="js/game.js"></script>
         <script src="js/systems.js"></script>
         <script src="js/album.js"></script>
+        <script src="js/race.js"></script>
         <script src="js/ui.js"></script>
         <script src="js/main.js"></script>
     </body>

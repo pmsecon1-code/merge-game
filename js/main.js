@@ -196,6 +196,7 @@ auth.onAuthStateChanged(async (user) => {
             console.log('[Auth] Showing game screen...');
             showGameScreen();
             checkDailyBonus();
+            initRace();
             showToast(`환영합니다, ${user.displayName}!`);
         } catch (e) {
             console.error('[Auth] Login process error:', e);

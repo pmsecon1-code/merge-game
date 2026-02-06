@@ -80,6 +80,66 @@ service cloud.firestore {
     }
 
     // ========================================
+    // 레이스 (/races/{raceId})
+    // ========================================
+    match /races/{raceId} {
+      // 참가자 확인
+      function isParticipant() {
+        return isAuthenticated() &&
+          (resource.data.hostUid == request.auth.uid ||
+           resource.data.guestUid == request.auth.uid);
+      }
+
+      // 호스트 확인
+      function isHost() {
+        return isAuthenticated() && resource.data.hostUid == request.auth.uid;
+      }
+
+      // 레이스 생성 검증
+      function isValidRaceCreate() {
+        let data = request.resource.data;
+        return data.hostUid == request.auth.uid
+          && data.guestUid == null
+          && data.status == 'pending'
+          && data.hostProgress == 0
+          && data.guestProgress == 0
+          && data.winnerUid == null
+          && data.createdAt is number
+          && data.expiresAt is number;
+      }
+
+      // 레이스 업데이트 검증
+      function isValidRaceUpdate() {
+        let data = request.resource.data;
+        let prev = resource.data;
+        // hostUid는 변경 불가
+        return data.hostUid == prev.hostUid
+          // 진행도는 0~15
+          && isValidNumber(data.hostProgress, 0, 15)
+          && isValidNumber(data.guestProgress, 0, 15);
+      }
+
+      allow read: if isParticipant();
+      allow create: if isAuthenticated() && isValidRaceCreate();
+      allow update: if isParticipant() && isValidRaceUpdate();
+      allow delete: if isHost() && resource.data.status == 'pending';
+    }
+
+    // ========================================
+    // 초대 코드 (/raceCodes/{code})
+    // ========================================
+    match /raceCodes/{code} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated()
+        && request.resource.data.hostUid == request.auth.uid
+        && request.resource.data.raceId is string
+        && request.resource.data.hostName is string
+        && request.resource.data.createdAt is number
+        && request.resource.data.expiresAt is number;
+      allow delete: if isAuthenticated();
+    }
+
+    // ========================================
     // 기타 모든 문서: 접근 거부
     // ========================================
     match /{document=**} {
