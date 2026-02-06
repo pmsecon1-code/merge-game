@@ -5,10 +5,10 @@
 const RACE_GOAL = 10; // 퀘스트 10개 완료
 const RACE_EXPIRE_MS = 60 * 60 * 1000; // 1시간 제한
 const RACE_REWARDS = {
-    win: { coins: 500, diamonds: 20 },
-    lose: { coins: 100, diamonds: 0 },
-    draw: { coins: 300, diamonds: 10 },
-    timeout: { coins: 200, diamonds: 0 }, // 시간 초과 보상
+    win: { coins: 200, diamonds: 10 },
+    lose: { coins: 50, diamonds: 0 },
+    draw: { coins: 100, diamonds: 5 },
+    timeout: { coins: 50, diamonds: 0 },
 };
 
 // --- 초대 코드 생성 ---
