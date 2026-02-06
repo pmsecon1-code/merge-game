@@ -211,8 +211,9 @@ function startRaceListener(raceId) {
                     raceTimerInterval = setInterval(() => {
                         if (lastRaceData && lastRaceData.status === 'active') {
                             updateRaceUIFromData(lastRaceData);
-                            // 시간 초과 체크
-                            if (lastRaceData.expiresAt && Date.now() >= lastRaceData.expiresAt) {
+                            // 시간 초과 체크 (expiresAt 없으면 createdAt + 1시간)
+                            const expiresAt = lastRaceData.expiresAt || (lastRaceData.createdAt + RACE_EXPIRE_MS);
+                            if (Date.now() >= expiresAt) {
                                 checkRaceTimeout(raceId, lastRaceData);
                             }
                         }
@@ -221,8 +222,9 @@ function startRaceListener(raceId) {
 
                 // 승리 체크
                 if (data.status === 'active') {
-                    // 시간 초과 체크
-                    if (data.expiresAt && Date.now() >= data.expiresAt) {
+                    // 시간 초과 체크 (expiresAt 없으면 createdAt + 1시간)
+                    const expiresAt = data.expiresAt || (data.createdAt + RACE_EXPIRE_MS);
+                    if (Date.now() >= expiresAt) {
                         checkRaceTimeout(raceId, data);
                     } else if (data.player1Progress >= RACE_GOAL || data.player2Progress >= RACE_GOAL) {
                         checkRaceWinner(raceId, data);
@@ -492,10 +494,11 @@ function updateRaceUIFromData(data) {
     const myPercent = Math.min((myProgress / RACE_GOAL) * 85, 85);
     const oppPercent = Math.min((oppProgress / RACE_GOAL) * 85, 85);
 
-    // 남은 시간 계산
+    // 남은 시간 계산 (expiresAt 없으면 createdAt + 1시간)
     let timerHtml = '';
-    if (data.expiresAt && data.status === 'active') {
-        const remaining = Math.max(0, data.expiresAt - Date.now());
+    if (data.status === 'active') {
+        const expiresAt = data.expiresAt || (data.createdAt + RACE_EXPIRE_MS);
+        const remaining = Math.max(0, expiresAt - Date.now());
         const minutes = Math.floor(remaining / 60000);
         const seconds = Math.floor((remaining % 60000) / 1000);
         const timerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
