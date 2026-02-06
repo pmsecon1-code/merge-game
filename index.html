@@ -166,27 +166,21 @@
 
             <!-- 4-2. 레이스 -->
             <div id="race-bar" class="event-bar" style="border: 2px solid #06b6d4">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-[10px] font-bold text-cyan-600">
-                        🏁 레이스
-                        <span class="text-[9px] text-cyan-500">내 코드:</span>
-                        <span id="my-race-code" class="text-[9px] text-cyan-700 font-mono font-bold">------</span>
-                        <button
-                            id="race-copy-btn"
-                            onclick="copyRaceCode(document.getElementById('my-race-code').innerText)"
-                            class="text-[8px] bg-cyan-500 text-white px-1 py-0.5 rounded"
-                        >
-                            📋
-                        </button>
-                        <span id="race-timer" class="text-[9px] text-orange-500 font-bold ml-2 hidden">⏱️ --:--</span>
-                    </span>
+                <div class="flex items-center gap-1 mb-1 flex-wrap">
+                    <span class="text-[10px] font-bold text-cyan-600">🏁 레이스</span>
+                    <span class="text-[9px] text-cyan-500">내 코드:</span>
+                    <span id="my-race-code" class="text-[9px] text-cyan-700 font-mono font-bold">------</span>
+                    <button
+                        id="race-copy-btn"
+                        onclick="copyRaceCode(document.getElementById('my-race-code').innerText)"
+                        class="text-[8px] bg-cyan-500 text-white px-1 py-0.5 rounded"
+                    >📋</button>
+                    <span id="race-timer" class="text-[9px] text-orange-500 font-bold hidden">⏱️ --:--</span>
                     <button
                         id="race-join-btn"
                         onclick="openRaceJoinPopup()"
-                        class="text-[9px] bg-cyan-100 text-cyan-600 px-2 py-0.5 rounded-full font-bold"
-                    >
-                        코드 입력
-                    </button>
+                        class="text-[9px] bg-cyan-100 text-cyan-600 px-2 py-0.5 rounded-full font-bold ml-auto"
+                    >코드 입력</button>
                 </div>
                 <div id="race-track" class="race-track-container">
                     <div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요!</div>
