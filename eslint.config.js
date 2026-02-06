@@ -239,6 +239,8 @@ export default [
                 generateRaceCode: 'readonly',
                 getOrCreateMyCode: 'readonly',
                 findActiveRace: 'readonly',
+                startPlayer2Listener: 'readonly',
+                stopPlayer2Listener: 'readonly',
                 joinRaceByCode: 'readonly',
                 copyRaceCode: 'readonly',
                 startRaceListener: 'readonly',

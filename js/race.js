@@ -146,6 +146,7 @@ async function joinRaceByCode(code) {
         });
 
         currentRaceId = raceRef.id;
+        stopPlayer2Listener(); // 레이스 중에는 player2 리스너 불필요
         saveGame();
         startRaceListener(raceRef.id);
         showToast('레이스 시작!');
@@ -310,6 +311,7 @@ function showRaceResult(data) {
             stopRaceListener();
             saveGame();
             updateRaceUI();
+            startPlayer2Listener(); // 다음 레이스 감지용
         }
         return;
     }
@@ -342,6 +344,7 @@ function showRaceResult(data) {
     saveGame();
     updateAll();
     updateRaceUI();
+    startPlayer2Listener(); // 다음 레이스 감지용
 
     // 결과 팝업
     const resultText = result === 'win' ? '🏆 승리!' : result === 'lose' ? '😢 패배' : '🤝 무승부';
@@ -489,11 +492,54 @@ async function validateCurrentRace() {
     }
 }
 
+// --- player2로 참여한 레이스 감시 (내 코드로 시작된 레이스) ---
+let player2Unsubscribe = null;
+
+function startPlayer2Listener() {
+    stopPlayer2Listener();
+    if (!currentUser) return;
+
+    // player2Uid가 나인 active 레이스 감시
+    player2Unsubscribe = db
+        .collection('races')
+        .where('player2Uid', '==', currentUser.uid)
+        .where('status', '==', 'active')
+        .onSnapshot(
+            (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added' && !currentRaceId) {
+                        // 새 레이스 발견! (누군가 내 코드 입력)
+                        const raceId = change.doc.id;
+                        console.log('[Race] Someone started race with my code:', raceId);
+                        currentRaceId = raceId;
+                        saveGame();
+                        startRaceListener(raceId);
+                        showToast('레이스 시작!');
+                        updateRaceUI();
+                    }
+                });
+            },
+            (err) => {
+                console.error('[Race] Player2 listener error:', err);
+            }
+        );
+}
+
+function stopPlayer2Listener() {
+    if (player2Unsubscribe) {
+        player2Unsubscribe();
+        player2Unsubscribe = null;
+    }
+}
+
 // --- 초기화 ---
 async function initRace() {
     await getOrCreateMyCode();
     if (currentRaceId) {
         await validateCurrentRace();
+    } else {
+        // 레이스 중 아니면 player2 리스너 시작 (누군가 내 코드 입력 감지)
+        startPlayer2Listener();
     }
     updateRaceUI();
 }
