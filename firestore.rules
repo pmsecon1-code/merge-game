@@ -95,6 +95,14 @@ service cloud.firestore {
         return isAuthenticated() && resource.data.hostUid == request.auth.uid;
       }
 
+      // 게스트 참가 가능 여부 (pending 상태 + 아직 게스트 없음)
+      function canJoinAsGuest() {
+        return isAuthenticated()
+          && resource.data.status == 'pending'
+          && resource.data.guestUid == null
+          && resource.data.hostUid != request.auth.uid;
+      }
+
       // 레이스 생성 검증
       function isValidRaceCreate() {
         let data = request.resource.data;
@@ -119,9 +127,23 @@ service cloud.firestore {
           && isValidNumber(data.guestProgress, 0, 15);
       }
 
-      allow read: if isParticipant();
+      // 게스트 참가 업데이트 검증
+      function isValidGuestJoin() {
+        let data = request.resource.data;
+        let prev = resource.data;
+        return data.hostUid == prev.hostUid
+          && data.guestUid == request.auth.uid
+          && data.status == 'active'
+          && data.hostProgress == 0
+          && data.guestProgress == 0;
+      }
+
+      // 읽기: 참가자 또는 참가 가능한 pending 레이스
+      allow read: if isParticipant() || canJoinAsGuest();
       allow create: if isAuthenticated() && isValidRaceCreate();
-      allow update: if isParticipant() && isValidRaceUpdate();
+      // 업데이트: 참가자가 진행도 업데이트 또는 게스트 참가
+      allow update: if (isParticipant() && isValidRaceUpdate())
+                    || (canJoinAsGuest() && isValidGuestJoin());
       allow delete: if isHost() && resource.data.status == 'pending';
     }
 

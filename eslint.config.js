@@ -241,6 +241,7 @@ export default [
                 RACE_REWARDS: 'readonly',
                 generateRaceCode: 'readonly',
                 createRaceWithCode: 'readonly',
+                cancelRace: 'readonly',
                 joinRaceByCode: 'readonly',
                 copyRaceCode: 'readonly',
                 startRaceListener: 'readonly',
@@ -259,6 +260,7 @@ export default [
                 openRaceJoinPopup: 'readonly',
                 submitRaceCode: 'readonly',
                 startRaceTimer: 'readonly',
+                validateCurrentRace: 'readonly',
                 initRace: 'readonly',
                 // ui.js globals
                 renderGrid: 'readonly',
