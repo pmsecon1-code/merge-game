@@ -68,8 +68,7 @@ let lastDailyBonusDate = '';
 
 // --- 레이스 ---
 let currentRaceId = null;
-let lastRaceDate = '';
-let todayRaceCount = 0;
+let myRaceCode = null; // 내 영구 코드
 let raceWins = 0;
 let raceLosses = 0;
 let raceUnsubscribe = null;

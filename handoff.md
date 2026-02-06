@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.6.0)
+# 멍냥 머지 게임 - Architecture (v4.7.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.6.0
+- **버전**: 4.7.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -25,7 +25,7 @@ merge2/
 │   ├── game.js         # 코어 게임 메커닉 (~485줄)
 │   ├── systems.js      # 스페셜 미션/구조/상점 (~467줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~225줄)
-│   ├── race.js         # 데일리 레이스 (1:1 경쟁) (~280줄)
+│   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~170줄)
 │   ├── ui.js           # 렌더링/이펙트/드래그/도감 (~515줄)
 │   └── main.js         # 초기화 + 타이머 (~252줄)
 ├── firestore.rules     # Firebase 보안 규칙
@@ -37,7 +37,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → ui → main
 
-**총 JS**: ~3700줄, **함수**: ~130개
+**총 JS**: ~3500줄, **함수**: ~120개
 
 ---
 
@@ -52,7 +52,7 @@ merge2/
 | 4 | 맵 (5×7 = 35칸) | board-wrapper 분홍 |
 | 5 | 🔨 상시 미션 | event-bar 보라 |
 | 6 | 👑 누적 코인 (칸마다 100🪙) | event-bar |
-| 7 | 🏁 데일리 레이스 (1:1 경쟁) | event-bar 시안 |
+| 7 | 🏁 레이스 (1:1 경쟁) | event-bar 시안 |
 | 8 | 📸 앨범 (진행도/타이머/뽑기/앨범보기) | event-bar 보라 |
 | 9 | ⭐ 스페셜 퀘스트 (🐦🐠🦎) | event-bar 노랑 |
 | 10 | 🚑 구조 현장 (3마리, 1000🪙) | event-bar 파랑 |
@@ -126,10 +126,9 @@ merge2/
   // 일일 보너스
   lastDailyBonusDate,              // "YYYY-MM-DD" 형식
 
-  // 레이스 (v4.6.0+)
+  // 레이스 (v4.7.0+)
   currentRaceId,            // 현재 참여 중인 레이스 ID
-  lastRaceDate,             // "YYYY-MM-DD" 형식
-  todayRaceCount,           // 오늘 참여 횟수 (0~3)
+  myRaceCode,               // 내 영구 코드 (6자리)
   raceWins,                 // 누적 승리
   raceLosses,               // 누적 패배
 
@@ -150,8 +149,8 @@ merge2/
 |--------|------|------|
 | `saves` | `{uid}` | 게임 전체 상태 |
 | `sessions` | `{uid}` | 세션 관리 (단일 로그인) |
-| `races` | `{raceId}` | 레이스 상태 (호스트/게스트/진행도) |
-| `raceCodes` | `{code}` | 초대 코드 → 레이스 ID 매핑 |
+| `races` | `{raceId}` | 레이스 상태 (player1/player2/진행도) |
+| `raceCodes` | `{code}` | 유저별 영구 코드 |
 
 ### 보안 규칙 (firestore.rules)
 - 본인 문서만 접근
@@ -304,34 +303,27 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 
 ---
 
-## 데일리 레이스 시스템 (v4.6.0)
+## 레이스 시스템 (v4.7.0)
 
 ### 개요
-친구를 초대해서 매일 일반 퀘스트 10개를 먼저 완료하는 1:1 경쟁 콘텐츠
+친구 코드를 입력해서 퀘스트 10개를 먼저 완료하는 1:1 경쟁 콘텐츠
 
 ### 규칙
 - **목표**: 퀘스트 10개 먼저 완료
-- **일일 제한**: 하루 3회
-- **초대 방식**: 6자리 코드 (10분 유효)
-- **리셋**: 매일 00:00 UTC
+- **제한 없음**: 횟수/시간 제한 없음
+- **영구 코드**: 각 유저별 고유 6자리 코드 (만료 없음)
+- **즉시 시작**: 코드 입력 시 대기 없이 바로 레이스 시작
 
 ### 흐름
 ```
-[유저 A: 친구 초대]
+[UI 상시 표시]
+🏁 레이스  내 코드: A3X7K9  [📋] [코드 입력]
     ↓
-초대 코드 생성 (6자리) → races/{raceId} + raceCodes/{code}
+[상대 코드 입력] → 양쪽 모두 레이스 중 아니면 → 즉시 시작!
     ↓
-친구에게 코드 공유
-    ↓
-[유저 B: 코드 입력]
-    ↓
-코드 검증 → 참가 → status: 'active' → 레이스 시작!
-    ↓
-[퀘스트 완료] → 진행도 +1 → 실시간 UI 업데이트 (onSnapshot)
+[퀘스트 완료] → 진행도 +1 → 실시간 UI (onSnapshot)
     ↓
 [10개 먼저 완료] → 승리! → 보상 지급
-    ↓
-[매일 00:00 UTC] → 자동 리셋
 ```
 
 ### 보상
@@ -346,49 +338,48 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 **races/{raceId}**
 ```javascript
 {
-  hostUid, hostName,           // 초대한 유저
-  guestUid, guestName,         // 초대받은 유저
-  status: 'pending' | 'active' | 'completed',
-  hostProgress, guestProgress, // 0~15
+  player1Uid, player1Name,     // 코드 입력한 유저
+  player2Uid, player2Name,     // 코드 주인
+  status: 'active' | 'completed',
+  player1Progress, player2Progress, // 0~10
   winnerUid,                   // uid 또는 'draw'
   rewardClaimed: { [uid]: boolean },
-  createdAt, expiresAt         // 다음 00:00 UTC
+  createdAt
 }
 ```
 
-**raceCodes/{code}**
+**raceCodes/{code}** (영구)
 ```javascript
 {
-  raceId, hostUid, hostName,
-  createdAt, expiresAt         // 10분 후 만료
+  ownerUid, ownerName,
+  createdAt
 }
 ```
 
 ### UI
-- **레이스바**: 남은 횟수, 자정까지 타이머, 친구 초대/코드 입력 버튼
+- **레이스바**: 내 코드 상시 표시, 복사 버튼, 코드 입력 버튼
 - **레이싱 트랙**: 도로 배경 + 자동차 이모지 + 결승선
-- **팝업 2개**: 초대 코드 생성 / 코드 입력
+- **팝업 1개**: 코드 입력
 
-### 관련 함수 (race.js, 17개)
+### 관련 함수 (race.js, 13개)
 | 함수 | 역할 |
 |------|------|
 | `generateRaceCode()` | 6자리 코드 생성 |
-| `createRaceWithCode()` | 레이스 + 코드 동시 생성 |
-| `joinRaceByCode()` | 코드로 레이스 참가 |
+| `getOrCreateMyCode()` | 내 영구 코드 생성/조회 |
+| `findActiveRace()` | 유저의 active 레이스 찾기 |
+| `joinRaceByCode()` | 코드 입력 → 즉시 레이스 시작 |
 | `copyRaceCode()` | 클립보드 복사 |
 | `startRaceListener()` | onSnapshot 실시간 감시 |
 | `stopRaceListener()` | 리스너 해제 |
 | `updateRaceProgress()` | completeQuest에서 호출 |
-| `checkRaceWinner()` | 승리자 판정 (호스트 담당) |
+| `checkRaceWinner()` | 승리자 판정 |
 | `showRaceResult()` | 결과 표시 + 보상 지급 |
 | `claimRaceReward()` | 보상 수령 기록 |
-| `canJoinRace()` | 3회 제한 체크 |
-| `checkRaceReset()` | 일일 리셋 |
 | `updateRaceUI()` | 레이스바 업데이트 |
 | `updateRaceUIFromData()` | 실시간 트랙 업데이트 |
-| `openRaceInvitePopup()` | 초대 팝업 |
 | `openRaceJoinPopup()` | 참가 팝업 |
-| `initRace()` | 초기화 + 리스너 복구 |
+| `validateCurrentRace()` | 레이스 유효성 검증 |
+| `initRace()` | 초기화 |
 
 ---
 
@@ -403,8 +394,8 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 ### ui.js (25개)
 `renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`
 
-### race.js (17개)
-`generateRaceCode`, `createRaceWithCode`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `updateRaceProgress`, `checkRaceWinner`, `showRaceResult`, `claimRaceReward`, `canJoinRace`, `getNextMidnightUTC`, `checkRaceReset`, `updateRaceUI`, `updateRaceUIFromData`, `formatRaceTimer`, `initRace`
+### race.js (15개)
+`generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `updateRaceProgress`, `checkRaceWinner`, `showRaceResult`, `claimRaceReward`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
 
 ### main.js (8개)
 `init`, `createBoardCells`, `createStorageCells`, `createShopCells`, `startEnergyRecovery`, `startCooldownTimer`, `startRescueTimer`, `startQuestTimer`
@@ -458,19 +449,23 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## 변경 이력
 
+### v4.7.0 (2026-02-06)
+- 레이스 시스템 단순화
+  - 일일 제한/코드 만료 제거
+  - 각 유저별 영구 코드 상시 표시
+  - 코드 입력 시 대기 없이 즉시 레이스 시작
+  - host/guest → player1/player2 구조 변경
+  - "친구 초대" 팝업 제거 → 내 코드 상시 표시
+- 삭제 항목:
+  - 상수: `RACE_MAX_PER_DAY`, `RACE_CODE_EXPIRE_MS`
+  - 함수: `canJoinRace()`, `checkRaceReset()`, `getNextMidnightUTC()`, `cancelRace()`, `openRaceInvitePopup()`
+  - 저장 필드: `lastRaceDate`, `todayRaceCount`
+- 신규 함수: `getOrCreateMyCode()`, `findActiveRace()`
+- 신규 저장 필드: `myRaceCode`
+- firestore.rules: pending 상태 제거, 영구 코드 규칙
+
 ### v4.6.0 (2026-02-06)
 - 데일리 레이스 시스템 추가
-  - 6자리 초대 코드로 친구와 1:1 경쟁
-  - 퀘스트 10개 먼저 완료 시 승리
-  - 하루 3회 제한, 00:00 UTC 리셋
-  - 실시간 진행도 (onSnapshot)
-  - 보상: 승리 500🪙+20💎, 패배 100🪙, 무승부 300🪙+10💎
-  - 초대 코드 10분 만료 (타이머 표시)
-  - 레이스 진행 중 "코드 입력" 버튼 숨김
-- 신규 파일: `js/race.js` (~280줄)
-- 신규 저장 필드: `currentRaceId`, `lastRaceDate`, `todayRaceCount`, `raceWins`, `raceLosses`
-- 신규 Firestore 컬렉션: `races`, `raceCodes`
-- firestore.rules: 레이스 규칙 추가
 
 ### v4.5.0 (2026-02-05)
 - 앨범 시스템 UI/로직 개선

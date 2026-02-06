@@ -83,82 +83,54 @@ service cloud.firestore {
     // 레이스 (/races/{raceId})
     // ========================================
     match /races/{raceId} {
-      // 참가자 확인
-      function isParticipant() {
+      // 참가자 확인 (player1 또는 player2)
+      function isPlayer() {
         return isAuthenticated() &&
-          (resource.data.hostUid == request.auth.uid ||
-           resource.data.guestUid == request.auth.uid);
-      }
-
-      // 호스트 확인
-      function isHost() {
-        return isAuthenticated() && resource.data.hostUid == request.auth.uid;
-      }
-
-      // 게스트 참가 가능 여부 (pending 상태 + 아직 게스트 없음)
-      function canJoinAsGuest() {
-        return isAuthenticated()
-          && resource.data.status == 'pending'
-          && resource.data.guestUid == null
-          && resource.data.hostUid != request.auth.uid;
+          (resource.data.player1Uid == request.auth.uid ||
+           resource.data.player2Uid == request.auth.uid);
       }
 
       // 레이스 생성 검증
       function isValidRaceCreate() {
         let data = request.resource.data;
-        return data.hostUid == request.auth.uid
-          && data.guestUid == null
-          && data.status == 'pending'
-          && data.hostProgress == 0
-          && data.guestProgress == 0
+        return data.player1Uid == request.auth.uid
+          && data.player2Uid is string
+          && data.status == 'active'
+          && data.player1Progress == 0
+          && data.player2Progress == 0
           && data.winnerUid == null
-          && data.createdAt is number
-          && data.expiresAt is number;
+          && data.createdAt is number;
       }
 
       // 레이스 업데이트 검증
       function isValidRaceUpdate() {
         let data = request.resource.data;
         let prev = resource.data;
-        // hostUid는 변경 불가
-        return data.hostUid == prev.hostUid
+        // player1Uid, player2Uid는 변경 불가
+        return data.player1Uid == prev.player1Uid
+          && data.player2Uid == prev.player2Uid
           // 진행도는 0~15
-          && isValidNumber(data.hostProgress, 0, 15)
-          && isValidNumber(data.guestProgress, 0, 15);
+          && isValidNumber(data.player1Progress, 0, 15)
+          && isValidNumber(data.player2Progress, 0, 15);
       }
 
-      // 게스트 참가 업데이트 검증
-      function isValidGuestJoin() {
-        let data = request.resource.data;
-        let prev = resource.data;
-        return data.hostUid == prev.hostUid
-          && data.guestUid == request.auth.uid
-          && data.status == 'active'
-          && data.hostProgress == 0
-          && data.guestProgress == 0;
-      }
-
-      // 읽기: 참가자 또는 참가 가능한 pending 레이스
-      allow read: if isParticipant() || canJoinAsGuest();
+      // 읽기: 참가자만
+      allow read: if isPlayer();
+      // 생성: 인증된 사용자
       allow create: if isAuthenticated() && isValidRaceCreate();
-      // 업데이트: 참가자가 진행도 업데이트 또는 게스트 참가
-      allow update: if (isParticipant() && isValidRaceUpdate())
-                    || (canJoinAsGuest() && isValidGuestJoin());
-      allow delete: if isHost() && resource.data.status == 'pending';
+      // 업데이트: 참가자만
+      allow update: if isPlayer() && isValidRaceUpdate();
     }
 
     // ========================================
-    // 초대 코드 (/raceCodes/{code})
+    // 초대 코드 (/raceCodes/{code}) - 영구 코드
     // ========================================
     match /raceCodes/{code} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated()
-        && request.resource.data.hostUid == request.auth.uid
-        && request.resource.data.raceId is string
-        && request.resource.data.hostName is string
-        && request.resource.data.createdAt is number
-        && request.resource.data.expiresAt is number;
-      allow delete: if isAuthenticated();
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerName is string
+        && request.resource.data.createdAt is number;
     }
 
     // ========================================
