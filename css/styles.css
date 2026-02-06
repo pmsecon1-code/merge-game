@@ -1394,6 +1394,14 @@ body {
     gap: 6px;
 }
 
+.race-timer {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #f59e0b;
+    margin-bottom: 2px;
+}
+
 .race-label {
     font-size: 0.6rem;
     font-weight: bold;

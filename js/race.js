@@ -3,10 +3,12 @@
 // ============================================
 
 const RACE_GOAL = 10; // 퀘스트 10개 완료
+const RACE_EXPIRE_MS = 60 * 60 * 1000; // 1시간 제한
 const RACE_REWARDS = {
     win: { coins: 500, diamonds: 20 },
     lose: { coins: 100, diamonds: 0 },
     draw: { coins: 300, diamonds: 10 },
+    timeout: { coins: 200, diamonds: 0 }, // 시간 초과 보상
 };
 
 // --- 초대 코드 생성 ---
@@ -132,6 +134,7 @@ async function joinRaceByCode(code) {
 
         // 5. 레이스 즉시 생성 + 시작
         const raceRef = db.collection('races').doc();
+        const now = Date.now();
         await raceRef.set({
             player1Uid: currentUser.uid, // 코드 입력한 사람
             player1Name: currentUser.displayName?.split(' ')[0] || '유저',
@@ -142,7 +145,8 @@ async function joinRaceByCode(code) {
             status: 'active',
             winnerUid: null,
             rewardClaimed: {},
-            createdAt: Date.now(),
+            createdAt: now,
+            expiresAt: now + RACE_EXPIRE_MS, // 1시간 후 만료
         });
 
         currentRaceId = raceRef.id;
@@ -177,6 +181,9 @@ async function copyRaceCode(code) {
 }
 
 // --- 레이스 리스너 시작 ---
+let raceTimerInterval = null;
+let lastRaceData = null;
+
 function startRaceListener(raceId) {
     stopRaceListener();
     if (!raceId) return;
@@ -196,11 +203,28 @@ function startRaceListener(raceId) {
                 }
 
                 const data = doc.data();
+                lastRaceData = data;
                 updateRaceUIFromData(data);
+
+                // 타이머 인터벌 시작 (1초마다 업데이트)
+                if (data.status === 'active' && !raceTimerInterval) {
+                    raceTimerInterval = setInterval(() => {
+                        if (lastRaceData && lastRaceData.status === 'active') {
+                            updateRaceUIFromData(lastRaceData);
+                            // 시간 초과 체크
+                            if (lastRaceData.expiresAt && Date.now() >= lastRaceData.expiresAt) {
+                                checkRaceTimeout(raceId, lastRaceData);
+                            }
+                        }
+                    }, 1000);
+                }
 
                 // 승리 체크
                 if (data.status === 'active') {
-                    if (data.player1Progress >= RACE_GOAL || data.player2Progress >= RACE_GOAL) {
+                    // 시간 초과 체크
+                    if (data.expiresAt && Date.now() >= data.expiresAt) {
+                        checkRaceTimeout(raceId, data);
+                    } else if (data.player1Progress >= RACE_GOAL || data.player2Progress >= RACE_GOAL) {
                         checkRaceWinner(raceId, data);
                     }
                 }
@@ -226,6 +250,11 @@ function stopRaceListener() {
         raceUnsubscribe();
         raceUnsubscribe = null;
     }
+    if (raceTimerInterval) {
+        clearInterval(raceTimerInterval);
+        raceTimerInterval = null;
+    }
+    lastRaceData = null;
 }
 
 // --- 퀘스트 완료 시 진행도 업데이트 ---
@@ -298,6 +327,42 @@ async function checkRaceWinner(raceId, data) {
     }
 }
 
+// --- 시간 초과 처리 ---
+async function checkRaceTimeout(raceId, data) {
+    if (!currentUser) return;
+    if (data.status === 'completed') return;
+
+    // 진행도 많은 쪽 승리, 동점이면 무승부
+    let winnerUid;
+    if (data.player1Progress > data.player2Progress) {
+        winnerUid = data.player1Uid;
+    } else if (data.player2Progress > data.player1Progress) {
+        winnerUid = data.player2Uid;
+    } else {
+        winnerUid = 'timeout_draw'; // 시간 초과 무승부
+    }
+
+    try {
+        await db.runTransaction(async (transaction) => {
+            const raceRef = db.collection('races').doc(raceId);
+            const raceSnap = await transaction.get(raceRef);
+            if (!raceSnap.exists || raceSnap.data().status === 'completed') {
+                return;
+            }
+            transaction.update(raceRef, {
+                status: 'completed',
+                winnerUid: winnerUid,
+                timedOut: true,
+            });
+        });
+        console.log('[Race] Timeout winner:', winnerUid);
+    } catch (e) {
+        if (e.code !== 'aborted') {
+            console.error('[Race] Timeout handling failed:', e);
+        }
+    }
+}
+
 // --- 결과 표시 + 보상 지급 ---
 function showRaceResult(data) {
     if (!currentUser) return;
@@ -317,7 +382,24 @@ function showRaceResult(data) {
     }
 
     let result, reward;
-    if (data.winnerUid === 'draw') {
+    const isTimeout = data.timedOut === true;
+
+    if (data.winnerUid === 'timeout_draw') {
+        // 시간 초과 무승부
+        result = 'timeout_draw';
+        reward = RACE_REWARDS.timeout;
+    } else if (isTimeout) {
+        // 시간 초과 승패
+        if (data.winnerUid === uid) {
+            result = 'timeout_win';
+            reward = RACE_REWARDS.timeout;
+            raceWins++;
+        } else {
+            result = 'timeout_lose';
+            reward = RACE_REWARDS.timeout;
+            raceLosses++;
+        }
+    } else if (data.winnerUid === 'draw') {
         result = 'draw';
         reward = RACE_REWARDS.draw;
     } else if (data.winnerUid === uid) {
@@ -410,7 +492,18 @@ function updateRaceUIFromData(data) {
     const myPercent = Math.min((myProgress / RACE_GOAL) * 85, 85);
     const oppPercent = Math.min((oppProgress / RACE_GOAL) * 85, 85);
 
+    // 남은 시간 계산
+    let timerHtml = '';
+    if (data.expiresAt && data.status === 'active') {
+        const remaining = Math.max(0, data.expiresAt - Date.now());
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        const timerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        timerHtml = `<div class="race-timer">⏱️ ${timerText}</div>`;
+    }
+
     trackEl.innerHTML = `
+        ${timerHtml}
         <div class="race-lane">
             <span class="race-label">나</span>
             <div class="race-road">
