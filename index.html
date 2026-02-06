@@ -528,7 +528,11 @@
             <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-cyan-400">
                 <div class="text-5xl mb-3">🎫</div>
                 <h2 class="text-2xl font-bold text-cyan-600 mb-2">코드 입력</h2>
-                <p class="text-sm text-gray-500 mb-4">친구에게 받은 6자리 코드를 입력하세요</p>
+                <div id="recent-opponents" class="mb-3 hidden">
+                    <p class="text-xs text-gray-400 mb-2">최근 상대</p>
+                    <div id="recent-opponents-list" class="flex flex-col gap-1"></div>
+                </div>
+                <p class="text-sm text-gray-500 mb-2">친구에게 받은 6자리 코드를 입력하세요</p>
                 <input
                     id="race-code-input"
                     type="text"

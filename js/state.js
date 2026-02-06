@@ -72,6 +72,7 @@ let myRaceCode = null; // 내 영구 코드
 let raceWins = 0;
 let raceLosses = 0;
 let raceUnsubscribe = null;
+let recentRaceOpponents = []; // [{code, name}, ...] 최대 3명
 
 // --- 클라우드 저장 ---
 let cloudSaveTimeout = null;

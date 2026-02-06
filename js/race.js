@@ -422,6 +422,12 @@ function showRaceResult(data) {
     // 보상 수령 표시
     claimRaceReward();
 
+    // 최근 상대 저장
+    const isPlayer1 = data.player1Uid === uid;
+    const opponentUid = isPlayer1 ? data.player2Uid : data.player1Uid;
+    const opponentName = isPlayer1 ? data.player2Name : data.player1Name;
+    addRecentOpponent(opponentUid, opponentName);
+
     // 레이스 종료
     currentRaceId = null;
     stopRaceListener();
@@ -449,6 +455,39 @@ async function claimRaceReward() {
             });
     } catch (e) {
         console.error('[Race] Claim reward failed:', e);
+    }
+}
+
+// --- 최근 상대 저장 ---
+async function addRecentOpponent(opponentUid, opponentName) {
+    if (!opponentUid || opponentUid === currentUser?.uid) return;
+
+    try {
+        // 상대방 코드 조회
+        const codeQuery = await db
+            .collection('raceCodes')
+            .where('ownerUid', '==', opponentUid)
+            .limit(1)
+            .get();
+
+        if (codeQuery.empty) return;
+
+        const code = codeQuery.docs[0].id;
+
+        // 기존 목록에서 같은 상대 제거
+        recentRaceOpponents = recentRaceOpponents.filter((o) => o.code !== code);
+
+        // 맨 앞에 추가 (최신순)
+        recentRaceOpponents.unshift({ code, name: opponentName });
+
+        // 최대 3명 유지
+        if (recentRaceOpponents.length > 3) {
+            recentRaceOpponents = recentRaceOpponents.slice(0, 3);
+        }
+
+        console.log('[Race] Recent opponents:', recentRaceOpponents);
+    } catch (e) {
+        console.error('[Race] Failed to add recent opponent:', e);
     }
 }
 
@@ -534,7 +573,38 @@ function openRaceJoinPopup() {
 
     document.getElementById('race-code-input').value = '';
     document.getElementById('race-join-error').classList.add('hidden');
+
+    // 최근 상대 렌더링
+    const recentContainer = document.getElementById('recent-opponents');
+    const recentList = document.getElementById('recent-opponents-list');
+    if (recentContainer && recentList) {
+        if (recentRaceOpponents.length > 0) {
+            recentContainer.classList.remove('hidden');
+            recentList.innerHTML = recentRaceOpponents
+                .map(
+                    (o) => `
+                <button onclick="quickJoinRace('${o.code}')"
+                    class="flex items-center justify-between bg-cyan-50 hover:bg-cyan-100 px-3 py-2 rounded-lg border border-cyan-200">
+                    <span class="text-sm font-bold text-cyan-700">${o.name}</span>
+                    <span class="text-xs text-cyan-500 font-mono">${o.code}</span>
+                </button>
+            `
+                )
+                .join('');
+        } else {
+            recentContainer.classList.add('hidden');
+        }
+    }
+
     popup.style.display = 'flex';
+}
+
+// --- 퀵 조인 (최근 상대) ---
+async function quickJoinRace(code) {
+    const success = await joinRaceByCode(code);
+    if (success) {
+        closeOverlay('race-join-popup');
+    }
 }
 
 // --- 참가 버튼 ---

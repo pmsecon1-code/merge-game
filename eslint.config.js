@@ -142,6 +142,7 @@ export default [
                 raceWins: 'writable',
                 raceLosses: 'writable',
                 raceUnsubscribe: 'writable',
+                recentRaceOpponents: 'writable',
                 // auth.js globals
                 auth: 'readonly',
                 db: 'readonly',
@@ -249,6 +250,8 @@ export default [
                 checkRaceWinner: 'readonly',
                 showRaceResult: 'readonly',
                 claimRaceReward: 'readonly',
+                addRecentOpponent: 'readonly',
+                quickJoinRace: 'readonly',
                 updateRaceUI: 'readonly',
                 updateRaceUIFromData: 'readonly',
                 openRaceJoinPopup: 'readonly',

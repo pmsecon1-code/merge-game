@@ -39,6 +39,7 @@ function getGameData() {
         myRaceCode,
         raceWins,
         raceLosses,
+        recentRaceOpponents,
         savedAt: Date.now(),
     };
 }
@@ -105,6 +106,7 @@ function applyGameData(d) {
     myRaceCode = d.myRaceCode || null;
     raceWins = d.raceWins ?? 0;
     raceLosses = d.raceLosses ?? 0;
+    recentRaceOpponents = d.recentRaceOpponents || [];
 
     // 앨범 주기 초기화 (14일)
     if (Date.now() >= albumResetTime) {
@@ -377,6 +379,7 @@ function initNewGame() {
     myRaceCode = null;
     raceWins = 0;
     raceLosses = 0;
+    recentRaceOpponents = [];
 
     boardState[0] = { type: 'cat_generator' };
     boardState[4] = { type: 'dog_generator' };
