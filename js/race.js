@@ -2,7 +2,7 @@
 // race.js - 데일리 레이스 시스템
 // ============================================
 
-const RACE_GOAL = 15; // 퀘스트 15개 완료
+const RACE_GOAL = 10; // 퀘스트 10개 완료
 const RACE_MAX_PER_DAY = 3; // 하루 3회 제한
 const RACE_CODE_EXPIRE_MS = 10 * 60 * 1000; // 초대 코드 10분 만료
 const RACE_REWARDS = {
@@ -89,6 +89,7 @@ async function cancelRace() {
         return;
     }
 
+    let shouldRestoreCount = false;
     try {
         const raceDoc = await db.collection('races').doc(currentRaceId).get();
         if (raceDoc.exists) {
@@ -104,6 +105,7 @@ async function cancelRace() {
                     }
                 }
                 await db.collection('races').doc(currentRaceId).delete();
+                shouldRestoreCount = true; // 취소 성공 시 카운트 복구
                 console.log('[Race] Cancelled:', currentRaceId);
             }
         }
@@ -113,6 +115,12 @@ async function cancelRace() {
 
     currentRaceId = null;
     stopRaceListener();
+
+    // 취소 시 카운트 복구
+    if (shouldRestoreCount && todayRaceCount > 0) {
+        todayRaceCount--;
+    }
+
     saveGame();
     updateRaceUI();
     showToast('레이스 취소됨');
@@ -294,15 +302,12 @@ async function updateRaceProgress() {
     }
 }
 
-// --- 승리자 판정 ---
+// --- 승리자 판정 (양측 모두 가능, 먼저 체크한 쪽이 처리) ---
 async function checkRaceWinner(raceId, data) {
     if (!currentUser) return;
 
     // 이미 완료됨
     if (data.status === 'completed') return;
-
-    // 호스트가 판정 담당 (중복 방지)
-    if (data.hostUid !== currentUser.uid) return;
 
     let winnerUid = null;
     if (data.hostProgress >= RACE_GOAL && data.guestProgress >= RACE_GOAL) {
@@ -316,13 +321,24 @@ async function checkRaceWinner(raceId, data) {
     if (!winnerUid) return;
 
     try {
-        await db.collection('races').doc(raceId).update({
-            status: 'completed',
-            winnerUid: winnerUid,
+        // 트랜잭션으로 중복 업데이트 방지
+        await db.runTransaction(async (transaction) => {
+            const raceRef = db.collection('races').doc(raceId);
+            const raceSnap = await transaction.get(raceRef);
+            if (!raceSnap.exists || raceSnap.data().status === 'completed') {
+                return; // 이미 완료됨
+            }
+            transaction.update(raceRef, {
+                status: 'completed',
+                winnerUid: winnerUid,
+            });
         });
         console.log('[Race] Winner declared:', winnerUid);
     } catch (e) {
-        console.error('[Race] Winner declaration failed:', e);
+        // 트랜잭션 충돌은 정상 (다른 쪽이 먼저 처리함)
+        if (e.code !== 'aborted') {
+            console.error('[Race] Winner declaration failed:', e);
+        }
     }
 }
 
