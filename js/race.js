@@ -461,6 +461,7 @@ function updateRaceUI() {
     const myCodeEl = document.getElementById('my-race-code');
     const copyBtn = document.getElementById('race-copy-btn');
     const joinBtn = document.getElementById('race-join-btn');
+    const timerEl = document.getElementById('race-timer');
 
     // 내 코드 표시
     if (myCodeEl && myRaceCode) {
@@ -473,6 +474,7 @@ function updateRaceUI() {
             trackEl.innerHTML = '<div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요!</div>';
         if (copyBtn) copyBtn.classList.remove('hidden');
         if (joinBtn) joinBtn.classList.remove('hidden');
+        if (timerEl) timerEl.classList.add('hidden');
         return;
     }
 
@@ -484,6 +486,7 @@ function updateRaceUI() {
 // --- UI: 레이스 데이터로 업데이트 ---
 function updateRaceUIFromData(data) {
     const trackEl = document.getElementById('race-track');
+    const timerEl = document.getElementById('race-timer');
     if (!trackEl || !currentUser) return;
 
     const isPlayer1 = data.player1Uid === currentUser.uid;
@@ -495,18 +498,16 @@ function updateRaceUIFromData(data) {
     const oppPercent = Math.min((oppProgress / RACE_GOAL) * 85, 85);
 
     // 남은 시간 계산 (expiresAt 없으면 createdAt + 1시간)
-    let timerHtml = '';
-    if (data.status === 'active') {
+    if (timerEl && data.status === 'active') {
         const expiresAt = data.expiresAt || (data.createdAt + RACE_EXPIRE_MS);
         const remaining = Math.max(0, expiresAt - Date.now());
         const minutes = Math.floor(remaining / 60000);
         const seconds = Math.floor((remaining % 60000) / 1000);
-        const timerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        timerHtml = `<div class="race-timer">⏱️ ${timerText}</div>`;
+        timerEl.textContent = `⏱️ ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        timerEl.classList.remove('hidden');
     }
 
     trackEl.innerHTML = `
-        ${timerHtml}
         <div class="race-lane">
             <span class="race-label">나</span>
             <div class="race-road">
