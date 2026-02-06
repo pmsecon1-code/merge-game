@@ -155,7 +155,7 @@ const DOG_TOYS = [
 // 앨범 데이터
 // ============================================
 
-const ALBUM_CARD_COST = 30;
+const ALBUM_CARD_COST = 20;
 const ALBUM_DRAW_COUNT = 2;
 const ALBUM_CARD_CHANCE = 0.3;
 const ALBUM_CARD_MIN = 2;
