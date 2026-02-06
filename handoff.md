@@ -444,6 +444,26 @@ firebase deploy --only firestore:rules   # 보안 규칙
 | 로그인 버튼 무반응 | JS 에러 | F12 콘솔 확인 |
 | 다중 기기 로그아웃 안 됨 | onSnapshot 미시작 | `startSessionListener()` 확인 |
 | 데이터 손실 | 네트워크 오류 + 빈 데이터 저장 | v4.2.8 3중 방어 체계로 해결 |
+| 구조현장 리셋 안 됨 | 유저 데이터 꼬임 | Firebase REST API로 전체 리셋 (아래 참조) |
+
+### 운영 스크립트
+
+**전체 유저 구조현장 리셋** (브라우저 콘솔):
+```javascript
+const db = firebase.firestore();
+db.collection('saves').get().then(s => {
+  const b = db.batch();
+  s.forEach(d => b.update(d.ref, {
+    currentSetRescues: 0,
+    apartmentState: [
+      {emoji:'😿',hp:100,fireHp:100,rescued:false},
+      {emoji:'🙀',hp:100,fireHp:100,rescued:false},
+      {emoji:'😿',hp:100,fireHp:100,rescued:false}
+    ]
+  }));
+  return b.commit();
+}).then(() => alert('완료!'));
+```
 
 ---
 
@@ -548,3 +568,4 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - [ ] 사운드 효과 추가
 - [ ] 튜토리얼 확장
 - [x] 데일리 레이스 시스템 (v4.6.0)
+- [x] 레이스 단순화 - 영구 코드/즉시 시작 (v4.7.0)
