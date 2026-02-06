@@ -466,8 +466,14 @@ function updateRaceUIFromData(data) {
     const oppProgress = isHost ? data.guestProgress : data.hostProgress;
 
     if (data.status === 'pending') {
+        const code = data.inviteCode || '------';
         trackEl.innerHTML = `
             <div class="text-center py-2">
+                <div class="text-[10px] text-gray-500 mb-1">초대 코드</div>
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <span class="text-xl font-bold text-cyan-600 font-mono tracking-widest">${code}</span>
+                    <button onclick="copyRaceCode('${code}')" class="text-[9px] bg-cyan-500 text-white px-2 py-0.5 rounded">📋</button>
+                </div>
                 <div class="text-fuchsia-500 text-[10px] animate-pulse mb-2">상대방 대기 중...</div>
                 <button onclick="cancelRace()" class="text-[9px] bg-gray-300 text-gray-600 px-3 py-1 rounded-full">취소</button>
             </div>
