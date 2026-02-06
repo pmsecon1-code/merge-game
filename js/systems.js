@@ -169,7 +169,7 @@ function refreshShop() {
     shopNextRefresh = Date.now() + SHOP_REFRESH_MS;
     const t = getActiveTypes();
     for (let i = 0; i < SHOP_SIZE - 2; i++) shopItems[i] = generateRandomShopItem(t);
-    shopItems[SHOP_SIZE - 2] = { type: 'card_pack', amount: 30, price: 10 };
+    shopItems[SHOP_SIZE - 2] = { type: 'card_pack', amount: 20, price: 10 };
     shopItems[SHOP_SIZE - 1] = { type: 'diamond_pack', amount: 10, price: 500 };
     renderShop();
 }
