@@ -131,6 +131,7 @@ merge2/
   myRaceCode,               // 내 영구 코드 (6자리)
   raceWins,                 // 누적 승리
   raceLosses,               // 누적 패배
+  recentRaceOpponents,      // 최근 상대 [{code, name}, ...] (최대 3명)
 
   // 기타
   discoveredItems, specialMissionCycles, pmType, pmProgress,
@@ -313,6 +314,7 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 - **시간 제한**: 1시간 (타이머 표시)
 - **영구 코드**: 각 유저별 고유 6자리 코드 (만료 없음)
 - **즉시 시작**: 코드 입력 시 대기 없이 바로 레이스 시작
+- **퀵 조인**: 최근 상대 3명 버튼으로 빠른 재대결
 
 ### 흐름
 ```
@@ -360,11 +362,11 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 ```
 
 ### UI
-- **레이스바**: 내 코드 상시 표시, 복사 버튼, 코드 입력 버튼
-- **레이싱 트랙**: 타이머(mm:ss) + 도로 배경 + 자동차 이모지 + 결승선
-- **팝업 1개**: 코드 입력
+- **레이스바**: 내 코드 + 타이머(mm:ss) + 복사 버튼 + 코드 입력 버튼 (같은 행)
+- **레이싱 트랙**: 도로 배경 + 자동차 이모지 + 결승선
+- **팝업**: 코드 입력 + 최근 상대 퀵 조인 버튼 (최대 3명)
 
-### 관련 함수 (race.js, 17개)
+### 관련 함수 (race.js, 21개)
 | 함수 | 역할 |
 |------|------|
 | `generateRaceCode()` | 6자리 코드 생성 |
@@ -379,11 +381,14 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 | `updateRaceProgress()` | completeQuest에서 호출 |
 | `checkRaceWinner()` | 승리자 판정 |
 | `checkRaceTimeout()` | 시간 초과 처리 |
-| `showRaceResult()` | 결과 표시 + 보상 지급 |
+| `showRaceResult()` | 결과 표시 + 보상 지급 + 상대 저장 |
 | `claimRaceReward()` | 보상 수령 기록 |
+| `addRecentOpponent()` | 최근 상대 저장 (최대 3명) |
+| `quickJoinRace()` | 최근 상대로 빠른 레이스 시작 |
 | `updateRaceUI()` | 레이스바 업데이트 |
 | `updateRaceUIFromData()` | 실시간 트랙 + 타이머 업데이트 |
-| `openRaceJoinPopup()` | 참가 팝업 |
+| `openRaceJoinPopup()` | 참가 팝업 + 최근 상대 렌더링 |
+| `submitRaceCode()` | 코드 입력 제출 |
 | `validateCurrentRace()` | 레이스 유효성 검증 |
 | `initRace()` | 초기화 |
 
@@ -400,8 +405,8 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 ### ui.js (25개)
 `renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`
 
-### race.js (15개)
-`generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `updateRaceProgress`, `checkRaceWinner`, `showRaceResult`, `claimRaceReward`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
+### race.js (21개)
+`generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `startPlayer2Listener`, `stopPlayer2Listener`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `quickJoinRace`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
 
 ### main.js (8개)
 `init`, `createBoardCells`, `createStorageCells`, `createShopCells`, `startEnergyRecovery`, `startCooldownTimer`, `startRescueTimer`, `startQuestTimer`
@@ -483,18 +488,22 @@ db.collection('saves').get().then(s => {
   - host/guest → player1/player2 구조 변경
   - "친구 초대" 팝업 제거 → 내 코드 상시 표시
 - 1시간 시간 제한 추가
-  - 레이스 트랙 위에 남은 시간 표시 (mm:ss)
+  - 레이스바에 남은 시간 표시 (내 코드 옆, mm:ss)
   - 시간 초과 시 진행도 높은 쪽 승리, 동점이면 무승부
   - 시간 초과 보상: 200🪙 (승패 무관)
 - player2 실시간 감지
   - 내 코드로 레이스 시작 시 자동 감지 (onSnapshot)
+- 최근 상대 퀵 조인
+  - 레이스 완료 시 상대 정보 저장 (최대 3명)
+  - 코드 입력 팝업에 최근 상대 버튼 표시
+  - 버튼 클릭으로 즉시 레이스 시작
 - 삭제 항목:
   - 상수: `RACE_MAX_PER_DAY`, `RACE_CODE_EXPIRE_MS`
   - 함수: `canJoinRace()`, `checkRaceReset()`, `getNextMidnightUTC()`, `cancelRace()`, `openRaceInvitePopup()`
   - 저장 필드: `lastRaceDate`, `todayRaceCount`
 - 신규 상수: `RACE_EXPIRE_MS` (1시간), `RACE_REWARDS.timeout`
-- 신규 함수: `getOrCreateMyCode()`, `findActiveRace()`, `checkRaceTimeout()`, `startPlayer2Listener()`, `stopPlayer2Listener()`
-- 신규 저장 필드: `myRaceCode`
+- 신규 함수: `getOrCreateMyCode()`, `findActiveRace()`, `checkRaceTimeout()`, `startPlayer2Listener()`, `stopPlayer2Listener()`, `addRecentOpponent()`, `quickJoinRace()`
+- 신규 저장 필드: `myRaceCode`, `recentRaceOpponents`
 - Firestore: `expiresAt`, `timedOut` 필드 추가
 - firestore.rules: pending 상태 제거, 영구 코드 규칙
 
@@ -583,3 +592,5 @@ db.collection('saves').get().then(s => {
 - [ ] 튜토리얼 확장
 - [x] 데일리 레이스 시스템 (v4.6.0)
 - [x] 레이스 단순화 - 영구 코드/즉시 시작 (v4.7.0)
+- [x] 레이스 1시간 타이머 + 타임아웃 보상 (v4.7.0)
+- [x] 최근 상대 퀵 조인 (v4.7.0)
