@@ -310,7 +310,7 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 
 ### 규칙
 - **목표**: 퀘스트 10개 먼저 완료
-- **제한 없음**: 횟수/시간 제한 없음
+- **시간 제한**: 1시간 (타이머 표시)
 - **영구 코드**: 각 유저별 고유 6자리 코드 (만료 없음)
 - **즉시 시작**: 코드 입력 시 대기 없이 바로 레이스 시작
 
@@ -332,6 +332,7 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 | 승리 | 500🪙 + 20💎 |
 | 패배 | 100🪙 |
 | 무승부 | 300🪙 + 10💎 |
+| 시간 초과 | 200🪙 (승패 무관) |
 
 ### Firestore 구조
 
@@ -342,9 +343,11 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
   player2Uid, player2Name,     // 코드 주인
   status: 'active' | 'completed',
   player1Progress, player2Progress, // 0~10
-  winnerUid,                   // uid 또는 'draw'
+  winnerUid,                   // uid, 'draw', 또는 'timeout_draw'
+  timedOut,                    // 시간 초과 여부
   rewardClaimed: { [uid]: boolean },
-  createdAt
+  createdAt,
+  expiresAt                    // 1시간 후 만료
 }
 ```
 
@@ -358,10 +361,10 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 
 ### UI
 - **레이스바**: 내 코드 상시 표시, 복사 버튼, 코드 입력 버튼
-- **레이싱 트랙**: 도로 배경 + 자동차 이모지 + 결승선
+- **레이싱 트랙**: 타이머(mm:ss) + 도로 배경 + 자동차 이모지 + 결승선
 - **팝업 1개**: 코드 입력
 
-### 관련 함수 (race.js, 13개)
+### 관련 함수 (race.js, 17개)
 | 함수 | 역할 |
 |------|------|
 | `generateRaceCode()` | 6자리 코드 생성 |
@@ -369,14 +372,17 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 | `findActiveRace()` | 유저의 active 레이스 찾기 |
 | `joinRaceByCode()` | 코드 입력 → 즉시 레이스 시작 |
 | `copyRaceCode()` | 클립보드 복사 |
-| `startRaceListener()` | onSnapshot 실시간 감시 |
-| `stopRaceListener()` | 리스너 해제 |
+| `startRaceListener()` | onSnapshot 실시간 감시 + 타이머 |
+| `stopRaceListener()` | 리스너 + 타이머 해제 |
+| `startPlayer2Listener()` | 내 코드로 시작된 레이스 감지 |
+| `stopPlayer2Listener()` | player2 리스너 해제 |
 | `updateRaceProgress()` | completeQuest에서 호출 |
 | `checkRaceWinner()` | 승리자 판정 |
+| `checkRaceTimeout()` | 시간 초과 처리 |
 | `showRaceResult()` | 결과 표시 + 보상 지급 |
 | `claimRaceReward()` | 보상 수령 기록 |
 | `updateRaceUI()` | 레이스바 업데이트 |
-| `updateRaceUIFromData()` | 실시간 트랙 업데이트 |
+| `updateRaceUIFromData()` | 실시간 트랙 + 타이머 업데이트 |
 | `openRaceJoinPopup()` | 참가 팝업 |
 | `validateCurrentRace()` | 레이스 유효성 검증 |
 | `initRace()` | 초기화 |
@@ -476,12 +482,20 @@ db.collection('saves').get().then(s => {
   - 코드 입력 시 대기 없이 즉시 레이스 시작
   - host/guest → player1/player2 구조 변경
   - "친구 초대" 팝업 제거 → 내 코드 상시 표시
+- 1시간 시간 제한 추가
+  - 레이스 트랙 위에 남은 시간 표시 (mm:ss)
+  - 시간 초과 시 진행도 높은 쪽 승리, 동점이면 무승부
+  - 시간 초과 보상: 200🪙 (승패 무관)
+- player2 실시간 감지
+  - 내 코드로 레이스 시작 시 자동 감지 (onSnapshot)
 - 삭제 항목:
   - 상수: `RACE_MAX_PER_DAY`, `RACE_CODE_EXPIRE_MS`
   - 함수: `canJoinRace()`, `checkRaceReset()`, `getNextMidnightUTC()`, `cancelRace()`, `openRaceInvitePopup()`
   - 저장 필드: `lastRaceDate`, `todayRaceCount`
-- 신규 함수: `getOrCreateMyCode()`, `findActiveRace()`
+- 신규 상수: `RACE_EXPIRE_MS` (1시간), `RACE_REWARDS.timeout`
+- 신규 함수: `getOrCreateMyCode()`, `findActiveRace()`, `checkRaceTimeout()`, `startPlayer2Listener()`, `stopPlayer2Listener()`
 - 신규 저장 필드: `myRaceCode`
+- Firestore: `expiresAt`, `timedOut` 필드 추가
 - firestore.rules: pending 상태 제거, 영구 코드 규칙
 
 ### v4.6.0 (2026-02-06)
