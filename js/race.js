@@ -448,6 +448,7 @@ function updateRaceUI() {
     const timerEl = document.getElementById('race-timer');
     const trackEl = document.getElementById('race-track');
     const inviteBtn = document.getElementById('race-invite-btn');
+    const joinBtn = document.getElementById('race-join-btn');
     const countEl = document.getElementById('race-count');
 
     // 남은 횟수
@@ -464,11 +465,13 @@ function updateRaceUI() {
     if (!currentRaceId) {
         if (trackEl) trackEl.innerHTML = '<div class="text-gray-400 text-[10px] py-2">친구를 초대해서 경쟁하세요!</div>';
         if (inviteBtn) inviteBtn.classList.remove('hidden');
+        if (joinBtn) joinBtn.classList.remove('hidden');
         return;
     }
 
-    // 레이스 진행 중이면 리스너가 UI 업데이트
+    // 레이스 진행 중이면 버튼들 숨김
     if (inviteBtn) inviteBtn.classList.add('hidden');
+    if (joinBtn) joinBtn.classList.add('hidden');
 }
 
 // --- UI: 레이스 데이터로 업데이트 ---
@@ -483,13 +486,21 @@ function updateRaceUIFromData(data) {
 
     if (data.status === 'pending') {
         const code = data.inviteCode || '------';
+        const expireTime = data.createdAt + RACE_CODE_EXPIRE_MS;
+        const remainMs = Math.max(0, expireTime - Date.now());
+        const remainMin = Math.floor(remainMs / 60000);
+        const remainSec = Math.floor((remainMs % 60000) / 1000);
+        const timerText = `${remainMin}:${remainSec.toString().padStart(2, '0')}`;
+        const isExpired = remainMs <= 0;
+
         trackEl.innerHTML = `
             <div class="text-center py-2">
-                <div class="text-[10px] text-gray-500 mb-1">초대 코드</div>
-                <div class="flex items-center justify-center gap-2 mb-2">
-                    <span class="text-xl font-bold text-cyan-600 font-mono tracking-widest">${code}</span>
-                    <button onclick="copyRaceCode('${code}')" class="text-[9px] bg-cyan-500 text-white px-2 py-0.5 rounded">📋</button>
+                <div class="text-[10px] text-gray-500 mb-1">초대 코드 ${isExpired ? '<span class="text-red-500">(만료됨)</span>' : ''}</div>
+                <div class="flex items-center justify-center gap-2 mb-1">
+                    <span class="text-xl font-bold ${isExpired ? 'text-gray-400' : 'text-cyan-600'} font-mono tracking-widest">${code}</span>
+                    <button onclick="copyRaceCode('${code}')" class="text-[9px] bg-cyan-500 text-white px-2 py-0.5 rounded" ${isExpired ? 'disabled' : ''}>📋</button>
                 </div>
+                <div class="text-[10px] ${isExpired ? 'text-red-500' : 'text-orange-500'} font-mono mb-2">⏱ ${isExpired ? '만료됨' : timerText}</div>
                 <div class="text-fuchsia-500 text-[10px] animate-pulse mb-2">상대방 대기 중...</div>
                 <button onclick="cancelRace()" class="text-[9px] bg-gray-300 text-gray-600 px-3 py-1 rounded-full">취소</button>
             </div>
