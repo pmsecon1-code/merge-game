@@ -602,38 +602,40 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ### v4.14.0 (2026-02-09)
 - 🦄 **전설 퀘스트 시스템** 추가
-  - 주사위 여행 50칸 완주 → 전설 생성기 스폰
-  - 생성기 클릭 3회 → Lv.1 아기말 생성 (1분 과열)
+  - 주사위 여행 50칸 완주 → **목장** 스폰
+  - 목장 클릭 3회 → Lv.1 아기말 생성 (1분 과열)
   - Lv.1~5 합성: 아기말 → 얼룩말 → 경주마 → 환상마 → 유니콘
-  - 유니콘 완성 시 **500🪙 + 20💎** 보상
+  - 유니콘 완성 시 **500🪙 + 20💎** 보상 + 🦄 완료! 버튼
+- **전설 퀘스트 UI**
+  - 보상 정보 표시: "(완료 500🪙 +20💎)"
+  - 진행 상태: 생성기 터치! → Lv.n → Lv.5 🦄 → 유니콘 완성!
+  - 유니콘 완성 시 "🦄 완료!" 버튼 표시
+  - 목장 도감 추가 (LEGENDARIES 리스트)
 - **주사위 ↔ 전설 퀘스트 순환 구조**
-  - 주사위 완주 시 주사위 잠금 (전설 퀘스트 진행 중)
+  - 전설 퀘스트 진행 중 주사위 여행 잠금
+  - UI: "🔒 전설 퀘스트를 완료하세요", 버튼: "🔒 잠김 (🎲n)"
+  - 잠금 상태에서도 주사위 드랍/보유 개수 표시
   - 전설 퀘스트 완료 시 주사위 리셋 (position, visitedSteps, diceCount 모두 0)
-  - UI: "🦄 퀘스트 진행 중", "🔒 퀘스트 완료 후 해제"
+- **주사위 완주 조건 수정**
+  - 기존: position >= 50 (골인 칸 별도)
+  - 수정: position >= 49 (마지막 칸 = 골인)
+  - 마지막 칸 보상 지급 후 완주 처리
+  - 골인 칸을 마지막 칸과 통합 (🐾가 🏁에 표시)
+  - 50/50 완주 복구 로직 (이전 버전 유저 자동 완주)
 - **엣지케이스 수정**
   - 생성기 판매 차단: "생성기는 판매할 수 없어요!" 토스트
   - 전설 동물 판매 시 올바른 이름 표시 (LEGENDARIES 리스트 사용)
   - 스페셜 퀘스트 창고 체크: Lv.7 동물이 창고에 있어도 "목표달성!" + 생성기 재스폰 방지
   - 전설 퀘스트 창고 체크: 유니콘이 창고에 있어도 퀘스트 완료 가능 + UI 레벨 반영
-  - `completeSpecialMission()`: 창고 동물도 제거
 - **버그 수정**
-  - 에너지 검증 상한 불일치: `validateGameData`에서 100 → 999 (Firestore 규칙과 일치)
-  - **탭 전환 시 에너지 회복 안 됨** 버그 수정
-    - 원인: `visibilitychange`에서 포그라운드 복귀 시 회복 로직 없음
-    - 해결: `recoverOfflineEnergy()` 함수 추가, 포그라운드 복귀 시 호출
-    - `lastSavedAt` 변수로 마지막 저장 시간 추적
+  - 에너지 검증 상한 불일치: `validateGameData`에서 100 → 999
+  - 탭 전환 시 에너지 회복 안 됨: `recoverOfflineEnergy()` 추가
 - **코드 리팩토링**
-  - 타이밍 상수 분리 (`constants.js`): `GENERATOR_COOLDOWN_MS`, `TOAST_DURATION_MS`, `MILESTONE_POPUP_MS`, `DICE_DROP_POPUP_MS`, `DICE_RESULT_POPUP_MS`, `DICE_SLOT_EFFECT_MS`, `DICE_MOVE_DELAY_MS`
-  - 중복 제거 헬퍼 함수 4개 (`systems.js`):
-    - `hasItemOfType(type)`: 보드+창고에서 타입 존재 확인
-    - `hasItemOfTypeAndLevel(type, level)`: 타입+레벨 존재 확인
-    - `getMaxLevelOfType(type)`: 타입의 최대 레벨 반환
-    - `isLegendaryQuestActive()`: 전설 퀘스트 진행 중인지 체크
-  - 6곳의 중복 코드를 헬퍼 함수로 대체
-- 신규 상수: `LEGENDARIES`, `LEGENDARY_COMPLETE_REWARD`, `GENERATOR_COOLDOWN_MS`, `TOAST_DURATION_MS`, `MILESTONE_POPUP_MS`, `DICE_DROP_POPUP_MS`, `DICE_RESULT_POPUP_MS`, `DICE_SLOT_EFFECT_MS`, `DICE_MOVE_DELAY_MS`
-- 신규 변수: `lastSavedAt` (마지막 저장 시간)
-- 신규 함수 (11개): `recoverOfflineEnergy`, `spawnLegendaryGenerator`, `handleLegendaryGeneratorClick`, `completeLegendaryQuest`, `checkLegendaryComplete`, `updateLegendaryQuestUI`, `hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `isLegendaryQuestActive`
-- 수정 함수: `useDice` (잠금 체크), `updateDiceTripUI` (잠금 UI), `completeTrip` (리셋 제거), `askSellItem` (생성기 차단, legendary 리스트), `updateSlot` (창고 체크, 헬퍼 함수 사용), `completeSpecialMission` (창고 제거), `saveGame`/`saveGameNow` (lastSavedAt 업데이트), `applyGameData` (recoverOfflineEnergy 호출), `updateLegendaryQuestUI` (헬퍼 함수 사용), `spawnLegendaryGenerator` (헬퍼 함수 사용), `checkLegendaryComplete` (헬퍼 함수 사용)
+  - 타이밍 상수 분리: `GENERATOR_COOLDOWN_MS`, `TOAST_DURATION_MS`, `MILESTONE_POPUP_MS` 등
+  - 중복 제거 헬퍼 함수 4개: `hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `isLegendaryQuestActive`
+- 신규 상수: `LEGENDARIES`, `LEGENDARY_COMPLETE_REWARD`, 타이밍 상수 7개
+- 신규 함수 (11개): `recoverOfflineEnergy`, `spawnLegendaryGenerator`, `handleLegendaryGeneratorClick`, `completeLegendaryQuest`, `checkLegendaryComplete`, `updateLegendaryQuestUI`, 헬퍼 함수 4개
+- 수정 함수: `openGuide` (legendary 탭), `renderGuideList` (LEGENDARIES), `updateDiceTripUI` (잠금 UI), `renderDiceTripBoard` (골인 칸 통합)
 
 ### v4.13.0 (2026-02-09)
 - 🎲 **주사위 여행 50칸 확장**
