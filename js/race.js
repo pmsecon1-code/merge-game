@@ -283,6 +283,16 @@ function startRaceListener(raceId) {
 
                 // active 상태 (레이스 진행 중)
                 if (data.status === 'active') {
+                    // pending UI 숨기기 (pending → active 전환 시)
+                    const pendingEl = document.getElementById('race-pending-status');
+                    if (pendingEl) pendingEl.classList.add('hidden');
+
+                    // pending 타이머 인터벌이 실행 중이면 클리어
+                    if (raceTimerInterval) {
+                        clearInterval(raceTimerInterval);
+                        raceTimerInterval = null;
+                    }
+
                     updateRaceUIFromData(data);
 
                     // 타이머 인터벌 시작 (1초마다 업데이트)
