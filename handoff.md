@@ -538,21 +538,23 @@ db.collection('saves').get().then(s => {
 - 일일 미션 시스템 추가
   - 기존 **상시 미션**, **누적 코인** 제거 → 일일 미션으로 통합
   - 3개 미션: 합성 30회(100🪙), 생성 50회(100🪙), 코인 500 획득(100🪙)
-  - 매일 00:00 UTC 자동 리셋
-  - 전체 완료 보너스: 10💎 + 5🃏
+  - 매일 **KST 00:00** 자동 리셋 (한국 자정 기준)
+  - 전체 완료 보너스: 10💎 + 5🃏 (자동 팝업)
+  - 타이틀에 보너스 정보 표시: `(완료 시 +10💎 +5🃏)`
 - 삭제 항목
   - 상수: `PM_GOALS`, `PM_TITLES`, `PM_ICONS`, `PM_REWARD`, `SPECIAL_QUEST_GOAL`, `SPECIAL_QUEST_STEP`, `SPECIAL_QUEST_REWARD_COINS`
-  - 변수: `pmType`, `pmProgress`, `nextSpecialTarget`
+  - 변수: `pmType`, `pmProgress`, `nextSpecialTarget`, `dailyBonusRow`
   - 함수: `addPmProgress()`, `updatePmUI()`, `updateSpecialQuestUI()`, `giveSpecialReward()`
-  - UI: 상시 미션 바, 누적 코인 바
-- 신규 상수: `DAILY_MISSIONS`, `DAILY_COMPLETE_REWARD`
-- 신규 변수: `dailyMissions`, `dailyMissionsContainer`, `dailyResetTimer`, `dailyBonusRow`
-- 신규 함수 (5개): `checkDailyReset()`, `addDailyProgress()`, `checkDailyMissionComplete()`, `claimDailyBonus()`, `updateDailyMissionUI()`, `startDailyMissionTimer()`
+  - UI: 상시 미션 바, 누적 코인 바, 보너스 수령 버튼
+- 신규 상수: `DAILY_MISSIONS`, `DAILY_COMPLETE_REWARD`, `getKSTDateString()`, `getMsUntilKSTMidnight()`
+- 신규 변수: `dailyMissions`, `dailyMissionsContainer`, `dailyResetTimer`
+- 신규 함수 (6개): `checkDailyReset()`, `addDailyProgress()`, `checkDailyMissionComplete()`, `claimDailyBonus()`, `updateDailyMissionUI()`, `startDailyMissionTimer()`
 - 코인 획득 시 `addDailyProgress('coins', amount)` 호출 추가 (퀘스트/스페셜미션/구조/판매)
 - firestore.rules: `pmProgress` 검증 제거
 - 버그 수정
   - 생성기 클릭 시 동물 2마리 생성되던 버그 (cell.onclick + handleDragEnd 중복 호출)
   - createBoardCells/createStorageCells에서 onclick 제거
+  - 레이스 시작 시 초대 타이머가 계속 표시되던 버그 (pending→active 전환 시 UI 숨김 누락)
 
 ### v4.9.0 (2026-02-09)
 - 7일 출석 보상 시스템
@@ -705,3 +707,4 @@ db.collection('saves').get().then(s => {
 - [x] 레이스 초대 시스템 - 수락/거절 (v4.8.0)
 - [x] 레이스 엣지케이스 처리 (v4.8.0)
 - [x] 7일 출석 보상 시스템 (v4.9.0)
+- [x] 일일 미션 시스템 (v4.10.0)
