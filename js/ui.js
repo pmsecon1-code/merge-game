@@ -519,7 +519,7 @@ function updateDailyMissionUI() {
                     <div class="h-full ${done ? 'bg-green-400' : 'bg-amber-400'} transition-all" style="width:${pct}%"></div>
                 </div>
                 <span class="text-[9px] w-14 text-right ${done ? 'text-green-600' : 'text-amber-600'} font-bold">
-                    ${progress}/${target} ${done ? '✓' : ''}
+                    ${Math.min(progress, target)}/${target} ${done ? '✓' : ''}
                 </span>
                 <span class="text-[8px] text-gray-400">(${mission.reward}🪙)</span>
             </div>
