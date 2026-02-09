@@ -384,10 +384,10 @@ function handleSpecialCageClick() {
 function updateDiceTripUI() {
     if (!diceTripContainer) return;
 
-    // 진행도 표시
+    // 진행도 표시 (1번 칸부터 시작)
     const posEl = document.getElementById('dice-trip-position');
     if (posEl) {
-        posEl.textContent = `${diceTripPosition}/${DICE_TRIP_SIZE}`;
+        posEl.textContent = `${diceTripPosition + 1}/${DICE_TRIP_SIZE}`;
     }
 
     // 굴리기 버튼 상태
