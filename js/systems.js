@@ -226,7 +226,11 @@ function tryDropDice() {
 }
 
 function useDice() {
-    if (isRollingDice || diceCount <= 0) return;
+    console.log('[useDice] called, diceCount:', diceCount, 'isRollingDice:', isRollingDice);
+    if (isRollingDice || diceCount <= 0) {
+        console.log('[useDice] blocked - rolling:', isRollingDice, 'count:', diceCount);
+        return;
+    }
     diceCount--;
     rollDice();
 }
