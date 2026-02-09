@@ -499,6 +499,15 @@ function renderDiceTripBoard() {
     }
 
     diceTripBoard.innerHTML = html;
+
+    // 현재 위치로 자동 스크롤
+    const currentStep = diceTripBoard.querySelector('.dice-step.current');
+    if (currentStep) {
+        const boardRect = diceTripBoard.getBoundingClientRect();
+        const stepRect = currentStep.getBoundingClientRect();
+        const scrollLeft = currentStep.offsetLeft - (boardRect.width / 2) + (stepRect.width / 2);
+        diceTripBoard.scrollLeft = Math.max(0, scrollLeft);
+    }
 }
 
 // --- 판매 ---
