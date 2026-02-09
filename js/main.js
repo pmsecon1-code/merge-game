@@ -14,8 +14,9 @@ function init() {
     energyTimerEl = document.getElementById('energy-timer');
     levelEl = document.getElementById('level-val');
     questContainer = document.getElementById('quest-container');
-    cumulativeBar = document.getElementById('cumulative-bar');
-    cumulativeText = document.getElementById('cumulative-text');
+    dailyMissionsContainer = document.getElementById('daily-missions-container');
+    dailyResetTimer = document.getElementById('daily-reset-timer');
+    dailyBonusRow = document.getElementById('daily-bonus-row');
     rescueText = document.getElementById('rescue-text');
     rescueTimerEl = document.getElementById('rescue-timer');
     shopTimerBadge = document.getElementById('shop-timer-badge');
@@ -32,6 +33,7 @@ function init() {
     startRescueTimer();
     startCooldownTimer();
     startQuestTimer();
+    startDailyMissionTimer();
 
     document.addEventListener('mousedown', handleDragStart);
     document.addEventListener('mousemove', handleDragMove);
@@ -137,6 +139,12 @@ function startQuestTimer() {
     }, 1000);
 }
 
+function startDailyMissionTimer() {
+    setInterval(() => {
+        updateDailyMissionUI();
+    }, 1000);
+}
+
 // --- redirect 결과 처리 ---
 auth.getRedirectResult()
     .then((result) => {
@@ -217,6 +225,7 @@ document.getElementById('confirm-sell-btn').onclick = () => {
         const p = sellTarget.item.level;
         coins += p;
         cumulativeCoins += p;
+        addDailyProgress('coins', p);
         (sellTarget.zone === 'board' ? boardState : storageState)[sellTarget.index] = null;
         updateAll();
         showToast(`${p}코인 획득!`);

@@ -116,10 +116,9 @@ function updateAll() {
     updateUI();
     updateTimerUI();
     updateQuestUI();
-    updateSpecialQuestUI();
     updateRescueQuestUI();
     updateSpecialMissionUI();
-    updatePmUI();
+    updateDailyMissionUI();
     updateAlbumBarUI();
     saveGame();
 }
@@ -497,4 +496,56 @@ function upgradeGenerator() {
     });
     updateUpgradeUI();
     updateAll();
+}
+
+// --- 일일 미션 UI ---
+function updateDailyMissionUI() {
+    checkDailyReset();
+
+    if (!dailyMissionsContainer) return;
+
+    // 미션 목록 렌더링
+    let html = '';
+    DAILY_MISSIONS.forEach((mission, idx) => {
+        const progress = dailyMissions[mission.id];
+        const target = mission.target;
+        const pct = Math.min((progress / target) * 100, 100);
+        const done = dailyMissions.claimed[idx];
+
+        html += `
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] w-20">${mission.icon} ${mission.label}</span>
+                <div class="flex-1 h-3 bg-amber-200 rounded-full overflow-hidden">
+                    <div class="h-full ${done ? 'bg-green-400' : 'bg-amber-400'} transition-all" style="width:${pct}%"></div>
+                </div>
+                <span class="text-[9px] w-14 text-right ${done ? 'text-green-600' : 'text-amber-600'} font-bold">
+                    ${progress}/${target} ${done ? '✓' : ''}
+                </span>
+                <span class="text-[8px] text-gray-400">(${mission.reward}🪙)</span>
+            </div>
+        `;
+    });
+    dailyMissionsContainer.innerHTML = html;
+
+    // 전체 완료 보너스 행
+    if (dailyBonusRow) {
+        const allClaimed = dailyMissions.claimed.every((c) => c);
+        if (allClaimed && !dailyMissions.bonusClaimed) {
+            dailyBonusRow.classList.remove('hidden');
+        } else {
+            dailyBonusRow.classList.add('hidden');
+        }
+    }
+
+    // 리셋 타이머
+    if (dailyResetTimer) {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setUTCHours(24, 0, 0, 0);
+        const remaining = tomorrow - now;
+        const h = Math.floor(remaining / 3600000);
+        const m = Math.floor((remaining % 3600000) / 60000);
+        const s = Math.floor((remaining % 60000) / 1000);
+        dailyResetTimer.innerText = `리셋 ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
 }

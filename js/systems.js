@@ -55,6 +55,7 @@ function completeSpecialMission(idx) {
     const type = ['bird', 'fish', 'reptile'][idx];
     coins += 500;
     diamonds += 10;
+    addDailyProgress('coins', 500);
     showToast(`완료! +500🪙 +10💎`);
     for (let i = 0; i < BOARD_SIZE; i++) {
         if (boardState[i] && (boardState[i].type === type || boardState[i].type === `${type}_generator`))
@@ -69,28 +70,6 @@ function completeSpecialMission(idx) {
     }
     renderShop();
     updateAll();
-}
-
-// --- 상시 미션 ---
-function addPmProgress(type) {
-    if (type !== pmType) return;
-    pmProgress++;
-    if (pmProgress >= PM_GOALS[pmType]) {
-        coins += PM_REWARD;
-        showToast(`상시 미션 완료! +${PM_REWARD}🪙`);
-        showMilestonePopup(PM_TITLES[pmType] + ' 완료!', `${PM_REWARD} 코인`);
-        pmProgress = 0;
-        pmType = pmType === 0 ? 1 : 0;
-        updateUI();
-    }
-    updatePmUI();
-}
-
-function updatePmUI() {
-    const goal = PM_GOALS[pmType];
-    document.getElementById('pm-label').innerText = `${PM_ICONS[pmType]} ${PM_TITLES[pmType]}(${PM_REWARD}🪙)`;
-    document.getElementById('pm-bar').style.width = `${(pmProgress / goal) * 100}%`;
-    document.getElementById('pm-text').innerText = `${pmProgress}/${goal}`;
 }
 
 // --- 7행 미션 자동 완료 ---
@@ -120,32 +99,10 @@ function checkAutoCompleteMissions() {
     return changed;
 }
 
-// --- 누적 코인 ---
-function updateSpecialQuestUI() {
-    while (cumulativeCoins >= nextSpecialTarget) {
-        giveSpecialReward();
-        showMilestonePopup('누적 코인 목표 달성!', '50 코인');
-        nextSpecialTarget += SPECIAL_QUEST_STEP;
-        if (nextSpecialTarget > SPECIAL_QUEST_GOAL) {
-            cumulativeCoins = 0;
-            nextSpecialTarget = SPECIAL_QUEST_STEP;
-            showToast('누적 코인 리셋!');
-            break;
-        }
-    }
-    const disp = Math.min(cumulativeCoins, SPECIAL_QUEST_GOAL);
-    cumulativeBar.style.width = `${(disp / SPECIAL_QUEST_GOAL) * 100}%`;
-    cumulativeText.innerText = `${Math.floor(disp).toLocaleString()} / ${SPECIAL_QUEST_GOAL.toLocaleString()}`;
-}
-
-function giveSpecialReward() {
-    coins += SPECIAL_QUEST_REWARD_COINS;
-    updateUI();
-}
-
 function updateRescueQuestUI() {
     if (currentSetRescues >= 3) {
         coins += RESCUE_QUEST_REWARD;
+        addDailyProgress('coins', RESCUE_QUEST_REWARD);
         showToast(`모두 구조 완료! +${RESCUE_QUEST_REWARD}코인`);
         showMilestonePopup('모두 구조 달성!', `${RESCUE_QUEST_REWARD} 코인`);
         currentSetRescues = 0;

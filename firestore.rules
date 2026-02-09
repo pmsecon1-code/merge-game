@@ -43,7 +43,6 @@ service cloud.firestore {
           && isValidNumber(data.cumulativeCoins, 0, 9999999) // 누적코인
           && isValidNumber(data.currentSetRescues, 0, 3)     // 구조 진행: 0~3
           && isValidNumber(data.questProgress, 0, 100)       // 퀘스트 진행
-          && isValidNumber(data.pmProgress, 0, 200)          // 상시미션 진행
           // 배열 크기 검증
           && isValidArray(data.boardState, 35)               // 보드: 최대 35칸
           && isValidArray(data.storageState, 10)             // 창고: 최대 10칸

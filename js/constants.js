@@ -26,9 +26,6 @@ const FIRE_EXTINGUISH_COST = 100;
 // --- 보상 설정 ---
 const RESCUE_QUEST_REWARD = 1000;
 const FIRE_EXTINGUISH_REWARD = 100;
-const SPECIAL_QUEST_GOAL = 1000;
-const SPECIAL_QUEST_STEP = 200;
-const SPECIAL_QUEST_REWARD_COINS = 100;
 
 // --- 게임 밸런스 ---
 const CAGE_MAX_LEVEL = 5;
@@ -43,11 +40,13 @@ const ROULETTE_COLORS = ['#dbeafe', '#3b82f6', '#93c5fd', '#60a5fa', '#1d4ed8', 
 // --- NPC 아바타 ---
 const NPC_AVATARS = ['👩‍🌾', '👨‍🍳', '👮‍♀️', '🧙‍♂️', '👸', '🕵️‍♂️', '🎅', '🧑‍🚀', '👨‍🎨', '🦸‍♀️'];
 
-// --- 상시 미션 설정 ---
-const PM_GOALS = [100, 200];
-const PM_TITLES = ['100번 합성하기', '200번 생성하기'];
-const PM_ICONS = ['🔨', '✨'];
-const PM_REWARD = 200;
+// --- 일일 미션 설정 ---
+const DAILY_MISSIONS = [
+    { id: 'merge', icon: '🔨', label: '합성', target: 30, reward: 100 },
+    { id: 'spawn', icon: '✨', label: '생성', target: 50, reward: 100 },
+    { id: 'coins', icon: '👑', label: '코인 획득', target: 500, reward: 100 },
+];
+const DAILY_COMPLETE_REWARD = { diamonds: 10, cards: 5 };
 
 // ============================================
 // 동물 데이터

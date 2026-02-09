@@ -10,7 +10,6 @@ function getGameData() {
         apartmentState,
         coins,
         cumulativeCoins,
-        nextSpecialTarget,
         currentSetRescues,
         totalQuestsCompleted,
         diamonds,
@@ -25,8 +24,7 @@ function getGameData() {
         shopNextRefresh: shopNextRefresh - Date.now(),
         discoveredItems: [...discoveredItems],
         specialMissionCycles,
-        pmType,
-        pmProgress,
+        dailyMissions: { ...dailyMissions },
         energyPurchaseCount,
         energyPurchaseResetTime: energyPurchaseResetTime - Date.now(),
         isTutorialActive,
@@ -64,7 +62,6 @@ function applyGameData(d) {
     }
     coins = d.coins ?? 0;
     cumulativeCoins = d.cumulativeCoins ?? 0;
-    nextSpecialTarget = d.nextSpecialTarget ?? SPECIAL_QUEST_STEP;
     currentSetRescues = d.currentSetRescues ?? 0;
     totalQuestsCompleted = d.totalQuestsCompleted ?? 0;
     diamonds = d.diamonds ?? 0;
@@ -93,8 +90,27 @@ function applyGameData(d) {
     shopNextRefresh = Date.now() + (d.shopNextRefresh ?? SHOP_REFRESH_MS);
     discoveredItems = new Set(d.discoveredItems || []);
     specialMissionCycles = d.specialMissionCycles || [0, 0, 0];
-    pmType = d.pmType ?? 0;
-    pmProgress = d.pmProgress ?? 0;
+    // 일일 미션 로드 (마이그레이션 포함)
+    if (d.dailyMissions) {
+        dailyMissions = {
+            merge: d.dailyMissions.merge ?? 0,
+            spawn: d.dailyMissions.spawn ?? 0,
+            coins: d.dailyMissions.coins ?? 0,
+            claimed: d.dailyMissions.claimed || [false, false, false],
+            bonusClaimed: d.dailyMissions.bonusClaimed ?? false,
+            lastResetDate: d.dailyMissions.lastResetDate || '',
+        };
+    } else {
+        // 기존 데이터 마이그레이션: pmProgress, cumulativeCoins 무시하고 새로 시작
+        dailyMissions = {
+            merge: 0,
+            spawn: 0,
+            coins: 0,
+            claimed: [false, false, false],
+            bonusClaimed: false,
+            lastResetDate: '',
+        };
+    }
     energyPurchaseCount = d.energyPurchaseCount ?? 0;
     energyPurchaseResetTime = Date.now() + (d.energyPurchaseResetTime ?? 3 * 60 * 60 * 1000);
     isTutorialActive = d.isTutorialActive ?? true;
@@ -297,7 +313,6 @@ function validateGameData(data) {
         ['cumulativeCoins', 0, 9999999],
         ['currentSetRescues', 0, 3],
         ['questProgress', 0, 100],
-        ['pmProgress', 0, 200],
         ['cards', 0, 9999],
         ['raceWins', 0, 9999],
         ['raceLosses', 0, 9999],
@@ -371,8 +386,14 @@ function initNewGame() {
     genLevels = { cat: 1, dog: 1 };
     discoveredItems = new Set();
     specialMissionCycles = [0, 0, 0];
-    pmType = 0;
-    pmProgress = 0;
+    dailyMissions = {
+        merge: 0,
+        spawn: 0,
+        coins: 0,
+        claimed: [false, false, false],
+        bonusClaimed: false,
+        lastResetDate: '',
+    };
     currentSetRescues = 0;
     cards = 0;
     album = [];
@@ -408,8 +429,7 @@ function initNewGame() {
     updateUI();
     updateTimerUI();
     updateQuestUI();
-    updateSpecialQuestUI();
     updateRescueQuestUI();
     updateSpecialMissionUI();
-    updatePmUI();
+    updateDailyMissionUI();
 }

@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.9.0)
+# 멍냥 머지 게임 - Architecture (v4.10.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.9.0
+- **버전**: 4.10.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -50,14 +50,13 @@ merge2/
 | 2 | 📋 레벨업 진행도 (n/min(레벨×2,20)) | event-bar 파랑 |
 | 3 | 📋 일반 퀘스트 (6개, 3개씩 페이지) | event-bar 보라 |
 | 4 | 맵 (5×7 = 35칸) | board-wrapper 분홍 |
-| 5 | 🔨 상시 미션 | event-bar 보라 |
-| 6 | 👑 누적 코인 (칸마다 100🪙) | event-bar |
-| 7 | 🏁 레이스 (1:1 경쟁) | event-bar 시안 |
-| 8 | 📸 앨범 (진행도/타이머/뽑기/앨범보기) | event-bar 보라 |
-| 9 | ⭐ 스페셜 퀘스트 (🐦🐠🦎) | event-bar 노랑 |
-| 10 | 🚑 구조 현장 (3마리, 1000🪙) | event-bar 파랑 |
-| 11 | 🛒 상점 (5칸: 랜덤×3 + 🃏카드팩 + 💎다이아팩) | event-bar 주황 |
-| 12 | 📦 창고 (5칸) | event-bar 초록 |
+| 5 | 📋 일일 미션 (합성/생성/코인) | event-bar 황색 |
+| 6 | 🏁 레이스 (1:1 경쟁) | event-bar 시안 |
+| 7 | 📸 앨범 (진행도/타이머/뽑기/앨범보기) | event-bar 보라 |
+| 8 | ⭐ 스페셜 퀘스트 (🐦🐠🦎) | event-bar 노랑 |
+| 9 | 🚑 구조 현장 (3마리, 1000🪙) | event-bar 파랑 |
+| 10 | 🛒 상점 (5칸: 랜덤×3 + 🃏카드팩 + 💎다이아팩) | event-bar 주황 |
+| 11 | 📦 창고 (5칸) | event-bar 초록 |
 
 ---
 
@@ -134,8 +133,18 @@ merge2/
   raceLosses,               // 누적 패배
   recentRaceOpponents,      // 최근 상대 [{code, name}, ...] (최대 3명)
 
+  // 일일 미션 (v4.10.0+)
+  dailyMissions: {
+    merge,              // 합성 횟수
+    spawn,              // 생성 횟수
+    coins,              // 획득 코인
+    claimed,            // [false, false, false] 개별 보상 수령
+    bonusClaimed,       // false 전체 완료 보너스 수령
+    lastResetDate,      // "YYYY-MM-DD" 마지막 리셋 날짜
+  },
+
   // 기타
-  discoveredItems, specialMissionCycles, pmType, pmProgress,
+  discoveredItems, specialMissionCycles,
   firstEnergyRewardGiven, savedAt
 }
 ```
@@ -441,20 +450,20 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 
 ## 주요 함수 목록 (파일별)
 
-### game.js (20개)
-`discoverItem`, `countEasyQuests`, `generateNewQuest`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyBonus`
+### game.js (24개)
+`discoverItem`, `countEasyQuests`, `generateNewQuest`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `checkDailyBonus`
 
-### systems.js (26개)
-`getSlotUnlockLevel`, `updateSpecialMissionUI`, `updateSlot`, `spawnSpecialGenerator`, `completeSpecialMission`, `addPmProgress`, `updatePmUI`, `checkAutoCompleteMissions`, `updateSpecialQuestUI`, `giveSpecialReward`, `updateRescueQuestUI`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `initApartment`, `startAnimalHPTimer`, `showHelpBubble`, `renderApartment`, `openRoulette`, `renderRouletteLabels`, `updateRoulettePopupUI`, `startSpin`, `finishSpin`, `askSellItem`
+### systems.js (22개)
+`getSlotUnlockLevel`, `updateSpecialMissionUI`, `updateSlot`, `spawnSpecialGenerator`, `completeSpecialMission`, `checkAutoCompleteMissions`, `updateRescueQuestUI`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `initApartment`, `startAnimalHPTimer`, `showHelpBubble`, `renderApartment`, `openRoulette`, `renderRouletteLabels`, `updateRoulettePopupUI`, `startSpin`, `finishSpin`, `askSellItem`
 
-### ui.js (25개)
-`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`
+### ui.js (26개)
+`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`
 
 ### race.js (30개)
 `generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `findActiveOrPendingRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `quickJoinRace`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
 
-### main.js (8개)
-`init`, `createBoardCells`, `createStorageCells`, `createShopCells`, `startEnergyRecovery`, `startCooldownTimer`, `startRescueTimer`, `startQuestTimer`
+### main.js (9개)
+`init`, `createBoardCells`, `createStorageCells`, `createShopCells`, `startEnergyRecovery`, `startCooldownTimer`, `startRescueTimer`, `startQuestTimer`, `startDailyMissionTimer`
 
 ---
 
@@ -469,8 +478,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 에너지 구매
 `getEnergyPrice()` → 500 + 구매횟수×100 (3시간 리셋)
 
-### 데이터 배열 (14개)
-`CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `CAT_SNACKS`(7), `DOG_SNACKS`(7), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `ROULETTE_SEGMENTS`, `PM_GOALS`, `PM_TITLES`
+### 데이터 배열 (12개)
+`CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `CAT_SNACKS`(7), `DOG_SNACKS`(7), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `ROULETTE_SEGMENTS`, `DAILY_MISSIONS`(3개), `ATTENDANCE_REWARDS`(7일)
 
 ### 헬퍼 함수 (5개)
 `getItemList`, `getMaxLevel`, `getItemData`, `getGeneratorName`, `getSpecialTypeName`
@@ -524,6 +533,23 @@ db.collection('saves').get().then(s => {
 ---
 
 ## 변경 이력
+
+### v4.10.0 (2026-02-09)
+- 일일 미션 시스템 추가
+  - 기존 **상시 미션**, **누적 코인** 제거 → 일일 미션으로 통합
+  - 3개 미션: 합성 30회(100🪙), 생성 50회(100🪙), 코인 500 획득(100🪙)
+  - 매일 00:00 UTC 자동 리셋
+  - 전체 완료 보너스: 10💎 + 5🃏
+- 삭제 항목
+  - 상수: `PM_GOALS`, `PM_TITLES`, `PM_ICONS`, `PM_REWARD`, `SPECIAL_QUEST_GOAL`, `SPECIAL_QUEST_STEP`, `SPECIAL_QUEST_REWARD_COINS`
+  - 변수: `pmType`, `pmProgress`, `nextSpecialTarget`
+  - 함수: `addPmProgress()`, `updatePmUI()`, `updateSpecialQuestUI()`, `giveSpecialReward()`
+  - UI: 상시 미션 바, 누적 코인 바
+- 신규 상수: `DAILY_MISSIONS`, `DAILY_COMPLETE_REWARD`
+- 신규 변수: `dailyMissions`, `dailyMissionsContainer`, `dailyResetTimer`, `dailyBonusRow`
+- 신규 함수 (5개): `checkDailyReset()`, `addDailyProgress()`, `checkDailyMissionComplete()`, `claimDailyBonus()`, `updateDailyMissionUI()`, `startDailyMissionTimer()`
+- 코인 획득 시 `addDailyProgress('coins', amount)` 호출 추가 (퀘스트/스페셜미션/구조/판매)
+- firestore.rules: `pmProgress` 검증 제거
 
 ### v4.9.0 (2026-02-09)
 - 7일 출석 보상 시스템

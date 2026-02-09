@@ -11,8 +11,7 @@ for (let i = 0; i < STORAGE_SIZE; i++) storageState[i] = { type: 'locked_storage
 
 // --- 재화 ---
 let coins = 0,
-    cumulativeCoins = 0,
-    nextSpecialTarget = SPECIAL_QUEST_STEP;
+    cumulativeCoins = 0;
 let currentSetRescues = 0;
 let diamonds = 0,
     energy = MAX_ENERGY,
@@ -47,8 +46,16 @@ const newlyDiscoveredItems = new Map();
 // --- 미션 ---
 let specialMissionCycles = [0, 0, 0],
     isTutorialActive = true;
-let pmType = 0,
-    pmProgress = 0;
+
+// --- 일일 미션 ---
+let dailyMissions = {
+    merge: 0,
+    spawn: 0,
+    coins: 0,
+    claimed: [false, false, false],
+    bonusClaimed: false,
+    lastResetDate: '',
+};
 
 // --- 에너지 구매 ---
 let energyPurchaseCount = 0,
@@ -97,7 +104,7 @@ let sessionUnsubscribe = null;
 let boardEl, storageEl, apartmentEl, shopGrid;
 let coinEl, diamondEl, energyEl, energyTimerEl;
 let levelEl, questContainer;
-let cumulativeBar, cumulativeText;
+let dailyMissionsContainer, dailyResetTimer, dailyBonusRow;
 let rescueText, rescueTimerEl;
 let shopTimerBadge, rouletteWheel;
 let tutorialPointer;

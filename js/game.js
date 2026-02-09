@@ -89,6 +89,7 @@ function completeQuest(i) {
     } else {
         coins += q.reward;
         cumulativeCoins += q.reward;
+        addDailyProgress('coins', q.reward);
         showToast(`완료! +${q.reward}코인`);
     }
     if (questProgress >= Math.min(userLevel * 2, 20)) {
@@ -188,7 +189,7 @@ function spawnItem(baseType, inputLevel = 1, isFree = false) {
     const targetIdx = empties[0];
     boardState[targetIdx] = { type: finalType, level: finalLevel };
     discoverItem(finalType, finalLevel);
-    addPmProgress(1);
+    addDailyProgress('spawn');
     renderGrid('board', boardState, boardEl);
     const cell = boardEl.children[targetIdx];
     if (cell && cell.firstChild) {
@@ -237,7 +238,7 @@ function spawnToy() {
     const targetIdx = empties[0];
     boardState[targetIdx] = { type: finalType, level: 1 };
     discoverItem(finalType, 1);
-    addPmProgress(1);
+    addDailyProgress('spawn');
     renderGrid('board', boardState, boardEl);
     const cell = boardEl.children[targetIdx];
     if (cell && cell.firstChild) {
@@ -458,7 +459,7 @@ function moveItem(fz, fi, tz, ti) {
             ts[ti] = { type: fIt.type, level: newLv };
             ss[fi] = null;
             discoverItem(fIt.type, newLv);
-            addPmProgress(0);
+            addDailyProgress('merge');
             checkAutoCompleteMissions();
             const cell = (tz === 'board' ? boardEl : storageEl).children[ti];
             setTimeout(() => {
@@ -472,6 +473,60 @@ function moveItem(fz, fi, tz, ti) {
         ts[ti] = fIt;
         ss[fi] = tIt;
     }
+}
+
+// --- 일일 미션 ---
+function checkDailyReset() {
+    const today = new Date().toISOString().slice(0, 10);
+    if (dailyMissions.lastResetDate === today) return;
+
+    // 리셋
+    dailyMissions = {
+        merge: 0,
+        spawn: 0,
+        coins: 0,
+        claimed: [false, false, false],
+        bonusClaimed: false,
+        lastResetDate: today,
+    };
+    updateDailyMissionUI();
+    saveGame();
+}
+
+function addDailyProgress(type, amount = 1) {
+    checkDailyReset();
+    if (type === 'merge') dailyMissions.merge += amount;
+    else if (type === 'spawn') dailyMissions.spawn += amount;
+    else if (type === 'coins') dailyMissions.coins += amount;
+
+    checkDailyMissionComplete(type);
+    updateDailyMissionUI();
+}
+
+function checkDailyMissionComplete(type) {
+    const idx = DAILY_MISSIONS.findIndex((m) => m.id === type);
+    if (idx === -1) return;
+
+    const mission = DAILY_MISSIONS[idx];
+    const progress = dailyMissions[type];
+
+    if (progress >= mission.target && !dailyMissions.claimed[idx]) {
+        dailyMissions.claimed[idx] = true;
+        coins += mission.reward;
+        showToast(`${mission.icon} ${mission.label} 완료! +${mission.reward}🪙`);
+    }
+}
+
+function claimDailyBonus() {
+    if (dailyMissions.bonusClaimed) return;
+    if (!dailyMissions.claimed.every((c) => c)) return;
+
+    dailyMissions.bonusClaimed = true;
+    diamonds += DAILY_COMPLETE_REWARD.diamonds;
+    cards += DAILY_COMPLETE_REWARD.cards;
+    showMilestonePopup('🎁 일일 미션 완료!', `${DAILY_COMPLETE_REWARD.diamonds}💎 + ${DAILY_COMPLETE_REWARD.cards}🃏`);
+    updateDailyMissionUI();
+    updateAll();
 }
 
 // --- 7일 출석 보너스 ---

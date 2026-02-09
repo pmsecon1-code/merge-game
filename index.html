@@ -130,37 +130,25 @@
                 </div>
             </div>
 
-            <!-- 4. 상시 미션 -->
-            <div id="persistent-mission-bar" class="event-bar">
+            <!-- 4. 일일 미션 -->
+            <div id="daily-mission-bar" class="event-bar" style="border: 2px solid #f59e0b">
                 <div class="flex justify-between items-center mb-1">
-                    <span id="pm-label" class="text-[10px] font-bold text-purple-600">🔨 100번 합성하기 (100🪙)</span>
-                    <span id="pm-text" class="text-[9px] text-purple-500 font-bold">0/100</span>
+                    <span class="text-[10px] font-bold text-amber-700">📋 일일 미션</span>
+                    <span id="daily-reset-timer" class="text-[9px] text-amber-500">리셋 00:00:00</span>
                 </div>
-                <div class="progress-track">
-                    <div
-                        id="pm-bar"
-                        class="progress-fill"
-                        style="background: linear-gradient(90deg, #a78bfa, #7c3aed)"
-                    ></div>
+                <div id="daily-missions-container" class="space-y-1">
+                    <!-- JS로 렌더링 -->
                 </div>
-            </div>
-
-            <!-- 4-1. 누적 코인 -->
-            <div id="special-quest-bar" class="event-bar" style="border: 2px solid #fbbf24">
-                <div class="flex justify-between items-end mb-1">
-                    <span class="text-[10px] font-bold text-gray-600">👑 누적 코인 (칸마다 50🪙)</span>
-                    <span id="cumulative-text" class="text-[9px] text-yellow-600 font-bold">0 / 200</span>
-                </div>
-                <div class="progress-track">
-                    <div id="cumulative-bar" class="progress-fill"></div>
-                    <div class="milestone-marker" style="left: 20%"></div>
-                    <div class="milestone-marker" style="left: 40%"></div>
-                    <div class="milestone-marker" style="left: 60%"></div>
-                    <div class="milestone-marker" style="left: 80%"></div>
+                <div id="daily-bonus-row" class="mt-2 flex justify-between items-center hidden">
+                    <span class="text-[10px] text-amber-600">🎁 전체 완료: 10💎 + 5🃏</span>
+                    <button onclick="claimDailyBonus()"
+                        class="text-[9px] bg-amber-500 text-white px-2 py-1 rounded font-bold">
+                        수령
+                    </button>
                 </div>
             </div>
 
-            <!-- 4-2. 레이스 -->
+            <!-- 4-1. 레이스 -->
             <div id="race-bar" class="event-bar" style="border: 2px solid #06b6d4">
                 <div class="flex items-center gap-1 mb-1 flex-wrap">
                     <span class="text-[10px] font-bold text-cyan-600">🏁 레이스</span>
