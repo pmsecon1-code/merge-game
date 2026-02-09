@@ -550,6 +550,9 @@ db.collection('saves').get().then(s => {
 - 신규 함수 (5개): `checkDailyReset()`, `addDailyProgress()`, `checkDailyMissionComplete()`, `claimDailyBonus()`, `updateDailyMissionUI()`, `startDailyMissionTimer()`
 - 코인 획득 시 `addDailyProgress('coins', amount)` 호출 추가 (퀘스트/스페셜미션/구조/판매)
 - firestore.rules: `pmProgress` 검증 제거
+- 버그 수정
+  - 생성기 클릭 시 동물 2마리 생성되던 버그 (cell.onclick + handleDragEnd 중복 호출)
+  - createBoardCells/createStorageCells에서 onclick 제거
 
 ### v4.9.0 (2026-02-09)
 - 7일 출석 보상 시스템
