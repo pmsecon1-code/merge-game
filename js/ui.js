@@ -306,7 +306,10 @@ function handleDragStart(e) {
         e.target.closest('.sp-btn') ||
         e.target.closest('#btn-spin') ||
         e.target.closest('.sell-btn') ||
-        e.target.closest('.shop-cell')
+        e.target.closest('.shop-cell') ||
+        e.target.closest('#dice-roll-btn') ||
+        e.target.closest('#dice-confirm-btn') ||
+        e.target.closest('.special-cage-box')
     ) {
         if (e.target.closest('.help-btn')) openGuide(e.target.closest('.help-btn').dataset.genType);
         e.stopPropagation();
