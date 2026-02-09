@@ -600,17 +600,22 @@ firebase deploy --only firestore:rules   # 보안 규칙
   - 굴리기 시 애니메이션 팝업 (흔들림 + 숫자 슬롯 효과)
   - 주사위 획득 시 전용 팝업 (보상: 주사위 1개 + 보유 수 표시)
   - 칸 번호(1~20) 제거
+  - **자동 이동**: 주사위 결과 후 버튼 없이 자동 이동
+  - 이동 후 보상 팝업에 획득 보상 표시
 - **착지 칸만 보상** 로직 변경
   - 이동 시 통과 칸 무시, 착지 칸에서만 보상 지급
   - `visitedSteps` 배열로 밟은 칸 추적
   - 밟았던 칸만 ✓ 표시 (통과 칸은 보상 아이콘 유지)
+- **모든 팝업 자동 닫기** (2초)
+  - 레벨업, 마일스톤, 주사위 획득, 주사위 굴리기 팝업
+  - 확인 버튼 클릭 불필요
 - 에너지 보상 **100 초과 허용** (상한 999)
 - 진행도 표시 1부터 시작 (0/20 → 1/20)
 - 버그 수정
   - 드래그 이벤트가 버튼 클릭 방해 (handleDragStart 예외 처리)
   - 팝업 표시 방식 통일 (classList → style.display)
 - 신규 변수: `visitedSteps`, `pendingDiceResult`
-- 신규 함수: `confirmDiceRoll()`
+- 신규 함수: `executeMove()`, `giveStepRewardWithInfo()`
 - firestore.rules: `visitedSteps` 배열 검증, 에너지 상한 999
 
 ### v4.11.0 (2026-02-09)
