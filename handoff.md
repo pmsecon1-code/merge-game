@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.11.0)
+# 멍냥 머지 게임 - Architecture (v4.12.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.11.0
+- **버전**: 4.12.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -114,6 +114,7 @@ merge2/
   diceTripPosition,       // 현재 위치 (0~20)
   diceCount,              // 보유 주사위 수
   specialCageLevel,       // 스페셜 케이지 레벨 (0=없음, 1~5)
+  visitedSteps,           // 밟았던 칸 인덱스 배열 (v4.12.0+)
 
   // 생성기
   genLevels: {cat, dog},
@@ -593,6 +594,25 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## 변경 이력
 
+### v4.12.0 (2026-02-09)
+- 주사위 여행 UI/UX 개선
+  - 각 칸에 보상 아이콘+수량 표시 (예: 🪙10)
+  - 굴리기 시 애니메이션 팝업 (흔들림 + 숫자 슬롯 효과)
+  - 주사위 획득 시 전용 팝업 (보상: 주사위 1개 + 보유 수 표시)
+  - 칸 번호(1~20) 제거
+- **착지 칸만 보상** 로직 변경
+  - 이동 시 통과 칸 무시, 착지 칸에서만 보상 지급
+  - `visitedSteps` 배열로 밟은 칸 추적
+  - 밟았던 칸만 ✓ 표시 (통과 칸은 보상 아이콘 유지)
+- 에너지 보상 **100 초과 허용** (상한 999)
+- 진행도 표시 1부터 시작 (0/20 → 1/20)
+- 버그 수정
+  - 드래그 이벤트가 버튼 클릭 방해 (handleDragStart 예외 처리)
+  - 팝업 표시 방식 통일 (classList → style.display)
+- 신규 변수: `visitedSteps`, `pendingDiceResult`
+- 신규 함수: `confirmDiceRoll()`
+- firestore.rules: `visitedSteps` 배열 검증, 에너지 상한 999
+
 ### v4.11.0 (2026-02-09)
 - 🎲 **주사위 여행** 시스템 추가 (구조현장 대체)
   - **삭제**: 구조현장, 룰렛 시스템 완전 제거
@@ -607,8 +627,8 @@ firebase deploy --only firestore:rules   # 보안 규칙
   - 함수: `initApartment`, `startAnimalHPTimer`, `showHelpBubble`, `renderApartment`, `openRoulette`, `renderRouletteLabels`, `updateRoulettePopupUI`, `startSpin`, `finishSpin`, `updateRescueQuestUI`, `startRescueTimer`
   - UI: `#rescue-wrapper`, `#roulette-popup`, `#apartment-area`
 - 신규 상수: `DICE_TRIP_SIZE`, `DICE_DROP_CHANCE`, `DICE_TRIP_COMPLETE_REWARD`, `SPECIAL_CAGE_MAX_LEVEL`, `DICE_TRIP_REWARDS`, `SPECIAL_CAGE_SPAWNS`
-- 신규 변수: `diceTripPosition`, `diceCount`, `isRollingDice`, `specialCageLevel`, `diceTripContainer`, `diceTripBoard`
-- 신규 함수 (10개): `tryDropDice`, `useDice`, `rollDice`, `moveTripPosition`, `giveStepReward`, `completeTrip`, `spawnSpecialCage`, `handleSpecialCageClick`, `updateDiceTripUI`, `renderDiceTripBoard`
+- 신규 변수: `diceTripPosition`, `diceCount`, `isRollingDice`, `specialCageLevel`, `visitedSteps`, `pendingDiceResult`, `diceTripContainer`, `diceTripBoard`
+- 신규 함수 (11개): `tryDropDice`, `useDice`, `rollDice`, `confirmDiceRoll`, `moveTripPosition`, `giveStepReward`, `completeTrip`, `spawnSpecialCage`, `handleSpecialCageClick`, `updateDiceTripUI`, `renderDiceTripBoard`
 - firestore.rules: `apartmentState`, `currentSetRescues` 검증 제거, 주사위 여행 필드 추가
 
 ### v4.10.0 (2026-02-09)
@@ -785,3 +805,5 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - [x] 레이스 엣지케이스 처리 (v4.8.0)
 - [x] 7일 출석 보상 시스템 (v4.9.0)
 - [x] 일일 미션 시스템 (v4.10.0)
+- [x] 주사위 여행 시스템 (v4.11.0)
+- [x] 주사위 여행 UI/UX 개선 (v4.12.0)
