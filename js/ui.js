@@ -274,6 +274,9 @@ function showMilestonePopup(t, r) {
     document.getElementById('milestone-text').innerText = t;
     document.getElementById('milestone-reward').innerText = r;
     document.getElementById('milestone-overlay').style.display = 'flex';
+    setTimeout(() => {
+        document.getElementById('milestone-overlay').style.display = 'none';
+    }, 2000);
 }
 
 function closeOverlay(id) {

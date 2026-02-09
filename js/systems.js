@@ -219,7 +219,12 @@ function tryDropDice() {
         const popup = document.getElementById('dice-drop-popup');
         const countEl = document.getElementById('dice-drop-count');
         if (countEl) countEl.textContent = `보유: ${diceCount}개`;
-        if (popup) popup.style.display = 'flex';
+        if (popup) {
+            popup.style.display = 'flex';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 2000);
+        }
         updateDiceTripUI();
         saveGame();
     }
@@ -275,10 +280,14 @@ function rollDice() {
                 rewardText.textContent = rewardInfo;
                 rewardBox.classList.remove('hidden');
             }
-            confirmBtn.classList.remove('hidden');
             isRollingDice = false;
             updateDiceTripUI();
             saveGame();
+
+            // 2초 후 자동 닫기
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 2000);
         }, 500);
     }, 1000);
 }

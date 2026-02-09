@@ -100,6 +100,9 @@ function completeQuest(i) {
         document.getElementById('levelup-num').innerText = userLevel;
         document.getElementById('levelup-reward').innerText = reward;
         document.getElementById('levelup-overlay').style.display = 'flex';
+        setTimeout(() => {
+            document.getElementById('levelup-overlay').style.display = 'none';
+        }, 2000);
         checkToyGeneratorUnlock();
     }
     quests.splice(i, 1);
