@@ -160,7 +160,7 @@ function spawnItem(baseType, inputLevel = 1, isFree = false) {
             const isSnack = Math.random() < 0.5;
             if (isSnack) {
                 finalType += '_snack';
-                finalLevel = Math.min(luckyLv, 5);
+                finalLevel = Math.min(luckyLv, 3);
             } else {
                 finalLevel = luckyLv;
             }
