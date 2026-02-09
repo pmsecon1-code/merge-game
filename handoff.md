@@ -534,6 +534,9 @@ db.collection('saves').get().then(s => {
 - 상수 변경: `DAILY_BONUS` → `ATTENDANCE_REWARDS` (7일 보상 배열)
 - 신규 저장 필드: `loginStreak` (0~6)
 - 수정 함수: `checkDailyBonus()` - 연속 출석 체크 + 진행형 보상
+- 버그 수정
+  - 보드 꽉 찼을 때 에너지 감소 버그 (빈 칸 체크 → 에너지 소비 순서로 변경)
+  - 퀘스트 완료 시 슬라이딩 맨 앞으로 자동 이동
 
 ### v4.8.0 (2026-02-09)
 - 레이스 초대 시스템 추가
