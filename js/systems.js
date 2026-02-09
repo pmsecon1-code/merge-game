@@ -453,7 +453,7 @@ function spawnLegendaryGenerator() {
         clicks: 0,
         cooldown: 0
     };
-    showToast('🦄 전설 생성기 등장!');
+    showToast('🦄 목장이 등장!');
     renderGrid('board', boardState, boardEl);
     updateLegendaryQuestUI();
 }
@@ -591,9 +591,10 @@ function updateDiceTripUI() {
 
     // 진행도 표시
     const posEl = document.getElementById('dice-trip-position');
+    const isLocked = isCompleted && hasLegendaryQuest;
     if (posEl) {
-        if (isCompleted && hasLegendaryQuest) {
-            posEl.textContent = '🦄 퀘스트 진행 중';
+        if (isLocked) {
+            posEl.textContent = '🔒 전설 퀘스트를 완료하세요';
         } else {
             posEl.textContent = `${diceTripPosition + 1}/${DICE_TRIP_SIZE}`;
         }
@@ -602,10 +603,9 @@ function updateDiceTripUI() {
     // 굴리기 버튼 상태
     const rollBtn = document.getElementById('dice-roll-btn');
     if (rollBtn) {
-        const isLocked = isCompleted && hasLegendaryQuest;
         rollBtn.disabled = diceCount <= 0 || isRollingDice || isLocked;
         if (isLocked) {
-            rollBtn.textContent = '🔒 퀘스트 완료 후 해제';
+            rollBtn.textContent = '🔒 잠김';
         } else {
             rollBtn.textContent = diceCount > 0 ? `🎲 굴리기 (${diceCount})` : '🎲 주사위 없음';
         }

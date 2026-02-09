@@ -77,7 +77,7 @@ function createItem(item, zone, index) {
             label = '장난감 생성기';
         } else if (type === 'legendary') {
             emoji = '🦄';
-            label = '전설 생성기';
+            label = '🦄 목장';
             const rem = 3 - (item.clicks || 0);
             if (item.cooldown > Date.now()) {
                 specialUI = `<div class="cooldown-overlay"><span>💤</span><span>${Math.ceil((item.cooldown - Date.now()) / 1000)}s</span></div>`;
