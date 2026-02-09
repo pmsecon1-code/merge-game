@@ -386,6 +386,7 @@ function renderDiceTripBoard() {
         const isCurrent = i === diceTripPosition;
         const reward = DICE_TRIP_REWARDS[i];
         let rewardIcon = '';
+        let rewardAmount = '';
         if (reward) {
             switch (reward.type) {
                 case 'coins': rewardIcon = '🪙'; break;
@@ -393,10 +394,17 @@ function renderDiceTripBoard() {
                 case 'cards': rewardIcon = '🃏'; break;
                 case 'energy': rewardIcon = '⚡'; break;
             }
+            rewardAmount = reward.min;
         }
 
+        const rewardDisplay = isCurrent
+            ? '🐾'
+            : isVisited
+                ? '✓'
+                : `<span class="reward-icon">${rewardIcon}</span><span class="reward-amount">${rewardAmount}</span>`;
+
         html += `<div class="dice-step ${isVisited ? 'visited' : ''} ${isCurrent ? 'current' : ''}">
-            ${isCurrent ? '🐾' : (isVisited ? '✓' : rewardIcon)}
+            ${rewardDisplay}
             <span class="step-num">${i + 1}</span>
         </div>`;
     }

@@ -1493,6 +1493,19 @@ body {
     font-weight: bold;
 }
 
+.dice-step .reward-icon {
+    font-size: 0.7rem;
+    line-height: 1;
+}
+
+.dice-step .reward-amount {
+    font-size: 0.5rem;
+    font-weight: bold;
+    color: #6b7280;
+    line-height: 1;
+    margin-top: -2px;
+}
+
 .dice-step.visited {
     background: #d1fae5;
     border-color: #10b981;
