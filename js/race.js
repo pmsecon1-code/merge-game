@@ -270,6 +270,7 @@ async function updateRaceProgress() {
         if (!raceDoc.exists) {
             currentRaceId = null;
             saveGame();
+            startPlayer2Listener(); // 다음 레이스 감지용
             return;
         }
 
@@ -690,6 +691,7 @@ function startPlayer2Listener() {
                         }
                         console.log('[Race] Someone started race with my code:', raceId);
                         currentRaceId = raceId;
+                        stopPlayer2Listener(); // 레이스 중에는 player2 리스너 불필요
                         saveGame();
                         startRaceListener(raceId);
                         showToast('레이스 시작!');
