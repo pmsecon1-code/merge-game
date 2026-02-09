@@ -674,9 +674,15 @@ function startPlayer2Listener() {
         .onSnapshot(
             (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
-                    if (change.type === 'added' && !currentRaceId) {
-                        // 새 레이스 발견! (누군가 내 코드 입력)
+                    if (change.type === 'added') {
                         const raceId = change.doc.id;
+                        // 이미 같은 레이스면 무시
+                        if (currentRaceId === raceId) return;
+                        // 다른 레이스 중이면 기존 레이스 정리 후 새 레이스 참가
+                        if (currentRaceId) {
+                            console.log('[Race] Switching to new race:', raceId);
+                            stopRaceListener();
+                        }
                         console.log('[Race] Someone started race with my code:', raceId);
                         currentRaceId = raceId;
                         saveGame();
