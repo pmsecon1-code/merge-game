@@ -176,6 +176,11 @@
                         class="text-[8px] bg-cyan-500 text-white px-1 py-0.5 rounded"
                     >📋</button>
                     <span id="race-timer" class="text-[9px] text-orange-500 font-bold hidden">⏱️ --:--</span>
+                    <!-- 대기 상태 UI -->
+                    <div id="race-pending-status" class="hidden flex items-center gap-1">
+                        <span id="race-pending-timer" class="text-[9px] text-orange-500 font-bold">⏱️ 9:59</span>
+                        <button onclick="cancelPendingInvite()" class="text-[8px] bg-gray-300 text-gray-600 px-1.5 py-0.5 rounded font-bold">취소</button>
+                    </div>
                     <button
                         id="race-join-btn"
                         onclick="openRaceJoinPopup()"
@@ -550,6 +555,31 @@
                     </button>
                     <button onclick="submitRaceCode()" class="bg-cyan-500 text-white px-4 py-2 rounded-lg font-bold shadow-md">
                         참가하기
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 레이스 초대 팝업 (player2) -->
+        <div id="race-invite-popup" class="overlay-bg" style="display: none">
+            <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-cyan-400">
+                <div class="text-5xl mb-3">🏁</div>
+                <h2 class="text-2xl font-bold text-cyan-600 mb-2">레이스 초대</h2>
+                <p class="text-sm text-gray-600 mb-2">
+                    <span id="invite-from-name" class="font-bold text-cyan-700">???</span>님이
+                    레이스에 초대했습니다!
+                </p>
+                <p class="text-lg text-orange-500 font-bold mb-4">
+                    ⏱️ <span id="invite-timer">9:59</span>
+                </p>
+                <div class="flex gap-2 justify-center">
+                    <button onclick="declineRaceInvite()"
+                        class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">
+                        거절
+                    </button>
+                    <button onclick="acceptRaceInvite()"
+                        class="bg-cyan-500 text-white px-4 py-2 rounded-lg font-bold shadow-md">
+                        수락
                     </button>
                 </div>
             </div>

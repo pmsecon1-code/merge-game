@@ -4,6 +4,7 @@
 
 const RACE_GOAL = 10; // 퀘스트 10개 완료
 const RACE_EXPIRE_MS = 60 * 60 * 1000; // 1시간 제한
+const RACE_INVITE_EXPIRE_MS = 10 * 60 * 1000; // 초대 10분 만료
 const RACE_REWARDS = {
     win: { coins: 200, diamonds: 10 },
     lose: { coins: 50, diamonds: 0 },
@@ -85,14 +86,14 @@ async function findActiveRace(uid) {
     return null;
 }
 
-// --- 코드로 레이스 참가 (즉시 시작) ---
+// --- 코드로 초대 전송 (pending 상태로 생성) ---
 async function joinRaceByCode(code) {
     if (!currentUser) {
         showToast('로그인이 필요합니다');
         return false;
     }
     if (currentRaceId) {
-        showToast('이미 레이스 중입니다');
+        showToast('이미 초대 중이거나 레이스 중입니다');
         return false;
     }
 
@@ -118,49 +119,88 @@ async function joinRaceByCode(code) {
             return false;
         }
 
-        // 3. 상대방이 레이스 중인지 확인
-        const opponentRace = await findActiveRace(codeData.ownerUid);
+        // 3. 상대방이 레이스/초대 중인지 확인
+        const opponentRace = await findActiveOrPendingRace(codeData.ownerUid);
         if (opponentRace) {
-            showToast('상대방이 레이스 중입니다');
+            const status = opponentRace.data().status;
+            showToast(status === 'pending' ? '상대방이 다른 초대를 확인 중입니다' : '상대방이 레이스 중입니다');
             return false;
         }
 
-        // 4. 내가 이미 레이스 중인지 다시 확인 (동시성)
-        const myRace = await findActiveRace(currentUser.uid);
+        // 4. 내가 이미 레이스/초대 중인지 다시 확인 (동시성)
+        const myRace = await findActiveOrPendingRace(currentUser.uid);
         if (myRace) {
-            showToast('이미 레이스 중입니다');
+            showToast('이미 초대 중이거나 레이스 중입니다');
             return false;
         }
 
-        // 5. 레이스 즉시 생성 + 시작
+        // 5. 초대 생성 (pending 상태)
         const raceRef = db.collection('races').doc();
         const now = Date.now();
         await raceRef.set({
-            player1Uid: currentUser.uid, // 코드 입력한 사람
+            player1Uid: currentUser.uid, // 코드 입력한 사람 (초대자)
             player1Name: currentUser.displayName?.split(' ')[0] || '유저',
-            player2Uid: codeData.ownerUid, // 코드 주인
+            player2Uid: codeData.ownerUid, // 코드 주인 (초대받는 사람)
             player2Name: codeData.ownerName,
-            player1Progress: 0,
-            player2Progress: 0,
-            status: 'active',
-            winnerUid: null,
-            rewardClaimed: {},
+            status: 'pending',
+            inviteExpiresAt: now + RACE_INVITE_EXPIRE_MS, // 10분 후 만료
             createdAt: now,
-            expiresAt: now + RACE_EXPIRE_MS, // 1시간 후 만료
         });
 
         currentRaceId = raceRef.id;
-        stopPlayer2Listener(); // 레이스 중에는 player2 리스너 불필요
+        stopPlayer2Listener(); // 초대 중에는 player2 리스너 불필요
         saveGame();
         startRaceListener(raceRef.id);
-        showToast('레이스 시작!');
+        showToast('초대를 보냈습니다');
         updateRaceUI();
         return true;
     } catch (e) {
-        console.error('[Race] Join failed:', e);
-        showToast('참가 실패');
+        console.error('[Race] Invite failed:', e);
+        showToast('초대 실패');
         return false;
     }
+}
+
+// --- 상대방의 active 또는 pending 레이스 찾기 ---
+async function findActiveOrPendingRace(uid) {
+    try {
+        // player1로 참가 중인 active/pending 레이스
+        const q1Active = await db
+            .collection('races')
+            .where('player1Uid', '==', uid)
+            .where('status', '==', 'active')
+            .limit(1)
+            .get();
+        if (!q1Active.empty) return q1Active.docs[0];
+
+        const q1Pending = await db
+            .collection('races')
+            .where('player1Uid', '==', uid)
+            .where('status', '==', 'pending')
+            .limit(1)
+            .get();
+        if (!q1Pending.empty) return q1Pending.docs[0];
+
+        // player2로 참가 중인 active/pending 레이스
+        const q2Active = await db
+            .collection('races')
+            .where('player2Uid', '==', uid)
+            .where('status', '==', 'active')
+            .limit(1)
+            .get();
+        if (!q2Active.empty) return q2Active.docs[0];
+
+        const q2Pending = await db
+            .collection('races')
+            .where('player2Uid', '==', uid)
+            .where('status', '==', 'pending')
+            .limit(1)
+            .get();
+        if (!q2Pending.empty) return q2Pending.docs[0];
+    } catch (e) {
+        console.error('[Race] findActiveOrPendingRace failed:', e);
+    }
+    return null;
 }
 
 // --- 클립보드 복사 ---
@@ -205,26 +245,61 @@ function startRaceListener(raceId) {
 
                 const data = doc.data();
                 lastRaceData = data;
-                updateRaceUIFromData(data);
 
-                // 타이머 인터벌 시작 (1초마다 업데이트)
-                if (data.status === 'active' && !raceTimerInterval) {
-                    raceTimerInterval = setInterval(() => {
-                        if (lastRaceData && lastRaceData.status === 'active') {
-                            updateRaceUIFromData(lastRaceData);
-                            // 시간 초과 체크 (expiresAt 없으면 createdAt + 1시간)
-                            const expiresAt = lastRaceData.expiresAt || (lastRaceData.createdAt + RACE_EXPIRE_MS);
-                            if (Date.now() >= expiresAt) {
-                                checkRaceTimeout(raceId, lastRaceData);
+                // pending 상태 (초대 대기 중 - player1 시점)
+                if (data.status === 'pending') {
+                    updatePendingInviteUI(data);
+
+                    // 만료 체크 (1초마다)
+                    if (!raceTimerInterval) {
+                        raceTimerInterval = setInterval(() => {
+                            if (lastRaceData && lastRaceData.status === 'pending') {
+                                updatePendingInviteUI(lastRaceData);
+                                if (Date.now() >= lastRaceData.inviteExpiresAt) {
+                                    expireInvite(raceId);
+                                }
                             }
-                        }
-                    }, 1000);
+                        }, 1000);
+                    }
+                    return;
                 }
 
-                // 승리 체크
+                // 거절/만료/취소됨
+                if (data.status === 'declined' || data.status === 'expired' || data.status === 'cancelled') {
+                    const msg =
+                        data.status === 'declined'
+                            ? '초대가 거절되었습니다'
+                            : data.status === 'cancelled'
+                              ? '초대가 취소되었습니다'
+                              : '응답 시간이 초과되었습니다';
+                    showToast(msg);
+                    currentRaceId = null;
+                    stopRaceListener();
+                    saveGame();
+                    updateRaceUI();
+                    startPlayer2Listener();
+                    return;
+                }
+
+                // active 상태 (레이스 진행 중)
                 if (data.status === 'active') {
-                    // 시간 초과 체크 (expiresAt 없으면 createdAt + 1시간)
-                    const expiresAt = data.expiresAt || (data.createdAt + RACE_EXPIRE_MS);
+                    updateRaceUIFromData(data);
+
+                    // 타이머 인터벌 시작 (1초마다 업데이트)
+                    if (!raceTimerInterval) {
+                        raceTimerInterval = setInterval(() => {
+                            if (lastRaceData && lastRaceData.status === 'active') {
+                                updateRaceUIFromData(lastRaceData);
+                                const expiresAt = lastRaceData.expiresAt || lastRaceData.createdAt + RACE_EXPIRE_MS;
+                                if (Date.now() >= expiresAt) {
+                                    checkRaceTimeout(raceId, lastRaceData);
+                                }
+                            }
+                        }, 1000);
+                    }
+
+                    // 시간 초과 체크
+                    const expiresAt = data.expiresAt || data.createdAt + RACE_EXPIRE_MS;
                     if (Date.now() >= expiresAt) {
                         checkRaceTimeout(raceId, data);
                     } else if (data.player1Progress >= RACE_GOAL || data.player2Progress >= RACE_GOAL) {
@@ -504,23 +579,25 @@ function updateRaceUI() {
     const copyBtn = document.getElementById('race-copy-btn');
     const joinBtn = document.getElementById('race-join-btn');
     const timerEl = document.getElementById('race-timer');
+    const pendingEl = document.getElementById('race-pending-status');
 
     // 내 코드 표시
     if (myCodeEl && myRaceCode) {
         myCodeEl.innerText = myRaceCode;
     }
 
-    // 레이스 진행 중이 아닐 때
+    // 레이스/초대 진행 중이 아닐 때
     if (!currentRaceId) {
         if (trackEl)
             trackEl.innerHTML = '<div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요!</div>';
         if (copyBtn) copyBtn.classList.remove('hidden');
         if (joinBtn) joinBtn.classList.remove('hidden');
         if (timerEl) timerEl.classList.add('hidden');
+        if (pendingEl) pendingEl.classList.add('hidden');
         return;
     }
 
-    // 레이스 진행 중이면 코드 입력 버튼 숨김
+    // 레이스/초대 진행 중이면 코드 입력 버튼 숨김
     if (copyBtn) copyBtn.classList.remove('hidden'); // 복사는 항상 가능
     if (joinBtn) joinBtn.classList.add('hidden');
 }
@@ -665,37 +742,41 @@ async function validateCurrentRace() {
     }
 }
 
-// --- player2로 참여한 레이스 감시 (내 코드로 시작된 레이스) ---
+// --- player2로 pending 초대 감시 (내 코드로 초대받음) ---
 let player2Unsubscribe = null;
 
 function startPlayer2Listener() {
     stopPlayer2Listener();
     if (!currentUser) return;
 
-    // player2Uid가 나인 active 레이스 감시
+    // player2Uid가 나인 pending 초대 감시
     player2Unsubscribe = db
         .collection('races')
         .where('player2Uid', '==', currentUser.uid)
-        .where('status', '==', 'active')
+        .where('status', '==', 'pending')
         .onSnapshot(
             (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === 'added') {
                         const raceId = change.doc.id;
-                        // 이미 같은 레이스면 무시
-                        if (currentRaceId === raceId) return;
-                        // 다른 레이스 중이면 기존 레이스 정리 후 새 레이스 참가
+                        const data = change.doc.data();
+                        // 이미 같은 초대면 무시
+                        if (pendingInviteId === raceId) return;
+                        // 이미 레이스 중이면 무시
                         if (currentRaceId) {
-                            console.log('[Race] Switching to new race:', raceId);
-                            stopRaceListener();
+                            console.log('[Race] Already in race, ignoring invite');
+                            return;
                         }
-                        console.log('[Race] Someone started race with my code:', raceId);
-                        currentRaceId = raceId;
-                        stopPlayer2Listener(); // 레이스 중에는 player2 리스너 불필요
-                        saveGame();
-                        startRaceListener(raceId);
-                        showToast('레이스 시작!');
-                        updateRaceUI();
+                        console.log('[Race] Received invite:', raceId);
+                        showRaceInvitePopup(raceId, data);
+                    } else if (change.type === 'removed' || change.type === 'modified') {
+                        // 초대가 취소/만료되었거나 active로 변경됨
+                        if (pendingInviteId === change.doc.id) {
+                            const data = change.doc.data();
+                            if (data.status !== 'pending') {
+                                closeRaceInvitePopup();
+                            }
+                        }
                     }
                 });
             },
@@ -709,6 +790,171 @@ function stopPlayer2Listener() {
     if (player2Unsubscribe) {
         player2Unsubscribe();
         player2Unsubscribe = null;
+    }
+}
+
+// --- 초대 팝업 표시 (player2) ---
+function showRaceInvitePopup(raceId, data) {
+    pendingInviteId = raceId;
+    pendingInviteData = data;
+
+    const popup = document.getElementById('race-invite-popup');
+    const fromName = document.getElementById('invite-from-name');
+    if (!popup || !fromName) return;
+
+    fromName.textContent = data.player1Name || '???';
+    popup.style.display = 'flex';
+
+    // 초대 타이머 시작
+    startInviteTimer(data.inviteExpiresAt);
+}
+
+// --- 초대 팝업 닫기 ---
+function closeRaceInvitePopup() {
+    const popup = document.getElementById('race-invite-popup');
+    if (popup) popup.style.display = 'none';
+
+    stopInviteTimer();
+    pendingInviteId = null;
+    pendingInviteData = null;
+}
+
+// --- 초대 타이머 시작 ---
+function startInviteTimer(expiresAt) {
+    stopInviteTimer();
+    const timerEl = document.getElementById('invite-timer');
+    if (!timerEl) return;
+
+    const updateTimer = () => {
+        const remaining = Math.max(0, expiresAt - Date.now());
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        if (remaining <= 0) {
+            stopInviteTimer();
+        }
+    };
+
+    updateTimer();
+    inviteTimerInterval = setInterval(updateTimer, 1000);
+}
+
+// --- 초대 타이머 중지 ---
+function stopInviteTimer() {
+    if (inviteTimerInterval) {
+        clearInterval(inviteTimerInterval);
+        inviteTimerInterval = null;
+    }
+}
+
+// --- 초대 수락 (player2) ---
+async function acceptRaceInvite() {
+    if (!pendingInviteId || !currentUser) return;
+
+    try {
+        const now = Date.now();
+        await db.collection('races').doc(pendingInviteId).update({
+            status: 'active',
+            player1Progress: 0,
+            player2Progress: 0,
+            winnerUid: null,
+            rewardClaimed: {},
+            expiresAt: now + RACE_EXPIRE_MS,
+        });
+
+        currentRaceId = pendingInviteId;
+        closeRaceInvitePopup();
+        stopPlayer2Listener();
+        startRaceListener(pendingInviteId);
+        saveGame();
+        showToast('레이스 시작!');
+        updateRaceUI();
+    } catch (e) {
+        console.error('[Race] Accept invite failed:', e);
+        showToast('수락 실패');
+    }
+}
+
+// --- 초대 거절 (player2) ---
+async function declineRaceInvite() {
+    if (!pendingInviteId) return;
+
+    try {
+        await db.collection('races').doc(pendingInviteId).update({
+            status: 'declined',
+        });
+        closeRaceInvitePopup();
+        showToast('초대를 거절했습니다');
+    } catch (e) {
+        console.error('[Race] Decline invite failed:', e);
+    }
+}
+
+// --- 초대 취소 (player1) ---
+async function cancelPendingInvite() {
+    if (!currentRaceId || !currentUser) return;
+
+    try {
+        const raceDoc = await db.collection('races').doc(currentRaceId).get();
+        if (!raceDoc.exists) return;
+
+        const data = raceDoc.data();
+        if (data.status !== 'pending' || data.player1Uid !== currentUser.uid) {
+            showToast('취소할 수 없습니다');
+            return;
+        }
+
+        await db.collection('races').doc(currentRaceId).update({
+            status: 'cancelled',
+        });
+        showToast('초대를 취소했습니다');
+    } catch (e) {
+        console.error('[Race] Cancel invite failed:', e);
+        showToast('취소 실패');
+    }
+}
+
+// --- 초대 만료 처리 ---
+async function expireInvite(raceId) {
+    try {
+        await db.collection('races').doc(raceId).update({
+            status: 'expired',
+        });
+        console.log('[Race] Invite expired:', raceId);
+    } catch (e) {
+        console.error('[Race] Expire invite failed:', e);
+    }
+}
+
+// --- UI: 대기 중 상태 표시 (player1) ---
+function updatePendingInviteUI(data) {
+    const pendingEl = document.getElementById('race-pending-status');
+    const timerEl = document.getElementById('race-pending-timer');
+    const trackEl = document.getElementById('race-track');
+    const joinBtn = document.getElementById('race-join-btn');
+    const raceTimerEl = document.getElementById('race-timer');
+
+    if (pendingEl) pendingEl.classList.remove('hidden');
+    if (joinBtn) joinBtn.classList.add('hidden');
+    if (raceTimerEl) raceTimerEl.classList.add('hidden');
+
+    // 타이머 업데이트
+    if (timerEl && data.inviteExpiresAt) {
+        const remaining = Math.max(0, data.inviteExpiresAt - Date.now());
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        timerEl.textContent = `⏱️ ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // 트랙에 대기 메시지 표시
+    if (trackEl) {
+        trackEl.innerHTML = `
+            <div class="text-center py-2">
+                <div class="text-orange-500 text-sm font-bold mb-1">📨 ${data.player2Name || '상대방'}에게 초대 전송됨</div>
+                <div class="text-gray-400 text-[10px]">상대방의 응답을 기다리는 중...</div>
+            </div>
+        `;
     }
 }
 

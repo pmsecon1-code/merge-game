@@ -90,15 +90,12 @@ service cloud.firestore {
            resource.data.player2Uid == request.auth.uid);
       }
 
-      // 레이스 생성 검증
+      // 레이스/초대 생성 검증
       function isValidRaceCreate() {
         let data = request.resource.data;
         return data.player1Uid == request.auth.uid
           && data.player2Uid is string
-          && data.status == 'active'
-          && data.player1Progress == 0
-          && data.player2Progress == 0
-          && data.winnerUid == null
+          && (data.status == 'pending' || data.status == 'active')
           && data.createdAt is number;
       }
 
@@ -109,9 +106,23 @@ service cloud.firestore {
         // player1Uid, player2Uid는 변경 불가
         return data.player1Uid == prev.player1Uid
           && data.player2Uid == prev.player2Uid
-          // 진행도는 0~15
-          && isValidNumber(data.player1Progress, 0, 15)
-          && isValidNumber(data.player2Progress, 0, 15);
+          // status 전환 규칙
+          && (
+            // pending → active/declined/expired/cancelled
+            (prev.status == 'pending' &&
+              (data.status == 'active' || data.status == 'declined' ||
+               data.status == 'expired' || data.status == 'cancelled'))
+            ||
+            // active → completed
+            (prev.status == 'active' && data.status == 'completed')
+            ||
+            // 같은 status 유지 (진행도 업데이트 등)
+            (data.status == prev.status)
+          )
+          // active 상태일 때 진행도 검증
+          && (data.status != 'active' ||
+              (isValidNumber(data.player1Progress, 0, 15) &&
+               isValidNumber(data.player2Progress, 0, 15)));
       }
 
       // 읽기: 참가자만

@@ -74,6 +74,11 @@ let raceLosses = 0;
 let raceUnsubscribe = null;
 let recentRaceOpponents = []; // [{code, name}, ...] 최대 3명
 
+// --- 레이스 초대 ---
+let pendingInviteId = null; // 내가 받은 대기 중인 초대
+let pendingInviteData = null; // 초대 데이터
+let inviteTimerInterval = null; // 초대 타이머 인터벌
+
 // --- 클라우드 저장 ---
 let cloudSaveTimeout = null;
 let cloudSavePromise = null;
