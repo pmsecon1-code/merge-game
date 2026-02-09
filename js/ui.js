@@ -278,7 +278,7 @@ function showToast(m) {
     const t = document.getElementById('toast');
     t.innerText = m;
     t.style.opacity = '1';
-    setTimeout(() => (t.style.opacity = '0'), 2000);
+    setTimeout(() => (t.style.opacity = '0'), TOAST_DURATION_MS);
 }
 
 function showMilestonePopup(t, r) {
@@ -287,7 +287,7 @@ function showMilestonePopup(t, r) {
     document.getElementById('milestone-overlay').style.display = 'flex';
     setTimeout(() => {
         document.getElementById('milestone-overlay').style.display = 'none';
-    }, 2000);
+    }, MILESTONE_POPUP_MS);
 }
 
 function closeOverlay(id) {

@@ -11,6 +11,15 @@ const SHOP_SIZE = 5;
 
 // --- 시간 설정 (밀리초) ---
 const SHOP_REFRESH_MS = 300000; // 5분
+const GENERATOR_COOLDOWN_MS = 60000; // 생성기 과열 1분
+
+// --- UI 타이밍 (밀리초) ---
+const TOAST_DURATION_MS = 2000;
+const MILESTONE_POPUP_MS = 2000;
+const DICE_DROP_POPUP_MS = 1500;
+const DICE_RESULT_POPUP_MS = 1000;
+const DICE_SLOT_EFFECT_MS = 1000;
+const DICE_MOVE_DELAY_MS = 500;
 
 // --- 에너지 설정 ---
 const MAX_ENERGY = 100;

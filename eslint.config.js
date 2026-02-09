@@ -35,6 +35,14 @@ export default [
                 // 전설 퀘스트 상수
                 LEGENDARY_COMPLETE_REWARD: 'readonly',
                 LEGENDARIES: 'readonly',
+                GENERATOR_COOLDOWN_MS: 'readonly',
+                // UI 타이밍 상수
+                TOAST_DURATION_MS: 'readonly',
+                MILESTONE_POPUP_MS: 'readonly',
+                DICE_DROP_POPUP_MS: 'readonly',
+                DICE_RESULT_POPUP_MS: 'readonly',
+                DICE_SLOT_EFFECT_MS: 'readonly',
+                DICE_MOVE_DELAY_MS: 'readonly',
                 CATS: 'readonly',
                 DOGS: 'readonly',
                 BIRDS: 'readonly',
@@ -165,6 +173,8 @@ export default [
                 loadFromCloud: 'readonly',
                 validateGameData: 'readonly',
                 initNewGame: 'readonly',
+                recoverOfflineEnergy: 'readonly',
+                lastSavedAt: 'writable',
                 // game.js globals
                 discoverItem: 'readonly',
                 countEasyQuests: 'readonly',
@@ -190,6 +200,11 @@ export default [
                 addDailyProgress: 'readonly',
                 checkDailyMissionComplete: 'readonly',
                 claimDailyBonus: 'readonly',
+                // systems.js globals - 헬퍼 함수
+                hasItemOfType: 'readonly',
+                hasItemOfTypeAndLevel: 'readonly',
+                getMaxLevelOfType: 'readonly',
+                isLegendaryQuestActive: 'readonly',
                 // systems.js globals
                 getSlotUnlockLevel: 'readonly',
                 updateSpecialMissionUI: 'readonly',

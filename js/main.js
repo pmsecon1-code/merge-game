@@ -221,6 +221,9 @@ window.addEventListener('beforeunload', () => {
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         saveGameNow();
+    } else {
+        // 포그라운드 복귀 시 오프라인 에너지 회복
+        recoverOfflineEnergy();
     }
 });
 

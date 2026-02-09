@@ -2,6 +2,37 @@
 // systems.js - 미션, 상점, 구조, 룰렛, 판매
 // ============================================
 
+// --- 헬퍼 함수 (중복 제거) ---
+
+// 보드+창고에서 특정 타입 아이템 존재 확인
+function hasItemOfType(type) {
+    return boardState.some((x) => x && x.type === type) ||
+           storageState.some((x) => x && x.type === type);
+}
+
+// 보드+창고에서 특정 타입+레벨 아이템 존재 확인
+function hasItemOfTypeAndLevel(type, level) {
+    return boardState.some((x) => x && x.type === type && x.level === level) ||
+           storageState.some((x) => x && x.type === type && x.level === level);
+}
+
+// 보드+창고에서 특정 타입의 최대 레벨 반환
+function getMaxLevelOfType(type) {
+    let maxLv = 0;
+    boardState.forEach((x) => {
+        if (x && x.type === type && x.level > maxLv) maxLv = x.level;
+    });
+    storageState.forEach((x) => {
+        if (x && x.type === type && x.level > maxLv) maxLv = x.level;
+    });
+    return maxLv;
+}
+
+// 전설 퀘스트 진행 중인지 체크 (생성기 또는 전설 동물 존재)
+function isLegendaryQuestActive() {
+    return hasItemOfType('legendary_generator') || hasItemOfType('legendary');
+}
+
 // --- 스페셜 미션 ---
 function getSlotUnlockLevel(slotIdx, cycle) {
     return (slotIdx + 1) * 3 + cycle * 9;
@@ -22,8 +53,8 @@ function updateSlot(i, isActive, t, unlockLv) {
         btn = document.getElementById(`sp-btn-${i}`);
     if (isActive) {
         c.classList.add('active');
-        const hasGen = boardState.some((x) => x && x.type === `${t}_generator`);
-        const hasMax = boardState.some((x) => x && x.type === t && x.level === 7);
+        const hasGen = hasItemOfType(`${t}_generator`);
+        const hasMax = hasItemOfTypeAndLevel(t, 7);
         if (!hasGen && !hasMax) {
             spawnSpecialGenerator(t);
         }
@@ -57,9 +88,15 @@ function completeSpecialMission(idx) {
     diamonds += 10;
     addDailyProgress('coins', 500);
     showToast(`완료! +500🪙 +10💎`);
+    // 보드에서 동물 + 생성기 제거
     for (let i = 0; i < BOARD_SIZE; i++) {
         if (boardState[i] && (boardState[i].type === type || boardState[i].type === `${type}_generator`))
             boardState[i] = null;
+    }
+    // 창고에서 동물 제거
+    for (let i = 0; i < STORAGE_SIZE; i++) {
+        if (storageState[i] && storageState[i].type === type)
+            storageState[i] = null;
     }
     specialMissionCycles[idx]++;
     const nextLv = getSlotUnlockLevel(idx, specialMissionCycles[idx]);
@@ -223,7 +260,7 @@ function tryDropDice() {
             popup.style.display = 'flex';
             setTimeout(() => {
                 popup.style.display = 'none';
-            }, 2000);
+            }, DICE_DROP_POPUP_MS);
         }
         updateDiceTripUI();
         saveGame();
@@ -232,6 +269,13 @@ function tryDropDice() {
 
 function useDice() {
     if (isRollingDice || diceCount <= 0) return;
+
+    // 전설 퀘스트 진행 중이면 잠금
+    if (diceTripPosition >= DICE_TRIP_SIZE - 1 && isLegendaryQuestActive()) {
+        showToast('🦄 전설 퀘스트 완료 후 이용 가능!');
+        return;
+    }
+
     diceCount--;
     rollDice();
 }
@@ -265,7 +309,7 @@ function rollDice() {
         resultNum.textContent = Math.floor(Math.random() * 6) + 1;
     }, 80);
 
-    // 1초 후 결과 표시
+    // 슬롯 효과 후 결과 표시
     setTimeout(() => {
         clearInterval(slotInterval);
         diceAnim.classList.remove('rolling');
@@ -273,7 +317,7 @@ function rollDice() {
         resultNum.textContent = pendingDiceResult;
         titleEl.textContent = `${pendingDiceResult}칸 이동!`;
 
-        // 0.5초 후 자동 이동 + 보상 표시
+        // 이동 대기 후 자동 이동 + 보상 표시
         setTimeout(() => {
             const rewardInfo = executeMove(pendingDiceResult);
             if (rewardInfo) {
@@ -284,33 +328,36 @@ function rollDice() {
             updateDiceTripUI();
             saveGame();
 
-            // 2초 후 자동 닫기
+            // 보상 표시 후 자동 닫기
             setTimeout(() => {
                 popup.style.display = 'none';
-            }, 2000);
-        }, 500);
-    }, 1000);
+            }, DICE_RESULT_POPUP_MS);
+        }, DICE_MOVE_DELAY_MS);
+    }, DICE_SLOT_EFFECT_MS);
 }
 
 function executeMove(steps) {
-    const newPos = Math.min(diceTripPosition + steps, DICE_TRIP_SIZE);
+    const newPos = Math.min(diceTripPosition + steps, DICE_TRIP_SIZE - 1);
     diceTripPosition = newPos;
 
-    // 완주 체크
-    if (diceTripPosition >= DICE_TRIP_SIZE) {
-        // 팝업 닫고 완주 처리
+    // 착지 칸 보상 (완주 여부와 관계없이)
+    let rewardInfo = null;
+    if (!visitedSteps.includes(diceTripPosition)) {
+        visitedSteps.push(diceTripPosition);
+        rewardInfo = giveStepRewardWithInfo(diceTripPosition);
+    }
+
+    // 완주 체크 (마지막 칸 도착 시 완주)
+    if (diceTripPosition >= DICE_TRIP_SIZE - 1) {
+        // 보상 표시 후 완주 처리
         setTimeout(() => {
             document.getElementById('dice-roll-popup').style.display = 'none';
             completeTrip();
-        }, 100);
-        return null;
+        }, DICE_RESULT_POPUP_MS + 100);
+        return rewardInfo;
     }
 
-    // 착지 칸 보상
-    if (!visitedSteps.includes(diceTripPosition)) {
-        visitedSteps.push(diceTripPosition);
-    }
-    return giveStepRewardWithInfo(diceTripPosition);
+    return rewardInfo;
 }
 
 function closeDiceRollPopup() {
@@ -318,11 +365,11 @@ function closeDiceRollPopup() {
 }
 
 function moveTripPosition(steps) {
-    const newPos = Math.min(diceTripPosition + steps, DICE_TRIP_SIZE);
+    const newPos = Math.min(diceTripPosition + steps, DICE_TRIP_SIZE - 1);
     diceTripPosition = newPos;
 
-    // 완주 체크
-    if (diceTripPosition >= DICE_TRIP_SIZE) {
+    // 완주 체크 (마지막 칸 도착 시 완주)
+    if (diceTripPosition >= DICE_TRIP_SIZE - 1) {
         completeTrip();
     } else {
         // 착지 칸에서만 보상 (완주 아닐 때)
@@ -377,21 +424,18 @@ function completeTrip() {
 
     showMilestonePopup('🎉 주사위 여행 완주!', `${DICE_TRIP_COMPLETE_REWARD.coins}🪙 + ${DICE_TRIP_COMPLETE_REWARD.diamonds}💎`);
 
-    // 전설 생성기 스폰 (1분 대기)
+    // 전설 생성기 스폰
     spawnLegendaryGenerator();
 
-    // 위치 + 방문 기록 리셋
-    diceTripPosition = 0;
-    visitedSteps = [0];
+    // 주사위 여행 잠금 (전설 퀘스트 완료 후 리셋됨)
+    // diceTripPosition은 DICE_TRIP_SIZE 유지 → UI에서 "완주" 표시
     updateDiceTripUI();
     updateUI();
 }
 
 function spawnLegendaryGenerator() {
-    // 이미 생성기나 전설 동물이 보드에 있으면 무시
-    const hasGenerator = boardState.some((x) => x && x.type === 'legendary_generator');
-    const hasLegendary = boardState.some((x) => x && x.type === 'legendary');
-    if (hasGenerator || hasLegendary) {
+    // 이미 생성기나 전설 동물이 보드/창고에 있으면 무시
+    if (isLegendaryQuestActive()) {
         showToast('이미 전설 퀘스트 진행 중!');
         return;
     }
@@ -442,7 +486,7 @@ function handleLegendaryGeneratorClick(idx) {
     // 클릭 카운트 증가
     gen.clicks = (gen.clicks || 0) + 1;
     if (gen.clicks >= 3) {
-        gen.cooldown = Date.now() + 60000; // 1분 과열
+        gen.cooldown = Date.now() + GENERATOR_COOLDOWN_MS;
         gen.clicks = 0;
         showToast('과열! 1분 휴식');
     }
@@ -468,17 +512,20 @@ function completeLegendaryQuest() {
         }
     }
 
+    // 주사위 여행 리셋 (순환)
+    diceTripPosition = 0;
+    visitedSteps = [0];
+    diceCount = 0;
+
     renderGrid('board', boardState, boardEl);
     updateLegendaryQuestUI();
+    updateDiceTripUI();
     updateUI();
 }
 
 function checkLegendaryComplete() {
     // 보드나 창고에 Lv.5 유니콘이 있는지 체크
-    const hasUnicorn = boardState.some((x) => x && x.type === 'legendary' && x.level === 5) ||
-                       storageState.some((x) => x && x.type === 'legendary' && x.level === 5);
-
-    if (hasUnicorn) {
+    if (hasItemOfTypeAndLevel('legendary', 5)) {
         // 유니콘 제거
         for (let i = 0; i < BOARD_SIZE; i++) {
             if (boardState[i] && boardState[i].type === 'legendary' && boardState[i].level === 5) {
@@ -502,9 +549,8 @@ function updateLegendaryQuestUI() {
     const container = document.getElementById('legendary-quest-wrapper');
     if (!container) return;
 
-    const hasGenerator = boardState.some((x) => x && x.type === 'legendary_generator');
-    const hasLegendary = boardState.some((x) => x && x.type === 'legendary');
-    const isActive = hasGenerator || hasLegendary;
+    const hasLegendary = hasItemOfType('legendary');
+    const isActive = isLegendaryQuestActive();
 
     // 진행 중이면 표시
     if (isActive) {
@@ -512,11 +558,7 @@ function updateLegendaryQuestUI() {
         const statusEl = document.getElementById('legendary-quest-status');
 
         if (hasLegendary) {
-            // 현재 최고 레벨 찾기
-            let maxLv = 0;
-            boardState.forEach((x) => {
-                if (x && x.type === 'legendary' && x.level > maxLv) maxLv = x.level;
-            });
+            const maxLv = getMaxLevelOfType('legendary');
             statusEl.textContent = `Lv.${maxLv} → Lv.5 🦄`;
         } else {
             statusEl.textContent = '생성기 터치!';
@@ -529,17 +571,37 @@ function updateLegendaryQuestUI() {
 function updateDiceTripUI() {
     if (!diceTripContainer) return;
 
-    // 진행도 표시 (1번 칸부터 시작)
+    // 전설 퀘스트 진행 중 체크
+    const hasLegendaryQuest = isLegendaryQuestActive();
+    const isCompleted = diceTripPosition >= DICE_TRIP_SIZE - 1;
+
+    // 복구: 완주 상태인데 전설 퀘스트가 없으면 완주 처리 (이전 버전 버그 복구)
+    if (isCompleted && !hasLegendaryQuest) {
+        console.log('[DiceTrip] 완주 상태 복구 - completeTrip 호출');
+        completeTrip();
+        return;
+    }
+
+    // 진행도 표시
     const posEl = document.getElementById('dice-trip-position');
     if (posEl) {
-        posEl.textContent = `${diceTripPosition + 1}/${DICE_TRIP_SIZE}`;
+        if (isCompleted && hasLegendaryQuest) {
+            posEl.textContent = '🦄 퀘스트 진행 중';
+        } else {
+            posEl.textContent = `${diceTripPosition + 1}/${DICE_TRIP_SIZE}`;
+        }
     }
 
     // 굴리기 버튼 상태
     const rollBtn = document.getElementById('dice-roll-btn');
     if (rollBtn) {
-        rollBtn.disabled = diceCount <= 0 || isRollingDice;
-        rollBtn.textContent = diceCount > 0 ? `🎲 굴리기 (${diceCount})` : '🎲 주사위 없음';
+        const isLocked = isCompleted && hasLegendaryQuest;
+        rollBtn.disabled = diceCount <= 0 || isRollingDice || isLocked;
+        if (isLocked) {
+            rollBtn.textContent = '🔒 퀘스트 완료 후 해제';
+        } else {
+            rollBtn.textContent = diceCount > 0 ? `🎲 굴리기 (${diceCount})` : '🎲 주사위 없음';
+        }
     }
 
     // 보드 렌더링
@@ -551,8 +613,8 @@ function renderDiceTripBoard() {
 
     let html = '';
 
-    // 20칸 렌더링
-    for (let i = 0; i < DICE_TRIP_SIZE; i++) {
+    // 49칸 렌더링 (0~48, 마지막 칸은 골인으로 처리)
+    for (let i = 0; i < DICE_TRIP_SIZE - 1; i++) {
         const isVisited = visitedSteps.includes(i) && i !== diceTripPosition;
         const isCurrent = i === diceTripPosition;
         const reward = DICE_TRIP_REWARDS[i];
@@ -579,9 +641,10 @@ function renderDiceTripBoard() {
         </div>`;
     }
 
-    // 골인 지점
-    html += `<div class="dice-step goal ${diceTripPosition >= DICE_TRIP_SIZE ? 'reached' : ''}">
-        🏁
+    // 골인 지점 (마지막 칸 = 49번)
+    const isAtGoal = diceTripPosition >= DICE_TRIP_SIZE - 1;
+    html += `<div class="dice-step goal ${isAtGoal ? 'reached current' : ''}">
+        ${isAtGoal ? '🐾' : '🏁'}
     </div>`;
 
     diceTripBoard.innerHTML = html;
@@ -601,6 +664,13 @@ function askSellItem(z, i, e) {
     e.stopPropagation();
     const it = z === 'board' ? boardState[i] : storageState[i];
     if (!it) return;
+
+    // 생성기는 판매 불가
+    if (it.type.includes('generator')) {
+        showToast('생성기는 판매할 수 없어요!');
+        return;
+    }
+
     sellTarget = { zone: z, index: i, item: it };
     const p = it.level;
     let list;
@@ -610,6 +680,7 @@ function askSellItem(z, i, e) {
         list = it.type.includes('snack') ? DOG_SNACKS : it.type.includes('toy') ? DOG_TOYS : DOGS;
     else if (it.type.includes('bird')) list = BIRDS;
     else if (it.type.includes('fish')) list = FISH;
+    else if (it.type === 'legendary') list = LEGENDARIES;
     else list = REPTILES;
     const n = (list[it.level - 1] || list[list.length - 1]).name;
     document.getElementById('sell-desc').innerText = `'${n} (Lv.${it.level})' - ${p}코인`;
