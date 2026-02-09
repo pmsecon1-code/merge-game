@@ -316,7 +316,7 @@ function validateGameData(data) {
         ['apartmentState', APARTMENT_ROOMS],
         ['quests', 10],
         ['shopItems', SHOP_SIZE],
-        ['album', 81],
+        ['album', 100], // 사진 81개 + 테마 완성 마커 9개 + 여유
     ];
 
     for (const [key, maxLen] of arrChecks) {
