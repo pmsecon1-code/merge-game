@@ -130,6 +130,16 @@ function formatQuestTimer(ms) {
 
 // --- 아이템 생성 ---
 function spawnItem(baseType, inputLevel = 1, isFree = false) {
+    // 빈 칸 먼저 체크
+    const empties = [];
+    boardState.forEach((v, i) => {
+        if (v === null) empties.push(i);
+    });
+    if (empties.length === 0) {
+        showToast('공간 부족!');
+        return;
+    }
+    // 에너지 소비
     if (!isFree) {
         if (energy <= 0) {
             openEnergyPopup();
@@ -139,14 +149,6 @@ function spawnItem(baseType, inputLevel = 1, isFree = false) {
         updateUI();
         updateTimerUI();
         checkEnergyAfterUse();
-    }
-    const empties = [];
-    boardState.forEach((v, i) => {
-        if (v === null) empties.push(i);
-    });
-    if (empties.length === 0) {
-        showToast('공간 부족!');
-        return;
     }
     let finalType = baseType,
         finalLevel = inputLevel,
@@ -201,14 +203,7 @@ function spawnItem(baseType, inputLevel = 1, isFree = false) {
 }
 
 function spawnToy() {
-    if (energy <= 0) {
-        openEnergyPopup();
-        return;
-    }
-    energy--;
-    updateUI();
-    updateTimerUI();
-    checkEnergyAfterUse();
+    // 빈 칸 먼저 체크
     const empties = [];
     boardState.forEach((v, i) => {
         if (v === null) empties.push(i);
@@ -217,6 +212,15 @@ function spawnToy() {
         showToast('공간 부족!');
         return;
     }
+    // 에너지 소비
+    if (energy <= 0) {
+        openEnergyPopup();
+        return;
+    }
+    energy--;
+    updateUI();
+    updateTimerUI();
+    checkEnergyAfterUse();
     const base = Math.random() > 0.5 ? 'cat' : 'dog';
     const finalType = base + '_toy';
     const genIdx = boardState.findIndex((x) => x && x.type === 'toy_generator');
