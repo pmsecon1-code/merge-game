@@ -38,7 +38,7 @@ service cloud.firestore {
           // 숫자 필드 범위 검증
           && isValidNumber(data.coins, 0, 9999999)           // 코인: 0 ~ 999만
           && isValidNumber(data.diamonds, 0, 99999)          // 다이아: 0 ~ 9만
-          && isValidNumber(data.energy, 0, 100)              // 에너지: 0 ~ 100
+          && isValidNumber(data.energy, 0, 999)              // 에너지: 0 ~ 999 (초과 허용)
           && isValidNumber(data.userLevel, 1, 999)           // 레벨: 1 ~ 999
           && isValidNumber(data.cumulativeCoins, 0, 9999999) // 누적코인
           && isValidNumber(data.questProgress, 0, 100)       // 퀘스트 진행

@@ -314,7 +314,7 @@ function giveStepReward(pos) {
             showFloatText(diceTripBoard, `+${amount}🃏`, '#e879f9');
             break;
         case 'energy':
-            energy = Math.min(MAX_ENERGY, energy + amount);
+            energy += amount;
             showFloatText(diceTripBoard, `+${amount}⚡`, '#fbbf24');
             break;
     }
