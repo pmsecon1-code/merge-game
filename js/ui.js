@@ -78,11 +78,11 @@ function createItem(item, zone, index) {
         } else if (type === 'legendary') {
             emoji = '🦄';
             label = '전설 생성기';
-            // 쿨다운 체크
-            const elapsed = Date.now() - (item.spawnedAt || 0);
-            const remaining = (item.cooldown || 0) - elapsed;
-            if (remaining > 0) {
-                specialUI = `<div class="cooldown-overlay legendary"><span>🔒</span><span>${Math.ceil(remaining / 1000)}s</span></div>`;
+            const rem = 3 - (item.clicks || 0);
+            if (item.cooldown > Date.now()) {
+                specialUI = `<div class="cooldown-overlay"><span>💤</span><span>${Math.ceil((item.cooldown - Date.now()) / 1000)}s</span></div>`;
+            } else {
+                specialUI = `<div class="usage-badge">${rem}/3</div>`;
             }
         }
         d.innerHTML = `${specialUI}<div class="animal-inside">${emoji}</div><div class="cage-label">${label}</div><div class="help-btn" data-gen-type="${type}">?</div>`;

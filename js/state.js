@@ -21,9 +21,6 @@ let diceCount = 0;           // 보유 주사위
 let isRollingDice = false;   // 굴리는 중
 let visitedSteps = [0];      // 밟았던 칸 인덱스 (시작 칸 포함)
 
-// --- 전설의 동물 퀘스트 ---
-let legendaryQuestCycle = 0;         // 현재 주기 내 완료 횟수 (0~3)
-
 // --- 진행도 ---
 let userLevel = 1,
     questProgress = 0,

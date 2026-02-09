@@ -403,13 +403,13 @@ function spawnLegendaryGenerator() {
         return;
     }
 
-    // 1분 후 활성화되는 생성기 스폰
+    // 즉시 사용 가능한 생성기 스폰
     boardState[emptyIdx] = {
         type: 'legendary_generator',
-        cooldown: LEGENDARY_UNLOCK_MS,
-        spawnedAt: Date.now()
+        clicks: 0,
+        cooldown: 0
     };
-    showToast('🦄 전설 생성기 등장! (1분 후 활성화)');
+    showToast('🦄 전설 생성기 등장!');
     renderGrid('board', boardState, boardEl);
     updateLegendaryQuestUI();
 }
@@ -419,11 +419,9 @@ function handleLegendaryGeneratorClick(idx) {
     if (!gen || gen.type !== 'legendary_generator') return;
 
     // 쿨다운 체크
-    const elapsed = Date.now() - gen.spawnedAt;
-    const remaining = gen.cooldown - elapsed;
-    if (remaining > 0) {
-        const sec = Math.ceil(remaining / 1000);
-        showToast(`${sec}초 후 활성화!`);
+    if (gen.cooldown > Date.now()) {
+        const sec = Math.ceil((gen.cooldown - Date.now()) / 1000);
+        showToast(`과열! ${sec}초 후 활성화`);
         return;
     }
 
@@ -441,8 +439,14 @@ function handleLegendaryGeneratorClick(idx) {
     const data = LEGENDARIES[0];
     showToast(`🦄 ${data.emoji} ${data.name} 등장!`);
 
-    // 생성기는 유지 (계속 동물 생성 가능)
-    gen.spawnedAt = Date.now(); // 쿨다운 리셋
+    // 클릭 카운트 증가
+    gen.clicks = (gen.clicks || 0) + 1;
+    if (gen.clicks >= 3) {
+        gen.cooldown = Date.now() + 60000; // 1분 과열
+        gen.clicks = 0;
+        showToast('과열! 1분 휴식');
+    }
+
     renderGrid('board', boardState, boardEl);
     updateLegendaryQuestUI();
     updateAll();
@@ -462,15 +466,6 @@ function completeLegendaryQuest() {
         if (boardState[i] && (boardState[i].type === 'legendary' || boardState[i].type === 'legendary_generator')) {
             boardState[i] = null;
         }
-    }
-
-    // 주기 카운트 증가
-    legendaryQuestCycle++;
-
-    // 3번 완료 시 주기 리셋
-    if (legendaryQuestCycle >= LEGENDARY_QUEST_COUNT) {
-        legendaryQuestCycle = 0;
-        showToast('🎊 전설 주기 완료!');
     }
 
     renderGrid('board', boardState, boardEl);
@@ -515,7 +510,6 @@ function updateLegendaryQuestUI() {
     if (isActive) {
         container.style.display = 'block';
         const statusEl = document.getElementById('legendary-quest-status');
-        const progressEl = document.getElementById('legendary-quest-progress');
 
         if (hasLegendary) {
             // 현재 최고 레벨 찾기
@@ -525,9 +519,8 @@ function updateLegendaryQuestUI() {
             });
             statusEl.textContent = `Lv.${maxLv} → Lv.5 🦄`;
         } else {
-            statusEl.textContent = '생성기 활성화 대기';
+            statusEl.textContent = '생성기 터치!';
         }
-        progressEl.textContent = `${legendaryQuestCycle}/${LEGENDARY_QUEST_COUNT}`;
     } else {
         container.style.display = 'none';
     }

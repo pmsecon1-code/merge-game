@@ -30,8 +30,6 @@ const DICE_TRIP_SIZE = 50;
 const DICE_DROP_CHANCE = 0.05;
 const DICE_TRIP_COMPLETE_REWARD = { coins: 2000, diamonds: 100 };
 // --- 전설의 동물 퀘스트 ---
-const LEGENDARY_QUEST_COUNT = 3;      // 1주기에 3번
-const LEGENDARY_UNLOCK_MS = 60000;    // 1분 대기
 const LEGENDARY_COMPLETE_REWARD = { coins: 500, diamonds: 20 };
 
 const LEGENDARIES = [

@@ -33,8 +33,6 @@ export default [
                 DICE_TRIP_COMPLETE_REWARD: 'readonly',
                 DICE_TRIP_REWARDS: 'readonly',
                 // 전설 퀘스트 상수
-                LEGENDARY_QUEST_COUNT: 'readonly',
-                LEGENDARY_UNLOCK_MS: 'readonly',
                 LEGENDARY_COMPLETE_REWARD: 'readonly',
                 LEGENDARIES: 'readonly',
                 CATS: 'readonly',
@@ -82,8 +80,6 @@ export default [
                 visitedSteps: 'writable',
                 diceTripContainer: 'writable',
                 diceTripBoard: 'writable',
-                // 전설 퀘스트 변수
-                legendaryQuestCycle: 'writable',
                 energy: 'writable',
                 recoveryCountdown: 'writable',
                 userLevel: 'writable',

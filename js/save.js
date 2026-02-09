@@ -41,8 +41,6 @@ function getGameData() {
         diceTripPosition,
         diceCount,
         visitedSteps: [...visitedSteps],
-        // 전설 퀘스트
-        legendaryQuestCycle,
         savedAt: Date.now(),
     };
 }
@@ -129,8 +127,6 @@ function applyGameData(d) {
     diceCount = d.diceCount ?? 0;
     visitedSteps = d.visitedSteps && Array.isArray(d.visitedSteps) ? d.visitedSteps : [0];
 
-    // 전설 퀘스트
-    legendaryQuestCycle = d.legendaryQuestCycle ?? 0;
 
     // 앨범 주기 초기화 (21일)
     if (Date.now() >= albumResetTime) {
@@ -324,7 +320,6 @@ function validateGameData(data) {
         ['loginStreak', 0, 6],
         ['diceTripPosition', 0, DICE_TRIP_SIZE],
         ['diceCount', 0, 999],
-        ['legendaryQuestCycle', 0, LEGENDARY_QUEST_COUNT],
     ];
 
     for (const [key, min, max] of numChecks) {
@@ -416,9 +411,6 @@ function initNewGame() {
     diceTripPosition = 0;
     diceCount = 0;
     visitedSteps = [0];
-
-    // 전설 퀘스트 초기화
-    legendaryQuestCycle = 0;
 
     boardState[0] = { type: 'cat_generator' };
     boardState[4] = { type: 'dog_generator' };

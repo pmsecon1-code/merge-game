@@ -55,8 +55,6 @@ service cloud.firestore {
           && isValidNumber(data.diceTripPosition, 0, 50)       // 위치: 0~50
           && isValidNumber(data.diceCount, 0, 999)             // 주사위: 0~999
           && isValidArray(data.visitedSteps, 50)               // 방문 칸: 최대 50개
-          // 전설 퀘스트 검증
-          && isValidNumber(data.legendaryQuestCycle, 0, 3)     // 주기: 0~3
           // 타임스탬프 검증 (미래 시간 방지)
           && data.savedAt <= request.time.toMillis() + 60000; // 1분 여유
       }
