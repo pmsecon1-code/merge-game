@@ -339,15 +339,17 @@
         <div id="dice-roll-popup" class="overlay-bg">
             <div class="overlay-content">
                 <div id="dice-anim" class="text-7xl mb-4">🎲</div>
-                <h2 class="text-2xl font-bold text-emerald-600 mb-2">주사위 굴리기!</h2>
-                <div id="dice-result-num" class="text-6xl font-bold text-emerald-500 mb-4">?</div>
+                <h2 id="dice-title" class="text-2xl font-bold text-emerald-600 mb-2">주사위 굴리기!</h2>
+                <div id="dice-result-num" class="text-6xl font-bold text-emerald-500 mb-2">?</div>
+                <div id="dice-reward-box" class="bg-emerald-100 text-emerald-700 px-6 py-3 rounded-xl font-bold text-lg mb-4 hidden">
+                    보상: <span id="dice-reward-text"></span>
+                </div>
                 <button
                     id="dice-confirm-btn"
-                    onclick="confirmDiceRoll()"
-                    class="bg-emerald-500 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-emerald-600 disabled:opacity-50"
-                    disabled
+                    onclick="closeDiceRollPopup()"
+                    class="bg-emerald-500 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-emerald-600 hidden"
                 >
-                    이동하기
+                    확인
                 </button>
             </div>
         </div>

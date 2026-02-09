@@ -237,23 +237,27 @@ function rollDice() {
     isRollingDice = true;
     pendingDiceResult = Math.floor(Math.random() * 6) + 1;
 
-    // 팝업 열기
+    // 팝업 요소
     const popup = document.getElementById('dice-roll-popup');
     const diceAnim = document.getElementById('dice-anim');
     const resultNum = document.getElementById('dice-result-num');
+    const titleEl = document.getElementById('dice-title');
+    const rewardBox = document.getElementById('dice-reward-box');
+    const rewardText = document.getElementById('dice-reward-text');
     const confirmBtn = document.getElementById('dice-confirm-btn');
 
+    // 초기화
     popup.style.display = 'flex';
     diceAnim.classList.add('rolling');
     resultNum.classList.add('slot');
     resultNum.textContent = '?';
-    confirmBtn.disabled = true;
+    titleEl.textContent = '주사위 굴리기!';
+    rewardBox.classList.add('hidden');
+    confirmBtn.classList.add('hidden');
 
     // 숫자 슬롯 효과
-    let slotCount = 0;
     const slotInterval = setInterval(() => {
         resultNum.textContent = Math.floor(Math.random() * 6) + 1;
-        slotCount++;
     }, 80);
 
     // 1초 후 결과 표시
@@ -262,18 +266,46 @@ function rollDice() {
         diceAnim.classList.remove('rolling');
         resultNum.classList.remove('slot');
         resultNum.textContent = pendingDiceResult;
-        confirmBtn.disabled = false;
+        titleEl.textContent = `${pendingDiceResult}칸 이동!`;
+
+        // 0.5초 후 자동 이동 + 보상 표시
+        setTimeout(() => {
+            const rewardInfo = executeMove(pendingDiceResult);
+            if (rewardInfo) {
+                rewardText.textContent = rewardInfo;
+                rewardBox.classList.remove('hidden');
+            }
+            confirmBtn.classList.remove('hidden');
+            isRollingDice = false;
+            updateDiceTripUI();
+            saveGame();
+        }, 500);
     }, 1000);
 }
 
-function confirmDiceRoll() {
-    const popup = document.getElementById('dice-roll-popup');
-    popup.style.display = 'none';
+function executeMove(steps) {
+    const newPos = Math.min(diceTripPosition + steps, DICE_TRIP_SIZE);
+    diceTripPosition = newPos;
 
-    moveTripPosition(pendingDiceResult);
-    isRollingDice = false;
-    updateDiceTripUI();
-    saveGame();
+    // 완주 체크
+    if (diceTripPosition >= DICE_TRIP_SIZE) {
+        // 팝업 닫고 완주 처리
+        setTimeout(() => {
+            document.getElementById('dice-roll-popup').style.display = 'none';
+            completeTrip();
+        }, 100);
+        return null;
+    }
+
+    // 착지 칸 보상
+    if (!visitedSteps.includes(diceTripPosition)) {
+        visitedSteps.push(diceTripPosition);
+    }
+    return giveStepRewardWithInfo(diceTripPosition);
+}
+
+function closeDiceRollPopup() {
+    document.getElementById('dice-roll-popup').style.display = 'none';
 }
 
 function moveTripPosition(steps) {
@@ -293,32 +325,38 @@ function moveTripPosition(steps) {
 }
 
 function giveStepReward(pos) {
+    giveStepRewardWithInfo(pos);
+}
+
+function giveStepRewardWithInfo(pos) {
     const reward = DICE_TRIP_REWARDS[pos];
-    if (!reward) return;
+    if (!reward) return null;
 
     const amount = reward.min + Math.floor(Math.random() * (reward.max - reward.min + 1));
+    let rewardStr = '';
 
     switch (reward.type) {
         case 'coins':
             coins += amount;
             cumulativeCoins += amount;
             addDailyProgress('coins', amount);
-            showFloatText(diceTripBoard, `+${amount}🪙`, '#fbbf24');
+            rewardStr = `${amount}🪙`;
             break;
         case 'diamonds':
             diamonds += amount;
-            showFloatText(diceTripBoard, `+${amount}💎`, '#06b6d4');
+            rewardStr = `${amount}💎`;
             break;
         case 'cards':
             cards += amount;
-            showFloatText(diceTripBoard, `+${amount}🃏`, '#e879f9');
+            rewardStr = `${amount}🃏`;
             break;
         case 'energy':
             energy += amount;
-            showFloatText(diceTripBoard, `+${amount}⚡`, '#fbbf24');
+            rewardStr = `${amount}⚡`;
             break;
     }
     updateUI();
+    return rewardStr;
 }
 
 function completeTrip() {
