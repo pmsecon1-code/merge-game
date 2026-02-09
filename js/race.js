@@ -663,11 +663,16 @@ function openRaceJoinPopup() {
             recentList.innerHTML = recentRaceOpponents
                 .map(
                     (o) => `
-                <button onclick="quickJoinRace('${o.code}')"
-                    class="flex items-center justify-between bg-cyan-50 hover:bg-cyan-100 px-3 py-2 rounded-lg border border-cyan-200">
-                    <span class="text-sm font-bold text-cyan-700">${o.name}</span>
-                    <span class="text-xs text-cyan-500 font-mono">${o.code}</span>
-                </button>
+                <div class="flex items-center justify-between bg-cyan-50 px-3 py-2 rounded-lg border border-cyan-200">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold text-cyan-700">${o.name}</span>
+                        <span class="text-xs text-cyan-400 font-mono">${o.code}</span>
+                    </div>
+                    <button onclick="quickJoinRace('${o.code}')"
+                        class="text-xs bg-cyan-500 text-white px-2 py-1 rounded font-bold hover:bg-cyan-600">
+                        초대
+                    </button>
+                </div>
             `
                 )
                 .join('');
