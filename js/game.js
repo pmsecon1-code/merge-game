@@ -103,6 +103,7 @@ function completeQuest(i) {
     }
     quests.splice(i, 1);
     generateNewQuest();
+    questPage = 0; // 퀘스트 완료 시 맨 앞으로 스크롤
     updateRaceProgress();
     updateAll();
 }
