@@ -42,8 +42,8 @@ const NPC_AVATARS = ['👩‍🌾', '👨‍🍳', '👮‍♀️', '🧙‍♂�
 
 // --- 일일 미션 설정 ---
 const DAILY_MISSIONS = [
-    { id: 'merge', icon: '🔨', label: '합성', target: 30, reward: 100 },
-    { id: 'spawn', icon: '✨', label: '생성', target: 50, reward: 100 },
+    { id: 'merge', icon: '🔨', label: '합성', target: 100, reward: 100 },
+    { id: 'spawn', icon: '✨', label: '생성', target: 200, reward: 100 },
     { id: 'coins', icon: '👑', label: '코인 획득', target: 500, reward: 100 },
 ];
 const DAILY_COMPLETE_REWARD = { diamonds: 10, cards: 5 };
