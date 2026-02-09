@@ -53,7 +53,7 @@ function createBoardCells() {
         cell.className = 'cell';
         cell.dataset.zone = 'board';
         cell.dataset.index = i;
-        cell.onclick = () => handleCellClick('board', i);
+        // onclick 제거 - handleDragEnd에서 클릭 처리
         boardEl.appendChild(cell);
     }
 }
@@ -65,7 +65,7 @@ function createStorageCells() {
         cell.className = 'cell';
         cell.dataset.zone = 'storage';
         cell.dataset.index = i;
-        cell.onclick = () => handleCellClick('storage', i);
+        // onclick 제거 - handleDragEnd에서 클릭 처리
         storageEl.appendChild(cell);
     }
 }
