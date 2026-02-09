@@ -551,17 +551,24 @@ function updateLegendaryQuestUI() {
 
     const hasLegendary = hasItemOfType('legendary');
     const isActive = isLegendaryQuestActive();
+    const hasUnicorn = hasItemOfTypeAndLevel('legendary', 5);
 
     // 진행 중이면 표시
     if (isActive) {
         container.style.display = 'block';
         const statusEl = document.getElementById('legendary-quest-status');
+        const completeBtn = document.getElementById('legendary-complete-btn');
 
-        if (hasLegendary) {
+        if (hasUnicorn) {
+            statusEl.textContent = '🦄 유니콘 완성!';
+            if (completeBtn) completeBtn.style.display = 'inline-block';
+        } else if (hasLegendary) {
             const maxLv = getMaxLevelOfType('legendary');
             statusEl.textContent = `Lv.${maxLv} → Lv.5 🦄`;
+            if (completeBtn) completeBtn.style.display = 'none';
         } else {
             statusEl.textContent = '생성기 터치!';
+            if (completeBtn) completeBtn.style.display = 'none';
         }
     } else {
         container.style.display = 'none';

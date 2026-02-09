@@ -241,10 +241,20 @@
 
             <!-- 전설 퀘스트 -->
             <div id="legendary-quest-wrapper" class="event-bar" style="border: 2px solid #a855f7; display: none">
-                <span class="text-[10px] font-bold text-purple-600">
-                    🦄 전설 퀘스트
-                    <span id="legendary-quest-status" class="text-[9px] text-purple-400">대기 중</span>
-                </span>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-bold text-purple-600">
+                        🦄 전설 퀘스트
+                        <span class="text-[9px] text-purple-400">(완료 500🪙 +20💎)</span>
+                    </span>
+                </div>
+                <div class="flex justify-between items-center mt-1">
+                    <span id="legendary-quest-status" class="text-[10px] text-purple-500">생성기 터치!</span>
+                    <button id="legendary-complete-btn" onclick="checkLegendaryComplete()"
+                        class="text-[9px] px-2 py-0.5 bg-purple-500 text-white rounded font-bold"
+                        style="display: none">
+                        🦄 완료!
+                    </button>
+                </div>
             </div>
 
             <!-- 6. 주사위 여행 -->
