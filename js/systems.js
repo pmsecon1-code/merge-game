@@ -589,9 +589,11 @@ function updateDiceTripUI() {
         return;
     }
 
+    // 전설 퀘스트 진행 중이면 잠금
+    const isLocked = hasLegendaryQuest;
+
     // 진행도 표시
     const posEl = document.getElementById('dice-trip-position');
-    const isLocked = isCompleted && hasLegendaryQuest;
     if (posEl) {
         if (isLocked) {
             posEl.textContent = '🔒 전설 퀘스트를 완료하세요';
