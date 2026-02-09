@@ -393,12 +393,14 @@ function handleDragEnd(e) {
 // --- 도감/모달 ---
 function openGuide(type) {
     currentGuideType = type;
-    document.getElementById('tab-animal').style.display = type === 'toy' ? 'none' : '';
-    document.getElementById('tab-snack').style.display = type === 'toy' || !['cat', 'dog'].includes(type) ? 'none' : '';
-    document.getElementById('tab-cat_toy').style.display = type === 'toy' ? '' : 'none';
-    document.getElementById('tab-dog_toy').style.display = type === 'toy' ? '' : 'none';
-    document.getElementById('tab-upgrade').style.display = type === 'toy' ? 'none' : '';
-    const defaultTab = type === 'toy' ? 'cat_toy' : 'animal';
+    const isLegendary = type === 'legendary';
+    const isToy = type === 'toy';
+    document.getElementById('tab-animal').style.display = isToy ? 'none' : '';
+    document.getElementById('tab-snack').style.display = isToy || isLegendary || !['cat', 'dog'].includes(type) ? 'none' : '';
+    document.getElementById('tab-cat_toy').style.display = isToy ? '' : 'none';
+    document.getElementById('tab-dog_toy').style.display = isToy ? '' : 'none';
+    document.getElementById('tab-upgrade').style.display = isToy || isLegendary ? 'none' : '';
+    const defaultTab = isToy ? 'cat_toy' : 'animal';
     currentGuideTab = defaultTab;
     document.getElementById('guide-modal').classList.add('show');
     switchGuideTab(defaultTab);
@@ -439,6 +441,7 @@ function renderGuideList(tab) {
         else if (currentGuideType === 'bird') list = BIRDS;
         else if (currentGuideType === 'fish') list = FISH;
         else if (currentGuideType === 'reptile') list = REPTILES;
+        else if (currentGuideType === 'legendary') list = LEGENDARIES;
     } else if (tab === 'snack') {
         if (currentGuideType === 'cat' || currentGuideType === 'dog') {
             list = currentGuideType === 'cat' ? CAT_SNACKS : DOG_SNACKS;
