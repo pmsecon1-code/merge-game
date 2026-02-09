@@ -20,6 +20,7 @@ let diceTripPosition = 0;    // 현재 위치 (0~20)
 let diceCount = 0;           // 보유 주사위
 let isRollingDice = false;   // 굴리는 중
 let specialCageLevel = 0;    // 스페셜 케이지 레벨 (0=없음, 1~5=레벨)
+let visitedSteps = [0];      // 밟았던 칸 인덱스 (시작 칸 포함)
 
 // --- 진행도 ---
 let userLevel = 1,

@@ -41,6 +41,7 @@ function getGameData() {
         diceTripPosition,
         diceCount,
         specialCageLevel,
+        visitedSteps: [...visitedSteps],
         savedAt: Date.now(),
     };
 }
@@ -126,6 +127,7 @@ function applyGameData(d) {
     diceTripPosition = d.diceTripPosition ?? 0;
     diceCount = d.diceCount ?? 0;
     specialCageLevel = d.specialCageLevel ?? 0;
+    visitedSteps = d.visitedSteps && Array.isArray(d.visitedSteps) ? d.visitedSteps : [0];
 
     // 앨범 주기 초기화 (21일)
     if (Date.now() >= albumResetTime) {

@@ -77,6 +77,7 @@ export default [
                 diceCount: 'writable',
                 isRollingDice: 'writable',
                 specialCageLevel: 'writable',
+                visitedSteps: 'writable',
                 diceTripContainer: 'writable',
                 diceTripBoard: 'writable',
                 energy: 'writable',

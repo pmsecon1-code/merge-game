@@ -278,19 +278,17 @@ function confirmDiceRoll() {
 
 function moveTripPosition(steps) {
     const newPos = Math.min(diceTripPosition + steps, DICE_TRIP_SIZE);
-
-    // 중간 칸 보상 지급 (이동한 칸들)
-    for (let i = diceTripPosition + 1; i <= newPos; i++) {
-        if (i < DICE_TRIP_SIZE) {
-            giveStepReward(i - 1); // 배열 인덱스는 0부터
-        }
-    }
-
     diceTripPosition = newPos;
 
     // 완주 체크
     if (diceTripPosition >= DICE_TRIP_SIZE) {
         completeTrip();
+    } else {
+        // 착지 칸에서만 보상 (완주 아닐 때)
+        if (!visitedSteps.includes(diceTripPosition)) {
+            visitedSteps.push(diceTripPosition);
+        }
+        giveStepReward(diceTripPosition);
     }
 }
 
@@ -335,8 +333,9 @@ function completeTrip() {
     // 스페셜 케이지 스폰
     spawnSpecialCage();
 
-    // 위치 리셋
+    // 위치 + 방문 기록 리셋
     diceTripPosition = 0;
+    visitedSteps = [0];
     updateDiceTripUI();
     updateUI();
 }
@@ -412,7 +411,7 @@ function renderDiceTripBoard() {
 
     // 20칸 렌더링
     for (let i = 0; i < DICE_TRIP_SIZE; i++) {
-        const isVisited = i < diceTripPosition;
+        const isVisited = visitedSteps.includes(i) && i !== diceTripPosition;
         const isCurrent = i === diceTripPosition;
         const reward = DICE_TRIP_REWARDS[i];
         let rewardIcon = '';
