@@ -199,6 +199,7 @@ function startRaceListener(raceId) {
                     stopRaceListener();
                     saveGame();
                     updateRaceUI();
+                    startPlayer2Listener(); // 다음 레이스 감지용
                     return;
                 }
 
@@ -242,6 +243,7 @@ function startRaceListener(raceId) {
                 stopRaceListener();
                 saveGame();
                 updateRaceUI();
+                startPlayer2Listener(); // 다음 레이스 감지용
             }
         );
 }
@@ -634,6 +636,7 @@ async function validateCurrentRace() {
             console.log('[Race] Race not found, resetting');
             currentRaceId = null;
             saveGame();
+            startPlayer2Listener(); // 다음 레이스 감지용
             return;
         }
 
@@ -645,6 +648,7 @@ async function validateCurrentRace() {
                 console.log('[Race] Race completed and claimed, resetting');
                 currentRaceId = null;
                 saveGame();
+                startPlayer2Listener(); // 다음 레이스 감지용
                 return;
             }
             console.log('[Race] Unclaimed reward, starting listener');
@@ -656,6 +660,7 @@ async function validateCurrentRace() {
         console.error('[Race] Validation failed:', e);
         currentRaceId = null;
         saveGame();
+        startPlayer2Listener(); // 다음 레이스 감지용
     }
 }
 
@@ -710,8 +715,9 @@ async function initRace() {
     await getOrCreateMyCode();
     if (currentRaceId) {
         await validateCurrentRace();
-    } else {
-        // 레이스 중 아니면 player2 리스너 시작 (누군가 내 코드 입력 감지)
+    }
+    // 레이스 중 아니면 player2 리스너 시작 (validateCurrentRace에서 클리어됐을 수도 있음)
+    if (!currentRaceId) {
         startPlayer2Listener();
     }
     updateRaceUI();
