@@ -537,12 +537,9 @@ function updateDailyMissionUI() {
         }
     }
 
-    // 리셋 타이머
+    // 리셋 타이머 (KST 자정 기준)
     if (dailyResetTimer) {
-        const now = new Date();
-        const tomorrow = new Date(now);
-        tomorrow.setUTCHours(24, 0, 0, 0);
-        const remaining = tomorrow - now;
+        const remaining = getMsUntilKSTMidnight();
         const h = Math.floor(remaining / 3600000);
         const m = Math.floor((remaining % 3600000) / 60000);
         const s = Math.floor((remaining % 60000) / 1000);

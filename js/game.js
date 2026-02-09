@@ -477,7 +477,7 @@ function moveItem(fz, fi, tz, ti) {
 
 // --- 일일 미션 ---
 function checkDailyReset() {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getKSTDateString();
     if (dailyMissions.lastResetDate === today) return;
 
     // 리셋
@@ -531,13 +531,13 @@ function claimDailyBonus() {
 
 // --- 7일 출석 보너스 ---
 function checkDailyBonus() {
-    const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+    const today = getKSTDateString();
     if (lastDailyBonusDate === today) return;
 
-    // 연속 출석 체크
+    // 연속 출석 체크 (KST 기준)
     if (lastDailyBonusDate) {
-        const lastDate = new Date(lastDailyBonusDate);
-        const todayDate = new Date(today);
+        const lastDate = new Date(lastDailyBonusDate + 'T00:00:00+09:00');
+        const todayDate = new Date(today + 'T00:00:00+09:00');
         const diffDays = Math.floor((todayDate - lastDate) / (24 * 60 * 60 * 1000));
 
         if (diffDays === 1) {

@@ -336,6 +336,27 @@ const ALBUM_THEMES = [
 // ============================================
 
 /**
+ * 한국 시간(KST) 기준 날짜 문자열 반환
+ * @returns {string} "YYYY-MM-DD" 형식
+ */
+function getKSTDateString() {
+    return new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
+/**
+ * 다음 한국 자정까지 남은 시간(ms) 반환
+ * @returns {number} 밀리초
+ */
+function getMsUntilKSTMidnight() {
+    const now = Date.now();
+    const kstNow = now + 9 * 60 * 60 * 1000;
+    const kstToday = new Date(kstNow);
+    kstToday.setUTCHours(0, 0, 0, 0);
+    const kstTomorrow = kstToday.getTime() + 24 * 60 * 60 * 1000;
+    return kstTomorrow - kstNow;
+}
+
+/**
  * 타입에 해당하는 아이템 리스트 반환
  */
 function getItemList(type) {

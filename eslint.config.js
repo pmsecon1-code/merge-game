@@ -64,6 +64,8 @@ export default [
                 getItemList: 'readonly',
                 getGeneratorName: 'readonly',
                 getSpecialTypeName: 'readonly',
+                getKSTDateString: 'readonly',
+                getMsUntilKSTMidnight: 'readonly',
                 // state.js globals (writable - shared state)
                 boardState: 'writable',
                 storageState: 'writable',
