@@ -800,6 +800,12 @@ function stopPlayer2Listener() {
 
 // --- 초대 팝업 표시 (player2) ---
 function showRaceInvitePopup(raceId, data) {
+    // 이미 만료된 초대면 무시
+    if (Date.now() > data.inviteExpiresAt) {
+        console.log('[Race] Ignoring expired invite:', raceId);
+        return;
+    }
+
     pendingInviteId = raceId;
     pendingInviteData = data;
 
@@ -838,6 +844,8 @@ function startInviteTimer(expiresAt) {
 
         if (remaining <= 0) {
             stopInviteTimer();
+            closeRaceInvitePopup();
+            showToast('초대 시간이 만료되었습니다');
         }
     };
 
@@ -857,27 +865,53 @@ function stopInviteTimer() {
 async function acceptRaceInvite() {
     if (!pendingInviteId || !currentUser) return;
 
+    const raceId = pendingInviteId;
+
     try {
         const now = Date.now();
-        await db.collection('races').doc(pendingInviteId).update({
-            status: 'active',
-            player1Progress: 0,
-            player2Progress: 0,
-            winnerUid: null,
-            rewardClaimed: {},
-            expiresAt: now + RACE_EXPIRE_MS,
+        await db.runTransaction(async (transaction) => {
+            const raceRef = db.collection('races').doc(raceId);
+            const raceSnap = await transaction.get(raceRef);
+
+            if (!raceSnap.exists) {
+                throw new Error('초대가 삭제되었습니다');
+            }
+
+            const data = raceSnap.data();
+            if (data.status !== 'pending') {
+                const msg =
+                    data.status === 'cancelled'
+                        ? '취소된 초대입니다'
+                        : data.status === 'expired'
+                          ? '만료된 초대입니다'
+                          : '이미 처리된 초대입니다';
+                throw new Error(msg);
+            }
+            if (now > data.inviteExpiresAt) {
+                throw new Error('만료된 초대입니다');
+            }
+
+            transaction.update(raceRef, {
+                status: 'active',
+                player1Progress: 0,
+                player2Progress: 0,
+                winnerUid: null,
+                rewardClaimed: {},
+                expiresAt: now + RACE_EXPIRE_MS,
+            });
         });
 
-        currentRaceId = pendingInviteId;
+        currentRaceId = raceId;
         closeRaceInvitePopup();
         stopPlayer2Listener();
-        startRaceListener(pendingInviteId);
+        startRaceListener(raceId);
         saveGame();
         showToast('레이스 시작!');
         updateRaceUI();
     } catch (e) {
         console.error('[Race] Accept invite failed:', e);
-        showToast('수락 실패');
+        showToast(e.message || '수락 실패');
+        closeRaceInvitePopup();
     }
 }
 
@@ -900,23 +934,31 @@ async function declineRaceInvite() {
 async function cancelPendingInvite() {
     if (!currentRaceId || !currentUser) return;
 
+    const raceId = currentRaceId;
+
     try {
-        const raceDoc = await db.collection('races').doc(currentRaceId).get();
-        if (!raceDoc.exists) return;
+        await db.runTransaction(async (transaction) => {
+            const raceRef = db.collection('races').doc(raceId);
+            const raceSnap = await transaction.get(raceRef);
 
-        const data = raceDoc.data();
-        if (data.status !== 'pending' || data.player1Uid !== currentUser.uid) {
-            showToast('취소할 수 없습니다');
-            return;
-        }
+            if (!raceSnap.exists) {
+                throw new Error('초대가 삭제되었습니다');
+            }
 
-        await db.collection('races').doc(currentRaceId).update({
-            status: 'cancelled',
+            const data = raceSnap.data();
+            if (data.player1Uid !== currentUser.uid) {
+                throw new Error('권한이 없습니다');
+            }
+            if (data.status !== 'pending') {
+                throw new Error(data.status === 'active' ? '이미 레이스가 시작되었습니다' : '이미 처리된 초대입니다');
+            }
+
+            transaction.update(raceRef, { status: 'cancelled' });
         });
         showToast('초대를 취소했습니다');
     } catch (e) {
         console.error('[Race] Cancel invite failed:', e);
-        showToast('취소 실패');
+        showToast(e.message || '취소 실패');
     }
 }
 
