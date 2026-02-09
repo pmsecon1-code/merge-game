@@ -219,7 +219,7 @@ function tryDropDice() {
         const popup = document.getElementById('dice-drop-popup');
         const countEl = document.getElementById('dice-drop-count');
         if (countEl) countEl.textContent = `보유: ${diceCount}개`;
-        if (popup) popup.classList.add('active');
+        if (popup) popup.style.display = 'flex';
         updateDiceTripUI();
         saveGame();
     }
@@ -243,7 +243,7 @@ function rollDice() {
     const resultNum = document.getElementById('dice-result-num');
     const confirmBtn = document.getElementById('dice-confirm-btn');
 
-    popup.classList.add('active');
+    popup.style.display = 'flex';
     diceAnim.classList.add('rolling');
     resultNum.classList.add('slot');
     resultNum.textContent = '?';
@@ -268,7 +268,7 @@ function rollDice() {
 
 function confirmDiceRoll() {
     const popup = document.getElementById('dice-roll-popup');
-    popup.classList.remove('active');
+    popup.style.display = 'none';
 
     moveTripPosition(pendingDiceResult);
     isRollingDice = false;
