@@ -26,32 +26,67 @@ const CAGE_MAX_LEVEL = 5;
 const SNACK_CHANCE = 0.08;
 
 // --- 주사위 여행 설정 ---
-const DICE_TRIP_SIZE = 20;
+const DICE_TRIP_SIZE = 50;
 const DICE_DROP_CHANCE = 0.05;
-const DICE_TRIP_COMPLETE_REWARD = { coins: 1000, diamonds: 50 };
+const DICE_TRIP_COMPLETE_REWARD = { coins: 2000, diamonds: 100 };
 const SPECIAL_CAGE_MAX_LEVEL = 5;
 
 const DICE_TRIP_REWARDS = [
+    // 1~10: 초반 (낮은 보상)
     { type: 'coins', min: 10, max: 30 },      // 1
     { type: 'energy', min: 5, max: 10 },      // 2
-    { type: 'coins', min: 20, max: 50 },      // 3
-    { type: 'cards', min: 1, max: 3 },        // 4
-    { type: 'diamonds', min: 1, max: 3 },     // 5
-    { type: 'coins', min: 30, max: 60 },      // 6
-    { type: 'energy', min: 10, max: 15 },     // 7
-    { type: 'cards', min: 2, max: 4 },        // 8
-    { type: 'coins', min: 40, max: 80 },      // 9
-    { type: 'diamonds', min: 2, max: 5 },     // 10
-    { type: 'coins', min: 50, max: 100 },     // 11
-    { type: 'energy', min: 15, max: 20 },     // 12
-    { type: 'cards', min: 3, max: 5 },        // 13
-    { type: 'coins', min: 60, max: 120 },     // 14
-    { type: 'diamonds', min: 3, max: 6 },     // 15
-    { type: 'coins', min: 80, max: 150 },     // 16
-    { type: 'energy', min: 20, max: 30 },     // 17
-    { type: 'cards', min: 4, max: 6 },        // 18
-    { type: 'diamonds', min: 5, max: 8 },     // 19
-    { type: 'coins', min: 100, max: 200 },    // 20 (완주 직전)
+    { type: 'coins', min: 15, max: 40 },      // 3
+    { type: 'cards', min: 1, max: 2 },        // 4
+    { type: 'diamonds', min: 1, max: 2 },     // 5
+    { type: 'coins', min: 20, max: 50 },      // 6
+    { type: 'energy', min: 5, max: 10 },      // 7
+    { type: 'cards', min: 1, max: 3 },        // 8
+    { type: 'coins', min: 25, max: 60 },      // 9
+    { type: 'diamonds', min: 1, max: 3 },     // 10
+    // 11~20: 중반 초입
+    { type: 'coins', min: 30, max: 70 },      // 11
+    { type: 'energy', min: 8, max: 15 },      // 12
+    { type: 'cards', min: 2, max: 4 },        // 13
+    { type: 'coins', min: 35, max: 80 },      // 14
+    { type: 'diamonds', min: 2, max: 4 },     // 15
+    { type: 'coins', min: 40, max: 90 },      // 16
+    { type: 'energy', min: 10, max: 18 },     // 17
+    { type: 'cards', min: 2, max: 5 },        // 18
+    { type: 'coins', min: 45, max: 100 },     // 19
+    { type: 'diamonds', min: 2, max: 5 },     // 20
+    // 21~30: 중반
+    { type: 'coins', min: 50, max: 110 },     // 21
+    { type: 'energy', min: 12, max: 20 },     // 22
+    { type: 'cards', min: 3, max: 5 },        // 23
+    { type: 'coins', min: 55, max: 120 },     // 24
+    { type: 'diamonds', min: 3, max: 5 },     // 25
+    { type: 'coins', min: 60, max: 130 },     // 26
+    { type: 'energy', min: 15, max: 25 },     // 27
+    { type: 'cards', min: 3, max: 6 },        // 28
+    { type: 'coins', min: 70, max: 140 },     // 29
+    { type: 'diamonds', min: 3, max: 6 },     // 30
+    // 31~40: 후반 초입
+    { type: 'coins', min: 80, max: 150 },     // 31
+    { type: 'energy', min: 18, max: 28 },     // 32
+    { type: 'cards', min: 4, max: 6 },        // 33
+    { type: 'coins', min: 90, max: 160 },     // 34
+    { type: 'diamonds', min: 4, max: 7 },     // 35
+    { type: 'coins', min: 100, max: 180 },    // 36
+    { type: 'energy', min: 20, max: 30 },     // 37
+    { type: 'cards', min: 4, max: 7 },        // 38
+    { type: 'coins', min: 110, max: 200 },    // 39
+    { type: 'diamonds', min: 5, max: 8 },     // 40
+    // 41~50: 후반 (높은 보상)
+    { type: 'coins', min: 120, max: 220 },    // 41
+    { type: 'energy', min: 22, max: 35 },     // 42
+    { type: 'cards', min: 5, max: 8 },        // 43
+    { type: 'coins', min: 140, max: 250 },    // 44
+    { type: 'diamonds', min: 6, max: 10 },    // 45
+    { type: 'coins', min: 160, max: 280 },    // 46
+    { type: 'energy', min: 25, max: 40 },     // 47
+    { type: 'cards', min: 6, max: 10 },       // 48
+    { type: 'diamonds', min: 8, max: 12 },    // 49
+    { type: 'coins', min: 200, max: 350 },    // 50 (완주 직전)
 ];
 
 const SPECIAL_CAGE_SPAWNS = [
