@@ -602,6 +602,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
     - 1~10칸: 초반 (낮은 보상)
     - 11~30칸: 중반 (중간 보상)
     - 31~50칸: 후반 (높은 보상, 코인 200~350 등)
+- **현재 위치 자동 스크롤**: 보드 렌더링 시 현재 위치가 보이도록 자동 스크롤
 - firestore.rules: `diceTripPosition` 상한 50, `visitedSteps` 최대 50개
 
 ### v4.12.0 (2026-02-09)
