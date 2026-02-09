@@ -35,6 +35,7 @@ function getGameData() {
         album: [...album],
         albumResetTime: albumResetTime - Date.now(),
         lastDailyBonusDate,
+        loginStreak,
         currentRaceId,
         myRaceCode,
         raceWins,
@@ -102,6 +103,7 @@ function applyGameData(d) {
     album = d.album || [];
     albumResetTime = Date.now() + (d.albumResetTime ?? ALBUM_CYCLE_MS);
     lastDailyBonusDate = d.lastDailyBonusDate || '';
+    loginStreak = d.loginStreak ?? 0;
     currentRaceId = d.currentRaceId || null;
     myRaceCode = d.myRaceCode || null;
     raceWins = d.raceWins ?? 0;
@@ -299,6 +301,7 @@ function validateGameData(data) {
         ['cards', 0, 9999],
         ['raceWins', 0, 9999],
         ['raceLosses', 0, 9999],
+        ['loginStreak', 0, 6],
     ];
 
     for (const [key, min, max] of numChecks) {
@@ -375,6 +378,7 @@ function initNewGame() {
     album = [];
     albumResetTime = Date.now() + ALBUM_CYCLE_MS;
     lastDailyBonusDate = '';
+    loginStreak = 0;
     currentRaceId = null;
     myRaceCode = null;
     raceWins = 0;

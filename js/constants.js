@@ -165,8 +165,16 @@ const ALBUM_COMPLETE_COINS = 500;
 const ALBUM_ALL_COMPLETE_DIAMONDS = 100;
 const ALBUM_CYCLE_MS = 21 * 24 * 60 * 60 * 1000; // 21일
 
-// --- 일일 보너스 ---
-const DAILY_BONUS = { coins: 50, diamonds: 5, cards: 5 };
+// --- 7일 출석 보상 ---
+const ATTENDANCE_REWARDS = [
+    { day: 1, diamonds: 10 },          // D1: 10💎
+    { day: 2, coins: 20 },             // D2: 20🪙
+    { day: 3, cards: 5 },              // D3: 5🃏
+    { day: 4, diamonds: 30 },          // D4: 30💎
+    { day: 5, coins: 50 },             // D5: 50🪙
+    { day: 6, cards: 10 },             // D6: 10🃏
+    { day: 7, diamonds: 100 },         // D7: 100💎
+];
 
 const ALBUM_THEMES = [
     {

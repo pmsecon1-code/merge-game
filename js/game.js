@@ -469,15 +469,49 @@ function moveItem(fz, fi, tz, ti) {
     }
 }
 
-// --- 일일 보너스 ---
+// --- 7일 출석 보너스 ---
 function checkDailyBonus() {
     const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
     if (lastDailyBonusDate === today) return;
+
+    // 연속 출석 체크
+    if (lastDailyBonusDate) {
+        const lastDate = new Date(lastDailyBonusDate);
+        const todayDate = new Date(today);
+        const diffDays = Math.floor((todayDate - lastDate) / (24 * 60 * 60 * 1000));
+
+        if (diffDays === 1) {
+            // 연속 출석 → 다음 날로 진행
+            loginStreak = (loginStreak + 1) % 7;
+        } else if (diffDays > 1) {
+            // 하루 이상 놓침 → 처음부터
+            loginStreak = 0;
+        }
+    } else {
+        // 첫 출석
+        loginStreak = 0;
+    }
+
     lastDailyBonusDate = today;
-    coins += DAILY_BONUS.coins;
-    cumulativeCoins += DAILY_BONUS.coins;
-    diamonds += DAILY_BONUS.diamonds;
-    cards += DAILY_BONUS.cards;
-    showMilestonePopup('🎁 일일 보너스!', `${DAILY_BONUS.coins}🪙 ${DAILY_BONUS.diamonds}💎 ${DAILY_BONUS.cards}🃏`);
+
+    // 보상 지급
+    const reward = ATTENDANCE_REWARDS[loginStreak];
+    let rewardText = '';
+
+    if (reward.coins) {
+        coins += reward.coins;
+        cumulativeCoins += reward.coins;
+        rewardText = `${reward.coins}🪙`;
+    }
+    if (reward.diamonds) {
+        diamonds += reward.diamonds;
+        rewardText = `${reward.diamonds}💎`;
+    }
+    if (reward.cards) {
+        cards += reward.cards;
+        rewardText = `${reward.cards}🃏`;
+    }
+
+    showMilestonePopup(`🎁 ${reward.day}일차 출석!`, rewardText);
     saveGame();
 }

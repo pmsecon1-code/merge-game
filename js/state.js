@@ -63,8 +63,9 @@ let cards = 0,
 let currentAlbumTheme = 0;
 let albumResetTime = Date.now() + ALBUM_CYCLE_MS;
 
-// --- 일일 보너스 ---
+// --- 7일 출석 보너스 ---
 let lastDailyBonusDate = '';
+let loginStreak = 0; // 0~6 (7일 중 몇 번째 보상인지)
 
 // --- 레이스 ---
 let currentRaceId = null;

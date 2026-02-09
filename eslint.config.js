@@ -63,7 +63,7 @@ export default [
                 ALBUM_COMPLETE_COINS: 'readonly',
                 ALBUM_ALL_COMPLETE_DIAMONDS: 'readonly',
                 ALBUM_CYCLE_MS: 'readonly',
-                DAILY_BONUS: 'readonly',
+                ATTENDANCE_REWARDS: 'readonly',
                 getItemData: 'readonly',
                 getMaxLevel: 'readonly',
                 getItemList: 'readonly',
@@ -136,6 +136,7 @@ export default [
                 currentAlbumTheme: 'writable',
                 albumResetTime: 'writable',
                 lastDailyBonusDate: 'writable',
+                loginStreak: 'writable',
                 // state.js - race
                 currentRaceId: 'writable',
                 myRaceCode: 'writable',
