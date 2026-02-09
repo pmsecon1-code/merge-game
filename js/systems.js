@@ -400,14 +400,12 @@ function renderDiceTripBoard() {
 
         html += `<div class="dice-step ${isVisited ? 'visited' : ''} ${isCurrent ? 'current' : ''}">
             ${rewardDisplay}
-            <span class="step-num">${i + 1}</span>
         </div>`;
     }
 
     // 골인 지점
     html += `<div class="dice-step goal ${diceTripPosition >= DICE_TRIP_SIZE ? 'reached' : ''}">
         🏁
-        <span class="step-num">GOAL</span>
     </div>`;
 
     // 스페셜 케이지
