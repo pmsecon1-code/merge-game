@@ -725,16 +725,34 @@ async function validateCurrentRace() {
 
         const data = raceDoc.data();
 
+        // 거절/만료/취소된 레이스면 리셋
+        if (['declined', 'expired', 'cancelled'].includes(data.status)) {
+            console.log('[Race] Race was', data.status, ', resetting');
+            currentRaceId = null;
+            saveGame();
+            startPlayer2Listener();
+            return;
+        }
+
         // 완료된 레이스인데 보상 이미 받았으면 리셋
         if (data.status === 'completed') {
             if (data.rewardClaimed && data.rewardClaimed[currentUser.uid]) {
                 console.log('[Race] Race completed and claimed, resetting');
                 currentRaceId = null;
                 saveGame();
-                startPlayer2Listener(); // 다음 레이스 감지용
+                startPlayer2Listener();
                 return;
             }
             console.log('[Race] Unclaimed reward, starting listener');
+        }
+
+        // pending 상태인데 내가 player2면 팝업 표시
+        if (data.status === 'pending' && data.player2Uid === currentUser.uid) {
+            console.log('[Race] Pending invite found, showing popup');
+            showRaceInvitePopup(currentRaceId, data);
+            currentRaceId = null; // player2는 수락 전까지 currentRaceId 없음
+            saveGame();
+            return;
         }
 
         // 유효한 레이스면 리스너 시작
@@ -774,11 +792,16 @@ function startPlayer2Listener() {
                         }
                         console.log('[Race] Received invite:', raceId);
                         showRaceInvitePopup(raceId, data);
-                    } else if (change.type === 'removed' || change.type === 'modified') {
-                        // 초대가 취소/만료되었거나 active로 변경됨
+                    } else if (change.type === 'removed') {
+                        // 초대 문서 삭제됨
+                        if (pendingInviteId === change.doc.id) {
+                            closeRaceInvitePopup();
+                        }
+                    } else if (change.type === 'modified') {
+                        // 초대가 취소/만료/수락됨
                         if (pendingInviteId === change.doc.id) {
                             const data = change.doc.data();
-                            if (data.status !== 'pending') {
+                            if (data && data.status !== 'pending') {
                                 closeRaceInvitePopup();
                             }
                         }
@@ -919,14 +942,30 @@ async function acceptRaceInvite() {
 async function declineRaceInvite() {
     if (!pendingInviteId) return;
 
+    const raceId = pendingInviteId;
+
     try {
-        await db.collection('races').doc(pendingInviteId).update({
-            status: 'declined',
+        await db.runTransaction(async (transaction) => {
+            const raceRef = db.collection('races').doc(raceId);
+            const raceSnap = await transaction.get(raceRef);
+
+            if (!raceSnap.exists) {
+                throw new Error('초대가 삭제되었습니다');
+            }
+
+            const data = raceSnap.data();
+            if (data.status !== 'pending') {
+                throw new Error('이미 처리된 초대입니다');
+            }
+
+            transaction.update(raceRef, { status: 'declined' });
         });
         closeRaceInvitePopup();
         showToast('초대를 거절했습니다');
     } catch (e) {
         console.error('[Race] Decline invite failed:', e);
+        showToast(e.message || '거절 실패');
+        closeRaceInvitePopup();
     }
 }
 
