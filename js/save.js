@@ -43,8 +43,6 @@ function getGameData() {
         visitedSteps: [...visitedSteps],
         // 전설 퀘스트
         legendaryQuestCycle,
-        legendaryGeneratorActive,
-        legendaryUnlockTime,
         savedAt: Date.now(),
     };
 }
@@ -133,8 +131,6 @@ function applyGameData(d) {
 
     // 전설 퀘스트
     legendaryQuestCycle = d.legendaryQuestCycle ?? 0;
-    legendaryGeneratorActive = d.legendaryGeneratorActive ?? false;
-    legendaryUnlockTime = d.legendaryUnlockTime ?? 0;
 
     // 앨범 주기 초기화 (21일)
     if (Date.now() >= albumResetTime) {
@@ -423,8 +419,6 @@ function initNewGame() {
 
     // 전설 퀘스트 초기화
     legendaryQuestCycle = 0;
-    legendaryGeneratorActive = false;
-    legendaryUnlockTime = 0;
 
     boardState[0] = { type: 'cat_generator' };
     boardState[4] = { type: 'dog_generator' };

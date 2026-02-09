@@ -75,6 +75,15 @@ function createItem(item, zone, index) {
         } else if (type === 'toy') {
             emoji = '🧸';
             label = '장난감 생성기';
+        } else if (type === 'legendary') {
+            emoji = '🦄';
+            label = '전설 생성기';
+            // 쿨다운 체크
+            const elapsed = Date.now() - (item.spawnedAt || 0);
+            const remaining = (item.cooldown || 0) - elapsed;
+            if (remaining > 0) {
+                specialUI = `<div class="cooldown-overlay legendary"><span>🔒</span><span>${Math.ceil(remaining / 1000)}s</span></div>`;
+            }
         }
         d.innerHTML = `${specialUI}<div class="animal-inside">${emoji}</div><div class="cage-label">${label}</div><div class="help-btn" data-gen-type="${type}">?</div>`;
         return d;
@@ -93,6 +102,7 @@ function createItem(item, zone, index) {
     else if (item.type === 'bird') list = BIRDS;
     else if (item.type === 'fish') list = FISH;
     else if (item.type === 'reptile') list = REPTILES;
+    else if (item.type === 'legendary') list = LEGENDARIES;
     const data = list[item.level - 1] || list[list.length - 1];
     const itemKey = `${item.type}_${item.level}`;
     const discoveredAt = newlyDiscoveredItems.get(itemKey);
@@ -116,6 +126,7 @@ function updateAll() {
     updateTimerUI();
     updateQuestUI();
     updateSpecialMissionUI();
+    updateLegendaryQuestUI();
     updateDailyMissionUI();
     updateAlbumBarUI();
     updateDiceTripUI();

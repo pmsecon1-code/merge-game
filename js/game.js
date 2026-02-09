@@ -354,6 +354,9 @@ function triggerGen(idx, item) {
             showToast('과열! 1분 휴식');
         }
         spawnToy();
+    } else if (baseType === 'legendary') {
+        // 전설 생성기 클릭
+        handleLegendaryGeneratorClick(idx);
     } else spawnItem(baseType, 1, false);
 }
 

@@ -84,8 +84,6 @@ export default [
                 diceTripBoard: 'writable',
                 // 전설 퀘스트 변수
                 legendaryQuestCycle: 'writable',
-                legendaryGeneratorActive: 'writable',
-                legendaryUnlockTime: 'writable',
                 energy: 'writable',
                 recoveryCountdown: 'writable',
                 userLevel: 'writable',
@@ -221,10 +219,10 @@ export default [
                 giveStepRewardWithInfo: 'readonly',
                 completeTrip: 'readonly',
                 spawnLegendaryGenerator: 'readonly',
-                getLegendaryUnlockRemaining: 'readonly',
                 handleLegendaryGeneratorClick: 'readonly',
                 completeLegendaryQuest: 'readonly',
                 checkLegendaryComplete: 'readonly',
+                updateLegendaryQuestUI: 'readonly',
                 updateDiceTripUI: 'readonly',
                 renderDiceTripBoard: 'readonly',
                 // album.js globals
