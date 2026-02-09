@@ -607,7 +607,7 @@ function updateDiceTripUI() {
     if (rollBtn) {
         rollBtn.disabled = diceCount <= 0 || isRollingDice || isLocked;
         if (isLocked) {
-            rollBtn.textContent = '🔒 잠김';
+            rollBtn.textContent = `🔒 잠김 (🎲${diceCount})`;
         } else {
             rollBtn.textContent = diceCount > 0 ? `🎲 굴리기 (${diceCount})` : '🎲 주사위 없음';
         }
