@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.12.0)
+# 멍냥 머지 게임 - Architecture (v4.13.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.12.0
+- **버전**: 4.13.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -593,6 +593,16 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.13.0 (2026-02-09)
+- 🎲 **주사위 여행 50칸 확장**
+  - `DICE_TRIP_SIZE`: 20 → **50**
+  - 완주 보상: 1000🪙+50💎 → **2000🪙+100💎**
+  - 50칸 보상 테이블 (점진적 증가)
+    - 1~10칸: 초반 (낮은 보상)
+    - 11~30칸: 중반 (중간 보상)
+    - 31~50칸: 후반 (높은 보상, 코인 200~350 등)
+- firestore.rules: `diceTripPosition` 상한 50, `visitedSteps` 최대 50개
 
 ### v4.12.0 (2026-02-09)
 - 주사위 여행 UI/UX 개선
