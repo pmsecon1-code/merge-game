@@ -1592,3 +1592,33 @@ body {
     background: #9ca3af;
     cursor: not-allowed;
 }
+
+/* 주사위 굴리기 애니메이션 */
+#dice-anim.rolling {
+    animation: dice-shake 0.1s infinite;
+}
+
+@keyframes dice-shake {
+    0%, 100% {
+        transform: rotate(0deg) scale(1);
+    }
+    25% {
+        transform: rotate(-15deg) scale(1.1);
+    }
+    50% {
+        transform: rotate(15deg) scale(1.1);
+    }
+    75% {
+        transform: rotate(-10deg) scale(1.05);
+    }
+}
+
+#dice-result-num.slot {
+    animation: slot-spin 0.08s infinite;
+}
+
+@keyframes slot-spin {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}

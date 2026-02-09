@@ -227,18 +227,49 @@ function useDice() {
     rollDice();
 }
 
+let pendingDiceResult = 0;
+
 function rollDice() {
     isRollingDice = true;
-    const result = Math.floor(Math.random() * 6) + 1;
-    showToast(`🎲 ${result} 나왔다!`);
+    pendingDiceResult = Math.floor(Math.random() * 6) + 1;
 
-    // 주사위 굴리기 애니메이션 후 이동
+    // 팝업 열기
+    const popup = document.getElementById('dice-roll-popup');
+    const diceAnim = document.getElementById('dice-anim');
+    const resultNum = document.getElementById('dice-result-num');
+    const confirmBtn = document.getElementById('dice-confirm-btn');
+
+    popup.classList.add('active');
+    diceAnim.classList.add('rolling');
+    resultNum.classList.add('slot');
+    resultNum.textContent = '?';
+    confirmBtn.disabled = true;
+
+    // 숫자 슬롯 효과
+    let slotCount = 0;
+    const slotInterval = setInterval(() => {
+        resultNum.textContent = Math.floor(Math.random() * 6) + 1;
+        slotCount++;
+    }, 80);
+
+    // 1초 후 결과 표시
     setTimeout(() => {
-        moveTripPosition(result);
-        isRollingDice = false;
-        updateDiceTripUI();
-        saveGame();
-    }, 500);
+        clearInterval(slotInterval);
+        diceAnim.classList.remove('rolling');
+        resultNum.classList.remove('slot');
+        resultNum.textContent = pendingDiceResult;
+        confirmBtn.disabled = false;
+    }, 1000);
+}
+
+function confirmDiceRoll() {
+    const popup = document.getElementById('dice-roll-popup');
+    popup.classList.remove('active');
+
+    moveTripPosition(pendingDiceResult);
+    isRollingDice = false;
+    updateDiceTripUI();
+    saveGame();
 }
 
 function moveTripPosition(steps) {

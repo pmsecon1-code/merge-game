@@ -206,6 +206,8 @@ export default [
                 tryDropDice: 'readonly',
                 useDice: 'readonly',
                 rollDice: 'readonly',
+                confirmDiceRoll: 'readonly',
+                pendingDiceResult: 'writable',
                 moveTripPosition: 'readonly',
                 giveStepReward: 'readonly',
                 completeTrip: 'readonly',

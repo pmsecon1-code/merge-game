@@ -319,6 +319,22 @@
             </div>
         </div>
 
+        <div id="dice-roll-popup" class="overlay-bg">
+            <div class="overlay-content">
+                <div id="dice-anim" class="text-7xl mb-4">🎲</div>
+                <h2 class="text-2xl font-bold text-emerald-600 mb-2">주사위 굴리기!</h2>
+                <div id="dice-result-num" class="text-6xl font-bold text-emerald-500 mb-4">?</div>
+                <button
+                    id="dice-confirm-btn"
+                    onclick="confirmDiceRoll()"
+                    class="bg-emerald-500 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-emerald-600 disabled:opacity-50"
+                    disabled
+                >
+                    이동하기
+                </button>
+            </div>
+        </div>
+
         <div id="energy-popup" class="overlay-bg">
             <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-yellow-300">
                 <div class="text-5xl mb-3">⚡</div>
