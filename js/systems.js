@@ -215,7 +215,7 @@ function buyShopItem(idx) {
 function tryDropDice() {
     if (Math.random() < DICE_DROP_CHANCE) {
         diceCount++;
-        showToast('🎲 주사위 획득!');
+        showMilestonePopup('🎲 주사위 획득!', `보유: ${diceCount}개`);
         updateDiceTripUI();
         saveGame();
     }
@@ -353,26 +353,21 @@ function handleSpecialCageClick() {
 function updateDiceTripUI() {
     if (!diceTripContainer) return;
 
-    // 상단 정보
-    const infoEl = diceTripContainer.querySelector('.dice-trip-info');
-    if (infoEl) {
-        infoEl.innerHTML = `
-            <span class="text-[10px] font-bold text-emerald-600">🎲 주사위 여행</span>
-            <span class="text-[9px] text-emerald-500">(${diceCount}개)</span>
-            <span class="text-[9px] text-gray-500">${diceTripPosition}/${DICE_TRIP_SIZE}칸</span>
-            <span class="text-[8px] text-emerald-400">(완주: ${DICE_TRIP_COMPLETE_REWARD.coins}🪙 + ${DICE_TRIP_COMPLETE_REWARD.diamonds}💎)</span>
-        `;
+    // 진행도 표시
+    const posEl = document.getElementById('dice-trip-position');
+    if (posEl) {
+        posEl.textContent = `${diceTripPosition}/${DICE_TRIP_SIZE}`;
+    }
+
+    // 굴리기 버튼 상태
+    const rollBtn = document.getElementById('dice-roll-btn');
+    if (rollBtn) {
+        rollBtn.disabled = diceCount <= 0 || isRollingDice;
+        rollBtn.textContent = diceCount > 0 ? `🎲 굴리기 (${diceCount})` : '🎲 주사위 없음';
     }
 
     // 보드 렌더링
     renderDiceTripBoard();
-
-    // 굴리기 버튼 상태
-    const rollBtn = diceTripContainer.querySelector('.dice-roll-btn');
-    if (rollBtn) {
-        rollBtn.disabled = diceCount <= 0 || isRollingDice;
-        rollBtn.innerText = diceCount > 0 ? `🎲 굴리기 (${diceCount})` : '🎲 주사위 없음';
-    }
 }
 
 function renderDiceTripBoard() {

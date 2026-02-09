@@ -241,12 +241,19 @@
 
             <!-- 6. 주사위 여행 -->
             <div id="dice-trip-wrapper" class="event-bar" style="border: 2px solid #10b981">
-                <div class="dice-trip-info flex items-center gap-2 flex-wrap">
-                    <span class="text-[10px] font-bold text-emerald-600">🎲 주사위 여행</span>
-                    <span class="text-[9px] text-emerald-500">(0개)</span>
-                    <span class="text-[9px] text-gray-500">0/20칸</span>
-                    <span class="text-[8px] text-emerald-400">(완주: 1000🪙 + 50💎)</span>
-                    <button class="dice-roll-btn text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold ml-auto" onclick="useDice()">🎲 굴리기</button>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-[10px] font-bold text-emerald-600">
+                        🎲 주사위 여행
+                        <span id="dice-trip-position" class="text-[9px] text-emerald-400">0/20</span>
+                        <span class="text-[9px] text-emerald-300">(완주: 1000🪙+50💎)</span>
+                    </span>
+                    <button
+                        id="dice-roll-btn"
+                        onclick="useDice()"
+                        class="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold disabled:opacity-50"
+                    >
+                        🎲 굴리기 (0)
+                    </button>
                 </div>
                 <div id="dice-trip-board" class="dice-trip-board"></div>
             </div>
