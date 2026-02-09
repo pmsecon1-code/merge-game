@@ -514,6 +514,11 @@ function checkDailyMissionComplete(type) {
         dailyMissions.claimed[idx] = true;
         coins += mission.reward;
         showToast(`${mission.icon} ${mission.label} 완료! +${mission.reward}🪙`);
+
+        // 전체 완료 시 자동 보너스 지급
+        if (dailyMissions.claimed.every((c) => c) && !dailyMissions.bonusClaimed) {
+            setTimeout(() => claimDailyBonus(), 500);
+        }
     }
 }
 

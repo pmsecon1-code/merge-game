@@ -16,7 +16,6 @@ function init() {
     questContainer = document.getElementById('quest-container');
     dailyMissionsContainer = document.getElementById('daily-missions-container');
     dailyResetTimer = document.getElementById('daily-reset-timer');
-    dailyBonusRow = document.getElementById('daily-bonus-row');
     rescueText = document.getElementById('rescue-text');
     rescueTimerEl = document.getElementById('rescue-timer');
     shopTimerBadge = document.getElementById('shop-timer-badge');

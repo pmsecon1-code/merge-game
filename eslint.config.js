@@ -120,7 +120,6 @@ export default [
                 questContainer: 'writable',
                 dailyMissionsContainer: 'writable',
                 dailyResetTimer: 'writable',
-                dailyBonusRow: 'writable',
                 rescueText: 'writable',
                 rescueTimerEl: 'writable',
                 shopTimerBadge: 'writable',

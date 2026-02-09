@@ -527,16 +527,6 @@ function updateDailyMissionUI() {
     });
     dailyMissionsContainer.innerHTML = html;
 
-    // 전체 완료 보너스 행
-    if (dailyBonusRow) {
-        const allClaimed = dailyMissions.claimed.every((c) => c);
-        if (allClaimed && !dailyMissions.bonusClaimed) {
-            dailyBonusRow.classList.remove('hidden');
-        } else {
-            dailyBonusRow.classList.add('hidden');
-        }
-    }
-
     // 리셋 타이머 (KST 자정 기준)
     if (dailyResetTimer) {
         const remaining = getMsUntilKSTMidnight();

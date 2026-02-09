@@ -104,7 +104,7 @@ let sessionUnsubscribe = null;
 let boardEl, storageEl, apartmentEl, shopGrid;
 let coinEl, diamondEl, energyEl, energyTimerEl;
 let levelEl, questContainer;
-let dailyMissionsContainer, dailyResetTimer, dailyBonusRow;
+let dailyMissionsContainer, dailyResetTimer;
 let rescueText, rescueTimerEl;
 let shopTimerBadge, rouletteWheel;
 let tutorialPointer;
