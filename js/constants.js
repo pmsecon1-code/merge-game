@@ -7,7 +7,6 @@ const GRID_COLS = 5;
 const GRID_ROWS = 7;
 const BOARD_SIZE = 35;
 const STORAGE_SIZE = 5;
-const APARTMENT_ROOMS = 3;
 const SHOP_SIZE = 5;
 
 // --- 시간 설정 (밀리초) ---
@@ -21,21 +20,47 @@ const RECOVERY_SEC = 30;
 const UNLOCK_COST_BOARD = 100;
 const ENERGY_COST = 500;
 const CAGE_UPGRADE_COST = 1000;
-const FIRE_EXTINGUISH_COST = 100;
-
-// --- 보상 설정 ---
-const RESCUE_QUEST_REWARD = 1000;
-const FIRE_EXTINGUISH_REWARD = 100;
 
 // --- 게임 밸런스 ---
 const CAGE_MAX_LEVEL = 5;
 const SNACK_CHANCE = 0.08;
-const ANIMAL_HP_DECAY = 2;
-const ANIMAL_HP_DECAY_SEC = 10;
 
-// --- 룰렛 설정 ---
-const ROULETTE_SEGMENTS = [0, 70, 30, 50, 90, 100];
-const ROULETTE_COLORS = ['#dbeafe', '#3b82f6', '#93c5fd', '#60a5fa', '#1d4ed8', '#1e3a8a'];
+// --- 주사위 여행 설정 ---
+const DICE_TRIP_SIZE = 20;
+const DICE_DROP_CHANCE = 0.05;
+const DICE_TRIP_COMPLETE_REWARD = { coins: 1000, diamonds: 50 };
+const SPECIAL_CAGE_MAX_LEVEL = 5;
+
+const DICE_TRIP_REWARDS = [
+    { type: 'coins', min: 10, max: 30 },      // 1
+    { type: 'energy', min: 5, max: 10 },      // 2
+    { type: 'coins', min: 20, max: 50 },      // 3
+    { type: 'cards', min: 1, max: 3 },        // 4
+    { type: 'diamonds', min: 1, max: 3 },     // 5
+    { type: 'coins', min: 30, max: 60 },      // 6
+    { type: 'energy', min: 10, max: 15 },     // 7
+    { type: 'cards', min: 2, max: 4 },        // 8
+    { type: 'coins', min: 40, max: 80 },      // 9
+    { type: 'diamonds', min: 2, max: 5 },     // 10
+    { type: 'coins', min: 50, max: 100 },     // 11
+    { type: 'energy', min: 15, max: 20 },     // 12
+    { type: 'cards', min: 3, max: 5 },        // 13
+    { type: 'coins', min: 60, max: 120 },     // 14
+    { type: 'diamonds', min: 3, max: 6 },     // 15
+    { type: 'coins', min: 80, max: 150 },     // 16
+    { type: 'energy', min: 20, max: 30 },     // 17
+    { type: 'cards', min: 4, max: 6 },        // 18
+    { type: 'diamonds', min: 5, max: 8 },     // 19
+    { type: 'coins', min: 100, max: 200 },    // 20 (완주 직전)
+];
+
+const SPECIAL_CAGE_SPAWNS = [
+    { minLevel: 4, maxLevel: 6 },   // Lv.1
+    { minLevel: 5, maxLevel: 7 },   // Lv.2
+    { minLevel: 6, maxLevel: 8 },   // Lv.3
+    { minLevel: 7, maxLevel: 9 },   // Lv.4
+    { minLevel: 8, maxLevel: 10 },  // Lv.5
+];
 
 // --- NPC 아바타 ---
 const NPC_AVATARS = ['👩‍🌾', '👨‍🍳', '👮‍♀️', '🧙‍♂️', '👸', '🕵️‍♂️', '🎅', '🧑‍🚀', '👨‍🎨', '🦸‍♀️'];

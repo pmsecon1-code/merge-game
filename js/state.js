@@ -5,17 +5,21 @@
 // --- 게임 상태 ---
 let boardState = new Array(BOARD_SIZE).fill(null),
     storageState = new Array(STORAGE_SIZE).fill(null),
-    apartmentState = new Array(APARTMENT_ROOMS).fill(null),
     shopItems = new Array(SHOP_SIZE).fill(null);
 for (let i = 0; i < STORAGE_SIZE; i++) storageState[i] = { type: 'locked_storage', cost: (i + 1) * 5 };
 
 // --- 재화 ---
 let coins = 0,
     cumulativeCoins = 0;
-let currentSetRescues = 0;
 let diamonds = 0,
     energy = MAX_ENERGY,
     recoveryCountdown = RECOVERY_SEC;
+
+// --- 주사위 여행 ---
+let diceTripPosition = 0;    // 현재 위치 (0~20)
+let diceCount = 0;           // 보유 주사위
+let isRollingDice = false;   // 굴리는 중
+let specialCageLevel = 0;    // 스페셜 케이지 레벨 (0=없음, 1~5=레벨)
 
 // --- 진행도 ---
 let userLevel = 1,
@@ -30,10 +34,7 @@ let totalQuestsCompleted = 0;
 let genLevels = { cat: 1, dog: 1 },
     dragData = null;
 
-// --- 룰렛 ---
-let currentRouletteRoom = -1,
-    isSpinning = false;
-let currentRotation = 0;
+// --- (삭제됨: 룰렛) ---
 
 // --- 도감/상점/판매 ---
 let currentGuideType = 'cat',
@@ -101,10 +102,10 @@ let currentSessionId = null;
 let sessionUnsubscribe = null;
 
 // --- DOM 참조 (init에서 할당) ---
-let boardEl, storageEl, apartmentEl, shopGrid;
+let boardEl, storageEl, shopGrid;
 let coinEl, diamondEl, energyEl, energyTimerEl;
 let levelEl, questContainer;
 let dailyMissionsContainer, dailyResetTimer;
-let rescueText, rescueTimerEl;
-let shopTimerBadge, rouletteWheel;
+let shopTimerBadge;
 let tutorialPointer;
+let diceTripContainer, diceTripBoard;

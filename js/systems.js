@@ -99,17 +99,6 @@ function checkAutoCompleteMissions() {
     return changed;
 }
 
-function updateRescueQuestUI() {
-    if (currentSetRescues >= 3) {
-        coins += RESCUE_QUEST_REWARD;
-        addDailyProgress('coins', RESCUE_QUEST_REWARD);
-        showToast(`모두 구조 완료! +${RESCUE_QUEST_REWARD}코인`);
-        showMilestonePopup('모두 구조 달성!', `${RESCUE_QUEST_REWARD} 코인`);
-        currentSetRescues = 0;
-        updateUI();
-    }
-    rescueText.innerText = `${currentSetRescues}/3`;
-}
 
 // --- 상점 ---
 function startShopTimer() {
@@ -222,184 +211,212 @@ function buyShopItem(idx) {
     renderShop();
 }
 
-// --- 구조 현장 (아파트) ---
-function initApartment() {
-    const emojis = ['😿', '🙀'];
-    const assigned = [];
-    for (let i = 0; i < APARTMENT_ROOMS; i++) {
-        let emoji;
-        if (i === 2 && assigned[0] === assigned[1]) {
-            emoji = assigned[0] === emojis[0] ? emojis[1] : emojis[0];
-        } else {
-            emoji = emojis[Math.floor(Math.random() * emojis.length)];
-        }
-        assigned.push(emoji);
-        apartmentState[i] = { emoji: emoji, hp: 100, fireHp: 100, rescued: false };
+// --- 주사위 여행 ---
+function tryDropDice() {
+    if (Math.random() < DICE_DROP_CHANCE) {
+        diceCount++;
+        showToast('🎲 주사위 획득!');
+        updateDiceTripUI();
+        saveGame();
     }
-    renderApartment();
 }
 
-function startAnimalHPTimer() {
-    setInterval(() => {
-        let ch = false;
-        const helpRooms = [];
-        apartmentState.forEach((r, i) => {
-            if (r && !r.rescued) {
-                const prevHp = r.hp;
-                r.hp -= ANIMAL_HP_DECAY;
-                if (Math.floor(prevHp / 10) > Math.floor(r.hp / 10) && r.hp > 0) {
-                    helpRooms.push(i);
-                }
-                if (r.hp <= 0) {
-                    apartmentState[i] = null;
-                    showToast('구조 실패...');
-                }
-                ch = true;
-            }
-        });
-        if (ch) {
-            const allDoneOrNull = apartmentState.every((x) => !x || x.rescued);
-            if (allDoneOrNull && apartmentState.some((x) => x === null)) {
-                currentSetRescues = 0;
-                setTimeout(() => {
-                    showToast('새 구조 요청!');
-                    initApartment();
-                }, 2000);
-            } else {
-                renderApartment();
-                helpRooms.forEach((i) => showHelpBubble(i));
-            }
+function useDice() {
+    if (isRollingDice || diceCount <= 0) return;
+    diceCount--;
+    rollDice();
+}
+
+function rollDice() {
+    isRollingDice = true;
+    const result = Math.floor(Math.random() * 6) + 1;
+    showToast(`🎲 ${result} 나왔다!`);
+
+    // 주사위 굴리기 애니메이션 후 이동
+    setTimeout(() => {
+        moveTripPosition(result);
+        isRollingDice = false;
+        updateDiceTripUI();
+        saveGame();
+    }, 500);
+}
+
+function moveTripPosition(steps) {
+    const newPos = Math.min(diceTripPosition + steps, DICE_TRIP_SIZE);
+
+    // 중간 칸 보상 지급 (이동한 칸들)
+    for (let i = diceTripPosition + 1; i <= newPos; i++) {
+        if (i < DICE_TRIP_SIZE) {
+            giveStepReward(i - 1); // 배열 인덱스는 0부터
         }
-    }, ANIMAL_HP_DECAY_SEC * 1000);
+    }
+
+    diceTripPosition = newPos;
+
+    // 완주 체크
+    if (diceTripPosition >= DICE_TRIP_SIZE) {
+        completeTrip();
+    }
 }
 
-function showHelpBubble(roomIdx) {
-    const room = apartmentEl.children[roomIdx];
-    if (!room) return;
-    const bubble = document.createElement('div');
-    bubble.className = 'help-bubble';
-    bubble.innerText = 'HELP!';
-    room.appendChild(bubble);
-    setTimeout(() => bubble.remove(), 1500);
+function giveStepReward(pos) {
+    const reward = DICE_TRIP_REWARDS[pos];
+    if (!reward) return;
+
+    const amount = reward.min + Math.floor(Math.random() * (reward.max - reward.min + 1));
+
+    switch (reward.type) {
+        case 'coins':
+            coins += amount;
+            cumulativeCoins += amount;
+            addDailyProgress('coins', amount);
+            showFloatText(diceTripBoard, `+${amount}🪙`, '#fbbf24');
+            break;
+        case 'diamonds':
+            diamonds += amount;
+            showFloatText(diceTripBoard, `+${amount}💎`, '#06b6d4');
+            break;
+        case 'cards':
+            cards += amount;
+            showFloatText(diceTripBoard, `+${amount}🃏`, '#e879f9');
+            break;
+        case 'energy':
+            energy = Math.min(MAX_ENERGY, energy + amount);
+            showFloatText(diceTripBoard, `+${amount}⚡`, '#fbbf24');
+            break;
+    }
+    updateUI();
 }
 
-function renderApartment() {
-    apartmentEl.innerHTML = '';
-    apartmentState.forEach((r, i) => {
-        const d = document.createElement('div');
-        d.className = 'apt-room';
-        if (r && r.rescued) {
-            d.classList.add('rescued');
-            const happyEmoji = r.emoji === '😿' ? '😺' : '😸';
-            d.innerHTML = `<div class="rescued-badge">✅ 구조 완료</div><div class="text-3xl z-10">${happyEmoji}</div>`;
-        } else if (r) {
-            d.onclick = () => {
-                isTutorialActive = false;
-                openRoulette(i);
-                renderApartment();
-            };
-            let html = `<div class="status-badge fire-badge absolute top-1"><span>🔥</span><span>${r.fireHp}</span></div><div class="fire-icon">🔥</div><div class="text-3xl z-10">${r.emoji}</div><div class="status-badge hp-badge absolute bottom-1"><span>❤️</span><span>${r.hp}</span></div><div class="fire-overlay"></div>`;
-            if (isTutorialActive) html += `<div class="tutorial-badge">CLICK!</div>`;
-            d.innerHTML = html;
+function completeTrip() {
+    // 완주 보상
+    coins += DICE_TRIP_COMPLETE_REWARD.coins;
+    cumulativeCoins += DICE_TRIP_COMPLETE_REWARD.coins;
+    diamonds += DICE_TRIP_COMPLETE_REWARD.diamonds;
+    addDailyProgress('coins', DICE_TRIP_COMPLETE_REWARD.coins);
+
+    showMilestonePopup('🎉 주사위 여행 완주!', `${DICE_TRIP_COMPLETE_REWARD.coins}🪙 + ${DICE_TRIP_COMPLETE_REWARD.diamonds}💎`);
+
+    // 스페셜 케이지 스폰
+    spawnSpecialCage();
+
+    // 위치 리셋
+    diceTripPosition = 0;
+    updateDiceTripUI();
+    updateUI();
+}
+
+function spawnSpecialCage() {
+    // 이미 케이지가 있으면 레벨업
+    if (specialCageLevel > 0) {
+        if (specialCageLevel < SPECIAL_CAGE_MAX_LEVEL) {
+            specialCageLevel++;
+            showToast(`🎁 스페셜 케이지 Lv.${specialCageLevel}!`);
         } else {
-            d.classList.add('empty');
-            d.innerHTML = `<span class="text-gray-500 text-sm">빈 방</span>`;
+            showToast('🎁 스페셜 케이지 최대 레벨!');
         }
-        apartmentEl.appendChild(d);
-    });
+    } else {
+        specialCageLevel = 1;
+        showToast('🎁 스페셜 케이지 등장!');
+    }
+    updateDiceTripUI();
 }
 
-// --- 룰렛 ---
-function openRoulette(i) {
-    if (isSpinning) return;
-    currentRouletteRoom = i;
-    const r = apartmentState[i];
-    if (!r) return;
-    currentRotation = 0;
-    rouletteWheel.style.transition = 'none';
-    rouletteWheel.style.transform = 'rotate(0deg)';
-    rouletteWheel.offsetHeight;
-    renderRouletteLabels();
-    updateRoulettePopupUI(r);
-    document.getElementById('roulette-err').classList.add('hidden');
-    document.getElementById('roulette-popup').style.display = 'flex';
-}
+function handleSpecialCageClick() {
+    if (specialCageLevel <= 0) return;
 
-function renderRouletteLabels() {
-    rouletteWheel.querySelectorAll('.roulette-label').forEach((el) => el.remove());
-    const radius = 70;
-    ROULETTE_SEGMENTS.forEach((val, idx) => {
-        const angle = ((idx * 60 + 30) * Math.PI) / 180;
-        const x = 96 + radius * Math.sin(angle);
-        const y = 96 - radius * Math.cos(angle);
-        const label = document.createElement('div');
-        label.className = 'roulette-label';
-        label.innerText = val;
-        label.style.left = `${x}px`;
-        label.style.top = `${y}px`;
-        label.style.transform = 'translate(-50%, -50%)';
-        rouletteWheel.appendChild(label);
-    });
-}
-
-function updateRoulettePopupUI(r) {
-    const b = document.getElementById('popup-fire-hp-bar'),
-        t = document.getElementById('popup-fire-hp-text');
-    b.style.width = `${r.fireHp}%`;
-    t.innerText = `${r.fireHp}/100`;
-    document.getElementById('roulette-coin-val').innerText = coins.toLocaleString();
-}
-
-function startSpin() {
-    if (isSpinning) return;
-    document.getElementById('roulette-err').classList.add('hidden');
-    if (coins < FIRE_EXTINGUISH_COST) {
-        const e = document.getElementById('roulette-err');
-        e.innerText = '코인 부족!';
-        e.classList.remove('hidden');
+    // 빈 칸 체크
+    const emptyIdx = boardState.findIndex((x) => x === null);
+    if (emptyIdx === -1) {
+        showToast('공간 부족!');
         return;
     }
-    if (currentRouletteRoom === -1 || !apartmentState[currentRouletteRoom]) return;
-    coins -= FIRE_EXTINGUISH_COST;
-    updateUI();
-    updateRoulettePopupUI(apartmentState[currentRouletteRoom]);
-    isSpinning = true;
-    const deg = Math.floor(Math.random() * 360);
-    const spins = 360 * 5;
-    currentRotation += spins + deg;
-    rouletteWheel.style.transition = 'transform 3s cubic-bezier(0.25, 0.1, 0.25, 1)';
-    rouletteWheel.style.transform = `rotate(${currentRotation}deg)`;
-    setTimeout(() => finishSpin(currentRotation), 3000);
+
+    // 레벨에 따른 동물 생성
+    const spawnInfo = SPECIAL_CAGE_SPAWNS[specialCageLevel - 1];
+    const baseType = Math.random() > 0.5 ? 'cat' : 'dog';
+    const level = spawnInfo.minLevel + Math.floor(Math.random() * (spawnInfo.maxLevel - spawnInfo.minLevel + 1));
+
+    boardState[emptyIdx] = { type: baseType, level: level };
+    discoverItem(baseType, level);
+
+    const list = baseType === 'cat' ? CATS : DOGS;
+    const data = list[level - 1];
+    showToast(`🎁 ${data.emoji} ${data.name} 등장!`);
+
+    // 케이지 소멸
+    specialCageLevel = 0;
+    updateDiceTripUI();
+    updateAll();
 }
 
-function finishSpin(angle) {
-    isSpinning = false;
-    const n = angle % 360,
-        p = (360 - n) % 360,
-        idx = Math.floor(p / 60),
-        dmg = ROULETTE_SEGMENTS[idx],
-        r = apartmentState[currentRouletteRoom];
-    r.fireHp -= dmg;
-    showToast(`🔥 불 체력 -${dmg}!`);
-    if (r.fireHp <= 0) {
-        currentSetRescues++;
-        showToast(`구조 성공!`);
-        r.rescued = true;
-        r.hp = 100;
-        closeOverlay('roulette-popup');
-        updateRescueQuestUI();
-        const allRescued = apartmentState.every((x) => x && x.rescued);
-        if (allRescued)
-            setTimeout(() => {
-                showToast('모든 동물 구조 완료! 새 구조 요청!');
-                initApartment();
-            }, 2000);
-    } else {
-        updateRoulettePopupUI(r);
+function updateDiceTripUI() {
+    if (!diceTripContainer) return;
+
+    // 상단 정보
+    const infoEl = diceTripContainer.querySelector('.dice-trip-info');
+    if (infoEl) {
+        infoEl.innerHTML = `
+            <span class="text-[10px] font-bold text-emerald-600">🎲 주사위 여행</span>
+            <span class="text-[9px] text-emerald-500">(${diceCount}개)</span>
+            <span class="text-[9px] text-gray-500">${diceTripPosition}/${DICE_TRIP_SIZE}칸</span>
+            <span class="text-[8px] text-emerald-400">(완주: ${DICE_TRIP_COMPLETE_REWARD.coins}🪙 + ${DICE_TRIP_COMPLETE_REWARD.diamonds}💎)</span>
+        `;
     }
-    renderApartment();
-    updateUI();
-    saveGameNow();
+
+    // 보드 렌더링
+    renderDiceTripBoard();
+
+    // 굴리기 버튼 상태
+    const rollBtn = diceTripContainer.querySelector('.dice-roll-btn');
+    if (rollBtn) {
+        rollBtn.disabled = diceCount <= 0 || isRollingDice;
+        rollBtn.innerText = diceCount > 0 ? `🎲 굴리기 (${diceCount})` : '🎲 주사위 없음';
+    }
+}
+
+function renderDiceTripBoard() {
+    if (!diceTripBoard) return;
+
+    let html = '';
+
+    // 20칸 렌더링
+    for (let i = 0; i < DICE_TRIP_SIZE; i++) {
+        const isVisited = i < diceTripPosition;
+        const isCurrent = i === diceTripPosition;
+        const reward = DICE_TRIP_REWARDS[i];
+        let rewardIcon = '';
+        if (reward) {
+            switch (reward.type) {
+                case 'coins': rewardIcon = '🪙'; break;
+                case 'diamonds': rewardIcon = '💎'; break;
+                case 'cards': rewardIcon = '🃏'; break;
+                case 'energy': rewardIcon = '⚡'; break;
+            }
+        }
+
+        html += `<div class="dice-step ${isVisited ? 'visited' : ''} ${isCurrent ? 'current' : ''}">
+            ${isCurrent ? '🐾' : (isVisited ? '✓' : rewardIcon)}
+            <span class="step-num">${i + 1}</span>
+        </div>`;
+    }
+
+    // 골인 지점
+    html += `<div class="dice-step goal ${diceTripPosition >= DICE_TRIP_SIZE ? 'reached' : ''}">
+        🏁
+        <span class="step-num">GOAL</span>
+    </div>`;
+
+    // 스페셜 케이지
+    if (specialCageLevel > 0) {
+        html += `<div class="special-cage-box" onclick="handleSpecialCageClick()">
+            <span class="text-2xl">🎁</span>
+            <span class="text-[9px] font-bold">Lv.${specialCageLevel}</span>
+            <span class="text-[8px] text-gray-400">터치!</span>
+        </div>`;
+    }
+
+    diceTripBoard.innerHTML = html;
 }
 
 // --- 판매 ---

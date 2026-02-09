@@ -1451,3 +1451,131 @@ body {
     text-align: left;
     flex-shrink: 0;
 }
+
+/* ============================================
+   주사위 여행
+   ============================================ */
+
+#dice-trip-wrapper {
+    border: 2px solid #10b981;
+}
+
+.dice-trip-board {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 8px 4px;
+    align-items: center;
+    -webkit-overflow-scrolling: touch;
+}
+
+.dice-step {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: #e5e7eb;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    position: relative;
+    border: 2px solid #d1d5db;
+    transition: all 0.3s;
+}
+
+.dice-step .step-num {
+    font-size: 0.45rem;
+    color: #9ca3af;
+    position: absolute;
+    bottom: 1px;
+    font-weight: bold;
+}
+
+.dice-step.visited {
+    background: #d1fae5;
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.dice-step.current {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    animation: pulse-glow 1s infinite;
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 8px 4px rgba(245, 158, 11, 0.6);
+    }
+}
+
+.dice-step.goal {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #f59e0b;
+    font-size: 1rem;
+}
+
+.dice-step.goal.reached {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-color: #10b981;
+    animation: goal-shine 1s ease-out;
+}
+
+@keyframes goal-shine {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8);
+    }
+    50% {
+        transform: scale(1.2);
+        box-shadow: 0 0 20px 10px rgba(16, 185, 129, 0.4);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: none;
+    }
+}
+
+.special-cage-box {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #fef3c7, #fcd34d);
+    border: 3px solid #f59e0b;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-left: 8px;
+    animation: cage-bounce 1s infinite;
+    box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+}
+
+@keyframes cage-bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+.special-cage-box:active {
+    transform: scale(0.95);
+}
+
+.dice-roll-btn:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}

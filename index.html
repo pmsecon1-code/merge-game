@@ -239,16 +239,16 @@
                 </div>
             </div>
 
-            <!-- 6. 구조 현장 -->
-            <div id="rescue-wrapper" class="event-bar">
-                <div class="flex justify-between items-center">
-                    <span class="text-[10px] font-bold text-blue-600">🚑 구조 현장 (1000🪙)</span>
-                    <div class="flex items-center gap-2">
-                        <span id="rescue-timer" class="text-[9px] text-red-500 font-mono font-bold">--:--</span>
-                        <span id="rescue-text" class="text-[9px] text-blue-500 font-bold">0/3</span>
-                    </div>
+            <!-- 6. 주사위 여행 -->
+            <div id="dice-trip-wrapper" class="event-bar" style="border: 2px solid #10b981">
+                <div class="dice-trip-info flex items-center gap-2 flex-wrap">
+                    <span class="text-[10px] font-bold text-emerald-600">🎲 주사위 여행</span>
+                    <span class="text-[9px] text-emerald-500">(0개)</span>
+                    <span class="text-[9px] text-gray-500">0/20칸</span>
+                    <span class="text-[8px] text-emerald-400">(완주: 1000🪙 + 50💎)</span>
+                    <button class="dice-roll-btn text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold ml-auto" onclick="useDice()">🎲 굴리기</button>
                 </div>
-                <div id="apartment-area"></div>
+                <div id="dice-trip-board" class="dice-trip-board"></div>
             </div>
 
             <!-- 7. 상점 -->
@@ -367,51 +367,6 @@
             </div>
         </div>
 
-        <div id="roulette-popup" class="overlay-bg">
-            <div
-                class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-red-400 w-80 flex flex-col items-center"
-            >
-                <h2 class="text-2xl font-bold text-rose-500 mb-2">🔥 화재 진압 룰렛 🔥</h2>
-                <div class="relative w-48 h-48 mb-2">
-                    <div
-                        id="roulette-wheel"
-                        class="w-full h-full rounded-full border-4 border-gray-700 overflow-hidden relative shadow-lg transition-transform ease-out"
-                    ></div>
-                    <div
-                        class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-4 h-6 bg-red-600 z-10 clip-triangle shadow-sm"
-                    ></div>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-4 mb-2 relative overflow-hidden">
-                    <div id="popup-fire-hp-bar" class="h-full bg-red-500 transition-all" style="width: 100%"></div>
-                    <span
-                        id="popup-fire-hp-text"
-                        class="absolute inset-0 text-[10px] text-white flex items-center justify-center font-bold"
-                    ></span>
-                </div>
-                <p class="text-xs text-yellow-600 font-bold mb-2">
-                    보유:
-                    <span id="roulette-coin-val">0</span>
-                    🪙
-                </p>
-                <p id="roulette-err" class="text-xs text-red-500 font-bold mb-2 hidden"></p>
-                <div class="flex gap-2 w-full justify-center">
-                    <button
-                        onclick="closeOverlay('roulette-popup')"
-                        class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold"
-                    >
-                        닫기
-                    </button>
-                    <button
-                        id="btn-spin"
-                        onclick="startSpin()"
-                        class="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold shadow-md"
-                    >
-                        <span>100🪙</span>
-                        물 뿌리기
-                    </button>
-                </div>
-            </div>
-        </div>
 
         <!-- 도감 모달 -->
         <div id="guide-modal" class="modal" onclick="if (event.target === this) closeModal();">

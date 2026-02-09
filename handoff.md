@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.10.0)
+# 멍냥 머지 게임 - Architecture (v4.11.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.10.0
+- **버전**: 4.11.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -23,7 +23,7 @@ merge2/
 │   ├── auth.js         # 인증 + 세션 관리 (~129줄)
 │   ├── save.js         # 저장/로드/검증 (~420줄)
 │   ├── game.js         # 코어 게임 메커닉 (~485줄)
-│   ├── systems.js      # 스페셜 미션/구조/상점 (~467줄)
+│   ├── systems.js      # 스페셜 미션/주사위 여행/상점 (~450줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~225줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1060줄)
 │   ├── ui.js           # 렌더링/이펙트/드래그/도감 (~515줄)
@@ -54,7 +54,7 @@ merge2/
 | 6 | 🏁 레이스 (1:1 경쟁) | event-bar 시안 |
 | 7 | 📸 앨범 (진행도/타이머/뽑기/앨범보기) | event-bar 보라 |
 | 8 | ⭐ 스페셜 퀘스트 (🐦🐠🦎) | event-bar 노랑 |
-| 9 | 🚑 구조 현장 (3마리, 1000🪙) | event-bar 파랑 |
+| 9 | 🎲 주사위 여행 (20칸 보드게임) | event-bar 초록 |
 | 10 | 🛒 상점 (5칸: 랜덤×3 + 🃏카드팩 + 💎다이아팩) | event-bar 주황 |
 | 11 | 📦 창고 (5칸) | event-bar 초록 |
 
@@ -101,7 +101,6 @@ merge2/
   // 보드
   boardState: [{type, level}, ...],      // 35칸
   storageState: [{type, level}, ...],    // 5칸
-  apartmentState: [{type, level, hp, rescued}, ...], // 3칸
 
   // 재화
   coins, cumulativeCoins, diamonds, energy,
@@ -109,7 +108,12 @@ merge2/
   // 진행도
   userLevel, questProgress,
   quests: [{id, npc, reqs, reward, cardReward, expiresAt}, ...],
-  currentSetRescues, totalQuestsCompleted,
+  totalQuestsCompleted,
+
+  // 주사위 여행 (v4.11.0+)
+  diceTripPosition,       // 현재 위치 (0~20)
+  diceCount,              // 보유 주사위 수
+  specialCageLevel,       // 스페셜 케이지 레벨 (0=없음, 1~5)
 
   // 생성기
   genLevels: {cat, dog},
@@ -314,6 +318,81 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 
 ---
 
+## 주사위 여행 시스템 (v4.11.0)
+
+### 개요
+합성 시 주사위 드랍 → 20칸 보드게임 → 완주 보상 + 스페셜 케이지
+
+### 상수
+```javascript
+DICE_TRIP_SIZE = 20              // 보드 칸 수
+DICE_DROP_CHANCE = 0.05          // 합성 시 5% 드랍
+DICE_TRIP_COMPLETE_REWARD = { coins: 1000, diamonds: 50 }
+SPECIAL_CAGE_MAX_LEVEL = 5       // 케이지 최대 레벨
+```
+
+### 게임 흐름
+```
+[합성 성공] → 5% 확률 → [주사위 드랍]
+                              ↓
+                    [주사위 클릭 → diceCount++]
+                              ↓
+                    [굴리기 → 1~6 이동]
+                              ↓
+                    [칸 보상 지급]
+                              ↓
+                    [20칸 도착?]
+                        ├─ No → 계속
+                        └─ Yes → [1000🪙 + 50💎]
+                                      ↓
+                              [스페셜 케이지 스폰]
+                                      ↓
+                              [위치 리셋]
+```
+
+### 칸 보상 (20칸)
+| 구간 | 보상 타입 | 범위 |
+|------|-----------|------|
+| 1~5 | 코인/에너지/카드/다이아 | 10~50 |
+| 6~10 | 코인/에너지/카드/다이아 | 30~80 |
+| 11~15 | 코인/에너지/카드/다이아 | 50~120 |
+| 16~20 | 코인/에너지/카드/다이아 | 80~200 |
+
+### 스페셜 케이지
+| 레벨 | 생성 동물 레벨 |
+|------|---------------|
+| Lv.1 | 4~6 |
+| Lv.2 | 5~7 |
+| Lv.3 | 6~8 |
+| Lv.4 | 7~9 |
+| Lv.5 | 8~10 |
+
+- 케이지 클릭 시 고레벨 동물 1마리 즉시 생성
+- 빈 칸 없으면 "공간 부족!" 토스트
+
+### UI
+- **주사위 여행 바**: 보유 주사위, 현재 위치, 완주 보상 표시
+- **횡스크롤 보드**: 20칸 + 골인 지점
+- **현재 위치**: 🐾 마커, 노란색 펄스 애니메이션
+- **방문한 칸**: ✓ 표시, 초록색
+- **스페셜 케이지**: 🎁 바운스 애니메이션
+
+### 관련 함수 (systems.js, 10개)
+| 함수 | 역할 |
+|------|------|
+| `tryDropDice()` | 5% 확률 주사위 드랍 |
+| `useDice()` | 주사위 사용 → 굴리기 |
+| `rollDice()` | 1~6 결과 → 이동 |
+| `moveTripPosition(steps)` | 위치 이동 + 보상 |
+| `giveStepReward(pos)` | 칸 보상 지급 |
+| `completeTrip()` | 완주 → 보상 + 케이지 |
+| `spawnSpecialCage()` | 케이지 스폰/레벨업 |
+| `handleSpecialCageClick()` | 케이지 클릭 → 동물 생성 |
+| `updateDiceTripUI()` | UI 업데이트 |
+| `renderDiceTripBoard()` | 20칸 보드 렌더링 |
+
+---
+
 ## 레이스 시스템 (v4.8.0)
 
 ### 개요
@@ -453,8 +532,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### game.js (24개)
 `discoverItem`, `countEasyQuests`, `generateNewQuest`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `checkDailyBonus`
 
-### systems.js (22개)
-`getSlotUnlockLevel`, `updateSpecialMissionUI`, `updateSlot`, `spawnSpecialGenerator`, `completeSpecialMission`, `checkAutoCompleteMissions`, `updateRescueQuestUI`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `initApartment`, `startAnimalHPTimer`, `showHelpBubble`, `renderApartment`, `openRoulette`, `renderRouletteLabels`, `updateRoulettePopupUI`, `startSpin`, `finishSpin`, `askSellItem`
+### systems.js (21개)
+`getSlotUnlockLevel`, `updateSpecialMissionUI`, `updateSlot`, `spawnSpecialGenerator`, `completeSpecialMission`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `moveTripPosition`, `giveStepReward`, `completeTrip`, `spawnSpecialCage`, `handleSpecialCageClick`, `updateDiceTripUI`, `renderDiceTripBoard`
 
 ### ui.js (26개)
 `renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`
@@ -462,8 +541,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### race.js (30개)
 `generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `findActiveOrPendingRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `quickJoinRace`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
 
-### main.js (9개)
-`init`, `createBoardCells`, `createStorageCells`, `createShopCells`, `startEnergyRecovery`, `startCooldownTimer`, `startRescueTimer`, `startQuestTimer`, `startDailyMissionTimer`
+### main.js (8개)
+`init`, `createBoardCells`, `createStorageCells`, `createShopCells`, `startEnergyRecovery`, `startCooldownTimer`, `startQuestTimer`, `startDailyMissionTimer`
 
 ---
 
@@ -509,30 +588,28 @@ firebase deploy --only firestore:rules   # 보안 규칙
 | 로그인 버튼 무반응 | JS 에러 | F12 콘솔 확인 |
 | 다중 기기 로그아웃 안 됨 | onSnapshot 미시작 | `startSessionListener()` 확인 |
 | 데이터 손실 | 네트워크 오류 + 빈 데이터 저장 | v4.2.8 3중 방어 체계로 해결 |
-| 구조현장 리셋 안 됨 | 유저 데이터 꼬임 | Firebase REST API로 전체 리셋 (아래 참조) |
-
-### 운영 스크립트
-
-**전체 유저 구조현장 리셋** (브라우저 콘솔):
-```javascript
-const db = firebase.firestore();
-db.collection('saves').get().then(s => {
-  const b = db.batch();
-  s.forEach(d => b.update(d.ref, {
-    currentSetRescues: 0,
-    apartmentState: [
-      {emoji:'😿',hp:100,fireHp:100,rescued:false},
-      {emoji:'🙀',hp:100,fireHp:100,rescued:false},
-      {emoji:'😿',hp:100,fireHp:100,rescued:false}
-    ]
-  }));
-  return b.commit();
-}).then(() => alert('완료!'));
-```
 
 ---
 
 ## 변경 이력
+
+### v4.11.0 (2026-02-09)
+- 🎲 **주사위 여행** 시스템 추가 (구조현장 대체)
+  - **삭제**: 구조현장, 룰렛 시스템 완전 제거
+  - **핵심**: 합성 시 5% 확률로 주사위 드랍 → 20칸 보드 → 완주 보상
+  - 20칸 횡스크롤 보드 (각 칸 보상: 코인/다이아/카드/에너지)
+  - 완주 보상: **1000🪙 + 50💎**
+  - 완주 시 **스페셜 케이지** 스폰 (최대 Lv.5)
+  - 스페셜 케이지 클릭 → 고레벨 동물 생성 (Lv.4~10)
+- 삭제 항목
+  - 상수: `APARTMENT_ROOMS`, `RESCUE_QUEST_REWARD`, `FIRE_EXTINGUISH_COST`, `FIRE_EXTINGUISH_REWARD`, `ANIMAL_HP_DECAY`, `ANIMAL_HP_DECAY_SEC`, `ROULETTE_SEGMENTS`, `ROULETTE_COLORS`
+  - 변수: `apartmentState`, `currentSetRescues`, `currentRouletteRoom`, `isSpinning`, `currentRotation`, `apartmentEl`, `rescueText`, `rescueTimerEl`, `rouletteWheel`
+  - 함수: `initApartment`, `startAnimalHPTimer`, `showHelpBubble`, `renderApartment`, `openRoulette`, `renderRouletteLabels`, `updateRoulettePopupUI`, `startSpin`, `finishSpin`, `updateRescueQuestUI`, `startRescueTimer`
+  - UI: `#rescue-wrapper`, `#roulette-popup`, `#apartment-area`
+- 신규 상수: `DICE_TRIP_SIZE`, `DICE_DROP_CHANCE`, `DICE_TRIP_COMPLETE_REWARD`, `SPECIAL_CAGE_MAX_LEVEL`, `DICE_TRIP_REWARDS`, `SPECIAL_CAGE_SPAWNS`
+- 신규 변수: `diceTripPosition`, `diceCount`, `isRollingDice`, `specialCageLevel`, `diceTripContainer`, `diceTripBoard`
+- 신규 함수 (10개): `tryDropDice`, `useDice`, `rollDice`, `moveTripPosition`, `giveStepReward`, `completeTrip`, `spawnSpecialCage`, `handleSpecialCageClick`, `updateDiceTripUI`, `renderDiceTripBoard`
+- firestore.rules: `apartmentState`, `currentSetRescues` 검증 제거, 주사위 여행 필드 추가
 
 ### v4.10.0 (2026-02-09)
 - 일일 미션 시스템 추가

@@ -6,7 +6,6 @@
 function init() {
     boardEl = document.getElementById('game-board');
     storageEl = document.getElementById('storage-area');
-    apartmentEl = document.getElementById('apartment-area');
     shopGrid = document.getElementById('shop-grid');
     coinEl = document.getElementById('coin-val');
     diamondEl = document.getElementById('diamond-val');
@@ -16,11 +15,10 @@ function init() {
     questContainer = document.getElementById('quest-container');
     dailyMissionsContainer = document.getElementById('daily-missions-container');
     dailyResetTimer = document.getElementById('daily-reset-timer');
-    rescueText = document.getElementById('rescue-text');
-    rescueTimerEl = document.getElementById('rescue-timer');
     shopTimerBadge = document.getElementById('shop-timer-badge');
-    rouletteWheel = document.getElementById('roulette-wheel');
     tutorialPointer = document.getElementById('tutorial-pointer');
+    diceTripContainer = document.getElementById('dice-trip-wrapper');
+    diceTripBoard = document.getElementById('dice-trip-board');
 
     createBoardCells();
     createStorageCells();
@@ -28,8 +26,6 @@ function init() {
 
     startEnergyRecovery();
     startShopTimer();
-    startAnimalHPTimer();
-    startRescueTimer();
     startCooldownTimer();
     startQuestTimer();
     startDailyMissionTimer();
@@ -111,23 +107,6 @@ function startCooldownTimer() {
             renderGrid('board', boardState, boardEl);
             renderGrid('storage', storageState, storageEl);
         }
-    }, 1000);
-}
-
-function startRescueTimer() {
-    setInterval(() => {
-        let minHp = Infinity;
-        apartmentState.forEach((r) => {
-            if (r && !r.rescued && r.hp < minHp) minHp = r.hp;
-        });
-        if (minHp === Infinity) {
-            rescueTimerEl.innerText = '--:--';
-            return;
-        }
-        const remainSec = Math.ceil(minHp / ANIMAL_HP_DECAY) * ANIMAL_HP_DECAY_SEC;
-        const m = Math.floor(remainSec / 60),
-            s = remainSec % 60;
-        rescueTimerEl.innerText = `${m}:${s.toString().padStart(2, '0')}`;
     }, 1000);
 }
 

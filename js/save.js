@@ -7,10 +7,8 @@ function getGameData() {
     return {
         boardState,
         storageState,
-        apartmentState,
         coins,
         cumulativeCoins,
-        currentSetRescues,
         totalQuestsCompleted,
         diamonds,
         energy,
@@ -39,6 +37,10 @@ function getGameData() {
         raceWins,
         raceLosses,
         recentRaceOpponents,
+        // 주사위 여행
+        diceTripPosition,
+        diceCount,
+        specialCageLevel,
         savedAt: Date.now(),
     };
 }
@@ -55,14 +57,8 @@ function applyGameData(d) {
     } else if (d.storageState) {
         console.warn('[applyGameData] storageState 손상 감지, 기존 값 유지');
     }
-    if (d.apartmentState && Array.isArray(d.apartmentState) && d.apartmentState.length === APARTMENT_ROOMS) {
-        apartmentState = d.apartmentState;
-    } else if (d.apartmentState) {
-        console.warn('[applyGameData] apartmentState 손상 감지, 기존 값 유지');
-    }
     coins = d.coins ?? 0;
     cumulativeCoins = d.cumulativeCoins ?? 0;
-    currentSetRescues = d.currentSetRescues ?? 0;
     totalQuestsCompleted = d.totalQuestsCompleted ?? 0;
     diamonds = d.diamonds ?? 0;
 
@@ -126,7 +122,12 @@ function applyGameData(d) {
     raceLosses = d.raceLosses ?? 0;
     recentRaceOpponents = d.recentRaceOpponents || [];
 
-    // 앨범 주기 초기화 (14일)
+    // 주사위 여행
+    diceTripPosition = d.diceTripPosition ?? 0;
+    diceCount = d.diceCount ?? 0;
+    specialCageLevel = d.specialCageLevel ?? 0;
+
+    // 앨범 주기 초기화 (21일)
     if (Date.now() >= albumResetTime) {
         console.log('[Album] 주기 초기화!');
         cards = 0;
@@ -311,12 +312,14 @@ function validateGameData(data) {
         ['energy', 0, MAX_ENERGY],
         ['userLevel', 1, 999],
         ['cumulativeCoins', 0, 9999999],
-        ['currentSetRescues', 0, 3],
         ['questProgress', 0, 100],
         ['cards', 0, 9999],
         ['raceWins', 0, 9999],
         ['raceLosses', 0, 9999],
         ['loginStreak', 0, 6],
+        ['diceTripPosition', 0, DICE_TRIP_SIZE],
+        ['diceCount', 0, 999],
+        ['specialCageLevel', 0, SPECIAL_CAGE_MAX_LEVEL],
     ];
 
     for (const [key, min, max] of numChecks) {
@@ -331,7 +334,6 @@ function validateGameData(data) {
     const arrChecks = [
         ['boardState', BOARD_SIZE],
         ['storageState', STORAGE_SIZE],
-        ['apartmentState', APARTMENT_ROOMS],
         ['quests', 10],
         ['shopItems', SHOP_SIZE],
         ['album', 100], // 사진 81개 + 테마 완성 마커 9개 + 여유
@@ -347,7 +349,7 @@ function validateGameData(data) {
             errors.push(`${key}: 길이 초과`);
             data[key] = data[key].slice(0, maxLen);
         }
-        if ((key === 'boardState' || key === 'storageState' || key === 'apartmentState') && data[key].length < maxLen) {
+        if ((key === 'boardState' || key === 'storageState') && data[key].length < maxLen) {
             errors.push(`${key}: 길이 부족 (${data[key].length}/${maxLen}) - null 패딩`);
             while (data[key].length < maxLen) data[key].push(null);
         }
@@ -394,7 +396,6 @@ function initNewGame() {
         bonusClaimed: false,
         lastResetDate: '',
     };
-    currentSetRescues = 0;
     cards = 0;
     album = [];
     albumResetTime = Date.now() + ALBUM_CYCLE_MS;
@@ -406,6 +407,11 @@ function initNewGame() {
     raceLosses = 0;
     recentRaceOpponents = [];
 
+    // 주사위 여행 초기화
+    diceTripPosition = 0;
+    diceCount = 0;
+    specialCageLevel = 0;
+
     boardState[0] = { type: 'cat_generator' };
     boardState[4] = { type: 'dog_generator' };
 
@@ -415,7 +421,6 @@ function initNewGame() {
     boardState[33] = { type: 'animal_mission', target: 'dog', reqLevel: 11 };
     boardState[34] = { type: 'quest_count_mission', reqCount: 100 };
 
-    initApartment();
     refreshShop();
 
     for (let i = 0; i < 6; i++) {
@@ -425,11 +430,10 @@ function initNewGame() {
     renderGrid('board', boardState, boardEl);
     renderGrid('storage', storageState, storageEl);
     renderShop();
-    renderApartment();
     updateUI();
     updateTimerUI();
     updateQuestUI();
-    updateRescueQuestUI();
     updateSpecialMissionUI();
     updateDailyMissionUI();
+    updateDiceTripUI();
 }

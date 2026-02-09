@@ -112,14 +112,13 @@ function updateAll() {
     renderGrid('board', boardState, boardEl);
     renderGrid('storage', storageState, storageEl);
     renderShop();
-    renderApartment();
     updateUI();
     updateTimerUI();
     updateQuestUI();
-    updateRescueQuestUI();
     updateSpecialMissionUI();
     updateDailyMissionUI();
     updateAlbumBarUI();
+    updateDiceTripUI();
     saveGame();
 }
 

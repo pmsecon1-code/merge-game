@@ -467,6 +467,8 @@ function moveItem(fz, fi, tz, ti) {
             setTimeout(() => {
                 showFloatText(cell, 'UP!', '#f43f5e');
             }, 50);
+            // 주사위 드랍 (합성 성공 시)
+            tryDropDice();
         } else {
             ts[ti] = fIt;
             ss[fi] = tIt;
