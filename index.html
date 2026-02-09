@@ -319,6 +319,23 @@
             </div>
         </div>
 
+        <div id="dice-drop-popup" class="overlay-bg">
+            <div class="overlay-content">
+                <div class="text-6xl mb-4">🎲</div>
+                <h2 class="text-2xl font-bold text-emerald-600 mb-2">주사위 획득!</h2>
+                <div class="bg-emerald-100 text-emerald-700 px-6 py-3 rounded-xl font-bold text-lg mb-2">
+                    보상: 주사위 1개
+                </div>
+                <p id="dice-drop-count" class="text-sm text-gray-500 mb-4">보유: 0개</p>
+                <button
+                    onclick="closeOverlay('dice-drop-popup')"
+                    class="bg-emerald-500 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-emerald-600"
+                >
+                    좋아요!
+                </button>
+            </div>
+        </div>
+
         <div id="dice-roll-popup" class="overlay-bg">
             <div class="overlay-content">
                 <div id="dice-anim" class="text-7xl mb-4">🎲</div>

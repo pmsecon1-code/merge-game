@@ -215,7 +215,11 @@ function buyShopItem(idx) {
 function tryDropDice() {
     if (Math.random() < DICE_DROP_CHANCE) {
         diceCount++;
-        showMilestonePopup('🎲 주사위 획득!', `보유: ${diceCount}개`);
+        // 주사위 획득 팝업
+        const popup = document.getElementById('dice-drop-popup');
+        const countEl = document.getElementById('dice-drop-count');
+        if (countEl) countEl.textContent = `보유: ${diceCount}개`;
+        if (popup) popup.classList.add('active');
         updateDiceTripUI();
         saveGame();
     }
