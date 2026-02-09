@@ -199,18 +199,19 @@ body {
 }
 
 #quest-container {
-    flex: 1;
     display: flex;
     gap: 6px;
-    overflow: hidden;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .quest-card {
     background: white;
     border-radius: 10px;
     border: 2px solid #e2e8f0;
-    flex: 1;
-    min-width: 0;
+    flex: 0 0 auto;
+    width: 90px;
     aspect-ratio: 1.4;
     display: flex;
     flex-direction: column;

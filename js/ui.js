@@ -168,19 +168,7 @@ function updateQuestUI() {
 
     quests.sort((a, b) => canComplete(b) - canComplete(a));
 
-    const readyCount = quests.filter((q) => canComplete(q)).length;
-    if (readyCount > prevReadyCount && questPage > 0) {
-        questPage = 0;
-    }
-    prevReadyCount = readyCount;
-
-    const maxPage = Math.ceil(quests.length / 3) - 1;
-    if (questPage > maxPage) questPage = Math.max(0, maxPage);
-    const start = questPage * 3,
-        end = start + 3;
-
-    quests.slice(start, end).forEach((q, idx) => {
-        const i = start + idx;
+    quests.forEach((q, i) => {
         const d = document.createElement('div');
         d.className = 'quest-card';
         const ok = canComplete(q);
@@ -201,8 +189,6 @@ function updateQuestUI() {
         d.innerHTML = h;
         questContainer.appendChild(d);
     });
-    document.getElementById('quest-prev').disabled = questPage === 0;
-    document.getElementById('quest-next').disabled = questPage >= maxPage;
 }
 
 // --- 이펙트 ---
