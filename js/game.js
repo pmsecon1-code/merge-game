@@ -459,6 +459,7 @@ function moveItem(fz, fi, tz, ti) {
         let max = 11;
         if (fIt.type.includes('snack') || fIt.type.includes('toy')) max = 5;
         if (['bird', 'fish', 'reptile'].includes(fIt.type)) max = 7;
+        if (fIt.type === 'legendary') max = 5;
         if (fIt.level < max) {
             const newLv = fIt.level + 1;
             ts[ti] = { type: fIt.type, level: newLv };
@@ -466,6 +467,10 @@ function moveItem(fz, fi, tz, ti) {
             discoverItem(fIt.type, newLv);
             addDailyProgress('merge');
             checkAutoCompleteMissions();
+            // 전설 퀘스트 체크 (Lv.5 유니콘 완성 시)
+            if (fIt.type === 'legendary' && newLv === 5) {
+                checkLegendaryComplete();
+            }
             const cell = (tz === 'board' ? boardEl : storageEl).children[ti];
             setTimeout(() => {
                 showFloatText(cell, 'UP!', '#f43f5e');

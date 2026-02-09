@@ -40,8 +40,11 @@ function getGameData() {
         // 주사위 여행
         diceTripPosition,
         diceCount,
-        specialCageLevel,
         visitedSteps: [...visitedSteps],
+        // 전설 퀘스트
+        legendaryQuestCycle,
+        legendaryGeneratorActive,
+        legendaryUnlockTime,
         savedAt: Date.now(),
     };
 }
@@ -126,8 +129,12 @@ function applyGameData(d) {
     // 주사위 여행
     diceTripPosition = d.diceTripPosition ?? 0;
     diceCount = d.diceCount ?? 0;
-    specialCageLevel = d.specialCageLevel ?? 0;
     visitedSteps = d.visitedSteps && Array.isArray(d.visitedSteps) ? d.visitedSteps : [0];
+
+    // 전설 퀘스트
+    legendaryQuestCycle = d.legendaryQuestCycle ?? 0;
+    legendaryGeneratorActive = d.legendaryGeneratorActive ?? false;
+    legendaryUnlockTime = d.legendaryUnlockTime ?? 0;
 
     // 앨범 주기 초기화 (21일)
     if (Date.now() >= albumResetTime) {
@@ -321,7 +328,7 @@ function validateGameData(data) {
         ['loginStreak', 0, 6],
         ['diceTripPosition', 0, DICE_TRIP_SIZE],
         ['diceCount', 0, 999],
-        ['specialCageLevel', 0, SPECIAL_CAGE_MAX_LEVEL],
+        ['legendaryQuestCycle', 0, LEGENDARY_QUEST_COUNT],
     ];
 
     for (const [key, min, max] of numChecks) {
@@ -412,7 +419,12 @@ function initNewGame() {
     // 주사위 여행 초기화
     diceTripPosition = 0;
     diceCount = 0;
-    specialCageLevel = 0;
+    visitedSteps = [0];
+
+    // 전설 퀘스트 초기화
+    legendaryQuestCycle = 0;
+    legendaryGeneratorActive = false;
+    legendaryUnlockTime = 0;
 
     boardState[0] = { type: 'cat_generator' };
     boardState[4] = { type: 'dog_generator' };

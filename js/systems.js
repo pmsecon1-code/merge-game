@@ -377,8 +377,8 @@ function completeTrip() {
 
     showMilestonePopup('🎉 주사위 여행 완주!', `${DICE_TRIP_COMPLETE_REWARD.coins}🪙 + ${DICE_TRIP_COMPLETE_REWARD.diamonds}💎`);
 
-    // 스페셜 케이지 스폰
-    spawnSpecialCage();
+    // 전설 생성기 스폰 (1분 대기)
+    spawnLegendaryGenerator();
 
     // 위치 + 방문 기록 리셋
     diceTripPosition = 0;
@@ -387,24 +387,35 @@ function completeTrip() {
     updateUI();
 }
 
-function spawnSpecialCage() {
-    // 이미 케이지가 있으면 레벨업
-    if (specialCageLevel > 0) {
-        if (specialCageLevel < SPECIAL_CAGE_MAX_LEVEL) {
-            specialCageLevel++;
-            showToast(`🎁 스페셜 케이지 Lv.${specialCageLevel}!`);
-        } else {
-            showToast('🎁 스페셜 케이지 최대 레벨!');
-        }
-    } else {
-        specialCageLevel = 1;
-        showToast('🎁 스페셜 케이지 등장!');
+function spawnLegendaryGenerator() {
+    // 이미 생성기가 있으면 무시
+    if (legendaryGeneratorActive) {
+        showToast('이미 전설 퀘스트 진행 중!');
+        return;
     }
+
+    legendaryGeneratorActive = true;
+    legendaryUnlockTime = Date.now() + LEGENDARY_UNLOCK_MS;
+    showToast('🦄 전설 생성기 등장! (1분 후 활성화)');
     updateDiceTripUI();
 }
 
-function handleSpecialCageClick() {
-    if (specialCageLevel <= 0) return;
+function getLegendaryUnlockRemaining() {
+    if (!legendaryGeneratorActive) return 0;
+    const remaining = legendaryUnlockTime - Date.now();
+    return Math.max(0, remaining);
+}
+
+function handleLegendaryGeneratorClick() {
+    if (!legendaryGeneratorActive) return;
+
+    // 아직 대기 중인지 체크
+    const remaining = getLegendaryUnlockRemaining();
+    if (remaining > 0) {
+        const sec = Math.ceil(remaining / 1000);
+        showToast(`${sec}초 후 활성화!`);
+        return;
+    }
 
     // 빈 칸 체크
     const emptyIdx = boardState.findIndex((x) => x === null);
@@ -413,22 +424,65 @@ function handleSpecialCageClick() {
         return;
     }
 
-    // 레벨에 따른 동물 생성
-    const spawnInfo = SPECIAL_CAGE_SPAWNS[specialCageLevel - 1];
-    const baseType = Math.random() > 0.5 ? 'cat' : 'dog';
-    const level = spawnInfo.minLevel + Math.floor(Math.random() * (spawnInfo.maxLevel - spawnInfo.minLevel + 1));
+    // Lv.1 전설 동물 생성
+    boardState[emptyIdx] = { type: 'legendary', level: 1 };
+    discoverItem('legendary', 1);
 
-    boardState[emptyIdx] = { type: baseType, level: level };
-    discoverItem(baseType, level);
+    const data = LEGENDARIES[0];
+    showToast(`🦄 ${data.emoji} ${data.name} 등장!`);
 
-    const list = baseType === 'cat' ? CATS : DOGS;
-    const data = list[level - 1];
-    showToast(`🎁 ${data.emoji} ${data.name} 등장!`);
-
-    // 케이지 소멸
-    specialCageLevel = 0;
+    // 생성기 소멸
+    legendaryGeneratorActive = false;
+    legendaryUnlockTime = 0;
     updateDiceTripUI();
     updateAll();
+}
+
+function completeLegendaryQuest() {
+    // 보상 지급
+    coins += LEGENDARY_COMPLETE_REWARD.coins;
+    cumulativeCoins += LEGENDARY_COMPLETE_REWARD.coins;
+    diamonds += LEGENDARY_COMPLETE_REWARD.diamonds;
+    addDailyProgress('coins', LEGENDARY_COMPLETE_REWARD.coins);
+
+    showMilestonePopup('🦄 전설 퀘스트 완료!', `${LEGENDARY_COMPLETE_REWARD.coins}🪙 + ${LEGENDARY_COMPLETE_REWARD.diamonds}💎`);
+
+    // 주기 카운트 증가
+    legendaryQuestCycle++;
+
+    // 3번 완료 시 주기 리셋
+    if (legendaryQuestCycle >= LEGENDARY_QUEST_COUNT) {
+        legendaryQuestCycle = 0;
+        showToast('🎊 전설 주기 완료! 새 여행 시작!');
+    }
+
+    updateDiceTripUI();
+    updateUI();
+}
+
+function checkLegendaryComplete() {
+    // 보드나 창고에 Lv.5 유니콘이 있는지 체크
+    const hasUnicorn = boardState.some((x) => x && x.type === 'legendary' && x.level === 5) ||
+                       storageState.some((x) => x && x.type === 'legendary' && x.level === 5);
+
+    if (hasUnicorn) {
+        // 유니콘 제거
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            if (boardState[i] && boardState[i].type === 'legendary' && boardState[i].level === 5) {
+                boardState[i] = null;
+                break;
+            }
+        }
+        for (let i = 0; i < STORAGE_SIZE; i++) {
+            if (storageState[i] && storageState[i].type === 'legendary' && storageState[i].level === 5) {
+                storageState[i] = null;
+                break;
+            }
+        }
+        completeLegendaryQuest();
+        return true;
+    }
+    return false;
 }
 
 function updateDiceTripUI() {
@@ -489,12 +543,15 @@ function renderDiceTripBoard() {
         🏁
     </div>`;
 
-    // 스페셜 케이지
-    if (specialCageLevel > 0) {
-        html += `<div class="special-cage-box" onclick="handleSpecialCageClick()">
-            <span class="text-2xl">🎁</span>
-            <span class="text-[9px] font-bold">Lv.${specialCageLevel}</span>
-            <span class="text-[8px] text-gray-400">터치!</span>
+    // 전설 생성기
+    if (legendaryGeneratorActive) {
+        const remaining = getLegendaryUnlockRemaining();
+        const isLocked = remaining > 0;
+        const sec = Math.ceil(remaining / 1000);
+        html += `<div class="legendary-generator-box ${isLocked ? 'locked' : ''}" onclick="handleLegendaryGeneratorClick()">
+            <span class="text-2xl">${isLocked ? '🔒' : '🦄'}</span>
+            <span class="text-[9px] font-bold">${isLocked ? sec + '초' : '터치!'}</span>
+            <span class="text-[8px] text-purple-300">${legendaryQuestCycle}/${LEGENDARY_QUEST_COUNT}</span>
         </div>`;
     }
 

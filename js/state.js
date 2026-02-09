@@ -16,11 +16,15 @@ let diamonds = 0,
     recoveryCountdown = RECOVERY_SEC;
 
 // --- 주사위 여행 ---
-let diceTripPosition = 0;    // 현재 위치 (0~20)
+let diceTripPosition = 0;    // 현재 위치 (0~50)
 let diceCount = 0;           // 보유 주사위
 let isRollingDice = false;   // 굴리는 중
-let specialCageLevel = 0;    // 스페셜 케이지 레벨 (0=없음, 1~5=레벨)
 let visitedSteps = [0];      // 밟았던 칸 인덱스 (시작 칸 포함)
+
+// --- 전설의 동물 퀘스트 ---
+let legendaryQuestCycle = 0;         // 현재 주기 내 완료 횟수 (0~3)
+let legendaryGeneratorActive = false; // 생성기 활성 여부
+let legendaryUnlockTime = 0;          // 생성기 활성화 시간 (timestamp)
 
 // --- 진행도 ---
 let userLevel = 1,

@@ -1558,12 +1558,13 @@ body {
     }
 }
 
-.special-cage-box {
+/* 전설 생성기 */
+.legendary-generator-box {
     flex-shrink: 0;
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, #fef3c7, #fcd34d);
-    border: 3px solid #f59e0b;
+    background: linear-gradient(135deg, #fae8ff, #e879f9);
+    border: 3px solid #a855f7;
     border-radius: 12px;
     display: flex;
     flex-direction: column;
@@ -1571,20 +1572,29 @@ body {
     justify-content: center;
     cursor: pointer;
     margin-left: 8px;
-    animation: cage-bounce 1s infinite;
-    box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+    animation: legendary-glow 1.5s infinite;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
 }
 
-@keyframes cage-bounce {
+.legendary-generator-box.locked {
+    background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+    border-color: #6b7280;
+    animation: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes legendary-glow {
     0%, 100% {
         transform: translateY(0);
+        box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
     }
     50% {
         transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(168, 85, 247, 0.6);
     }
 }
 
-.special-cage-box:active {
+.legendary-generator-box:active {
     transform: scale(0.95);
 }
 
