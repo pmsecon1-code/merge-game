@@ -171,9 +171,9 @@ function updateQuestUI() {
     };
 
     quests.sort((a, b) => canComplete(b) - canComplete(a));
-    // 스페셜 퀘스트는 항상 마지막 위치
+    // 스페셜 퀘스트: 완료 불가능할 때만 마지막 위치
     const spSortIdx = quests.findIndex((q) => q.isSpecial);
-    if (spSortIdx !== -1 && spSortIdx !== quests.length - 1) {
+    if (spSortIdx !== -1 && !canComplete(quests[spSortIdx]) && spSortIdx !== quests.length - 1) {
         const [sp] = quests.splice(spSortIdx, 1);
         quests.push(sp);
     }
