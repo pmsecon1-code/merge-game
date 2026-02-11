@@ -461,7 +461,7 @@ function triggerGen(idx, item) {
 function getEnergyPrice() {
     if (Date.now() >= energyPurchaseResetTime) {
         energyPurchaseCount = 0;
-        energyPurchaseResetTime = Date.now() + 3 * 60 * 60 * 1000;
+        energyPurchaseResetTime = Date.now() + getMsUntilKSTMidnight();
     }
     return 500 + energyPurchaseCount * 100;
 }
