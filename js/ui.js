@@ -85,7 +85,8 @@ function createItem(item, zone, index) {
                 specialUI = `<div class="usage-badge">${rem}/3</div>`;
             }
         }
-        d.innerHTML = `${specialUI}<div class="animal-inside">${emoji}</div><div class="cage-label">${label}</div><div class="help-btn" data-gen-type="${type}">?</div>`;
+        const helpDisplay = tutorialStep > 0 ? ' style="display:none"' : '';
+        d.innerHTML = `${specialUI}<div class="animal-inside">${emoji}</div><div class="cage-label">${label}</div><div class="help-btn"${helpDisplay} data-gen-type="${type}">?</div>`;
         return d;
     }
     const d = document.createElement('div');
@@ -109,11 +110,13 @@ function createItem(item, zone, index) {
     const isNew = discoveredAt && Date.now() - discoveredAt < 10000;
     const newBadge = isNew ? '<div class="new-badge">NEW</div>' : '';
     d.innerHTML = `<div class="${isSnack || isToy ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:${isSnack || isToy ? '1.5rem' : '2rem'}">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div>${newBadge}`;
-    const sellBtn = document.createElement('div');
-    sellBtn.className = 'sell-btn';
-    sellBtn.innerText = 'ⓒ';
-    sellBtn.onclick = (e) => askSellItem(zone, index, e);
-    d.appendChild(sellBtn);
+    if (tutorialStep <= 0) {
+        const sellBtn = document.createElement('div');
+        sellBtn.className = 'sell-btn';
+        sellBtn.innerText = 'ⓒ';
+        sellBtn.onclick = (e) => askSellItem(zone, index, e);
+        d.appendChild(sellBtn);
+    }
     return d;
 }
 
@@ -131,6 +134,8 @@ function updateAll() {
     updateAlbumBarUI();
     updateDiceTripUI();
     saveGame();
+    // 튜토리얼 중이면 스포트라이트 재배치
+    if (tutorialStep > 0) repositionTutorial();
 }
 
 function updateUI() {

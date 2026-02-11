@@ -119,6 +119,7 @@ function completeQuest(i) {
 }
 
 function checkExpiredQuests() {
+    if (tutorialStep > 0) return; // 튜토리얼 중 만료 스킵
     const now = Date.now();
     let changed = false;
     for (let i = quests.length - 1; i >= 0; i--) {
@@ -262,7 +263,7 @@ function spawnToy() {
 // --- 셀 클릭 ---
 function handleCellClick(zone, idx) {
     // 튜토리얼 중 허용된 셀만 클릭 가능
-    if (tutorialStep === 1 || tutorialStep === 2) {
+    if (tutorialStep > 0) {
         if (!isTutorialClickAllowed(zone, idx)) return;
     }
     const s = zone === 'board' ? boardState : storageState,
@@ -365,10 +366,13 @@ function triggerGen(idx, item) {
     } else if (baseType === 'legendary') {
         // 전설 생성기 클릭
         handleLegendaryGeneratorClick(idx);
-    } else spawnItem(baseType, 1, false);
-    // 튜토리얼 스텝 1/2 완료 훅 (캣타워 클릭)
-    if (tutorialStep === 1 || tutorialStep === 2) {
-        setTimeout(() => advanceTutorial(), 400);
+    } else {
+        const prevEmpty = boardState.filter((x) => x === null).length;
+        spawnItem(baseType, 1, false);
+        // 튜토리얼: 실제 생성된 경우만 진행
+        if ((tutorialStep === 1 || tutorialStep === 2) && boardState.filter((x) => x === null).length < prevEmpty) {
+            setTimeout(() => advanceTutorial(), 400);
+        }
     }
 }
 

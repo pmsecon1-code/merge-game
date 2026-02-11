@@ -164,6 +164,10 @@ function isTutorialClickAllowed(zone, idx) {
     if (tutorialStep <= 0) return true;
     // Step 1, 2: 캣타워(board[0])만 허용
     if (tutorialStep === 1 || tutorialStep === 2) return zone === 'board' && idx === 0;
+    // Step 3: 드래그만 허용 (클릭 불가)
+    if (tutorialStep === 3) return false;
+    // Step 4: 퀘스트 onclick은 별도 경로
+    if (tutorialStep === 4) return false;
     return false;
 }
 
