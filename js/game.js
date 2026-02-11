@@ -710,11 +710,12 @@ function confirmAd() {
     if (!it || it.type !== 'piggy_bank') return;
 
     closeOverlay('ad-popup');
-    coins += it.coins;
-    cumulativeCoins += it.coins;
-    addDailyProgress('coins', it.coins);
+    const reward = it.coins * 2;
+    coins += reward;
+    cumulativeCoins += reward;
+    addDailyProgress('coins', reward);
     s[idx] = null;
-    showMilestonePopup('🐷 저금통 개봉!', `+${it.coins}🪙`);
+    showMilestonePopup('🐷 저금통 개봉! (×2)', `+${reward}🪙`);
     updateAll();
 }
 
