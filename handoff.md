@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.16.0)
+# 멍냥 머지 게임 - Architecture (v4.17.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.16.0
+- **버전**: 4.17.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -18,16 +18,16 @@ merge2/
 ├── css/
 │   └── styles.css      # 모든 CSS (~1450줄)
 ├── js/
-│   ├── constants.js    # 상수 + 데이터 + 헬퍼 (~388줄)
+│   ├── constants.js    # 상수 + 데이터 + 헬퍼 (~380줄)
 │   ├── state.js        # 전역 변수 + DOM 참조 (~102줄)
 │   ├── auth.js         # 인증 + 세션 관리 (~129줄)
-│   ├── save.js         # 저장/로드/검증 (~420줄)
-│   ├── game.js         # 코어 게임 메커닉 (~560줄)
-│   ├── systems.js      # 7행미션/주사위 여행/상점 (~380줄)
+│   ├── save.js         # 저장/로드/검증 (~430줄)
+│   ├── game.js         # 코어 게임 메커닉 (~550줄)
+│   ├── systems.js      # 7행미션/주사위 여행/상점 (~340줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~225줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1060줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~191줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감 (~530줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감 (~520줄)
 │   └── main.js         # 초기화 + 타이머 (~257줄)
 ├── firestore.rules     # Firebase 보안 규칙
 ├── firebase.json       # Firebase Hosting + Firestore 설정
@@ -38,7 +38,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → tutorial → ui → main
 
-**총 JS**: ~3700줄, **함수**: ~130개
+**총 JS**: ~3500줄, **함수**: ~120개
 
 ---
 
@@ -234,9 +234,8 @@ merge2/
 | 퀘스트 완료 (일반) | 가변 코인 (레벨 스케일링) |
 | 퀘스트 완료 (카드) | 2~6장 🃏 |
 | 누적 코인 1000 | 칸마다 100🪙 |
-| 구조 완료 (3마리) | 1000🪙 |
 | 스페셜 퀘스트 (7번째 슬롯) | 300🪙 |
-| 상시 미션 | 200🪙 |
+| 주사위 여행 완주 | 1000🪙 + 50💎 |
 | 레벨업 | ceil(레벨/5)×5 💎 |
 | 테마 완성 (9/9) | 500🪙 (×9 테마) |
 | 앨범 완성 (81/81) | 100💎 + 리셋 |
@@ -321,34 +320,27 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 
 ---
 
-## 주사위 여행 + 전설 퀘스트 순환 시스템 (v4.14.0)
+## 주사위 여행 (v4.17.0)
 
 ### 개요
-합성 시 주사위 드랍 → 50칸 보드게임 → 완주 시 전설 퀘스트 시작 → 완료 시 주사위 리셋 (순환)
+합성 시 주사위 드랍 → 50칸 보드게임 → 완주 시 보상 + 즉시 리셋 (반복)
 
 ### 상수
 ```javascript
 DICE_TRIP_SIZE = 50              // 보드 칸 수
 DICE_DROP_CHANCE = 0.05          // 합성 시 5% 드랍
-DICE_TRIP_COMPLETE_REWARD = { coins: 2000, diamonds: 100 }
-LEGENDARY_COMPLETE_REWARD = { coins: 500, diamonds: 20 }
-LEGENDARIES = [아기말, 얼룩말, 경주마, 환상마, 유니콘]  // Lv.1~5
+DICE_TRIP_COMPLETE_REWARD = { coins: 1000, diamonds: 50 }
 ```
 
-### 순환 흐름
+### 흐름
 ```
-[주사위 여행]
-    ↓ 50칸 완주 (2000🪙 + 100💎)
-[전설 생성기 스폰] ← 주사위 잠금 🔒
-    ↓ 클릭 3회 → Lv.1 아기말 생성 (1분 과열)
-[전설 동물 합성]
-    ↓ Lv.5 유니콘 완성
-[퀘스트 완료] → 500🪙 + 20💎
+[합성] → 5% 확률 주사위 드랍
     ↓
-[주사위 리셋] → diceTripPosition=0, visitedSteps=[0], diceCount=0
+[주사위 사용] → 1~6 이동 → 착지 칸 보상
     ↓
-[주사위 여행] ← 다시 시작
-    ...반복
+[50칸 완주] → 1000🪙 + 50💎 → 즉시 리셋 (position=0, visited=[0], dice=0)
+    ↓
+[다시 시작] ← 반복
 ```
 
 ### 칸 보상 (50칸)
@@ -360,41 +352,15 @@ LEGENDARIES = [아기말, 얼룩말, 경주마, 환상마, 유니콘]  // Lv.1~5
 | 31~40 | 코인/에너지/카드/다이아 | 80~200 |
 | 41~50 | 코인/에너지/카드/다이아 | 120~350 |
 
-### 전설 동물 (LEGENDARIES)
-| 레벨 | 이모지 | 이름 |
-|------|--------|------|
-| Lv.1 | 🐴 | 아기말 |
-| Lv.2 | 🦓 | 얼룩말 |
-| Lv.3 | 🐎 | 경주마 |
-| Lv.4 | 🎠 | 환상마 |
-| Lv.5 | 🦄 | 유니콘 |
-
-### 전설 생성기
-- 클릭 3회 후 **1분 과열** (쿨다운)
-- 과열 중 클릭 시 "과열! n초 후 활성화" 토스트
-- 빈 칸 없으면 "공간 부족!" 토스트
-
-### UI 상태
-| 상태 | 진행도 표시 | 버튼 |
-|------|------------|------|
-| 진행 중 | `12/50` | `🎲 굴리기 (3)` |
-| 완주 + 전설 퀘스트 | `🦄 퀘스트 진행 중` | `🔒 퀘스트 완료 후 해제` |
-| 퀘스트 완료 후 | `1/50` | `🎲 굴리기 (3)` |
-
-### 관련 함수 (systems.js)
+### 관련 함수 (systems.js, 8개)
 | 함수 | 역할 |
 |------|------|
 | `tryDropDice()` | 5% 확률 주사위 드랍 |
-| `useDice()` | 주사위 사용 (전설 퀘스트 중 잠금) |
+| `useDice()` | 주사위 사용 |
 | `rollDice()` | 1~6 결과 → 이동 |
 | `executeMove(steps)` | 위치 이동 + 보상 |
 | `giveStepRewardWithInfo(pos)` | 칸 보상 지급 (보상 문자열 반환) |
-| `completeTrip()` | 완주 → 보상 + 전설 생성기 스폰 |
-| `spawnLegendaryGenerator()` | 전설 생성기 스폰 |
-| `handleLegendaryGeneratorClick()` | 생성기 클릭 → Lv.1 동물 생성 |
-| `checkLegendaryComplete()` | Lv.5 유니콘 체크 |
-| `completeLegendaryQuest()` | 퀘스트 완료 + 주사위 리셋 |
-| `updateLegendaryQuestUI()` | 전설 퀘스트 바 업데이트 |
+| `completeTrip()` | 완주 → 보상 + 즉시 리셋 |
 | `updateDiceTripUI()` | 주사위 여행 바 업데이트 |
 | `renderDiceTripBoard()` | 50칸 보드 렌더링 |
 
@@ -596,8 +562,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### game.js (26개)
 `discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `checkDailyBonus`
 
-### systems.js (26개)
-`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `isLegendaryQuestActive`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `giveStepRewardWithInfo`, `completeTrip`, `spawnLegendaryGenerator`, `handleLegendaryGeneratorClick`, `completeLegendaryQuest`, `checkLegendaryComplete`, `updateLegendaryQuestUI`, `updateDiceTripUI`, `renderDiceTripBoard`, `moveTripPosition`, `giveStepReward`
+### systems.js (21개)
+`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `moveTripPosition`, `giveStepReward`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`
 
 ### ui.js (26개)
 `renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`
@@ -621,14 +587,14 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 밸런스
 `MAX_ENERGY=100`, `RECOVERY_SEC=30`, `SHOP_REFRESH_MS=300000`, `UNLOCK_COST_BOARD=100`, `SNACK_CHANCE=0.08`
 
-### 주사위 여행 + 전설 퀘스트
-`DICE_TRIP_SIZE=50`, `DICE_DROP_CHANCE=0.05`, `DICE_TRIP_COMPLETE_REWARD={coins:2000, diamonds:100}`, `LEGENDARY_COMPLETE_REWARD={coins:500, diamonds:20}`
+### 주사위 여행
+`DICE_TRIP_SIZE=50`, `DICE_DROP_CHANCE=0.05`, `DICE_TRIP_COMPLETE_REWARD={coins:1000, diamonds:50}`
 
 ### 에너지 구매
 `getEnergyPrice()` → 500 + 구매횟수×100 (3시간 리셋)
 
-### 데이터 배열 (12개)
-`CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `LEGENDARIES`(5), `CAT_SNACKS`(5), `DOG_SNACKS`(5), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `DAILY_MISSIONS`(3개), `ATTENDANCE_REWARDS`(7일), `DICE_TRIP_REWARDS`(50칸)
+### 데이터 배열 (11개)
+`CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `CAT_SNACKS`(5), `DOG_SNACKS`(5), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `DAILY_MISSIONS`(3개), `ATTENDANCE_REWARDS`(7일), `DICE_TRIP_REWARDS`(50칸)
 
 ### 헬퍼 함수 (5개)
 `getItemList`, `getMaxLevel`, `getItemData`, `getGeneratorName`, `getSpecialTypeName`
@@ -662,6 +628,20 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.17.0 (2026-02-11)
+- 🗑️ **전설 퀘스트 시스템 완전 제거**
+  - 주사위 여행 완주 → 전설 생성기 스폰 → 유니콘 합성 순환 구조 폐지
+  - 새 흐름: 50칸 완주 → 1000🪙+50💎 → 즉시 리셋 → 다시 시작
+  - 완주 보상 조정: 2000🪙+100💎 → 1000🪙+50💎
+- 삭제 항목
+  - 상수: `LEGENDARY_COMPLETE_REWARD`, `LEGENDARIES`
+  - 함수 (7개): `isLegendaryQuestActive`, `spawnLegendaryGenerator`, `handleLegendaryGeneratorClick`, `completeLegendaryQuest`, `checkLegendaryComplete`, `updateLegendaryQuestUI`
+  - HTML: `#legendary-quest-wrapper` 전체
+  - CSS: `.legendary-generator-box`, `@keyframes legendary-glow`
+- 수정 함수: `completeTrip` (즉시 리셋), `useDice` (잠금 제거), `updateDiceTripUI` (전설 UI 제거), `triggerGen` (legendary 분기 제거), `moveItem` (legendary 체크 제거), `createItem` (legendary UI 제거), `updateAll` (legendary UI 호출 제거), `openGuide`/`renderGuideList` (legendary 탭 제거), `askSellItem` (legendary 참조 제거)
+- **마이그레이션**: `applyGameData`에서 기존 legendary/legendary_generator 아이템 정리 + 완주 상태 리셋
+- eslint.config.js: 삭제된 함수/상수 전역 목록에서 제거
 
 ### v4.16.0 (2026-02-11)
 - ⭐ **스페셜 퀘스트 → 일반 퀘스트 통합**
@@ -717,7 +697,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 수정 함수: `createItem` (버튼 숨김), `updateAll` (reposition), `handleCellClick` (전체 스텝 필터), `triggerGen` (생성 확인), `checkExpiredQuests` (만료 스킵), `handleDragEnd` (드래그 제한), `startQuestTimer` (reposition), `initNewGame` (tutorialStep=1)
 - firestore.rules: `tutorialStep` 필드 검증 추가
 
-### v4.14.0 (2026-02-09)
+### v4.14.0 (2026-02-09) ← v4.17.0에서 전설 퀘스트 제거됨
 - 🦄 **전설 퀘스트 시스템** 추가
   - 주사위 여행 50칸 완주 → **목장** 스폰
   - 목장 클릭 3회 → Lv.1 아기말 생성 (1분 과열)
@@ -972,6 +952,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ## To-do
 
 - [ ] 사운드 효과 추가
+- [x] 전설 퀘스트 시스템 제거 (v4.17.0)
 - [x] 스페셜 퀘스트 일반 퀘스트 통합 (v4.16.0)
 - [x] 온보딩 튜토리얼 시스템 (v4.15.0)
 - [x] 데일리 레이스 시스템 (v4.6.0)
@@ -984,7 +965,5 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - [x] 일일 미션 시스템 (v4.10.0)
 - [x] 주사위 여행 시스템 (v4.11.0)
 - [x] 주사위 여행 UI/UX 개선 (v4.12.0)
-- [x] 전설 퀘스트 시스템 (v4.14.0)
-- [x] 주사위 ↔ 전설 퀘스트 순환 구조 (v4.14.0)
 - [x] 엣지케이스 수정 - 창고 체크, 생성기 판매 차단 (v4.14.0)
 - [x] 코드 리팩토링 - 상수 분리, 헬퍼 함수 추출 (v4.14.0)
