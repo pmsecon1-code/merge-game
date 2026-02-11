@@ -109,7 +109,31 @@ function applyGameData(d) {
     if (d.currentSpecialIndex !== undefined) {
         currentSpecialIndex = d.currentSpecialIndex;
     } else {
-        currentSpecialIndex = 0;
+        // 기존 완료 횟수 합계로 다음 인덱스 결정
+        if (d.specialMissionCycles) {
+            const total = d.specialMissionCycles.reduce((a, b) => a + b, 0);
+            currentSpecialIndex = total % 3;
+        } else {
+            currentSpecialIndex = 0;
+        }
+        // 현재 퀘스트와 무관한 스페셜 타입 정리
+        const spTypes = ['bird', 'fish', 'reptile'];
+        const activeType = spTypes[currentSpecialIndex];
+        for (const rType of spTypes) {
+            if (rType === activeType) continue;
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                if (boardState[i] && (boardState[i].type === rType || boardState[i].type === `${rType}_generator`))
+                    boardState[i] = null;
+            }
+            for (let i = 0; i < STORAGE_SIZE; i++) {
+                if (storageState[i] && storageState[i].type === rType)
+                    storageState[i] = null;
+            }
+            for (let i = 0; i < SHOP_SIZE; i++) {
+                if (shopItems[i] && shopItems[i].type && shopItems[i].type.includes(rType))
+                    shopItems[i] = generateRandomShopItem(getActiveTypes());
+            }
+        }
     }
     // 스페셜 퀘스트 없으면 추가
     if (!quests.some((q) => q.isSpecial)) {

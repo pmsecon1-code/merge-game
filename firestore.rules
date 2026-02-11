@@ -55,8 +55,8 @@ service cloud.firestore {
           && isValidNumber(data.diceTripPosition, 0, 50)       // 위치: 0~50
           && isValidNumber(data.diceCount, 0, 999)             // 주사위: 0~999
           && isValidArray(data.visitedSteps, 50)               // 방문 칸: 최대 50개
-          // 스페셜 퀘스트 순환 인덱스 검증
-          && isValidNumber(data.currentSpecialIndex, 0, 2)
+          // 스페셜 퀘스트 순환 인덱스 검증 (구버전 캐시 호환: 필드 없으면 스킵)
+          && (!data.keys().hasAny(['currentSpecialIndex']) || isValidNumber(data.currentSpecialIndex, 0, 2))
           // 튜토리얼 검증
           && isValidNumber(data.tutorialStep, 0, 4)
           // 타임스탬프 검증 (미래 시간 방지)
