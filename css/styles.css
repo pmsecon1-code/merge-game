@@ -538,7 +538,7 @@ body {
 
 .shop-price-tag {
     position: absolute;
-    bottom: 2px;
+    top: 2px;
     right: 2px;
     background: rgba(0, 0, 0, 0.7);
     color: #22d3ee;
