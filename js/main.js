@@ -103,7 +103,12 @@ function startCooldownTimer() {
                 needsUpdate = true;
             }
         });
-        if (needsUpdate) {
+        // 과열 중인 생성기나 미개봉 저금통이 있으면 매초 렌더링
+        const hasActiveTimer = [...boardState, ...storageState].some((i) =>
+            i && ((i.type.endsWith('_generator') && i.cooldown > Date.now()) ||
+                  (i.type === 'piggy_bank' && Date.now() < i.openAt))
+        );
+        if (needsUpdate || hasActiveTimer) {
             renderGrid('board', boardState, boardEl);
             renderGrid('storage', storageState, storageEl);
         }
