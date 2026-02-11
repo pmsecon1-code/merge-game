@@ -574,7 +574,7 @@ function updateBottomBadges() {
                 const myProg = isP1 ? lastRaceData.player1Progress : lastRaceData.player2Progress;
                 raceInfo.textContent = `${myProg || 0}/${RACE_GOAL}`;
             } else {
-                raceInfo.textContent = `${raceWins}승`;
+                raceInfo.textContent = '참가하기';
             }
         } else {
             raceInfo.textContent = '참가하기';
@@ -598,11 +598,12 @@ function updateBottomBadges() {
         shopInfo.textContent = `${m}:${s.toString().padStart(2, '0')}`;
     }
 
-    // 창고: 사용량
+    // 창고: 보관 중 / 열린 칸
     const storageInfo = document.getElementById('badge-storage-info');
     if (storageInfo) {
+        const unlocked = storageState.filter(s => !s || s.type !== 'locked_storage').length;
         const used = storageState.filter(s => s && s.type !== 'locked_storage').length;
-        storageInfo.textContent = `${used}/${STORAGE_SIZE}`;
+        storageInfo.textContent = `${used}/${unlocked}`;
     }
 }
 
