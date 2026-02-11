@@ -44,8 +44,8 @@ let currentGuideType = 'cat',
 let discoveredItems = new Set();
 const newlyDiscoveredItems = new Map();
 
-// --- 미션 ---
-let specialMissionCycles = [0, 0, 0];
+// --- 스페셜 퀘스트 순환 ---
+let currentSpecialIndex = 0; // 0=bird, 1=fish, 2=reptile
 
 // --- 튜토리얼 ---
 let tutorialStep = 1; // 1~4: 진행 중, 0: 완료

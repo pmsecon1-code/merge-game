@@ -49,7 +49,7 @@ function getGameData() {
         shopItems,
         shopNextRefresh: shopNextRefresh - Date.now(),
         discoveredItems: [...discoveredItems],
-        specialMissionCycles,
+        currentSpecialIndex,
         dailyMissions: { ...dailyMissions },
         energyPurchaseCount,
         energyPurchaseResetTime: energyPurchaseResetTime - Date.now(),
@@ -96,13 +96,26 @@ function applyGameData(d) {
     recoverOfflineEnergy(d.savedAt);
     userLevel = d.userLevel ?? 1;
     questProgress = d.questProgress ?? 0;
-    quests = (d.quests || []).map((q) => ({ ...q, expiresAt: q.expiresAt || Date.now() + 10 * 60 * 1000 }));
+    quests = (d.quests || []).map((q) => ({
+        ...q,
+        expiresAt: q.isSpecial ? null : (q.expiresAt || Date.now() + 10 * 60 * 1000),
+    }));
     questIdCounter = d.questIdCounter ?? 0;
     genLevels = d.genLevels || { cat: 1, dog: 1 };
     shopItems = d.shopItems || shopItems;
     shopNextRefresh = Date.now() + (d.shopNextRefresh ?? SHOP_REFRESH_MS);
     discoveredItems = new Set(d.discoveredItems || []);
-    specialMissionCycles = d.specialMissionCycles || [0, 0, 0];
+    // 스페셜 퀘스트 순환 인덱스 (마이그레이션)
+    if (d.currentSpecialIndex !== undefined) {
+        currentSpecialIndex = d.currentSpecialIndex;
+    } else {
+        currentSpecialIndex = 0;
+    }
+    // 스페셜 퀘스트 없으면 추가
+    if (!quests.some((q) => q.isSpecial)) {
+        const sp = generateSpecialQuest();
+        if (sp) quests.push(sp);
+    }
     // 일일 미션 로드 (마이그레이션 포함)
     if (d.dailyMissions) {
         dailyMissions = {
@@ -347,6 +360,7 @@ function validateGameData(data) {
         ['diceTripPosition', 0, DICE_TRIP_SIZE],
         ['diceCount', 0, 999],
         ['tutorialStep', 0, 4],
+        ['currentSpecialIndex', 0, 2],
     ];
 
     for (const [key, min, max] of numChecks) {
@@ -414,7 +428,7 @@ function initNewGame() {
     quests = [];
     genLevels = { cat: 1, dog: 1 };
     discoveredItems = new Set();
-    specialMissionCycles = [0, 0, 0];
+    currentSpecialIndex = 0;
     dailyMissions = {
         merge: 0,
         spawn: 0,
@@ -469,7 +483,6 @@ function initNewGame() {
     updateUI();
     updateTimerUI();
     updateQuestUI();
-    updateSpecialMissionUI();
     updateDailyMissionUI();
     updateDiceTripUI();
 }

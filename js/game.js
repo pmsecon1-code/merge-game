@@ -45,15 +45,55 @@ function generateNewQuest(forceEasy = false) {
     const cardReward = isCardQuest
         ? ALBUM_CARD_MIN + Math.floor(Math.random() * (ALBUM_CARD_MAX - ALBUM_CARD_MIN + 1))
         : 0;
-    quests.push({
+    const questObj = {
         id: questIdCounter++,
         npc,
         reqs,
         reward: 10 + sc + Math.floor(Math.random() * 5),
         cardReward,
         expiresAt: Date.now() + 10 * 60 * 1000,
-    });
+    };
+    // 스페셜 퀘스트가 있으면 그 앞에 삽입
+    const spIdx = quests.findIndex((q) => q.isSpecial);
+    if (spIdx !== -1) {
+        quests.splice(spIdx, 0, questObj);
+    } else {
+        quests.push(questObj);
+    }
     updateQuestUI();
+}
+
+// --- 스페셜 퀘스트 ---
+function generateSpecialQuest() {
+    if (userLevel < 2) return null;
+    const types = ['bird', 'fish', 'reptile'];
+    const npcs = ['🐦', '🐠', '🦎'];
+    const idx = currentSpecialIndex;
+    return {
+        id: questIdCounter++,
+        npc: npcs[idx],
+        reqs: [{ type: types[idx], level: 7 }],
+        reward: 300,
+        cardReward: 0,
+        expiresAt: null,
+        isSpecial: true,
+        specialIndex: idx,
+    };
+}
+
+function trySpawnSpecialGenerator() {
+    const sq = quests.find((q) => q.isSpecial);
+    if (!sq) return;
+    const type = sq.reqs[0].type;
+    const hasGen = hasItemOfType(`${type}_generator`);
+    const hasMax = hasItemOfTypeAndLevel(type, 7);
+    if (hasGen || hasMax) return;
+    const emptyIdx = boardState.findIndex((x) => x === null);
+    if (emptyIdx !== -1) {
+        boardState[emptyIdx] = { type: `${type}_generator`, clicks: 0, cooldown: 0 };
+        renderGrid('board', boardState, boardEl);
+        showToast('스페셜 케이지 도착!');
+    }
 }
 
 function scrollQuests(dir) {
@@ -63,35 +103,66 @@ function scrollQuests(dir) {
 }
 
 function completeQuest(i) {
-    const q = quests[i],
-        rem = [...q.reqs];
-    const delArr = (arr) => {
-        for (let j = 0; j < arr.length; j++) {
-            if (rem.length === 0) break;
-            const it = arr[j];
-            if (it && !it.type.includes('locked') && !it.type.includes('generator')) {
-                const idx = rem.findIndex((r) => r.type === it.type && r.level === it.level);
-                if (idx !== -1) {
-                    arr[j] = null;
-                    rem.splice(idx, 1);
-                }
-            }
+    const q = quests[i];
+
+    if (q.isSpecial) {
+        // --- 스페셜 퀘스트 완료 ---
+        const type = q.reqs[0].type;
+        // 보드에서 동물 + 생성기 제거
+        for (let j = 0; j < BOARD_SIZE; j++) {
+            if (boardState[j] && (boardState[j].type === type || boardState[j].type === `${type}_generator`))
+                boardState[j] = null;
         }
-    };
-    delArr(boardState);
-    if (rem.length > 0) delArr(storageState);
-    questProgress++;
-    totalQuestsCompleted++;
-    checkAutoCompleteMissions();
-    if (q.cardReward > 0) {
-        cards += q.cardReward;
-        showToast(`완료! +${q.cardReward}🃏`);
-    } else {
+        // 창고에서 동물 제거
+        for (let j = 0; j < STORAGE_SIZE; j++) {
+            if (storageState[j] && storageState[j].type === type)
+                storageState[j] = null;
+        }
+        // 상점에서 해당 타입 교체
+        for (let j = 0; j < SHOP_SIZE; j++) {
+            if (shopItems[j] && shopItems[j].type && shopItems[j].type.includes(type))
+                shopItems[j] = generateRandomShopItem(getActiveTypes());
+        }
+        renderShop();
         coins += q.reward;
         cumulativeCoins += q.reward;
         addDailyProgress('coins', q.reward);
         showToast(`완료! +${q.reward}코인`);
+    } else {
+        // --- 일반 퀘스트 완료 ---
+        const rem = [...q.reqs];
+        const delArr = (arr) => {
+            for (let j = 0; j < arr.length; j++) {
+                if (rem.length === 0) break;
+                const it = arr[j];
+                if (it && !it.type.includes('locked') && !it.type.includes('generator')) {
+                    const idx = rem.findIndex((r) => r.type === it.type && r.level === it.level);
+                    if (idx !== -1) {
+                        arr[j] = null;
+                        rem.splice(idx, 1);
+                    }
+                }
+            }
+        };
+        delArr(boardState);
+        if (rem.length > 0) delArr(storageState);
+        if (q.cardReward > 0) {
+            cards += q.cardReward;
+            showToast(`완료! +${q.cardReward}🃏`);
+        } else {
+            coins += q.reward;
+            cumulativeCoins += q.reward;
+            addDailyProgress('coins', q.reward);
+            showToast(`완료! +${q.reward}코인`);
+        }
     }
+
+    // --- 공통: 진행도 ---
+    questProgress++;
+    totalQuestsCompleted++;
+    checkAutoCompleteMissions();
+
+    // 레벨업 체크
     if (questProgress >= Math.min(userLevel * 2, 20)) {
         const reward = Math.ceil(userLevel / 5) * 5;
         userLevel++;
@@ -104,11 +175,24 @@ function completeQuest(i) {
             document.getElementById('levelup-overlay').style.display = 'none';
         }, 2000);
         checkToyGeneratorUnlock();
+        // 레벨업 후 스페셜 퀘스트 추가 체크
+        if (!quests.some((qq) => qq.isSpecial)) {
+            const sp = generateSpecialQuest();
+            if (sp) quests.push(sp);
+        }
     }
+
+    // 퀘스트 제거 및 새 퀘스트 생성
     quests.splice(i, 1);
-    generateNewQuest();
+    if (q.isSpecial) {
+        currentSpecialIndex = (currentSpecialIndex + 1) % 3;
+        const newSp = generateSpecialQuest();
+        if (newSp) quests.push(newSp);
+    } else {
+        generateNewQuest();
+    }
+
     questPage = 0;
-    // 퀘스트 완료 시 맨 앞으로 스크롤
     if (questContainer) questContainer.scrollLeft = 0;
     updateRaceProgress();
     updateAll();
@@ -317,7 +401,7 @@ function handleCellClick(zone, idx) {
             showToast('퀘스트 미션 완료! 칸 해제!');
             updateAll();
         } else {
-            showToast(`일반 퀘스트 ${totalQuestsCompleted}/${it.reqCount} 완료`);
+            showToast(`퀘스트 ${totalQuestsCompleted}/${it.reqCount} 완료`);
         }
     } else if (it.type.includes('generator')) triggerGen(idx, it);
 }

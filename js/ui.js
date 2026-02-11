@@ -37,7 +37,7 @@ function renderGrid(zone, state, cont) {
                 const done = totalQuestsCompleted >= item.reqCount;
                 c.classList.add('upgrade-mission-cell');
                 if (done) c.classList.add('done');
-                c.innerHTML = `<div class="text-lg">${done ? '✅' : '📋'}</div><div class="text-[8px] font-bold text-center">일반 퀘스트<br>${totalQuestsCompleted}/${item.reqCount}</div>`;
+                c.innerHTML = `<div class="text-lg">${done ? '✅' : '📋'}</div><div class="text-[8px] font-bold text-center">퀘스트<br>${totalQuestsCompleted}/${item.reqCount}</div>`;
             } else c.appendChild(createItem(item, zone, i));
         }
     });
@@ -128,7 +128,7 @@ function updateAll() {
     updateUI();
     updateTimerUI();
     updateQuestUI();
-    updateSpecialMissionUI();
+    trySpawnSpecialGenerator();
     updateLegendaryQuestUI();
     updateDailyMissionUI();
     updateAlbumBarUI();
@@ -181,6 +181,12 @@ function updateQuestUI() {
     };
 
     quests.sort((a, b) => canComplete(b) - canComplete(a));
+    // 스페셜 퀘스트는 항상 마지막 위치
+    const spSortIdx = quests.findIndex((q) => q.isSpecial);
+    if (spSortIdx !== -1 && spSortIdx !== quests.length - 1) {
+        const [sp] = quests.splice(spSortIdx, 1);
+        quests.push(sp);
+    }
 
     quests.forEach((q, i) => {
         const d = document.createElement('div');
@@ -192,14 +198,23 @@ function updateQuestUI() {
             let l;
             if (r.type === 'cat') l = CATS;
             else if (r.type === 'dog') l = DOGS;
+            else if (r.type === 'bird') l = BIRDS;
+            else if (r.type === 'fish') l = FISH;
+            else if (r.type === 'reptile') l = REPTILES;
             else if (r.type.includes('snack')) l = r.type.includes('cat') ? CAT_SNACKS : DOG_SNACKS;
             else if (r.type.includes('toy')) l = r.type.includes('cat') ? CAT_TOYS : DOG_TOYS;
             h += `<div class="req-item" title="Lv.${r.level}"><span class="text-lg">${l[r.level - 1].emoji}</span></div>`;
         });
-        const remaining = q.expiresAt ? q.expiresAt - Date.now() : 0;
-        const timerText = remaining > 0 ? formatQuestTimer(remaining) : '만료';
-        const rewardText = q.cardReward > 0 ? `${q.cardReward}🃏` : `${q.reward}🪙`;
-        h += `</div></div><div class="text-[9px] mb-1 text-center"><div class="text-yellow-600">보상: ${rewardText}</div><div class="text-red-500">⏱${timerText}</div></div><div class="quest-btn ${ok ? 'complete' : 'incomplete'}" onclick="${ok ? `completeQuest(${i})` : ''}">${ok ? '완료!' : '구해줘'}</div>`;
+        let timerText, rewardText;
+        if (q.isSpecial) {
+            timerText = '⭐스페셜';
+            rewardText = `${q.reward}🪙`;
+        } else {
+            const remaining = q.expiresAt ? q.expiresAt - Date.now() : 0;
+            timerText = remaining > 0 ? `⏱${formatQuestTimer(remaining)}` : '만료';
+            rewardText = q.cardReward > 0 ? `${q.cardReward}🃏` : `${q.reward}🪙`;
+        }
+        h += `</div></div><div class="text-[9px] mb-1 text-center"><div class="text-yellow-600">보상: ${rewardText}</div><div class="${q.isSpecial ? 'text-purple-500' : 'text-red-500'}">${timerText}</div></div><div class="quest-btn ${ok ? 'complete' : 'incomplete'}" onclick="${ok ? `completeQuest(${i})` : ''}">${ok ? '완료!' : '구해줘'}</div>`;
         d.innerHTML = h;
         questContainer.appendChild(d);
     });
@@ -322,7 +337,6 @@ function handleDragStart(e) {
     if (
         e.target.closest('.help-btn') ||
         e.target.closest('.quest-btn') ||
-        e.target.closest('.sp-btn') ||
         e.target.closest('#btn-spin') ||
         e.target.closest('.sell-btn') ||
         e.target.closest('.shop-cell') ||

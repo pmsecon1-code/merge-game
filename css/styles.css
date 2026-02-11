@@ -73,9 +73,6 @@ body {
     border: 2px solid #c084fc;
 }
 
-#special-quest-area {
-    border: 2px solid #fcd34d;
-}
 
 #rescue-wrapper {
     border: 2px solid #60a5fa;
@@ -325,67 +322,6 @@ body {
     margin: 0 auto;
 }
 
-/* 스페셜 미션 헤더 */
-#special-mission-container {
-    width: 100%;
-    display: flex;
-    gap: 4px;
-    flex-shrink: 0;
-    padding: 4px;
-    background: #f1f5f9;
-    border-bottom: 1px solid #cbd5e1;
-}
-
-.sp-mission-card {
-    flex: 1;
-    background: white;
-    border: 2px solid #cbd5e1;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-    height: 70px;
-    opacity: 0.6;
-    transition: all 0.3s;
-}
-
-.sp-mission-card.active {
-    opacity: 1;
-    border-color: #8b5cf6;
-    background: #f5f3ff;
-    box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
-}
-
-.sp-icon {
-    font-size: 1.4rem;
-}
-
-.sp-text {
-    font-size: 0.6rem;
-    color: #64748b;
-    text-align: center;
-    line-height: 1.1;
-}
-
-.sp-reward-text {
-    font-size: 0.5rem;
-    color: #7c3aed;
-    font-weight: bold;
-}
-
-.sp-btn {
-    display: none;
-    margin-top: 2px;
-    background: #8b5cf6;
-    color: white;
-    font-size: 0.6rem;
-    padding: 2px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    animation: pulse 1s infinite;
-}
 
 /* ============================================
    5. 구조 현장 (아파트)

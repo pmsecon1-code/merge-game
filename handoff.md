@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.14.0)
+# 멍냥 머지 게임 - Architecture (v4.16.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.14.0
+- **버전**: 4.16.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -22,12 +22,13 @@ merge2/
 │   ├── state.js        # 전역 변수 + DOM 참조 (~102줄)
 │   ├── auth.js         # 인증 + 세션 관리 (~129줄)
 │   ├── save.js         # 저장/로드/검증 (~420줄)
-│   ├── game.js         # 코어 게임 메커닉 (~485줄)
-│   ├── systems.js      # 스페셜 미션/주사위 여행/상점 (~450줄)
+│   ├── game.js         # 코어 게임 메커닉 (~560줄)
+│   ├── systems.js      # 7행미션/주사위 여행/상점 (~380줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~225줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1060줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감 (~515줄)
-│   └── main.js         # 초기화 + 타이머 (~252줄)
+│   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~191줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감 (~530줄)
+│   └── main.js         # 초기화 + 타이머 (~257줄)
 ├── firestore.rules     # Firebase 보안 규칙
 ├── firebase.json       # Firebase Hosting + Firestore 설정
 ├── .firebaserc         # Firebase 프로젝트 연결
@@ -35,9 +36,9 @@ merge2/
 └── handoff.md          # 이 문서
 ```
 
-**script 로드 순서**: constants → state → auth → save → game → systems → album → race → ui → main
+**script 로드 순서**: constants → state → auth → save → game → systems → album → race → tutorial → ui → main
 
-**총 JS**: ~3500줄, **함수**: ~120개
+**총 JS**: ~3700줄, **함수**: ~130개
 
 ---
 
@@ -48,15 +49,14 @@ merge2/
 | 0 | 로그인 화면 (비로그인 시) | 전체 화면 |
 | 1 | 상단바 (⚡에너지, 🪙코인, 💎다이아, 🃏카드, Lv.n, 🔑로그아웃) | status-bar |
 | 2 | 📋 레벨업 진행도 (n/min(레벨×2,20)) | event-bar 파랑 |
-| 3 | 📋 일반 퀘스트 (6개, 3개씩 페이지) | event-bar 보라 |
+| 3 | 📋 퀘스트 (7개, 3개씩 페이지) | event-bar 보라 |
 | 4 | 맵 (5×7 = 35칸) | board-wrapper 분홍 |
 | 5 | 📋 일일 미션 (합성/생성/코인) | event-bar 황색 |
 | 6 | 🏁 레이스 (1:1 경쟁) | event-bar 시안 |
 | 7 | 📸 앨범 (진행도/타이머/뽑기/앨범보기) | event-bar 보라 |
-| 8 | ⭐ 스페셜 퀘스트 (🐦🐠🦎) | event-bar 노랑 |
-| 9 | 🎲 주사위 여행 (20칸 보드게임) | event-bar 초록 |
-| 10 | 🛒 상점 (5칸: 랜덤×3 + 🃏카드팩 + 💎다이아팩) | event-bar 주황 |
-| 11 | 📦 창고 (5칸) | event-bar 초록 |
+| 8 | 🎲 주사위 여행 (50칸 보드게임) | event-bar 초록 |
+| 9 | 🛒 상점 (5칸: 랜덤×3 + 🃏카드팩 + 💎다이아팩) | event-bar 주황 |
+| 10 | 📦 창고 (5칸) | event-bar 초록 |
 
 ---
 
@@ -147,8 +147,11 @@ merge2/
     lastResetDate,      // "YYYY-MM-DD" 마지막 리셋 날짜
   },
 
+  // 튜토리얼 (v4.15.0+)
+  tutorialStep,             // 0=완료, 1~4=진행 중 스텝
+
   // 기타
-  discoveredItems, specialMissionCycles,
+  discoveredItems, currentSpecialIndex,
   firstEnergyRewardGiven, savedAt
 }
 ```
@@ -232,7 +235,7 @@ merge2/
 | 퀘스트 완료 (카드) | 2~6장 🃏 |
 | 누적 코인 1000 | 칸마다 100🪙 |
 | 구조 완료 (3마리) | 1000🪙 |
-| 스페셜 미션 | 500🪙 + 10💎 |
+| 스페셜 퀘스트 (7번째 슬롯) | 300🪙 |
 | 상시 미션 | 200🪙 |
 | 레벨업 | ceil(레벨/5)×5 💎 |
 | 테마 완성 (9/9) | 500🪙 (×9 테마) |
@@ -397,6 +400,63 @@ LEGENDARIES = [아기말, 얼룩말, 경주마, 환상마, 유니콘]  // Lv.1~5
 
 ---
 
+## 온보딩 튜토리얼 (v4.15.0)
+
+### 개요
+새 유저 첫 로그인 시 4스텝 가이드 진행. 스포트라이트 + 말풍선으로 핵심 조작 안내.
+
+### 4스텝 흐름
+```
+[Step 1] 캣타워 터치 → 고양이 생성
+    ↓ (200ms)
+[Step 2] 캣타워 한번 더 → 2마리 생성
+    ↓ (200ms)
+[Step 3] 같은 동물 드래그 합성
+    ↓ (200ms)
+[Step 4] 퀘스트 완료 버튼 터치
+    ↓
+[완료] → tutorialStep=0, 출석보상/레이스 초기화
+```
+
+### 튜토리얼 중 제한사항
+| 제한 | 구현 위치 |
+|------|-----------|
+| `?` 도움말 버튼 숨김 | ui.js createItem() |
+| `ⓒ` 판매 버튼 숨김 | ui.js createItem() |
+| 비타겟 셀 클릭 차단 | game.js handleCellClick() + tutorial.js isTutorialClickAllowed() |
+| 퀘스트 만료 스킵 | game.js checkExpiredQuests() |
+| 주사위 드랍 스킵 | game.js moveItem() |
+| 럭키 드랍 스킵 | game.js spawnItem() |
+| 드래그 제한 (Step 3만 허용) | ui.js handleDragEnd() |
+| 출석보상/레이스 지연 | main.js onAuthStateChanged(), tutorial.js completeTutorial() |
+
+### UI 구조
+- **tutorial-overlay**: 전체 화면 반투명 오버레이 (pointer-events: none)
+- **tutorial-spotlight**: 타겟 요소 주변 강조 박스 (z-index: 10001)
+- **tutorial-bubble**: 말풍선 (arrow-up/arrow-down)
+- **tutorial-target**: 클릭/드래그 허용 요소 (z-index: 10002)
+
+### 관련 함수 (tutorial.js, 10개)
+| 함수 | 역할 |
+|------|------|
+| `startTutorial()` | 튜토리얼 시작 (Step 3 재개 시 페어 체크) |
+| `showTutorialStep(step)` | 스포트라이트 + 말풍선 배치 |
+| `positionSpotlight(targets, el)` | 타겟 바운딩 박스 계산 → 스포트라이트 위치 |
+| `positionBubble(targets, arrow, el)` | 말풍선 위치 (위/아래) |
+| `advanceTutorial()` | 다음 스텝 진행 |
+| `completeTutorial()` | 튜토리얼 종료 → 출석보상/레이스 초기화 |
+| `isTutorialClickAllowed(zone, idx)` | 스텝별 허용 셀 필터 |
+| `findSameLevelPair(type)` | Step 3용 같은 레벨 동물 쌍 찾기 |
+| `findReadyQuestBtn()` | Step 4용 완료 가능 퀘스트 버튼 찾기 |
+| `repositionTutorial()` | DOM 변경 후 스포트라이트 재배치 |
+
+### 스포트라이트 유지 메커니즘
+- `updateAll()` 끝에 `repositionTutorial()` 호출
+- `startQuestTimer()` 1초 타이머에 `repositionTutorial()` 호출
+- `window.resize` 이벤트에 `repositionTutorial()` 호출
+
+---
+
 ## 레이스 시스템 (v4.8.0)
 
 ### 개요
@@ -533,17 +593,20 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 
 ## 주요 함수 목록 (파일별)
 
-### game.js (24개)
-`discoverItem`, `countEasyQuests`, `generateNewQuest`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `checkDailyBonus`
+### game.js (26개)
+`discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `checkDailyBonus`
 
-### systems.js (31개)
-`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `isLegendaryQuestActive`, `getSlotUnlockLevel`, `updateSpecialMissionUI`, `updateSlot`, `spawnSpecialGenerator`, `completeSpecialMission`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `giveStepRewardWithInfo`, `completeTrip`, `spawnLegendaryGenerator`, `handleLegendaryGeneratorClick`, `completeLegendaryQuest`, `checkLegendaryComplete`, `updateLegendaryQuestUI`, `updateDiceTripUI`, `renderDiceTripBoard`, `moveTripPosition`, `giveStepReward`
+### systems.js (26개)
+`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `isLegendaryQuestActive`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `giveStepRewardWithInfo`, `completeTrip`, `spawnLegendaryGenerator`, `handleLegendaryGeneratorClick`, `completeLegendaryQuest`, `checkLegendaryComplete`, `updateLegendaryQuestUI`, `updateDiceTripUI`, `renderDiceTripBoard`, `moveTripPosition`, `giveStepReward`
 
 ### ui.js (26개)
 `renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`
 
 ### race.js (30개)
 `generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `findActiveOrPendingRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `quickJoinRace`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
+
+### tutorial.js (10개)
+`startTutorial`, `showTutorialStep`, `positionSpotlight`, `positionBubble`, `advanceTutorial`, `completeTutorial`, `isTutorialClickAllowed`, `findSameLevelPair`, `findReadyQuestBtn`, `repositionTutorial`
 
 ### main.js (8개)
 `init`, `createBoardCells`, `createStorageCells`, `createShopCells`, `startEnergyRecovery`, `startCooldownTimer`, `startQuestTimer`, `startDailyMissionTimer`
@@ -599,6 +662,58 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.16.0 (2026-02-11)
+- ⭐ **스페셜 퀘스트 → 일반 퀘스트 통합**
+  - 별도 UI(스페셜 퀘스트 영역) 제거 → 퀘스트 7번째 슬롯으로 통합
+  - 순환: 🐦새 → 🐠물고기 → 🦎파충류 → 🐦새 → ... (완료마다 다음 타입)
+  - Lv.2부터 등장 (레벨 제한/사이클 스케일링 제거)
+  - 보상: 300🪙 (기존 500🪙+10💎에서 변경)
+  - 타이머 없음 (만료 안 됨), `⭐스페셜` 표시
+  - 완료 시 보드/창고에서 해당 타입 동물+생성기 제거
+  - 생성기 자동 스폰: 빈 칸 없으면 대기 → updateAll에서 매번 체크
+  - 레벨업 진행도(questProgress) 및 7행 미션(totalQuestsCompleted) 카운트에 포함
+  - 정렬: 스페셜은 완료 가능해도 항상 마지막 위치
+- **명칭 통일**: "일반 퀘스트" → "퀘스트"
+- 삭제 항목
+  - HTML: `#special-quest-area` 전체
+  - CSS: `#special-quest-area`, `#special-mission-container`, `.sp-mission-card` 등
+  - 변수: `specialMissionCycles`
+  - 함수: `getSlotUnlockLevel`, `updateSpecialMissionUI`, `updateSlot`, `spawnSpecialGenerator`, `completeSpecialMission`
+- 신규 변수: `currentSpecialIndex` (0=bird, 1=fish, 2=reptile)
+- 신규 함수 (2개): `generateSpecialQuest`, `trySpawnSpecialGenerator`
+- 수정 함수: `completeQuest` (스페셜 분기), `generateNewQuest` (스페셜 앞에 삽입), `updateQuestUI` (bird/fish/reptile 렌더링, 스페셜 타이머/정렬), `updateAll` (trySpawnSpecialGenerator 호출)
+- 신규 저장 필드: `currentSpecialIndex` (기존 `specialMissionCycles` 대체)
+- firestore.rules: `currentSpecialIndex` 검증 추가 (0~2)
+
+### v4.15.0 (2026-02-11)
+- 📖 **온보딩 튜토리얼 시스템** 추가
+  - 새 유저 첫 로그인 시 4스텝 가이드 자동 시작
+  - Step 1: 캣타워 터치 → Step 2: 한번 더 → Step 3: 드래그 합성 → Step 4: 퀘스트 완료
+  - 스포트라이트 + 말풍선 UI (CSS 애니메이션)
+  - 튜토리얼 중 `?`/`ⓒ` 버튼 숨김, 비타겟 셀 클릭 차단
+  - 튜토리얼 중 퀘스트 만료 방지 (데드락 방지)
+  - 튜토리얼 중 주사위 드랍/럭키 드랍 스킵
+  - 완료 후 출석보상/레이스 초기화 실행
+- **버그 수정 (9개)**
+  - 튜토리얼 클릭 무반응 (handleDragEnd 경로 누락)
+  - 스크롤 시 스포트라이트 위치 깨짐 (scrollIntoView 대기)
+  - `?` 도움말 버튼 튜토리얼 중 노출
+  - `ⓒ` 판매 버튼 튜토리얼 중 노출
+  - 에너지 0일 때 advanceTutorial 오발동 (생성 확인 로직)
+  - 퀘스트 만료 → Step 4 데드락 (만료 스킵)
+  - Step 3-4 비타겟 셀 클릭 가능 (전체 스텝 필터)
+  - updateAll() 호출 시 스포트라이트 해제 (repositionTutorial 추가)
+  - startQuestTimer() DOM 재생성 시 스포트라이트 소실 (타이머에 repositionTutorial 추가)
+- **딜레이 최적화**
+  - 스텝 전환 딜레이 400~500ms → 200ms
+  - 스크롤 대기 350ms → 200ms
+- 신규 파일: `js/tutorial.js` (~191줄)
+- 신규 변수: `tutorialStep`, `lastMergedIndex`, `tutorialPointer`
+- 신규 함수 (10개): `startTutorial`, `showTutorialStep`, `positionSpotlight`, `positionBubble`, `advanceTutorial`, `completeTutorial`, `isTutorialClickAllowed`, `findSameLevelPair`, `findReadyQuestBtn`, `repositionTutorial`
+- 신규 저장 필드: `tutorialStep`
+- 수정 함수: `createItem` (버튼 숨김), `updateAll` (reposition), `handleCellClick` (전체 스텝 필터), `triggerGen` (생성 확인), `checkExpiredQuests` (만료 스킵), `handleDragEnd` (드래그 제한), `startQuestTimer` (reposition), `initNewGame` (tutorialStep=1)
+- firestore.rules: `tutorialStep` 필드 검증 추가
 
 ### v4.14.0 (2026-02-09)
 - 🦄 **전설 퀘스트 시스템** 추가
@@ -855,7 +970,8 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ## To-do
 
 - [ ] 사운드 효과 추가
-- [ ] 튜토리얼 확장
+- [x] 스페셜 퀘스트 일반 퀘스트 통합 (v4.16.0)
+- [x] 온보딩 튜토리얼 시스템 (v4.15.0)
 - [x] 데일리 레이스 시스템 (v4.6.0)
 - [x] 레이스 단순화 - 영구 코드/즉시 시작 (v4.7.0)
 - [x] 레이스 1시간 타이머 + 타임아웃 보상 (v4.7.0)
