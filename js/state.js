@@ -45,8 +45,11 @@ let discoveredItems = new Set();
 const newlyDiscoveredItems = new Map();
 
 // --- 미션 ---
-let specialMissionCycles = [0, 0, 0],
-    isTutorialActive = true;
+let specialMissionCycles = [0, 0, 0];
+
+// --- 튜토리얼 ---
+let tutorialStep = 1; // 1~8: 진행 중, 0: 완료
+let lastMergedIndex = -1; // 합성 결과 위치 추적
 
 // --- 일일 미션 ---
 let dailyMissions = {

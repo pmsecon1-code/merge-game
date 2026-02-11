@@ -292,6 +292,22 @@
             </div>
 
             <div id="tutorial-pointer" class="hidden">👆</div>
+
+            <!-- 튜토리얼 오버레이 -->
+            <div id="tutorial-overlay" style="display:none">
+                <div id="tutorial-spotlight"></div>
+                <div id="tutorial-bubble">
+                    <div id="tutorial-bubble-arrow"></div>
+                    <div id="tutorial-bubble-text"></div>
+                </div>
+                <button id="tutorial-next-btn">다음</button>
+                <div id="tutorial-complete">
+                    <div class="tc-emoji">🎉</div>
+                    <div class="tc-title">준비 완료!</div>
+                    <div class="tc-desc">멍냥 머지를 시작해보세요!</div>
+                    <button class="tc-btn" onclick="completeTutorial()">시작하기!</button>
+                </div>
+            </div>
         </div>
 
         <!-- 팝업들 -->
@@ -586,6 +602,7 @@
         <script src="js/album.js"></script>
         <script src="js/race.js"></script>
         <script src="js/ui.js"></script>
+        <script src="js/tutorial.js"></script>
         <script src="js/main.js"></script>
     </body>
 </html>

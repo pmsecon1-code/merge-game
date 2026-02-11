@@ -53,7 +53,7 @@ function getGameData() {
         dailyMissions: { ...dailyMissions },
         energyPurchaseCount,
         energyPurchaseResetTime: energyPurchaseResetTime - Date.now(),
-        isTutorialActive,
+        tutorialStep,
         firstEnergyRewardGiven,
         cards,
         album: [...album],
@@ -126,7 +126,14 @@ function applyGameData(d) {
     }
     energyPurchaseCount = d.energyPurchaseCount ?? 0;
     energyPurchaseResetTime = Date.now() + (d.energyPurchaseResetTime ?? 3 * 60 * 60 * 1000);
-    isTutorialActive = d.isTutorialActive ?? true;
+    // 튜토리얼 마이그레이션 (isTutorialActive → tutorialStep)
+    if (d.tutorialStep !== undefined) {
+        tutorialStep = d.tutorialStep;
+    } else if (d.isTutorialActive === false) {
+        tutorialStep = 0; // 기존 유저: 튜토리얼 완료
+    } else {
+        tutorialStep = 1; // 새 유저: 튜토리얼 시작
+    }
     firstEnergyRewardGiven = d.firstEnergyRewardGiven ?? false;
     cards = d.cards ?? 0;
     album = d.album || [];
@@ -339,6 +346,7 @@ function validateGameData(data) {
         ['loginStreak', 0, 6],
         ['diceTripPosition', 0, DICE_TRIP_SIZE],
         ['diceCount', 0, 999],
+        ['tutorialStep', 0, 8],
     ];
 
     for (const [key, min, max] of numChecks) {
@@ -442,7 +450,16 @@ function initNewGame() {
 
     refreshShop();
 
-    for (let i = 0; i < 6; i++) {
+    // 첫 퀘스트: 튜토리얼용 Lv.2 cat 고정
+    quests.push({
+        id: questIdCounter++,
+        npc: NPC_AVATARS[0],
+        reqs: [{ type: 'cat', level: 2 }],
+        reward: 20,
+        cardReward: 0,
+        expiresAt: Date.now() + 60 * 60 * 1000, // 1시간
+    });
+    for (let i = 1; i < 6; i++) {
         generateNewQuest();
     }
 

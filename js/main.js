@@ -181,9 +181,15 @@ auth.onAuthStateChanged(async (user) => {
 
             console.log('[Auth] Showing game screen...');
             showGameScreen();
-            checkDailyBonus();
-            initRace();
-            showToast(`환영합니다, ${user.displayName}!`);
+
+            // 튜토리얼 진행 중이면 지연, 아니면 즉시 실행
+            if (tutorialStep > 0) {
+                setTimeout(() => startTutorial(), 300);
+            } else {
+                checkDailyBonus();
+                initRace();
+                showToast(`환영합니다, ${user.displayName}!`);
+            }
         } catch (e) {
             console.error('[Auth] Login process error:', e);
             alert('로그인 처리 중 오류: ' + e.message);
@@ -224,6 +230,10 @@ document.addEventListener('visibilitychange', () => {
     } else {
         // 포그라운드 복귀 시 오프라인 에너지 회복
         recoverOfflineEnergy();
+        // 에너지 팝업 열려있으면 타이머 즉시 갱신
+        if (document.getElementById('energy-popup').style.display === 'flex') {
+            updateEnergyPopupTimer();
+        }
     }
 });
 
@@ -235,6 +245,11 @@ window.addEventListener('offline', () => {
 window.addEventListener('online', () => {
     showToast('온라인 복구! 저장 중...');
     saveGameNow();
+});
+
+// --- 리사이즈 시 튜토리얼 재배치 ---
+window.addEventListener('resize', () => {
+    if (tutorialStep > 0) repositionTutorial();
 });
 
 // --- 게임 시작 ---

@@ -112,6 +112,10 @@ function completeQuest(i) {
     if (questContainer) questContainer.scrollLeft = 0;
     updateRaceProgress();
     updateAll();
+    // 튜토리얼 Step 7 퀘스트 완료 훅
+    if (tutorialStep === 7) {
+        setTimeout(() => advanceTutorial(), 500);
+    }
 }
 
 function checkExpiredQuests() {
@@ -160,7 +164,7 @@ function spawnItem(baseType, inputLevel = 1, isFree = false) {
     let finalType = baseType,
         finalLevel = inputLevel,
         isLucky = false;
-    if (inputLevel === 1 && (baseType === 'cat' || baseType === 'dog')) {
+    if (inputLevel === 1 && (baseType === 'cat' || baseType === 'dog') && tutorialStep <= 0) {
         const rand = Math.random(),
             gl = genLevels[baseType];
         const luckChance = 0.05 + (gl - 1) * 0.01;
@@ -257,6 +261,10 @@ function spawnToy() {
 
 // --- 셀 클릭 ---
 function handleCellClick(zone, idx) {
+    // 튜토리얼 중 허용된 셀만 클릭 가능
+    if (tutorialStep > 0 && tutorialStep <= 3) {
+        if (!isTutorialClickAllowed(zone, idx)) return;
+    }
     const s = zone === 'board' ? boardState : storageState,
         it = s[idx];
     if (!it) return;
@@ -358,6 +366,10 @@ function triggerGen(idx, item) {
         // 전설 생성기 클릭
         handleLegendaryGeneratorClick(idx);
     } else spawnItem(baseType, 1, false);
+    // 튜토리얼 스텝 1/2/3 완료 훅
+    if (tutorialStep >= 1 && tutorialStep <= 3) {
+        setTimeout(() => advanceTutorial(), 400);
+    }
 }
 
 // --- 에너지 ---
@@ -475,11 +487,17 @@ function moveItem(fz, fi, tz, ti) {
                 checkLegendaryComplete();
             }
             const cell = (tz === 'board' ? boardEl : storageEl).children[ti];
+            // 합성 위치 추적 (튜토리얼용)
+            if (tz === 'board') lastMergedIndex = ti;
             setTimeout(() => {
                 showFloatText(cell, 'UP!', '#f43f5e');
             }, 50);
-            // 주사위 드랍 (합성 성공 시)
-            tryDropDice();
+            // 주사위 드랍 (합성 성공 시, 튜토리얼 중 스킵)
+            if (tutorialStep <= 0) tryDropDice();
+            // 튜토리얼 Step 4 합성 완료 훅
+            if (tutorialStep === 4) {
+                setTimeout(() => advanceTutorial(), 500);
+            }
         } else {
             ts[ti] = fIt;
             ss[fi] = tIt;

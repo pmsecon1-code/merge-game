@@ -1065,8 +1065,173 @@ body {
 }
 
 /* ============================================
-   13. 튜토리얼
+   13. 튜토리얼 (온보딩)
    ============================================ */
+
+/* 오버레이: 전체 화면 클릭 차단 레이어 */
+#tutorial-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    pointer-events: none;
+}
+
+#tutorial-overlay::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: auto;
+    z-index: 4000;
+}
+
+/* 스포트라이트: box-shadow로 주변 어둡게 */
+#tutorial-spotlight {
+    position: fixed;
+    z-index: 4001;
+    pointer-events: none;
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+    transition: all 0.3s ease;
+    animation: spotlight-pulse 2s infinite;
+}
+
+@keyframes spotlight-pulse {
+    0%, 100% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7); }
+    50% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65), 0 0 20px 4px rgba(255, 200, 50, 0.4); }
+}
+
+/* 하이라이트된 요소: 클릭 가능 */
+.tutorial-target {
+    position: relative;
+    z-index: 4005 !important;
+    pointer-events: auto !important;
+}
+
+/* 말풍선 */
+#tutorial-bubble {
+    position: fixed;
+    z-index: 4010;
+    pointer-events: auto;
+    background: white;
+    border-radius: 16px;
+    padding: 14px 18px;
+    max-width: 280px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    border: 3px solid #f43f5e;
+    animation: bubble-appear 0.3s ease-out;
+}
+
+@keyframes bubble-appear {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+#tutorial-bubble-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #1f2937;
+    font-weight: 500;
+}
+
+#tutorial-bubble-text strong {
+    color: #f43f5e;
+}
+
+/* 말풍선 화살표 */
+#tutorial-bubble-arrow {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border: 3px solid #f43f5e;
+    transform: rotate(45deg);
+}
+
+#tutorial-bubble.arrow-down #tutorial-bubble-arrow {
+    bottom: -10px;
+    left: 50%;
+    margin-left: -8px;
+    border-top: none;
+    border-left: none;
+}
+
+#tutorial-bubble.arrow-up #tutorial-bubble-arrow {
+    top: -10px;
+    left: 50%;
+    margin-left: -8px;
+    border-bottom: none;
+    border-right: none;
+}
+
+/* 다음 버튼 */
+#tutorial-next-btn {
+    display: none;
+    position: fixed;
+    z-index: 4010;
+    pointer-events: auto;
+    background: #f43f5e;
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 10px 28px;
+    font-size: 1rem;
+    font-weight: bold;
+    font-family: 'Jua', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
+    animation: bubble-appear 0.3s ease-out;
+}
+
+#tutorial-next-btn:active {
+    transform: scale(0.95);
+}
+
+/* 완료 화면 */
+#tutorial-complete {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 4020;
+    background: rgba(255, 255, 255, 0.95);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    pointer-events: auto;
+}
+
+#tutorial-complete .tc-emoji {
+    font-size: 5rem;
+    margin-bottom: 16px;
+    animation: pop 0.5s ease-out;
+}
+
+#tutorial-complete .tc-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #f43f5e;
+    margin-bottom: 8px;
+}
+
+#tutorial-complete .tc-desc {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 24px;
+}
+
+#tutorial-complete .tc-btn {
+    background: #f43f5e;
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 14px 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-family: 'Jua', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
+}
+
 .tutorial-badge {
     position: absolute;
     top: 50%;
