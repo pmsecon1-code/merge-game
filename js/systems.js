@@ -93,9 +93,9 @@ function renderShop() {
         if (item) {
             d.onclick = () => buyShopItem(idx);
             if (item.type === 'card_pack') {
-                d.innerHTML = `<div class="bg-circle" style="background-color:#f0abfc"></div><div style="font-size:1.5rem">🃏</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag">💎${item.price}</div>`;
+                d.innerHTML = `<div class="bg-circle" style="background-color:#f0abfc"></div><div style="font-size:1.5rem">🃏</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag">${item.price}💎</div>`;
             } else if (item.type === 'diamond_pack') {
-                d.innerHTML = `<div class="bg-circle" style="background-color:#67e8f9"></div><div style="font-size:1.5rem">💎</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">🪙${item.price}</div>`;
+                d.innerHTML = `<div class="bg-circle" style="background-color:#67e8f9"></div><div style="font-size:1.5rem">💎</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">${item.price}🪙</div>`;
             } else {
                 let list;
                 if (item.type.includes('cat'))
@@ -108,7 +108,7 @@ function renderShop() {
                 const data = list[item.level - 1] || list[list.length - 1],
                     isS = item.type.includes('snack'),
                     isT = item.type.includes('toy');
-                d.innerHTML = `<div class="${isS || isT ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:1.2rem">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div><div class="shop-price-tag">💎${item.level}</div>`;
+                d.innerHTML = `<div class="${isS || isT ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:1.2rem">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div><div class="shop-price-tag">${item.level}💎</div>`;
             }
         } else d.innerHTML = `<span class="text-xs text-gray-400">품절</span>`;
         shopGrid.appendChild(d);
@@ -439,6 +439,6 @@ function askSellItem(z, i, e) {
     else if (it.type.includes('fish')) list = FISH;
     else list = REPTILES;
     const n = (list[it.level - 1] || list[list.length - 1]).name;
-    document.getElementById('sell-desc').innerText = `'${n} (Lv.${it.level})' - ${p}코인`;
+    document.getElementById('sell-desc').innerText = `'${n} (Lv.${it.level})' - ${p}🪙`;
     document.getElementById('sell-popup').style.display = 'flex';
 }

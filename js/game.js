@@ -359,7 +359,7 @@ function handleCellClick(zone, idx) {
             s[idx] = null;
             showToast('해제!');
             updateAll();
-        } else showToast('코인부족');
+        } else showToast('코인 부족!');
     } else if (it.type === 'locked_storage') {
         if (idx > 0 && s[idx - 1]?.type === 'locked_storage') {
             showToast('앞 칸부터!');
@@ -370,7 +370,7 @@ function handleCellClick(zone, idx) {
             s[idx] = null;
             showToast('확장!');
             updateAll();
-        } else showToast('다이아부족');
+        } else showToast('다이아 부족!');
     } else if (it.type === 'upgrade_mission') {
         const done = genLevels[it.target] >= it.reqLevel;
         if (done) {
