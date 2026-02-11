@@ -159,12 +159,12 @@ function applyGameData(d) {
         };
     }
     energyPurchaseCount = d.energyPurchaseCount ?? 0;
+    // 에너지 구매 가격 리셋: 항상 다음 KST 자정 기준
+    energyPurchaseResetTime = Date.now() + getMsUntilKSTMidnight();
+    // 저장→로드 사이 자정이 지났으면 구매 횟수 초기화
     const savedEnergyResetMs = d.energyPurchaseResetTime ?? 0;
-    energyPurchaseResetTime = Date.now() + savedEnergyResetMs;
-    // v4.18.0 마이그레이션: 자정 기준으로 보정 (기존 3시간 타이머 → KST 자정)
-    const msToMidnight = getMsUntilKSTMidnight();
-    if (savedEnergyResetMs > msToMidnight) {
-        energyPurchaseResetTime = Date.now() + msToMidnight;
+    if (d.savedAt && d.savedAt + savedEnergyResetMs <= Date.now()) {
+        energyPurchaseCount = 0;
     }
     // 튜토리얼 마이그레이션 (isTutorialActive → tutorialStep)
     if (d.tutorialStep !== undefined) {
