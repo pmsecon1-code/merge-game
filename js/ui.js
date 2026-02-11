@@ -333,8 +333,6 @@ function handleDragStart(e) {
     if (!t) return;
     const p = t.parentElement;
     if (p.classList.contains('locked') || p.classList.contains('storage-locked')) return;
-    // 튜토리얼: Step 4(합성)에서만 드래그 허용
-    if (tutorialStep > 0 && tutorialStep !== 4) return;
     e.preventDefault();
     const z = p.dataset.zone,
         i = parseInt(p.dataset.index);
@@ -373,6 +371,12 @@ function handleDragEnd(e) {
     if (Math.hypot(cx - dragData.startX, cy - dragData.startY) < 5) {
         dragData.el.style.display = '';
         handleCellClick(dragData.zone, dragData.index);
+        dragData = null;
+        updateAll();
+        return;
+    }
+    // 튜토리얼: Step 4(합성)이 아니면 실제 드래그 차단
+    if (tutorialStep > 0 && tutorialStep !== 4) {
         dragData = null;
         updateAll();
         return;

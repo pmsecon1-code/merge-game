@@ -75,6 +75,9 @@ const TUTORIAL_STEPS = [
 function startTutorial() {
     if (tutorialStep <= 0 || tutorialStep > 8) return;
     document.getElementById('tutorial-overlay').style.display = '';
+    document.body.classList.add('tutorial-active');
+    // 맨 위로 스크롤
+    window.scrollTo(0, 0);
     // Step 4 재개 시 같은 동물 없으면 Step 3으로 되돌리기
     if (tutorialStep === 4) {
         const pair = findSameLevelPair('cat');
@@ -120,7 +123,20 @@ function showTutorialStep(step) {
     // 타겟에 tutorial-target 클래스 추가
     targets.forEach((t) => t.classList.add('tutorial-target'));
 
-    // 스포트라이트 위치
+    // 타겟이 보이도록 스크롤
+    targets[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // 스크롤 완료 후 위치 계산
+    setTimeout(() => {
+        positionSpotlight(targets, spotlight);
+        positionBubble(targets, config.arrow, bubble);
+        if (config.action === 'next') {
+            const bRect = bubble.getBoundingClientRect();
+            nextBtn.style.left = (bRect.left + bRect.width / 2 - 50) + 'px';
+            nextBtn.style.top = (bRect.bottom + 10) + 'px';
+        }
+    }, 350);
+
+    // 스포트라이트 위치 (즉시)
     positionSpotlight(targets, spotlight);
 
     // 말풍선 위치
@@ -200,6 +216,7 @@ function completeTutorial() {
 
     // 오버레이 제거
     document.getElementById('tutorial-overlay').style.display = 'none';
+    document.body.classList.remove('tutorial-active');
     document.querySelectorAll('.tutorial-target').forEach((el) => el.classList.remove('tutorial-target'));
 
     saveGame();

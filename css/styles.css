@@ -1069,19 +1069,15 @@ body {
    ============================================ */
 
 /* 오버레이: 전체 화면 클릭 차단 레이어 */
+body.tutorial-active {
+    overflow: hidden !important;
+}
+
 #tutorial-overlay {
     position: fixed;
     inset: 0;
     z-index: 4000;
     pointer-events: none;
-}
-
-#tutorial-overlay::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: auto;
-    z-index: 4000;
 }
 
 /* 스포트라이트: box-shadow로 주변 어둡게 */
