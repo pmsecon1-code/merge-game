@@ -80,6 +80,28 @@ function createItem(item, zone, index) {
         d.innerHTML = `${specialUI}<div class="animal-inside">${emoji}</div><div class="cage-label">${label}</div><div class="help-btn"${helpDisplay} data-gen-type="${type}">?</div>`;
         return d;
     }
+    if (item.type === 'piggy_bank') {
+        const d = document.createElement('div');
+        d.className = 'item piggy-bank-item';
+        const ready = Date.now() >= item.openAt;
+        const rem = Math.max(0, item.openAt - Date.now());
+        const m = Math.floor(rem / 60000);
+        const s = Math.floor((rem % 60000) / 1000);
+        const timerText = ready ? '터치!' : `${m}:${s.toString().padStart(2, '0')}`;
+        d.innerHTML = `
+            <div class="bg-circle" style="background-color:${ready ? '#fbbf24' : '#d1d5db'}"></div>
+            <div style="font-size:2rem">${ready ? '🐷' : '🔒'}</div>
+            <div class="level-badge" style="background:${ready ? '#f59e0b' : '#9ca3af'}">${timerText}</div>
+        `;
+        if (!ready && tutorialStep <= 0) {
+            const adBtn = document.createElement('div');
+            adBtn.className = 'sell-btn ad-btn';
+            adBtn.innerText = '📺';
+            adBtn.onclick = (e) => { e.stopPropagation(); openAdPopup(zone, index); };
+            d.appendChild(adBtn);
+        }
+        return d;
+    }
     const d = document.createElement('div');
     d.className = 'item';
     let list,

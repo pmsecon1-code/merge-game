@@ -32,6 +32,10 @@ export default [
                 DICE_DROP_CHANCE: 'readonly',
                 DICE_TRIP_COMPLETE_REWARD: 'readonly',
                 DICE_TRIP_REWARDS: 'readonly',
+                // 저금통 상수
+                PIGGY_BANK_TIMER_MS: 'readonly',
+                PIGGY_BANK_MIN_COINS: 'readonly',
+                PIGGY_BANK_MAX_COINS: 'readonly',
                 GENERATOR_COOLDOWN_MS: 'readonly',
                 // UI 타이밍 상수
                 TOAST_DURATION_MS: 'readonly',
@@ -200,6 +204,8 @@ export default [
                 addDailyProgress: 'readonly',
                 checkDailyMissionComplete: 'readonly',
                 claimDailyBonus: 'readonly',
+                openAdPopup: 'readonly',
+                confirmAd: 'readonly',
                 // systems.js globals - 헬퍼 함수
                 hasItemOfType: 'readonly',
                 hasItemOfTypeAndLevel: 'readonly',

@@ -128,6 +128,17 @@ function completeQuest(i) {
         cumulativeCoins += q.reward;
         addDailyProgress('coins', q.reward);
         showToast(`완료! +${q.reward}🪙`);
+        // 스페셜 퀘스트 완료 시 저금통 스폰
+        const piggyCoins = PIGGY_BANK_MIN_COINS + Math.floor(Math.random() * (PIGGY_BANK_MAX_COINS - PIGGY_BANK_MIN_COINS + 1));
+        const piggyIdx = boardState.findIndex(x => x === null);
+        if (piggyIdx !== -1) {
+            boardState[piggyIdx] = { type: 'piggy_bank', coins: piggyCoins, openAt: Date.now() + PIGGY_BANK_TIMER_MS };
+            showToast('🐷 저금통 획득!');
+        } else {
+            coins += piggyCoins;
+            cumulativeCoins += piggyCoins;
+            showToast(`보드 가득! +${piggyCoins}🪙`);
+        }
     } else {
         // --- 일반 퀘스트 완료 ---
         const rem = [...q.reqs];
@@ -403,6 +414,20 @@ function handleCellClick(zone, idx) {
         } else {
             showToast(`퀘스트 ${totalQuestsCompleted}/${it.reqCount} 완료`);
         }
+    } else if (it.type === 'piggy_bank') {
+        if (Date.now() >= it.openAt) {
+            coins += it.coins;
+            cumulativeCoins += it.coins;
+            addDailyProgress('coins', it.coins);
+            s[idx] = null;
+            showMilestonePopup('🐷 저금통 개봉!', `+${it.coins}🪙`);
+            updateAll();
+        } else {
+            const rem = it.openAt - Date.now();
+            const m = Math.floor(rem / 60000);
+            const sec = Math.floor((rem % 60000) / 1000);
+            showToast(`🔒 ${m}분 ${sec}초 후 개봉 가능`);
+        }
     } else if (it.type.includes('generator')) triggerGen(idx, it);
 }
 
@@ -555,6 +580,12 @@ function moveItem(fz, fi, tz, ti) {
         ss[fi] = null;
         return;
     }
+    // 저금통은 합성 불가 → 위치 교환만
+    if (fIt.type === 'piggy_bank' || tIt.type === 'piggy_bank') {
+        ts[ti] = fIt;
+        ss[fi] = tIt;
+        return;
+    }
     if (fIt.type === tIt.type && fIt.level === tIt.level) {
         let max = 11;
         if (fIt.type.includes('snack') || fIt.type.includes('toy')) max = 5;
@@ -662,6 +693,32 @@ function claimDailyBonus() {
     cards += DAILY_COMPLETE_REWARD.cards;
     showMilestonePopup('🎁 일일 미션 완료!', `${DAILY_COMPLETE_REWARD.diamonds}💎 + ${DAILY_COMPLETE_REWARD.cards}🃏`);
     updateDailyMissionUI();
+    updateAll();
+}
+
+// --- 저금통 광고 ---
+function openAdPopup(zone, idx) {
+    const s = zone === 'board' ? boardState : storageState;
+    const it = s[idx];
+    if (!it || it.type !== 'piggy_bank') return;
+    document.getElementById('ad-piggy-zone').value = zone;
+    document.getElementById('ad-piggy-idx').value = idx;
+    document.getElementById('ad-popup').style.display = 'flex';
+}
+
+function confirmAd() {
+    const zone = document.getElementById('ad-piggy-zone').value;
+    const idx = parseInt(document.getElementById('ad-piggy-idx').value);
+    const s = zone === 'board' ? boardState : storageState;
+    const it = s[idx];
+    if (!it || it.type !== 'piggy_bank') return;
+
+    closeOverlay('ad-popup');
+    coins += it.coins;
+    cumulativeCoins += it.coins;
+    addDailyProgress('coins', it.coins);
+    s[idx] = null;
+    showMilestonePopup('🐷 저금통 개봉!', `+${it.coins}🪙`);
     updateAll();
 }
 

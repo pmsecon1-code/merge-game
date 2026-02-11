@@ -1796,3 +1796,9 @@ body.tutorial-active {
 
 .album-theme-chip .chip-icon { font-size: 0.75rem; line-height: 1; }
 .album-theme-chip .chip-progress { font-size: 6px; color: #9ca3af; line-height: 1; }
+
+/* ============================================
+   저금통
+   ============================================ */
+.piggy-bank-item { position: relative; }
+.ad-btn { background: #f59e0b !important; color: white !important; }

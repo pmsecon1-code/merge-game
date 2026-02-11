@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.19.1)
+# 멍냥 머지 게임 - Architecture (v4.20.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.19.1
+- **버전**: 4.20.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -116,7 +116,7 @@ merge2/
 ### 저장 데이터 구조
 ```javascript
 {
-  // 보드
+  // 보드 (아이템: {type, level} | 생성기: {type, clicks, cooldown} | 저금통: {type:'piggy_bank', coins, openAt})
   boardState: [{type, level}, ...],      // 35칸
   storageState: [{type, level}, ...],    // 5칸
 
@@ -253,7 +253,8 @@ merge2/
 | 퀘스트 완료 (일반) | 가변 코인 (레벨 스케일링) |
 | 퀘스트 완료 (카드) | 2~6장 🃏 |
 | 누적 코인 1000 | 칸마다 100🪙 |
-| 스페셜 퀘스트 (7번째 슬롯) | 300🪙 |
+| 스페셜 퀘스트 (7번째 슬롯) | 300🪙 + 저금통(300~1000🪙) |
+| 저금통 개봉 (1시간 또는 광고) | 300~1000🪙 |
 | 주사위 여행 완주 | 500🪙 + 20💎 |
 | 레벨업 | ceil(레벨/5)×5 💎 |
 | 테마 완성 (9/9) | 500🪙 (×9 테마) |
@@ -579,8 +580,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 
 ## 주요 함수 목록 (파일별)
 
-### game.js (26개)
-`discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `checkDailyBonus`
+### game.js (28개)
+`discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
 
 ### systems.js (21개)
 `hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `moveTripPosition`, `giveStepReward`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`
@@ -607,8 +608,11 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 밸런스
 `MAX_ENERGY=100`, `RECOVERY_SEC=30`, `SHOP_REFRESH_MS=300000`, `UNLOCK_COST_BOARD=100`, `SNACK_CHANCE=0.08`
 
+### 저금통
+`PIGGY_BANK_TIMER_MS=3600000`, `PIGGY_BANK_MIN_COINS=300`, `PIGGY_BANK_MAX_COINS=1000`
+
 ### 주사위 여행
-`DICE_TRIP_SIZE=50`, `DICE_DROP_CHANCE=0.05`, `DICE_TRIP_COMPLETE_REWARD={coins:500, diamonds:20}`
+`DICE_TRIP_SIZE=50`, `DICE_DROP_CHANCE=0.03`, `DICE_TRIP_COMPLETE_REWARD={coins:500, diamonds:20}`
 
 ### 에너지 구매
 `getEnergyPrice()` → 300 + 구매횟수×50 (KST 자정 리셋)
@@ -648,6 +652,22 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.20.0 (2026-02-11)
+- 🐷 **저금통 시스템** 추가
+  - 스페셜 퀘스트 완료 시 저금통 아이템 보드에 스폰
+  - 코인 300~1000 랜덤 (생성 시 결정)
+  - 1시간 타이머 후 터치로 개봉 → 코인 지급
+  - 미개봉 시 📺 버튼 → 광고(페이크) 시청 → 즉시 개봉
+  - 합성 불가 (위치 교환만 허용), 판매 불가
+  - 보드 가득 시 코인 직접 지급 (fallback)
+  - 창고 이동 허용 (타이머 유지, openAt 절대 시간)
+- 신규 상수: `PIGGY_BANK_TIMER_MS`, `PIGGY_BANK_MIN_COINS`, `PIGGY_BANK_MAX_COINS`
+- 신규 함수 (2개): `openAdPopup()`, `confirmAd()` (game.js)
+- 수정 함수: `completeQuest()` (저금통 스폰), `handleCellClick()` (piggy_bank 분기), `moveItem()` (합성 차단), `createItem()` (저금통 렌더링), `askSellItem()` (판매 차단)
+- 신규 HTML: `#ad-popup` (광고 확인 팝업)
+- 신규 CSS: `.piggy-bank-item`, `.ad-btn`
+- 데이터 구조: boardState 아이템에 `{type:'piggy_bank', coins, openAt}` 추가 (기존 데이터 호환)
 
 ### v4.19.1 (2026-02-11)
 - 💰 **경제 긴축 패치** - 재화 과잉 해소

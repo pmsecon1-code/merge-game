@@ -428,6 +428,12 @@ function askSellItem(z, i, e) {
         return;
     }
 
+    // 저금통은 판매 불가
+    if (it.type === 'piggy_bank') {
+        showToast('저금통은 판매할 수 없어요!');
+        return;
+    }
+
     sellTarget = { zone: z, index: i, item: it };
     const p = it.level;
     let list;

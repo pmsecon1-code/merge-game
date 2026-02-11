@@ -34,6 +34,11 @@ const CAGE_UPGRADE_COST = 1000;
 const CAGE_MAX_LEVEL = 5;
 const SNACK_CHANCE = 0.08;
 
+// --- 저금통 설정 ---
+const PIGGY_BANK_TIMER_MS = 60 * 60 * 1000; // 1시간
+const PIGGY_BANK_MIN_COINS = 300;
+const PIGGY_BANK_MAX_COINS = 1000;
+
 // --- 주사위 여행 설정 ---
 const DICE_TRIP_SIZE = 50;
 const DICE_DROP_CHANCE = 0.03;
