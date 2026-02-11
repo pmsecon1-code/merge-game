@@ -703,6 +703,9 @@ firebase deploy --only firestore:rules   # 보안 규칙
   - 버튼 순서: `500🪙 구매` → `구매 500🪙` (뽑기 🃏20 패턴에 통일)
   - 레이스 참가 문구: race.js 동적 렌더링에도 `(승리 시 +200🪙 +10💎)` 추가
   - 수정 파일: index.html, game.js, main.js, systems.js, race.js
+- 🐛 **에너지 구매 리셋 타이머 자정 넘김 버그 수정**
+  - 기존: 저장된 remaining ms 복원 → 자정 넘기면 타이머 어긋남
+  - 수정: 항상 `getMsUntilKSTMidnight()`로 fresh 계산 + `savedAt` 기준 자정 지남 판정 시 구매 횟수 초기화
 
 ### v4.17.0 (2026-02-11)
 - 🗑️ **전설 퀘스트 시스템 완전 제거**
