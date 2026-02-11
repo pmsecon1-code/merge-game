@@ -1727,15 +1727,18 @@ body.tutorial-active {
 .badge-label { font-size: 8px; color: #6b7280; }
 .badge-info { font-size: 7px; color: #9ca3af; min-height: 10px; }
 
-/* 배지 콘텐츠 영역 - 일일미션과 크기 통일 */
+/* 배지 콘텐츠 영역 - 일일미션과 높이 완전 통일 */
+#daily-mission-bar,
 #bottom-content .event-bar {
-    padding: 4px 10px;
+    height: 90px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 #bottom-content #storage-area {
     background: none;
     border-top: none;
-    padding: 4px 0;
+    padding: 2px 0;
     z-index: auto;
 }
 
@@ -1743,26 +1746,48 @@ body.tutorial-active {
     gap: 3px;
 }
 
-#bottom-content .cell {
-    aspect-ratio: auto;
-    height: 48px;
-}
-
+#bottom-content .cell,
 #bottom-content .shop-cell {
     aspect-ratio: auto;
-    height: 48px;
+    height: 52px;
 }
 
 #bottom-content .dice-trip-board {
-    padding: 4px;
+    padding: 2px 4px;
 }
 
 #bottom-content .dice-step {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
 }
 
 #bottom-content .dice-step.goal {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
 }
+
+/* 앨범 테마 미니 그리드 */
+.album-theme-mini {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 3px;
+}
+
+.album-theme-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2px 0;
+    border-radius: 4px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+}
+
+.album-theme-chip.complete {
+    background: #fef3c7;
+    border-color: #f59e0b;
+}
+
+.album-theme-chip .chip-icon { font-size: 0.75rem; line-height: 1; }
+.album-theme-chip .chip-progress { font-size: 6px; color: #9ca3af; line-height: 1; }

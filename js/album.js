@@ -220,4 +220,21 @@ function updateAlbumBarUI() {
     if (timerEl) timerEl.innerText = `⏱${formatAlbumTimer()}`;
     if (photoBar) photoBar.style.width = `${Math.min((progress / totalPhotos) * 100, 100)}%`;
     if (cardValEl) cardValEl.innerText = cards;
+
+    // 테마 미니 그리드
+    const themeGrid = document.getElementById('album-theme-grid');
+    if (themeGrid) {
+        const icons = ['🐱','🐶','🐦','🐟','🦎','🍰','🧸','🚑','🌟'];
+        let html = '';
+        ALBUM_THEMES.forEach((theme, i) => {
+            const collected = theme.photos.filter(p => album.includes(`${theme.id}_${p.id}`)).length;
+            const total = theme.photos.length;
+            const complete = collected === total;
+            html += `<div class="album-theme-chip${complete ? ' complete' : ''}" onclick="openAlbum();switchAlbumTheme(${i})">
+                <span class="chip-icon">${icons[i]}</span>
+                <span class="chip-progress">${collected}/${total}</span>
+            </div>`;
+        });
+        themeGrid.innerHTML = html;
+    }
 }

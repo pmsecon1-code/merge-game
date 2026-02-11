@@ -173,7 +173,7 @@
 
                 <!-- 5. 앨범 -->
                 <div id="album-bar" class="event-bar" style="display:none; border: 2px solid #e879f9">
-                    <div class="flex justify-between items-center mb-1">
+                    <div class="flex justify-between items-center">
                         <span class="text-[10px] font-bold text-fuchsia-600">
                             📸 앨범
                             <span id="album-progress-text" class="text-[9px] text-fuchsia-400">0/81</span>
@@ -181,26 +181,15 @@
                         </span>
                         <div class="flex gap-1 items-center">
                             <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold">⏱21일</span>
-                            <button
-                                onclick="openPhotoDraw()"
-                                class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold"
-                            >
-                                뽑기 (20🃏)
-                            </button>
-                            <button
-                                onclick="openAlbum()"
-                                class="text-[9px] bg-fuchsia-100 text-fuchsia-600 px-2 py-0.5 rounded-full font-bold"
-                            >
-                                앨범 보기
-                            </button>
+                            <button onclick="openPhotoDraw()" class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold">뽑기 (20🃏)</button>
+                            <button onclick="openAlbum()" class="text-[9px] bg-fuchsia-100 text-fuchsia-600 px-2 py-0.5 rounded-full font-bold">앨범 보기</button>
                         </div>
                     </div>
                     <div class="progress-track">
-                        <div
-                            id="album-photo-bar"
-                            class="progress-fill"
-                            style="background: linear-gradient(90deg, #d946ef, #a855f7)"
-                        ></div>
+                        <div id="album-photo-bar" class="progress-fill" style="background: linear-gradient(90deg, #d946ef, #a855f7)"></div>
+                    </div>
+                    <div id="album-theme-grid" class="album-theme-mini">
+                        <!-- JS로 렌더링 -->
                     </div>
                 </div>
 
