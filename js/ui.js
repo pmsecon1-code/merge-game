@@ -123,7 +123,6 @@ function updateAll() {
     updateAlbumBarUI();
     updateDiceTripUI();
     updateBottomBadges();
-    syncSectionHeight();
     saveGame();
     // 튜토리얼 중이면 스포트라이트 재배치
     if (tutorialStep > 0) repositionTutorial();
@@ -529,18 +528,6 @@ function upgradeGenerator() {
     });
     updateUpgradeUI();
     updateAll();
-}
-
-function syncSectionHeight() {
-    const storage = document.getElementById('storage-wrapper');
-    const wasHidden = storage.style.display === 'none';
-    const prevHeight = storage.style.height;
-    storage.style.height = 'auto';
-    if (wasHidden) storage.style.display = 'flex';
-    const h = storage.offsetHeight;
-    if (wasHidden) storage.style.display = 'none';
-    storage.style.height = prevHeight;
-    document.documentElement.style.setProperty('--section-height', h + 'px');
 }
 
 // --- 하단 배지 탭 ---

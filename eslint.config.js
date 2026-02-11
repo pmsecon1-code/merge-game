@@ -318,7 +318,6 @@ export default [
                 startDailyMissionTimer: 'readonly',
                 toggleBottomTab: 'readonly',
                 updateBottomBadges: 'readonly',
-                syncSectionHeight: 'readonly',
                 currentBottomTab: 'writable',
                 lastRaceData: 'writable',
                 RACE_EXPIRE_MS: 'readonly',

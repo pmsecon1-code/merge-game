@@ -1727,10 +1727,11 @@ body.tutorial-active {
 .badge-label { font-size: 8px; color: #6b7280; }
 .badge-info { font-size: 7px; color: #9ca3af; min-height: 10px; }
 
-/* 콘텐츠 영역 - 모든 섹션 창고 높이로 통일 */
+/* 콘텐츠 영역 - 모든 섹션 창고 높이로 통일 (CSS calc) */
+/* 높이 = 셀(1fr aspect-ratio:1) + 타이틀14px + padding8px + border4px + grid-padding4px = 30px */
 #daily-mission-bar,
 #bottom-content .event-bar {
-    height: var(--section-height, auto);
+    height: calc((min(95vw, 399px) - 40px) / 5 + 30px);
     box-sizing: border-box;
     overflow: hidden;
 }
