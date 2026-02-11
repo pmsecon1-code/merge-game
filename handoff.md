@@ -63,7 +63,7 @@ merge2/
 │참가  │0/81  │1/50  │4:32 │0/0  │
 └─────┴──────┴──────┴─────┴─────┘
 ```
-- 배지 탭 → 해당 콘텐츠 표시 (일일미션 자리 대체, 90px 고정높이)
+- 배지 탭 → 해당 콘텐츠 표시 (일일미션 자리 대체, CSS calc 동적 높이)
 - 같은 배지 재탭 → 닫힘 (일일미션 복원)
 - 배지 요약 정보: 레이스(상태별), 앨범(진행도), 주사위(위치), 상점(갱신타이머), 창고(보관/열린칸)
 - 각 콘텐츠는 기본 숨김 (`display:none`)
@@ -610,7 +610,7 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 `DICE_TRIP_SIZE=50`, `DICE_DROP_CHANCE=0.05`, `DICE_TRIP_COMPLETE_REWARD={coins:1000, diamonds:50}`
 
 ### 에너지 구매
-`getEnergyPrice()` → 500 + 구매횟수×100 (3시간 리셋)
+`getEnergyPrice()` → 500 + 구매횟수×100 (KST 자정 리셋)
 
 ### 데이터 배열 (11개)
 `CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `CAT_SNACKS`(5), `DOG_SNACKS`(5), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `DAILY_MISSIONS`(3개), `ATTENDANCE_REWARDS`(7일), `DICE_TRIP_REWARDS`(50칸)
@@ -651,7 +651,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ### v4.18.0 (2026-02-11)
 - 🏷️ **하단 배지 내비게이션 바** 추가
   - 5개 섹션(레이스/앨범/주사위/상점/창고)을 1행 5열 배지 바로 변환
-  - 배지 탭 → 해당 콘텐츠가 일일미션 자리에 표시 (90px 고정높이)
+  - 배지 탭 → 해당 콘텐츠가 일일미션 자리에 표시
   - 같은 배지 재탭 → 닫힘 (일일미션 복원)
   - 기본 상태: 모든 콘텐츠 숨김, 배지 바만 표시
 - **배지 요약정보** (실시간 갱신)
@@ -660,20 +660,29 @@ firebase deploy --only firestore:rules   # 보안 규칙
   - 🎲 주사위 여행: n/50 위치
   - 🛒 상점: m:ss 갱신 타이머 (매초 실시간)
   - 📦 창고: 보관중/열린칸
+- **섹션 높이 모듈화** - CSS `calc((min(95vw,399px)-40px)/5+30px)`로 모든 섹션 동일 높이
 - **앨범바 리디자인**
   - 테마 미니칩 9개 (1행 9열, 아이콘+진행도, 완성 시 금색)
   - "앨범 보기" 버튼 제거 → 테마 칩 클릭으로 대체
   - 뽑기 버튼 가격 표기 통일 (🃏20)
-- **상점 카드팩/다이아팩 UI**
-  - ×20/×10 수량 표시 (8px, 이모지 아래 컴팩트 표시)
+  - 뽑기 결과창: 확인 버튼 제거 + 1초 자동 닫기
+- **상점 UI 개선**
+  - 카드팩/다이아팩 수량을 `.level-badge` 스타일로 통일 (×20/×10)
+  - 가격표 딱지 위치: 우하단 → 우상단, 폰트 축소 (7px)
 - **창고/상점 셀 개선**
-  - 보드와 동일한 정사각형 비율 (52px, aspect-ratio: 1)
+  - 보드와 동일한 정사각형 비율 (1fr, aspect-ratio: 1)
   - 테두리+배경 추가로 칸 구분 명확화
+- **퀘스트 UI 수정**
+  - 스페셜 퀘스트 완료 가능 시 맨 앞 정렬 (기존: 항상 맨 뒤)
+  - NPC 배경 padding 축소 (3px 6px → 2px 4px)
+- **밸런스 변경**
+  - 에너지 구매 가격 리셋: 3시간 → KST 자정 (일일 리셋)
 - 신규 변수: `currentBottomTab` (state.js)
 - 신규 함수 (2개): `toggleBottomTab()`, `updateBottomBadges()` (ui.js)
-- 수정 함수: `updateAll()` (배지 업데이트 호출), `startCooldownTimer()` (실시간 배지 갱신), `updateAlbumBarUI()` (테마 미니칩), `renderShop()` (카드/다이아팩 수량)
+- 수정 함수: `updateAll()` (배지 업데이트 호출), `startCooldownTimer()` (실시간 배지 갱신), `updateAlbumBarUI()` (테마 미니칩), `renderShop()` (카드/다이아팩 level-badge), `getEnergyPrice()` (KST 자정 리셋), `updateQuestUI()` (스페셜 완료 시 앞 정렬), `drawPhotos()` (1초 자동 닫기)
 - 신규 HTML: `#bottom-content` 래퍼, `#bottom-nav` 배지 바, `#album-theme-grid`
-- 신규 CSS: `#bottom-nav`, `.bottom-nav-badge`, `.album-theme-chip`, 콘텐츠 높이 통일
+- 삭제 HTML: 카드 뽑기 확인 버튼
+- 신규 CSS: `#bottom-nav`, `.bottom-nav-badge`, `.album-theme-chip`, 섹션 높이 calc 통일
 - eslint.config.js: `toggleBottomTab`, `updateBottomBadges`, `currentBottomTab`, `lastRaceData`, `RACE_EXPIRE_MS` 전역 추가
 
 ### v4.17.0 (2026-02-11)
