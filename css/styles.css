@@ -1753,6 +1753,8 @@ body.tutorial-active {
     aspect-ratio: 1;
     height: auto;
     width: 100%;
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
 }
 
 #bottom-content .dice-trip-board {
