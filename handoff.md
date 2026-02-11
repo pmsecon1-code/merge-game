@@ -662,6 +662,10 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 수정 상수: `RACE_REWARDS`, `DICE_TRIP_COMPLETE_REWARD`, `DICE_TRIP_REWARDS` 전체, `ALBUM_DUPE_REWARD`, `DAILY_MISSIONS` (1D→2D 3단계), `DAILY_COMPLETE_REWARD`
 - 신규 저장 필드: `dailyMissions.tier` (0~3, 하위 호환 ?? 0)
 - 데이터 구조 변경: `dailyMissions` 객체에 `tier` 필드 추가 (기존 데이터 호환)
+- 🐛 **버그 수정 (2건)**
+  - 일일 미션 tier 마이그레이션: 구버전(tier 없음) 데이터에서 claimed=[true,true,true]일 때 승급 안 되던 버그 → `applyGameData`에서 자동 승급 처리
+  - 앨범 완성 팝업 겹침: 마지막 테마 완성 + 앨범 완성 동시 발생 시 테마 보상 팝업이 앨범 팝업에 덮어씌워지던 버그 → `checkAlbumAllComplete` 팝업 2.5초 딜레이
+- 추가 수정 파일: album.js, save.js
 
 ### v4.19.0 (2026-02-11)
 - ⚖️ **게임 밸런싱 전면 조정**
