@@ -1728,9 +1728,13 @@ body.tutorial-active {
 .badge-info { font-size: 7px; color: #9ca3af; min-height: 10px; }
 
 /* 배지 콘텐츠 영역 - 일일미션과 높이 완전 통일 */
-#daily-mission-bar,
-#bottom-content .event-bar {
+#daily-mission-bar {
     height: 90px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#bottom-content .event-bar {
     box-sizing: border-box;
     overflow: hidden;
 }
@@ -1743,9 +1747,8 @@ body.tutorial-active {
 }
 
 #bottom-content .grid-layout {
-    grid-template-columns: repeat(5, 52px);
-    justify-content: center;
-    gap: 3px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
 }
 
 #bottom-content .cell,
