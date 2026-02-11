@@ -1727,13 +1727,8 @@ body.tutorial-active {
 .badge-label { font-size: 8px; color: #6b7280; }
 .badge-info { font-size: 7px; color: #9ca3af; min-height: 10px; }
 
-/* 배지 콘텐츠 영역 - 일일미션과 높이 완전 통일 */
-#daily-mission-bar {
-    height: 90px;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
+/* 콘텐츠 영역 - 모든 섹션 창고 높이로 통일 */
+#daily-mission-bar,
 #bottom-content .event-bar {
     box-sizing: border-box;
     overflow: hidden;
