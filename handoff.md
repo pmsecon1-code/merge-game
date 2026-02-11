@@ -685,7 +685,8 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 수정 함수: `completeQuest` (스페셜 분기), `generateNewQuest` (스페셜 앞에 삽입), `updateQuestUI` (bird/fish/reptile 렌더링, 스페셜 타이머/정렬), `updateAll` (trySpawnSpecialGenerator 호출)
 - 신규 저장 필드: `currentSpecialIndex` (기존 `specialMissionCycles` 대체)
 - firestore.rules: `currentSpecialIndex` 검증 추가 (선택적 필드, 구버전 캐시 호환)
-- **마이그레이션 개선**: `specialMissionCycles` 합계로 `currentSpecialIndex` 결정 + 고아 스페셜 아이템 정리
+- **마이그레이션 개선**: `specialMissionCycles` 합계로 `currentSpecialIndex` 결정
+- **로드 시 정리**: 비활성 스페셜 타입 동물/생성기를 보드/창고/상점에서 항상 제거 (마이그레이션 외 모든 로드)
 
 ### v4.15.0 (2026-02-11)
 - 📖 **온보딩 튜토리얼 시스템** 추가
