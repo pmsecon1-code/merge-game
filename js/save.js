@@ -159,7 +159,13 @@ function applyGameData(d) {
         };
     }
     energyPurchaseCount = d.energyPurchaseCount ?? 0;
-    energyPurchaseResetTime = Date.now() + (d.energyPurchaseResetTime ?? 3 * 60 * 60 * 1000);
+    const savedEnergyResetMs = d.energyPurchaseResetTime ?? 0;
+    energyPurchaseResetTime = Date.now() + savedEnergyResetMs;
+    // v4.18.0 마이그레이션: 자정 기준으로 보정 (기존 3시간 타이머 → KST 자정)
+    const msToMidnight = getMsUntilKSTMidnight();
+    if (savedEnergyResetMs > msToMidnight) {
+        energyPurchaseResetTime = Date.now() + msToMidnight;
+    }
     // 튜토리얼 마이그레이션 (isTutorialActive → tutorialStep)
     if (d.tutorialStep !== undefined) {
         tutorialStep = d.tutorialStep;

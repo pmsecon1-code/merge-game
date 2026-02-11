@@ -63,7 +63,7 @@ let dailyMissions = {
 
 // --- 에너지 구매 ---
 let energyPurchaseCount = 0,
-    energyPurchaseResetTime = Date.now() + 3 * 60 * 60 * 1000;
+    energyPurchaseResetTime = Date.now() + getMsUntilKSTMidnight();
 
 // --- 최초 에너지 보상 ---
 let firstEnergyRewardGiven = false;
