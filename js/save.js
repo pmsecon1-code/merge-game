@@ -185,6 +185,23 @@ function applyGameData(d) {
     diceCount = d.diceCount ?? 0;
     visitedSteps = d.visitedSteps && Array.isArray(d.visitedSteps) ? d.visitedSteps : [0];
 
+    // 전설 퀘스트 아이템 정리 (v4.17.0 삭제 마이그레이션)
+    for (let i = 0; i < BOARD_SIZE; i++) {
+        if (boardState[i] && (boardState[i].type === 'legendary' || boardState[i].type === 'legendary_generator')) {
+            boardState[i] = null;
+        }
+    }
+    for (let i = 0; i < STORAGE_SIZE; i++) {
+        if (storageState[i] && storageState[i].type === 'legendary') {
+            storageState[i] = null;
+        }
+    }
+    // 완주 상태 복구 (전설 퀘스트 없이 완주 위치에 있는 경우 리셋)
+    if (diceTripPosition >= DICE_TRIP_SIZE - 1) {
+        diceTripPosition = 0;
+        visitedSteps = [0];
+        diceCount = 0;
+    }
 
     // 앨범 주기 초기화 (21일)
     if (Date.now() >= albumResetTime) {

@@ -75,15 +75,6 @@ function createItem(item, zone, index) {
         } else if (type === 'toy') {
             emoji = '🧸';
             label = '장난감 생성기';
-        } else if (type === 'legendary') {
-            emoji = '🦄';
-            label = '목장';
-            const rem = 3 - (item.clicks || 0);
-            if (item.cooldown > Date.now()) {
-                specialUI = `<div class="cooldown-overlay"><span>💤</span><span>${Math.ceil((item.cooldown - Date.now()) / 1000)}s</span></div>`;
-            } else {
-                specialUI = `<div class="usage-badge">${rem}/3</div>`;
-            }
         }
         const helpDisplay = tutorialStep > 0 ? ' style="display:none"' : '';
         d.innerHTML = `${specialUI}<div class="animal-inside">${emoji}</div><div class="cage-label">${label}</div><div class="help-btn"${helpDisplay} data-gen-type="${type}">?</div>`;
@@ -103,7 +94,6 @@ function createItem(item, zone, index) {
     else if (item.type === 'bird') list = BIRDS;
     else if (item.type === 'fish') list = FISH;
     else if (item.type === 'reptile') list = REPTILES;
-    else if (item.type === 'legendary') list = LEGENDARIES;
     const data = list[item.level - 1] || list[list.length - 1];
     const itemKey = `${item.type}_${item.level}`;
     const discoveredAt = newlyDiscoveredItems.get(itemKey);
@@ -129,7 +119,6 @@ function updateAll() {
     updateTimerUI();
     updateQuestUI();
     trySpawnSpecialGenerator();
-    updateLegendaryQuestUI();
     updateDailyMissionUI();
     updateAlbumBarUI();
     updateDiceTripUI();
@@ -418,13 +407,12 @@ function handleDragEnd(e) {
 // --- 도감/모달 ---
 function openGuide(type) {
     currentGuideType = type;
-    const isLegendary = type === 'legendary';
     const isToy = type === 'toy';
     document.getElementById('tab-animal').style.display = isToy ? 'none' : '';
-    document.getElementById('tab-snack').style.display = isToy || isLegendary || !['cat', 'dog'].includes(type) ? 'none' : '';
+    document.getElementById('tab-snack').style.display = isToy || !['cat', 'dog'].includes(type) ? 'none' : '';
     document.getElementById('tab-cat_toy').style.display = isToy ? '' : 'none';
     document.getElementById('tab-dog_toy').style.display = isToy ? '' : 'none';
-    document.getElementById('tab-upgrade').style.display = isToy || isLegendary ? 'none' : '';
+    document.getElementById('tab-upgrade').style.display = isToy ? 'none' : '';
     const defaultTab = isToy ? 'cat_toy' : 'animal';
     currentGuideTab = defaultTab;
     document.getElementById('guide-modal').classList.add('show');
@@ -466,7 +454,6 @@ function renderGuideList(tab) {
         else if (currentGuideType === 'bird') list = BIRDS;
         else if (currentGuideType === 'fish') list = FISH;
         else if (currentGuideType === 'reptile') list = REPTILES;
-        else if (currentGuideType === 'legendary') list = LEGENDARIES;
     } else if (tab === 'snack') {
         if (currentGuideType === 'cat' || currentGuideType === 'dog') {
             list = currentGuideType === 'cat' ? CAT_SNACKS : DOG_SNACKS;

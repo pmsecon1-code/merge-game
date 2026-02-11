@@ -38,16 +38,6 @@ const SNACK_CHANCE = 0.08;
 const DICE_TRIP_SIZE = 50;
 const DICE_DROP_CHANCE = 0.05;
 const DICE_TRIP_COMPLETE_REWARD = { coins: 2000, diamonds: 100 };
-// --- 전설의 동물 퀘스트 ---
-const LEGENDARY_COMPLETE_REWARD = { coins: 500, diamonds: 20 };
-
-const LEGENDARIES = [
-    { level: 1, emoji: '🐴', name: '아기말', color: '#fecdd3' },
-    { level: 2, emoji: '🦓', name: '얼룩말', color: '#d4d4d8' },
-    { level: 3, emoji: '🐎', name: '경주마', color: '#fcd34d' },
-    { level: 4, emoji: '🎠', name: '환상마', color: '#c4b5fd' },
-    { level: 5, emoji: '🦄', name: '유니콘', color: '#f9a8d4' },
-];
 
 const DICE_TRIP_REWARDS = [
     // 1~10: 초반 (낮은 보상)
@@ -436,7 +426,6 @@ function getItemList(type) {
         bird: BIRDS,
         fish: FISH,
         reptile: REPTILES,
-        legendary: LEGENDARIES,
         cat_snack: CAT_SNACKS,
         dog_snack: DOG_SNACKS,
         cat_toy: CAT_TOYS,

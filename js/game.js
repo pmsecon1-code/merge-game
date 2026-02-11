@@ -447,9 +447,6 @@ function triggerGen(idx, item) {
             showToast('과열! 1분 휴식');
         }
         spawnToy();
-    } else if (baseType === 'legendary') {
-        // 전설 생성기 클릭
-        handleLegendaryGeneratorClick(idx);
     } else {
         const prevEmpty = boardState.filter((x) => x === null).length;
         spawnItem(baseType, 1, false);
@@ -562,7 +559,6 @@ function moveItem(fz, fi, tz, ti) {
         let max = 11;
         if (fIt.type.includes('snack') || fIt.type.includes('toy')) max = 5;
         if (['bird', 'fish', 'reptile'].includes(fIt.type)) max = 7;
-        if (fIt.type === 'legendary') max = 5;
         if (fIt.level < max) {
             const newLv = fIt.level + 1;
             ts[ti] = { type: fIt.type, level: newLv };
@@ -570,10 +566,6 @@ function moveItem(fz, fi, tz, ti) {
             discoverItem(fIt.type, newLv);
             addDailyProgress('merge');
             checkAutoCompleteMissions();
-            // 전설 퀘스트 체크 (Lv.5 유니콘 완성 시)
-            if (fIt.type === 'legendary' && newLv === 5) {
-                checkLegendaryComplete();
-            }
             const cell = (tz === 'board' ? boardEl : storageEl).children[ti];
             // 합성 위치 추적 (튜토리얼용)
             if (tz === 'board') lastMergedIndex = ti;

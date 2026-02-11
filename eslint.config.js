@@ -32,9 +32,6 @@ export default [
                 DICE_DROP_CHANCE: 'readonly',
                 DICE_TRIP_COMPLETE_REWARD: 'readonly',
                 DICE_TRIP_REWARDS: 'readonly',
-                // 전설 퀘스트 상수
-                LEGENDARY_COMPLETE_REWARD: 'readonly',
-                LEGENDARIES: 'readonly',
                 GENERATOR_COOLDOWN_MS: 'readonly',
                 // UI 타이밍 상수
                 TOAST_DURATION_MS: 'readonly',
@@ -207,7 +204,6 @@ export default [
                 hasItemOfType: 'readonly',
                 hasItemOfTypeAndLevel: 'readonly',
                 getMaxLevelOfType: 'readonly',
-                isLegendaryQuestActive: 'readonly',
                 // systems.js globals
                 checkAutoCompleteMissions: 'readonly',
                 startShopTimer: 'readonly',
@@ -227,11 +223,6 @@ export default [
                 giveStepReward: 'readonly',
                 giveStepRewardWithInfo: 'readonly',
                 completeTrip: 'readonly',
-                spawnLegendaryGenerator: 'readonly',
-                handleLegendaryGeneratorClick: 'readonly',
-                completeLegendaryQuest: 'readonly',
-                checkLegendaryComplete: 'readonly',
-                updateLegendaryQuestUI: 'readonly',
                 updateDiceTripUI: 'readonly',
                 renderDiceTripBoard: 'readonly',
                 // album.js globals
