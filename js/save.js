@@ -148,6 +148,20 @@ function applyGameData(d) {
             bonusClaimed: d.dailyMissions.bonusClaimed ?? false,
             lastResetDate: d.dailyMissions.lastResetDate || '',
         };
+        // v4.19.1 마이그레이션: tier 없는 구버전에서 이미 claimed 상태인 경우
+        if (dailyMissions.tier < 3 && dailyMissions.claimed.every(c => c)) {
+            if (dailyMissions.bonusClaimed) {
+                dailyMissions.tier = 3;
+            } else {
+                dailyMissions.tier = Math.min(dailyMissions.tier + 1, 3);
+                if (dailyMissions.tier < 3) {
+                    dailyMissions.merge = 0;
+                    dailyMissions.spawn = 0;
+                    dailyMissions.coins = 0;
+                    dailyMissions.claimed = [false, false, false];
+                }
+            }
+        }
     } else {
         // 기존 데이터 마이그레이션: pmProgress, cumulativeCoins 무시하고 새로 시작
         dailyMissions = {
