@@ -599,7 +599,7 @@ function updateRaceUI() {
     // 레이스/초대 진행 중이 아닐 때
     if (!currentRaceId) {
         if (trackEl)
-            trackEl.innerHTML = '<div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요!</div>';
+            trackEl.innerHTML = '<div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요! (승리 시 +200🪙 +10💎)</div>';
         if (copyBtn) copyBtn.classList.remove('hidden');
         if (joinBtn) joinBtn.classList.remove('hidden');
         if (timerEl) timerEl.classList.add('hidden');
