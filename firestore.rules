@@ -56,7 +56,7 @@ service cloud.firestore {
           && isValidNumber(data.diceCount, 0, 999)             // 주사위: 0~999
           && isValidArray(data.visitedSteps, 50)               // 방문 칸: 최대 50개
           // 튜토리얼 검증
-          && isValidNumber(data.tutorialStep, 0, 8)
+          && isValidNumber(data.tutorialStep, 0, 4)
           // 타임스탬프 검증 (미래 시간 방지)
           && data.savedAt <= request.time.toMillis() + 60000; // 1분 여유
       }

@@ -112,8 +112,8 @@ function completeQuest(i) {
     if (questContainer) questContainer.scrollLeft = 0;
     updateRaceProgress();
     updateAll();
-    // 튜토리얼 Step 7 퀘스트 완료 훅
-    if (tutorialStep === 7) {
+    // 튜토리얼 Step 4 퀘스트 완료 훅
+    if (tutorialStep === 4) {
         setTimeout(() => advanceTutorial(), 500);
     }
 }
@@ -262,7 +262,7 @@ function spawnToy() {
 // --- 셀 클릭 ---
 function handleCellClick(zone, idx) {
     // 튜토리얼 중 허용된 셀만 클릭 가능
-    if (tutorialStep > 0 && tutorialStep <= 3) {
+    if (tutorialStep === 1 || tutorialStep === 2) {
         if (!isTutorialClickAllowed(zone, idx)) return;
     }
     const s = zone === 'board' ? boardState : storageState,
@@ -366,8 +366,8 @@ function triggerGen(idx, item) {
         // 전설 생성기 클릭
         handleLegendaryGeneratorClick(idx);
     } else spawnItem(baseType, 1, false);
-    // 튜토리얼 스텝 1/2/3 완료 훅
-    if (tutorialStep >= 1 && tutorialStep <= 3) {
+    // 튜토리얼 스텝 1/2 완료 훅 (캣타워 클릭)
+    if (tutorialStep === 1 || tutorialStep === 2) {
         setTimeout(() => advanceTutorial(), 400);
     }
 }
@@ -494,8 +494,8 @@ function moveItem(fz, fi, tz, ti) {
             }, 50);
             // 주사위 드랍 (합성 성공 시, 튜토리얼 중 스킵)
             if (tutorialStep <= 0) tryDropDice();
-            // 튜토리얼 Step 4 합성 완료 훅
-            if (tutorialStep === 4) {
+            // 튜토리얼 Step 3 합성 완료 훅
+            if (tutorialStep === 3) {
                 setTimeout(() => advanceTutorial(), 500);
             }
         } else {

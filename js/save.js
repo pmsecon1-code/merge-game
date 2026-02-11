@@ -346,7 +346,7 @@ function validateGameData(data) {
         ['loginStreak', 0, 6],
         ['diceTripPosition', 0, DICE_TRIP_SIZE],
         ['diceCount', 0, 999],
-        ['tutorialStep', 0, 8],
+        ['tutorialStep', 0, 4],
     ];
 
     for (const [key, min, max] of numChecks) {

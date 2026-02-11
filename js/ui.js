@@ -375,8 +375,8 @@ function handleDragEnd(e) {
         updateAll();
         return;
     }
-    // 튜토리얼: Step 4(합성)이 아니면 실제 드래그 차단
-    if (tutorialStep > 0 && tutorialStep !== 4) {
+    // 튜토리얼: Step 3(합성)이 아니면 실제 드래그 차단
+    if (tutorialStep > 0 && tutorialStep !== 3) {
         dragData = null;
         updateAll();
         return;

@@ -1,35 +1,24 @@
 // ============================================
-// tutorial.js - 온보딩 튜토리얼 시스템
+// tutorial.js - 온보딩 튜토리얼 시스템 (4스텝)
 // ============================================
 
 const TUTORIAL_STEPS = [
-    // Step 1: 캣타워 터치
+    // Step 1: 캣타워 소개 + 클릭
     {
-        phase: 'spawn',
         target: () => boardEl.children[0],
         text: '<strong>캣타워</strong>예요! 터치하면 고양이가 태어나요!',
         arrow: 'up',
         action: 'click',
     },
-    // Step 2: 개집 터치
+    // Step 2: 캣타워 한번 더
     {
-        phase: 'spawn',
-        target: () => boardEl.children[4],
-        text: '<strong>개집</strong>이에요! 터치하면 강아지가 태어나요!',
-        arrow: 'up',
-        action: 'click',
-    },
-    // Step 3: 캣타워 한번 더
-    {
-        phase: 'spawn',
         target: () => boardEl.children[0],
-        text: '합성하려면 2마리 필요! 캣타워를 한번 더!',
+        text: '합성하려면 2마리 필요! 한번 더 터치!',
         arrow: 'up',
         action: 'click',
     },
-    // Step 4: 합성 (드래그)
+    // Step 3: 합성 (드래그)
     {
-        phase: 'merge',
         target: () => {
             const pair = findSameLevelPair('cat');
             return pair ? [boardEl.children[pair[0]], boardEl.children[pair[1]]] : null;
@@ -38,50 +27,24 @@ const TUTORIAL_STEPS = [
         arrow: 'up',
         action: 'merge',
     },
-    // Step 5: 합성 결과 확인
+    // Step 4: 퀘스트 완료
     {
-        phase: 'merge',
-        target: () => lastMergedIndex >= 0 ? boardEl.children[lastMergedIndex] : null,
-        text: '짜잔! <strong>레벨업</strong> 성공! 계속 합성하면 더 성장!',
-        arrow: 'up',
-        action: 'next',
-    },
-    // Step 6: 퀘스트 설명
-    {
-        phase: 'quest',
-        target: () => document.getElementById('quest-area'),
-        text: 'NPC가 동물을 찾고 있어요! 만들어서 보내주세요!',
-        arrow: 'down',
-        action: 'next',
-    },
-    // Step 7: 퀘스트 완료
-    {
-        phase: 'quest',
         target: () => findReadyQuestBtn(),
-        text: '<strong>무지개 테두리</strong> 퀘스트를 터치해서 완료!',
+        text: '<strong>무지개 퀘스트</strong>를 터치해서 완료!',
         arrow: 'down',
         action: 'quest',
-    },
-    // Step 8: 완료
-    {
-        phase: 'complete',
-        target: null,
-        text: '',
-        arrow: null,
-        action: 'complete',
     },
 ];
 
 function startTutorial() {
-    if (tutorialStep <= 0 || tutorialStep > 8) return;
+    if (tutorialStep <= 0 || tutorialStep > 4) return;
     document.getElementById('tutorial-overlay').style.display = '';
     document.body.classList.add('tutorial-active');
-    // 맨 위로 스크롤
     window.scrollTo(0, 0);
-    // Step 4 재개 시 같은 동물 없으면 Step 3으로 되돌리기
-    if (tutorialStep === 4) {
+    // Step 3 재개 시 같은 동물 없으면 Step 2로 되돌리기
+    if (tutorialStep === 3) {
         const pair = findSameLevelPair('cat');
-        if (!pair) tutorialStep = 3;
+        if (!pair) tutorialStep = 2;
     }
     showTutorialStep(tutorialStep);
 }
@@ -90,25 +53,13 @@ function showTutorialStep(step) {
     const config = TUTORIAL_STEPS[step - 1];
     if (!config) return;
 
-    const overlay = document.getElementById('tutorial-overlay');
     const spotlight = document.getElementById('tutorial-spotlight');
     const bubble = document.getElementById('tutorial-bubble');
     const nextBtn = document.getElementById('tutorial-next-btn');
-    const completeScreen = document.getElementById('tutorial-complete');
 
     // 모든 tutorial-target 클래스 제거
     document.querySelectorAll('.tutorial-target').forEach((el) => el.classList.remove('tutorial-target'));
-
-    // 완료 화면
-    if (config.action === 'complete') {
-        spotlight.style.display = 'none';
-        bubble.style.display = 'none';
-        nextBtn.style.display = 'none';
-        completeScreen.style.display = 'flex';
-        return;
-    }
-
-    completeScreen.style.display = 'none';
+    nextBtn.style.display = 'none';
 
     // 타겟 결정
     const targetResult = typeof config.target === 'function' ? config.target() : config.target;
@@ -125,37 +76,18 @@ function showTutorialStep(step) {
 
     // 타겟이 보이도록 스크롤
     targets[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-    // 스크롤 완료 후 위치 계산
+    // 스크롤 완료 후 위치 재계산
     setTimeout(() => {
         positionSpotlight(targets, spotlight);
         positionBubble(targets, config.arrow, bubble);
-        if (config.action === 'next') {
-            const bRect = bubble.getBoundingClientRect();
-            nextBtn.style.left = (bRect.left + bRect.width / 2 - 50) + 'px';
-            nextBtn.style.top = (bRect.bottom + 10) + 'px';
-        }
     }, 350);
 
-    // 스포트라이트 위치 (즉시)
+    // 스포트라이트 + 말풍선 위치 (즉시)
     positionSpotlight(targets, spotlight);
-
-    // 말풍선 위치
     bubble.style.display = '';
     bubble.className = config.arrow === 'down' ? 'arrow-down' : 'arrow-up';
     document.getElementById('tutorial-bubble-text').innerHTML = config.text;
     positionBubble(targets, config.arrow, bubble);
-
-    // 다음 버튼
-    if (config.action === 'next') {
-        nextBtn.style.display = '';
-        nextBtn.onclick = () => advanceTutorial();
-        // 버튼 위치: 말풍선 아래
-        const bRect = bubble.getBoundingClientRect();
-        nextBtn.style.left = (bRect.left + bRect.width / 2 - 50) + 'px';
-        nextBtn.style.top = (bRect.bottom + 10) + 'px';
-    } else {
-        nextBtn.style.display = 'none';
-    }
 }
 
 function positionSpotlight(targets, spotlight) {
@@ -193,11 +125,9 @@ function positionBubble(targets, arrow, bubble) {
     bubble.style.left = left + 'px';
 
     if (arrow === 'down') {
-        // 말풍선이 타겟 위에
         bubble.style.top = '';
         bubble.style.bottom = (window.innerHeight - minY + 16) + 'px';
     } else {
-        // 말풍선이 타겟 아래
         bubble.style.bottom = '';
         bubble.style.top = (maxY + 16) + 'px';
     }
@@ -205,7 +135,10 @@ function positionBubble(targets, arrow, bubble) {
 
 function advanceTutorial() {
     tutorialStep++;
-    if (tutorialStep > 8) tutorialStep = 8;
+    if (tutorialStep > 4) {
+        completeTutorial();
+        return;
+    }
     saveGame();
     showTutorialStep(tutorialStep);
 }
@@ -229,15 +162,8 @@ function completeTutorial() {
 
 function isTutorialClickAllowed(zone, idx) {
     if (tutorialStep <= 0) return true;
-    const step = tutorialStep;
-
-    // Step 1: 캣타워(board[0])만 허용
-    if (step === 1) return zone === 'board' && idx === 0;
-    // Step 2: 개집(board[4])만 허용
-    if (step === 2) return zone === 'board' && idx === 4;
-    // Step 3: 캣타워(board[0])만 허용
-    if (step === 3) return zone === 'board' && idx === 0;
-
+    // Step 1, 2: 캣타워(board[0])만 허용
+    if (tutorialStep === 1 || tutorialStep === 2) return zone === 'board' && idx === 0;
     return false;
 }
 
@@ -259,6 +185,6 @@ function findReadyQuestBtn() {
 }
 
 function repositionTutorial() {
-    if (tutorialStep <= 0 || tutorialStep > 8) return;
+    if (tutorialStep <= 0 || tutorialStep > 4) return;
     showTutorialStep(tutorialStep);
 }
