@@ -15,7 +15,7 @@ function discoverItem(type, level) {
 
 // --- 퀘스트 ---
 function countEasyQuests() {
-    return quests.filter((q) => q.reqs.every((r) => r.level <= 3)).length;
+    return quests.filter((q) => q.reqs.every((r) => r.level <= 4)).length;
 }
 
 function generateNewQuest(forceEasy = false) {
@@ -49,7 +49,7 @@ function generateNewQuest(forceEasy = false) {
         id: questIdCounter++,
         npc,
         reqs,
-        reward: 10 + sc + Math.floor(Math.random() * 5) + Math.floor(userLevel / 3) * 5,
+        reward: 10 + sc + Math.floor(Math.random() * 5),
         cardReward,
         expiresAt: Date.now() + 10 * 60 * 1000,
     };

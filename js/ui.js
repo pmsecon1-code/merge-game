@@ -87,11 +87,11 @@ function createItem(item, zone, index) {
         const rem = Math.max(0, item.openAt - Date.now());
         const m = Math.floor(rem / 60000);
         const s = Math.floor((rem % 60000) / 1000);
-        const timerText = ready ? '터치!' : `${m}:${s.toString().padStart(2, '0')}`;
+        const cooldown = ready ? '' : `<div class="cooldown-overlay"><span>${m}:${s.toString().padStart(2, '0')}</span></div>`;
         d.innerHTML = `
-            <div class="bg-circle" style="background-color:${ready ? '#fbbf24' : '#d1d5db'}"></div>
-            <div style="font-size:2rem">${ready ? '🐷' : '🔒'}</div>
-            <div class="level-badge" style="background:${ready ? '#f59e0b' : '#9ca3af'}">${timerText}</div>
+            <div class="bg-circle" style="background-color:#fbbf24"></div>
+            <div style="font-size:2rem">🐷</div>
+            ${cooldown}
         `;
         if (!ready && tutorialStep <= 0) {
             const adBtn = document.createElement('div');
@@ -220,7 +220,7 @@ function updateQuestUI() {
         let timerText, rewardText;
         if (q.isSpecial) {
             timerText = '⭐스페셜';
-            rewardText = '🐷 저금통';
+            rewardText = '🪙🐷';
         } else {
             const remaining = q.expiresAt ? q.expiresAt - Date.now() : 0;
             timerText = remaining > 0 ? `⏱${formatQuestTimer(remaining)}` : '만료';
