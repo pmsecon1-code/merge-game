@@ -542,8 +542,8 @@ body {
     right: 2px;
     background: rgba(0, 0, 0, 0.7);
     color: #22d3ee;
-    font-size: 0.6rem;
-    padding: 1px 4px;
+    font-size: 7px;
+    padding: 0px 3px;
     border-radius: 4px;
     font-weight: bold;
 }

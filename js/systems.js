@@ -93,9 +93,9 @@ function renderShop() {
         if (item) {
             d.onclick = () => buyShopItem(idx);
             if (item.type === 'card_pack') {
-                d.innerHTML = `<div class="bg-circle" style="background-color:#f0abfc"></div><div style="font-size:1.5rem">🃏</div><div style="font-size:8px;color:#9333ea;font-weight:bold;margin-top:-2px">×${item.amount}</div><div class="shop-price-tag">💎${item.price}</div>`;
+                d.innerHTML = `<div class="bg-circle" style="background-color:#f0abfc"></div><div style="font-size:1.5rem">🃏</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag">💎${item.price}</div>`;
             } else if (item.type === 'diamond_pack') {
-                d.innerHTML = `<div class="bg-circle" style="background-color:#67e8f9"></div><div style="font-size:1.5rem">💎</div><div style="font-size:8px;color:#0891b2;font-weight:bold;margin-top:-2px">×${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">🪙${item.price}</div>`;
+                d.innerHTML = `<div class="bg-circle" style="background-color:#67e8f9"></div><div style="font-size:1.5rem">💎</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">🪙${item.price}</div>`;
             } else {
                 let list;
                 if (item.type.includes('cat'))
