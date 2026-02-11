@@ -1743,13 +1743,16 @@ body.tutorial-active {
 }
 
 #bottom-content .grid-layout {
+    grid-template-columns: repeat(5, 52px);
+    justify-content: center;
     gap: 3px;
 }
 
 #bottom-content .cell,
 #bottom-content .shop-cell {
-    aspect-ratio: auto;
-    height: 52px;
+    aspect-ratio: 1;
+    height: auto;
+    width: 100%;
 }
 
 #bottom-content .dice-trip-board {
