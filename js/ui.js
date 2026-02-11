@@ -539,12 +539,15 @@ function toggleBottomTab(tabId) {
         shop: 'shop-wrapper',
         storage: 'storage-wrapper'
     };
+    const dailyBar = document.getElementById('daily-mission-bar');
 
     if (currentBottomTab === tabId) {
         document.getElementById(mapping[tabId]).style.display = 'none';
+        dailyBar.style.display = 'flex';
         currentBottomTab = null;
     } else {
         Object.values(mapping).forEach(id => document.getElementById(id).style.display = 'none');
+        dailyBar.style.display = 'none';
         document.getElementById(mapping[tabId]).style.display = 'flex';
         currentBottomTab = tabId;
     }
@@ -555,16 +558,32 @@ function toggleBottomTab(tabId) {
 }
 
 function updateBottomBadges() {
-    const diceInfo = document.getElementById('badge-dice-info');
-    if (diceInfo) diceInfo.textContent = diceCount > 0 ? `${diceCount}개` : '';
+    // 레이스: 승수
+    const raceInfo = document.getElementById('badge-race-info');
+    if (raceInfo) raceInfo.textContent = `${raceWins}승`;
 
+    // 앨범: 수집 진행도
     const albumInfo = document.getElementById('badge-album-info');
     if (albumInfo) albumInfo.textContent = `${getAlbumProgress()}/81`;
 
+    // 주사위: 위치/총칸
+    const diceInfo = document.getElementById('badge-dice-info');
+    if (diceInfo) diceInfo.textContent = `${diceTripPosition + 1}/50`;
+
+    // 상점: 갱신 타이머
+    const shopInfo = document.getElementById('badge-shop-info');
+    if (shopInfo) {
+        const rem = Math.max(0, shopNextRefresh - Date.now());
+        const m = Math.floor(rem / 60000);
+        const s = Math.floor((rem % 60000) / 1000);
+        shopInfo.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    // 창고: 사용량
     const storageInfo = document.getElementById('badge-storage-info');
     if (storageInfo) {
         const used = storageState.filter(s => s && s.type !== 'locked_storage').length;
-        storageInfo.textContent = used > 0 ? `${used}/${STORAGE_SIZE}` : '';
+        storageInfo.textContent = `${used}/${STORAGE_SIZE}`;
     }
 }
 
