@@ -684,6 +684,17 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 삭제 HTML: 카드 뽑기 확인 버튼
 - 신규 CSS: `#bottom-nav`, `.bottom-nav-badge`, `.album-theme-chip`, 섹션 높이 calc 통일
 - eslint.config.js: `toggleBottomTab`, `updateBottomBadges`, `currentBottomTab`, `lastRaceData`, `RACE_EXPIRE_MS` 전역 추가
+- **에너지 구매 가격 리셋 KST 자정 완전 적용**
+  - state.js 초기값: `Date.now() + 10800000` → `Date.now() + getMsUntilKSTMidnight()`
+  - save.js 로드 시 마이그레이션: 기존 3시간 타이머 값을 자정 기준으로 보정
+- ✏️ **UX 라이팅 통일** - 보상 표기 패턴 전체 정리
+  - 숫자+이모지 순서: `🃏 +20` → `+20🃏`, `💎10` → `10💎`
+  - 다중 보상 구분자: `200🪙 10💎` → `200🪙 + 10💎`
+  - 레벨업 보상: `💎 +5` → `+5💎`
+  - 앨범 테마 보상: `완성 보상: 500🪙` → `완성 시 +500🪙`
+  - 창고 잠금해제: `💎5` → `5💎`
+  - 보상 힌트 통일: `(승리 시 +200🪙 +10💎)`, `(완성 시 +100💎)`, `(완주 시 +1000🪙 +50💎)`
+  - 수정 파일: index.html, game.js, systems.js, ui.js, album.js, race.js
 
 ### v4.17.0 (2026-02-11)
 - 🗑️ **전설 퀘스트 시스템 완전 제거**
@@ -1008,6 +1019,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ## To-do
 
 - [ ] 사운드 효과 추가
+- [x] UX 라이팅 통일 (v4.18.0)
 - [x] 하단 배지 내비게이션 바 (v4.18.0)
 - [x] 전설 퀘스트 시스템 제거 (v4.17.0)
 - [x] 스페셜 퀘스트 일반 퀘스트 통합 (v4.16.0)
