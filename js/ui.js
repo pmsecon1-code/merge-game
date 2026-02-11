@@ -220,7 +220,7 @@ function updateQuestUI() {
         let timerText, rewardText;
         if (q.isSpecial) {
             timerText = '⭐스페셜';
-            rewardText = `${q.reward}🪙`;
+            rewardText = '🐷 저금통';
         } else {
             const remaining = q.expiresAt ? q.expiresAt - Date.now() : 0;
             timerText = remaining > 0 ? `⏱${formatQuestTimer(remaining)}` : '만료';

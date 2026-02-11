@@ -124,11 +124,7 @@ function completeQuest(i) {
                 shopItems[j] = generateRandomShopItem(getActiveTypes());
         }
         renderShop();
-        coins += q.reward;
-        cumulativeCoins += q.reward;
-        addDailyProgress('coins', q.reward);
-        showToast(`완료! +${q.reward}🪙`);
-        // 스페셜 퀘스트 완료 시 저금통 스폰
+        // 스페셜 퀘스트 완료 시 저금통 스폰 (코인 직접 지급 없음)
         const piggyCoins = PIGGY_BANK_MIN_COINS + Math.floor(Math.random() * (PIGGY_BANK_MAX_COINS - PIGGY_BANK_MIN_COINS + 1));
         const piggyIdx = boardState.findIndex(x => x === null);
         if (piggyIdx !== -1) {
