@@ -1726,3 +1726,43 @@ body.tutorial-active {
 .badge-icon { font-size: 1.2rem; }
 .badge-label { font-size: 8px; color: #6b7280; }
 .badge-info { font-size: 7px; color: #9ca3af; min-height: 10px; }
+
+/* 배지 콘텐츠 영역 - 일일미션과 크기 통일 */
+#bottom-content .event-bar {
+    padding: 4px 10px;
+}
+
+#bottom-content #storage-area {
+    background: none;
+    border-top: none;
+    padding: 4px 0;
+    z-index: auto;
+}
+
+#bottom-content .grid-layout {
+    gap: 3px;
+}
+
+#bottom-content .cell {
+    aspect-ratio: auto;
+    height: 48px;
+}
+
+#bottom-content .shop-cell {
+    aspect-ratio: auto;
+    height: 48px;
+}
+
+#bottom-content .dice-trip-board {
+    padding: 4px;
+}
+
+#bottom-content .dice-step {
+    width: 28px;
+    height: 28px;
+}
+
+#bottom-content .dice-step.goal {
+    width: 34px;
+    height: 34px;
+}
