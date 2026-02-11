@@ -61,7 +61,7 @@ function drawPhotos() {
         .join('');
 
     document.getElementById('photo-draw-overlay').style.display = 'flex';
-    setTimeout(() => closePhotoDraw(), MILESTONE_POPUP_MS);
+    setTimeout(() => closePhotoDraw(), DICE_RESULT_POPUP_MS);
     updateAlbumBarUI();
 
     results.forEach((r) => {
