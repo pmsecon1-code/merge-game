@@ -149,7 +149,7 @@ function renderAlbumGrid(idx) {
     if (isComplete) {
         rewardEl.innerHTML = `<span class="text-green-500 font-bold">✅ 완성!</span> +${ALBUM_COMPLETE_COINS}🪙`;
     } else {
-        rewardEl.innerHTML = `완성 보상: ${ALBUM_COMPLETE_COINS}🪙 (${collected}/${theme.photos.length})`;
+        rewardEl.innerHTML = `완성 시 +${ALBUM_COMPLETE_COINS}🪙 (${collected}/${theme.photos.length})`;
     }
 }
 

@@ -127,7 +127,7 @@ function completeQuest(i) {
         coins += q.reward;
         cumulativeCoins += q.reward;
         addDailyProgress('coins', q.reward);
-        showToast(`완료! +${q.reward}코인`);
+        showToast(`완료! +${q.reward}🪙`);
     } else {
         // --- 일반 퀘스트 완료 ---
         const rem = [...q.reqs];
@@ -153,7 +153,7 @@ function completeQuest(i) {
             coins += q.reward;
             cumulativeCoins += q.reward;
             addDailyProgress('coins', q.reward);
-            showToast(`완료! +${q.reward}코인`);
+            showToast(`완료! +${q.reward}🪙`);
         }
     }
 

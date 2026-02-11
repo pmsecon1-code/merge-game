@@ -16,7 +16,7 @@ function renderGrid(zone, state, cont) {
                 c.innerHTML = `<div class="text-xl opacity-50">🔒</div><div class="text-[8px] font-bold text-gray-500">${UNLOCK_COST_BOARD}🪙</div>`;
             } else if (item.type === 'locked_storage') {
                 c.classList.add('storage-locked');
-                c.innerHTML = `<div class="text-xl">🔒</div><div class="text-[9px] font-bold mt-1">💎${item.cost}</div>`;
+                c.innerHTML = `<div class="text-xl">🔒</div><div class="text-[9px] font-bold mt-1">${item.cost}💎</div>`;
             } else if (item.type === 'upgrade_mission') {
                 const done = genLevels[item.target] >= item.reqLevel;
                 const name = item.target === 'cat' ? '캣타워' : '개집';

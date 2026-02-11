@@ -125,7 +125,7 @@ function buyShopItem(idx) {
         }
         diamonds -= item.price;
         cards += item.amount;
-        showToast(`🃏 +${item.amount} 획득!`);
+        showToast(`+${item.amount}🃏 획득!`);
         updateAll();
         return;
     }
@@ -136,7 +136,7 @@ function buyShopItem(idx) {
         }
         coins -= item.price;
         diamonds += item.amount;
-        showToast(`💎 +${item.amount} 획득!`);
+        showToast(`+${item.amount}💎 획득!`);
         updateAll();
         return;
     }

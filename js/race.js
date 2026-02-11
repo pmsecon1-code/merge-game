@@ -526,7 +526,7 @@ function showRaceResult(data) {
 
     // 결과 팝업
     const resultText = result === 'win' ? '🏆 승리!' : result === 'lose' ? '😢 패배' : '🤝 무승부';
-    const rewardText = `${reward.coins}🪙` + (reward.diamonds > 0 ? ` ${reward.diamonds}💎` : '');
+    const rewardText = `${reward.coins}🪙` + (reward.diamonds > 0 ? ` + ${reward.diamonds}💎` : '');
     showMilestonePopup(resultText, rewardText);
 }
 
