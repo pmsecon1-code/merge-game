@@ -2,14 +2,14 @@
 // race.js - 레이스 시스템 (단순화 버전)
 // ============================================
 
-const RACE_GOAL = 10; // 퀘스트 10개 완료
+const RACE_GOAL = 7; // 퀘스트 7개 완료
 const RACE_EXPIRE_MS = 60 * 60 * 1000; // 1시간 제한
 const RACE_INVITE_EXPIRE_MS = 10 * 60 * 1000; // 초대 10분 만료
 const RACE_REWARDS = {
-    win: { coins: 200, diamonds: 10 },
-    lose: { coins: 50, diamonds: 0 },
-    draw: { coins: 100, diamonds: 5 },
-    timeout: { coins: 50, diamonds: 0 },
+    win: { coins: 150, diamonds: 5 },
+    lose: { coins: 30, diamonds: 0 },
+    draw: { coins: 80, diamonds: 3 },
+    timeout: { coins: 30, diamonds: 0 },
 };
 
 // --- 초대 코드 생성 ---
@@ -599,7 +599,7 @@ function updateRaceUI() {
     // 레이스/초대 진행 중이 아닐 때
     if (!currentRaceId) {
         if (trackEl)
-            trackEl.innerHTML = '<div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요! (승리 시 +200🪙 +10💎)</div>';
+            trackEl.innerHTML = '<div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요! (승리 시 +150🪙 +5💎)</div>';
         if (copyBtn) copyBtn.classList.remove('hidden');
         if (joinBtn) joinBtn.classList.remove('hidden');
         if (timerEl) timerEl.classList.add('hidden');

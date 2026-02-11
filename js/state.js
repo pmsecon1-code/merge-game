@@ -53,6 +53,7 @@ let lastMergedIndex = -1; // 합성 결과 위치 추적
 
 // --- 일일 미션 ---
 let dailyMissions = {
+    tier: 0,  // 0=1단계, 1=2단계, 2=3단계, 3=완료
     merge: 0,
     spawn: 0,
     coins: 0,

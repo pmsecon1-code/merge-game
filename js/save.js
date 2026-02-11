@@ -140,6 +140,7 @@ function applyGameData(d) {
     // 일일 미션 로드 (마이그레이션 포함)
     if (d.dailyMissions) {
         dailyMissions = {
+            tier: d.dailyMissions.tier ?? 0,
             merge: d.dailyMissions.merge ?? 0,
             spawn: d.dailyMissions.spawn ?? 0,
             coins: d.dailyMissions.coins ?? 0,
@@ -150,6 +151,7 @@ function applyGameData(d) {
     } else {
         // 기존 데이터 마이그레이션: pmProgress, cumulativeCoins 무시하고 새로 시작
         dailyMissions = {
+            tier: 0,
             merge: 0,
             spawn: 0,
             coins: 0,
@@ -474,6 +476,7 @@ function initNewGame() {
     discoveredItems = new Set();
     currentSpecialIndex = 0;
     dailyMissions = {
+        tier: 0,
         merge: 0,
         spawn: 0,
         coins: 0,

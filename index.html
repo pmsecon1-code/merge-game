@@ -133,7 +133,7 @@
             <!-- 4. 일일 미션 -->
             <div id="daily-mission-bar" class="event-bar" style="border: 2px solid #f59e0b">
                 <div class="flex justify-between items-center mb-1">
-                    <span class="text-[10px] font-bold text-amber-700">📋 일일 미션 <span class="text-[8px] text-amber-500 font-normal">(완료 시 +10💎 +5🃏)</span></span>
+                    <span class="text-[10px] font-bold text-amber-700">📋 일일 미션 <span id="daily-tier-info" class="text-[8px] text-amber-500 font-normal">★ 1단계</span></span>
                     <span id="daily-reset-timer" class="text-[9px] text-amber-500">리셋 00:00:00</span>
                 </div>
                 <div id="daily-missions-container" class="space-y-1">
@@ -167,7 +167,7 @@
                         >코드 입력</button>
                     </div>
                     <div id="race-track" class="race-track-container">
-                        <div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요! (승리 시 +200🪙 +10💎)</div>
+                        <div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요! (승리 시 +150🪙 +5💎)</div>
                     </div>
                 </div>
 
@@ -180,8 +180,8 @@
                             <span class="text-[9px] text-fuchsia-300">(완성 시 +100💎)</span>
                         </span>
                         <div class="flex gap-1 items-center">
-                            <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold">⏱21일</span>
-                            <button onclick="openPhotoDraw()" class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold">뽑기 🃏20</button>
+                            <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold">⏱42일</span>
+                            <button onclick="openPhotoDraw()" class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold">뽑기 🃏15</button>
                         </div>
                     </div>
                     <div class="progress-track">
@@ -198,7 +198,7 @@
                         <span class="text-[10px] font-bold text-emerald-600">
                             🎲 주사위 여행
                             <span id="dice-trip-position" class="text-[9px] text-emerald-400">1/20</span>
-                            <span class="text-[9px] text-emerald-300">(완주 시 +1000🪙 +50💎)</span>
+                            <span class="text-[9px] text-emerald-300">(완주 시 +500🪙 +20💎)</span>
                         </span>
                         <button
                             id="dice-roll-btn"
@@ -370,7 +370,7 @@
                         onclick="buyEnergy()"
                         class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold shadow-md"
                     >
-                        구매 <span id="energy-price">500</span>🪙
+                        구매 <span id="energy-price">300</span>🪙
                     </button>
                 </div>
             </div>

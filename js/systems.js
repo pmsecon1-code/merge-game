@@ -71,8 +71,8 @@ function refreshShop() {
     shopNextRefresh = Date.now() + SHOP_REFRESH_MS;
     const t = getActiveTypes();
     for (let i = 0; i < SHOP_SIZE - 2; i++) shopItems[i] = generateRandomShopItem(t);
-    shopItems[SHOP_SIZE - 2] = { type: 'card_pack', amount: 20, price: 10 };
-    shopItems[SHOP_SIZE - 1] = { type: 'diamond_pack', amount: 10, price: 500 };
+    shopItems[SHOP_SIZE - 2] = { type: 'card_pack', amount: 15, price: 15 };
+    shopItems[SHOP_SIZE - 1] = { type: 'diamond_pack', amount: 5, price: 500 };
     renderShop();
 }
 
@@ -108,7 +108,7 @@ function renderShop() {
                 const data = list[item.level - 1] || list[list.length - 1],
                     isS = item.type.includes('snack'),
                     isT = item.type.includes('toy');
-                d.innerHTML = `<div class="${isS || isT ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:1.2rem">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div><div class="shop-price-tag">${item.level}💎</div>`;
+                d.innerHTML = `<div class="${isS || isT ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:1.2rem">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div><div class="shop-price-tag">${item.level * 2}💎</div>`;
             }
         } else d.innerHTML = `<span class="text-xs text-gray-400">품절</span>`;
         shopGrid.appendChild(d);
@@ -140,7 +140,7 @@ function buyShopItem(idx) {
         updateAll();
         return;
     }
-    const p = item.level;
+    const p = item.level * 2;
     if (diamonds < p) {
         showToast('다이아 부족!');
         return;

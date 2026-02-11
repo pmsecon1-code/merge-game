@@ -27,7 +27,7 @@ const RECOVERY_SEC = 30;
 
 // --- 비용 설정 ---
 const UNLOCK_COST_BOARD = 100;
-const ENERGY_COST = 500;
+const ENERGY_COST = 300;
 const CAGE_UPGRADE_COST = 1000;
 
 // --- 게임 밸런스 ---
@@ -37,64 +37,64 @@ const SNACK_CHANCE = 0.08;
 // --- 주사위 여행 설정 ---
 const DICE_TRIP_SIZE = 50;
 const DICE_DROP_CHANCE = 0.05;
-const DICE_TRIP_COMPLETE_REWARD = { coins: 1000, diamonds: 50 };
+const DICE_TRIP_COMPLETE_REWARD = { coins: 500, diamonds: 20 };
 
 const DICE_TRIP_REWARDS = [
     // 1~10: 초반 (낮은 보상)
-    { type: 'coins', min: 10, max: 30 },      // 1
-    { type: 'energy', min: 5, max: 10 },      // 2
-    { type: 'coins', min: 15, max: 40 },      // 3
+    { type: 'coins', min: 5, max: 20 },       // 1
+    { type: 'energy', min: 3, max: 7 },       // 2
+    { type: 'coins', min: 10, max: 25 },      // 3
     { type: 'cards', min: 1, max: 2 },        // 4
     { type: 'diamonds', min: 1, max: 2 },     // 5
-    { type: 'coins', min: 20, max: 50 },      // 6
-    { type: 'energy', min: 5, max: 10 },      // 7
-    { type: 'cards', min: 1, max: 3 },        // 8
-    { type: 'coins', min: 25, max: 60 },      // 9
-    { type: 'diamonds', min: 1, max: 3 },     // 10
+    { type: 'coins', min: 15, max: 35 },      // 6
+    { type: 'energy', min: 3, max: 7 },       // 7
+    { type: 'cards', min: 1, max: 2 },        // 8
+    { type: 'coins', min: 18, max: 40 },      // 9
+    { type: 'diamonds', min: 1, max: 2 },     // 10
     // 11~20: 중반 초입
-    { type: 'coins', min: 30, max: 70 },      // 11
-    { type: 'energy', min: 8, max: 15 },      // 12
-    { type: 'cards', min: 2, max: 4 },        // 13
-    { type: 'coins', min: 35, max: 80 },      // 14
-    { type: 'diamonds', min: 2, max: 4 },     // 15
-    { type: 'coins', min: 40, max: 90 },      // 16
-    { type: 'energy', min: 10, max: 18 },     // 17
-    { type: 'cards', min: 2, max: 5 },        // 18
-    { type: 'coins', min: 45, max: 100 },     // 19
-    { type: 'diamonds', min: 2, max: 5 },     // 20
+    { type: 'coins', min: 20, max: 50 },      // 11
+    { type: 'energy', min: 5, max: 10 },      // 12
+    { type: 'cards', min: 1, max: 3 },        // 13
+    { type: 'coins', min: 25, max: 55 },      // 14
+    { type: 'diamonds', min: 1, max: 3 },     // 15
+    { type: 'coins', min: 28, max: 60 },      // 16
+    { type: 'energy', min: 7, max: 12 },      // 17
+    { type: 'cards', min: 1, max: 3 },        // 18
+    { type: 'coins', min: 30, max: 70 },      // 19
+    { type: 'diamonds', min: 1, max: 3 },     // 20
     // 21~30: 중반
-    { type: 'coins', min: 50, max: 110 },     // 21
-    { type: 'energy', min: 12, max: 20 },     // 22
-    { type: 'cards', min: 3, max: 5 },        // 23
-    { type: 'coins', min: 55, max: 120 },     // 24
-    { type: 'diamonds', min: 3, max: 5 },     // 25
-    { type: 'coins', min: 60, max: 130 },     // 26
-    { type: 'energy', min: 15, max: 25 },     // 27
-    { type: 'cards', min: 3, max: 6 },        // 28
-    { type: 'coins', min: 70, max: 140 },     // 29
-    { type: 'diamonds', min: 3, max: 6 },     // 30
+    { type: 'coins', min: 35, max: 75 },      // 21
+    { type: 'energy', min: 8, max: 14 },      // 22
+    { type: 'cards', min: 2, max: 4 },        // 23
+    { type: 'coins', min: 38, max: 85 },      // 24
+    { type: 'diamonds', min: 2, max: 4 },     // 25
+    { type: 'coins', min: 42, max: 90 },      // 26
+    { type: 'energy', min: 10, max: 18 },     // 27
+    { type: 'cards', min: 2, max: 4 },        // 28
+    { type: 'coins', min: 50, max: 100 },     // 29
+    { type: 'diamonds', min: 2, max: 4 },     // 30
     // 31~40: 후반 초입
-    { type: 'coins', min: 80, max: 150 },     // 31
-    { type: 'energy', min: 18, max: 28 },     // 32
-    { type: 'cards', min: 4, max: 6 },        // 33
-    { type: 'coins', min: 90, max: 160 },     // 34
-    { type: 'diamonds', min: 4, max: 7 },     // 35
-    { type: 'coins', min: 100, max: 180 },    // 36
-    { type: 'energy', min: 20, max: 30 },     // 37
-    { type: 'cards', min: 4, max: 7 },        // 38
-    { type: 'coins', min: 110, max: 200 },    // 39
-    { type: 'diamonds', min: 5, max: 8 },     // 40
+    { type: 'coins', min: 55, max: 105 },     // 31
+    { type: 'energy', min: 12, max: 20 },     // 32
+    { type: 'cards', min: 3, max: 4 },        // 33
+    { type: 'coins', min: 60, max: 110 },     // 34
+    { type: 'diamonds', min: 3, max: 5 },     // 35
+    { type: 'coins', min: 70, max: 125 },     // 36
+    { type: 'energy', min: 14, max: 22 },     // 37
+    { type: 'cards', min: 3, max: 5 },        // 38
+    { type: 'coins', min: 75, max: 140 },     // 39
+    { type: 'diamonds', min: 3, max: 5 },     // 40
     // 41~50: 후반 (높은 보상)
-    { type: 'coins', min: 120, max: 220 },    // 41
-    { type: 'energy', min: 22, max: 35 },     // 42
-    { type: 'cards', min: 5, max: 8 },        // 43
-    { type: 'coins', min: 140, max: 250 },    // 44
-    { type: 'diamonds', min: 6, max: 10 },    // 45
-    { type: 'coins', min: 160, max: 280 },    // 46
-    { type: 'energy', min: 25, max: 40 },     // 47
-    { type: 'cards', min: 6, max: 10 },       // 48
-    { type: 'diamonds', min: 8, max: 12 },    // 49
-    { type: 'coins', min: 200, max: 350 },    // 50 (완주 직전)
+    { type: 'coins', min: 85, max: 155 },     // 41
+    { type: 'energy', min: 15, max: 25 },     // 42
+    { type: 'cards', min: 3, max: 6 },        // 43
+    { type: 'coins', min: 100, max: 175 },    // 44
+    { type: 'diamonds', min: 4, max: 7 },     // 45
+    { type: 'coins', min: 110, max: 200 },    // 46
+    { type: 'energy', min: 18, max: 28 },     // 47
+    { type: 'cards', min: 4, max: 7 },        // 48
+    { type: 'diamonds', min: 5, max: 8 },     // 49
+    { type: 'coins', min: 140, max: 250 },    // 50 (완주 직전)
 ];
 
 // --- NPC 아바타 ---
@@ -102,11 +102,26 @@ const NPC_AVATARS = ['👩‍🌾', '👨‍🍳', '👮‍♀️', '🧙‍♂�
 
 // --- 일일 미션 설정 ---
 const DAILY_MISSIONS = [
-    { id: 'merge', icon: '🔨', label: '합성', target: 100, reward: 100 },
-    { id: 'spawn', icon: '✨', label: '생성', target: 200, reward: 100 },
-    { id: 'coins', icon: '👑', label: '코인 획득', target: 500, reward: 100 },
+    // 1단계 (쉬움)
+    [
+        { id: 'merge', icon: '🔨', label: '합성', target: 15, reward: 30 },
+        { id: 'spawn', icon: '✨', label: '생성', target: 30, reward: 30 },
+        { id: 'coins', icon: '👑', label: '코인 획득', target: 150, reward: 30 },
+    ],
+    // 2단계 (보통)
+    [
+        { id: 'merge', icon: '🔨', label: '합성', target: 40, reward: 60 },
+        { id: 'spawn', icon: '✨', label: '생성', target: 80, reward: 60 },
+        { id: 'coins', icon: '👑', label: '코인 획득', target: 400, reward: 60 },
+    ],
+    // 3단계 (어려움)
+    [
+        { id: 'merge', icon: '🔨', label: '합성', target: 80, reward: 100 },
+        { id: 'spawn', icon: '✨', label: '생성', target: 150, reward: 100 },
+        { id: 'coins', icon: '👑', label: '코인 획득', target: 800, reward: 100 },
+    ],
 ];
-const DAILY_COMPLETE_REWARD = { diamonds: 10, cards: 5 };
+const DAILY_COMPLETE_REWARD = { diamonds: 5, cards: 3 };
 
 // ============================================
 // 동물 데이터
@@ -214,15 +229,15 @@ const DOG_TOYS = [
 // 앨범 데이터
 // ============================================
 
-const ALBUM_CARD_COST = 20;
-const ALBUM_DRAW_COUNT = 2;
+const ALBUM_CARD_COST = 15;
+const ALBUM_DRAW_COUNT = 3;
 const ALBUM_CARD_CHANCE = 0.3;
 const ALBUM_CARD_MIN = 2;
 const ALBUM_CARD_MAX = 6;
-const ALBUM_DUPE_REWARD = { N: 3, R: 8, SR: 20 };
+const ALBUM_DUPE_REWARD = { N: 1, R: 3, SR: 8 };
 const ALBUM_COMPLETE_COINS = 500;
 const ALBUM_ALL_COMPLETE_DIAMONDS = 100;
-const ALBUM_CYCLE_MS = 21 * 24 * 60 * 60 * 1000; // 21일
+const ALBUM_CYCLE_MS = 42 * 24 * 60 * 60 * 1000; // 42일
 
 // --- 7일 출석 보상 ---
 const ATTENDANCE_REWARDS = [

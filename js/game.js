@@ -23,8 +23,8 @@ function generateNewQuest(forceEasy = false) {
     const npc = NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)];
     const twoItemChance = Math.min(0.3 + userLevel * 0.05, 0.8);
     const cnt = Math.random() < twoItemChance ? 2 : 1;
-    const minLv = needEasy ? 4 : Math.min(Math.max(2, Math.floor(userLevel / 2)), 6);
-    const maxLvAnimal = needEasy ? 5 : Math.min(minLv + 3 + Math.floor(userLevel / 4), 10);
+    const minLv = needEasy ? 4 : Math.min(Math.max(3, Math.floor(userLevel / 2) + 1), 7);
+    const maxLvAnimal = needEasy ? 5 : Math.min(minLv + 3 + Math.floor(userLevel / 4), 11);
     const maxLvSnack = needEasy ? 4 : Math.min(Math.ceil(minLv / 2) + 2, 5);
     const reqs = [];
     let sc = 0;
@@ -41,7 +41,7 @@ function generateNewQuest(forceEasy = false) {
         reqs.push({ type, level: lv });
         sc += lv * (isSnack || isToy ? 7 : 5);
     }
-    const isCardQuest = Math.random() < ALBUM_CARD_CHANCE;
+    const isCardQuest = userLevel >= 3 && Math.random() < ALBUM_CARD_CHANCE;
     const cardReward = isCardQuest
         ? ALBUM_CARD_MIN + Math.floor(Math.random() * (ALBUM_CARD_MAX - ALBUM_CARD_MIN + 1))
         : 0;
@@ -49,7 +49,7 @@ function generateNewQuest(forceEasy = false) {
         id: questIdCounter++,
         npc,
         reqs,
-        reward: 10 + sc + Math.floor(Math.random() * 5),
+        reward: 10 + sc + Math.floor(Math.random() * 5) + Math.floor(userLevel / 3) * 5,
         cardReward,
         expiresAt: Date.now() + 10 * 60 * 1000,
     };
@@ -463,7 +463,7 @@ function getEnergyPrice() {
         energyPurchaseCount = 0;
         energyPurchaseResetTime = Date.now() + getMsUntilKSTMidnight();
     }
-    return 500 + energyPurchaseCount * 100;
+    return 300 + energyPurchaseCount * 50;
 }
 
 function checkEnergyAfterUse() {
@@ -595,6 +595,7 @@ function checkDailyReset() {
 
     // 리셋
     dailyMissions = {
+        tier: 0,
         merge: 0,
         spawn: 0,
         coins: 0,
@@ -617,10 +618,14 @@ function addDailyProgress(type, amount = 1) {
 }
 
 function checkDailyMissionComplete(type) {
-    const idx = DAILY_MISSIONS.findIndex((m) => m.id === type);
+    const tier = dailyMissions.tier;
+    if (tier >= 3) return; // 모든 단계 완료
+
+    const missions = DAILY_MISSIONS[tier];
+    const idx = missions.findIndex((m) => m.id === type);
     if (idx === -1) return;
 
-    const mission = DAILY_MISSIONS[idx];
+    const mission = missions[idx];
     const progress = dailyMissions[type];
 
     if (progress >= mission.target && !dailyMissions.claimed[idx]) {
@@ -628,16 +633,29 @@ function checkDailyMissionComplete(type) {
         coins += mission.reward;
         showToast(`${mission.icon} ${mission.label} 완료! +${mission.reward}🪙`);
 
-        // 전체 완료 시 자동 보너스 지급
-        if (dailyMissions.claimed.every((c) => c) && !dailyMissions.bonusClaimed) {
-            setTimeout(() => claimDailyBonus(), 500);
+        // 현재 단계 올클리어 → 다음 단계 승급
+        if (dailyMissions.claimed.every((c) => c)) {
+            if (tier < 2) {
+                // 다음 단계로
+                dailyMissions.tier++;
+                dailyMissions.merge = 0;
+                dailyMissions.spawn = 0;
+                dailyMissions.coins = 0;
+                dailyMissions.claimed = [false, false, false];
+                showToast(`⭐ ${tier + 2}단계 미션 해금!`);
+                updateDailyMissionUI();
+            } else {
+                // 3단계 올클리어 → 보너스
+                dailyMissions.tier = 3;
+                setTimeout(() => claimDailyBonus(), 500);
+            }
         }
     }
 }
 
 function claimDailyBonus() {
     if (dailyMissions.bonusClaimed) return;
-    if (!dailyMissions.claimed.every((c) => c)) return;
+    if (dailyMissions.tier < 3) return;
 
     dailyMissions.bonusClaimed = true;
     diamonds += DAILY_COMPLETE_REWARD.diamonds;

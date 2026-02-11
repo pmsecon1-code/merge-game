@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.18.0)
+# 멍냥 머지 게임 - Architecture (v4.19.1)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.18.0
+- **버전**: 4.19.1
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -157,6 +157,7 @@ merge2/
 
   // 일일 미션 (v4.10.0+)
   dailyMissions: {
+    tier,               // 0=1단계, 1=2단계, 2=3단계, 3=완료 (v4.19.1+)
     merge,              // 합성 횟수
     spawn,              // 생성 횟수
     coins,              // 획득 코인
@@ -253,7 +254,7 @@ merge2/
 | 퀘스트 완료 (카드) | 2~6장 🃏 |
 | 누적 코인 1000 | 칸마다 100🪙 |
 | 스페셜 퀘스트 (7번째 슬롯) | 300🪙 |
-| 주사위 여행 완주 | 1000🪙 + 50💎 |
+| 주사위 여행 완주 | 500🪙 + 20💎 |
 | 레벨업 | ceil(레벨/5)×5 💎 |
 | 테마 완성 (9/9) | 500🪙 (×9 테마) |
 | 앨범 완성 (81/81) | 100💎 + 리셋 |
@@ -269,24 +270,24 @@ merge2/
 
 ### 상수
 ```javascript
-ALBUM_CARD_COST = 20        // 뽑기 필요 카드
-ALBUM_DRAW_COUNT = 2         // 1회 뽑기 사진 수
-ALBUM_CARD_CHANCE = 0.30     // 퀘스트 카드 보상 확률 (30%)
+ALBUM_CARD_COST = 15        // 뽑기 필요 카드
+ALBUM_DRAW_COUNT = 3         // 1회 뽑기 사진 수
+ALBUM_CARD_CHANCE = 0.30     // 퀘스트 카드 보상 확률 (30%, Lv.3+만)
 ALBUM_CARD_MIN = 2           // 카드 최소
 ALBUM_CARD_MAX = 6           // 카드 최대
-ALBUM_DUPE_REWARD = { N: 3, R: 8, SR: 20 }
+ALBUM_DUPE_REWARD = { N: 1, R: 3, SR: 8 }
 ALBUM_COMPLETE_COINS = 500   // 테마 완성 보상
 ALBUM_ALL_COMPLETE_DIAMONDS = 100  // 전체 완성 보상
-ALBUM_CYCLE_MS = 21일        // 초기화 주기
+ALBUM_CYCLE_MS = 42일        // 초기화 주기
 ```
 
 ### 흐름
 ```
-[퀘스트 완료] → 30% 확률 카드 2~6장 (생성 시 결정)
+[퀘스트 완료] → 30% 확률 카드 2~6장 (생성 시 결정, Lv.3+)
       ↓
-[카드 20장] → 뽑기 → 사진 2장
+[카드 15장] → 뽑기 → 사진 3장
       ↓         ↓
-   [신규]    [중복] → 등급별 카드 반환 (N:3, R:8, SR:20)
+   [신규]    [중복] → 등급별 카드 반환 (N:1, R:3, SR:8)
       ↓
 [테마 9/9] → +500🪙 (최대 9회 = 4500🪙)
       ↓
@@ -297,7 +298,7 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 | 조건 | 동작 |
 |------|------|
 | 81장 수집 | 100💎 + cards/album/timer 초기화 |
-| 21일 경과 | 토스트 알림 + 초기화 (보상 없음) |
+| 42일 경과 | 토스트 알림 + 초기화 (보상 없음) |
 
 ### 테마 목록
 | # | 테마 | 아이콘 |
@@ -348,7 +349,7 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 ```javascript
 DICE_TRIP_SIZE = 50              // 보드 칸 수
 DICE_DROP_CHANCE = 0.05          // 합성 시 5% 드랍
-DICE_TRIP_COMPLETE_REWARD = { coins: 1000, diamonds: 50 }
+DICE_TRIP_COMPLETE_REWARD = { coins: 500, diamonds: 20 }
 ```
 
 ### 흐름
@@ -357,7 +358,7 @@ DICE_TRIP_COMPLETE_REWARD = { coins: 1000, diamonds: 50 }
     ↓
 [주사위 사용] → 1~6 이동 → 착지 칸 보상
     ↓
-[50칸 완주] → 1000🪙 + 50💎 → 즉시 리셋 (position=0, visited=[0], dice=0)
+[50칸 완주] → 500🪙 + 20💎 → 즉시 리셋 (position=0, visited=[0], dice=0)
     ↓
 [다시 시작] ← 반복
 ```
@@ -365,11 +366,11 @@ DICE_TRIP_COMPLETE_REWARD = { coins: 1000, diamonds: 50 }
 ### 칸 보상 (50칸)
 | 구간 | 보상 타입 | 범위 |
 |------|-----------|------|
-| 1~10 | 코인/에너지/카드/다이아 | 10~60 |
-| 11~20 | 코인/에너지/카드/다이아 | 30~100 |
-| 21~30 | 코인/에너지/카드/다이아 | 50~140 |
-| 31~40 | 코인/에너지/카드/다이아 | 80~200 |
-| 41~50 | 코인/에너지/카드/다이아 | 120~350 |
+| 1~10 | 코인/에너지/카드/다이아 | 1~40 |
+| 11~20 | 코인/에너지/카드/다이아 | 1~70 |
+| 21~30 | 코인/에너지/카드/다이아 | 2~100 |
+| 31~40 | 코인/에너지/카드/다이아 | 3~140 |
+| 41~50 | 코인/에너지/카드/다이아 | 3~250 |
 
 ### 관련 함수 (systems.js, 8개)
 | 함수 | 역할 |
@@ -477,10 +478,10 @@ B 화면: 팝업 "A님이 레이스 초대! [수락] [거절]"
 ### 보상
 | 결과 | 보상 |
 |------|------|
-| 승리 | 200🪙 + 10💎 |
-| 패배 | 50🪙 |
-| 무승부 | 100🪙 + 5💎 |
-| 시간 초과 | 50🪙 |
+| 승리 | 150🪙 + 5💎 |
+| 패배 | 30🪙 |
+| 무승부 | 80🪙 + 3💎 |
+| 시간 초과 | 30🪙 |
 
 ### Firestore 구조
 
@@ -517,7 +518,7 @@ B 화면: 팝업 "A님이 레이스 초대! [수락] [거절]"
 
 ### 상수
 ```javascript
-RACE_GOAL = 10                 // 퀘스트 10개 완료
+RACE_GOAL = 7                  // 퀘스트 7개 완료
 RACE_EXPIRE_MS = 60분          // 레이스 1시간 제한
 RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ```
@@ -607,13 +608,13 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 `MAX_ENERGY=100`, `RECOVERY_SEC=30`, `SHOP_REFRESH_MS=300000`, `UNLOCK_COST_BOARD=100`, `SNACK_CHANCE=0.08`
 
 ### 주사위 여행
-`DICE_TRIP_SIZE=50`, `DICE_DROP_CHANCE=0.05`, `DICE_TRIP_COMPLETE_REWARD={coins:1000, diamonds:50}`
+`DICE_TRIP_SIZE=50`, `DICE_DROP_CHANCE=0.05`, `DICE_TRIP_COMPLETE_REWARD={coins:500, diamonds:20}`
 
 ### 에너지 구매
-`getEnergyPrice()` → 500 + 구매횟수×100 (KST 자정 리셋)
+`getEnergyPrice()` → 300 + 구매횟수×50 (KST 자정 리셋)
 
 ### 데이터 배열 (11개)
-`CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `CAT_SNACKS`(5), `DOG_SNACKS`(5), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `DAILY_MISSIONS`(3개), `ATTENDANCE_REWARDS`(7일), `DICE_TRIP_REWARDS`(50칸)
+`CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `CAT_SNACKS`(5), `DOG_SNACKS`(5), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `DAILY_MISSIONS`(3단계×3개), `ATTENDANCE_REWARDS`(7일), `DICE_TRIP_REWARDS`(50칸)
 
 ### 헬퍼 함수 (5개)
 `getItemList`, `getMaxLevel`, `getItemData`, `getGeneratorName`, `getSpecialTypeName`
@@ -647,6 +648,36 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.19.1 (2026-02-11)
+- 💰 **경제 긴축 패치** - 재화 과잉 해소
+  - 레이스 보상 감소: 승리 200🪙+10💎→150🪙+5💎, 패배 100🪙+3💎→30🪙, 무승부 150🪙+5💎→80🪙+3💎, 타임아웃 100🪙+3💎→30🪙
+  - 주사위 여행 완주 보상 감소: 1000🪙+50💎 → 500🪙+20💎
+  - 주사위 여행 칸별 보상 ~30% 감소 (전 구간)
+  - 앨범 중복 반환 감소: N:3→1, R:8→3, SR:20→8
+  - 퀘스트 요구 레벨 +1: minLv max(2,floor(lv/2))→max(3,floor(lv/2)+1), 상한 6→7, maxLvAnimal 상한 10→11
+  - 일일 미션 3단계 시스템: 1단계(15/30/150, 30🪙) → 2단계(40/80/400, 60🪙) → 3단계(80/150/800, 100🪙), 올클리어 보너스 10💎+5🃏→5💎+3🃏
+- 수정 파일: constants.js, game.js, race.js, state.js, save.js, ui.js, index.html
+- 수정 함수: `checkDailyMissionComplete()` (tier 기반 로직), `claimDailyBonus()` (tier=3 체크), `checkDailyReset()` (tier 리셋), `updateDailyMissionUI()` (tier별 렌더링+단계 표시), `generateNewQuest()` (minLv/maxLv +1)
+- 수정 상수: `RACE_REWARDS`, `DICE_TRIP_COMPLETE_REWARD`, `DICE_TRIP_REWARDS` 전체, `ALBUM_DUPE_REWARD`, `DAILY_MISSIONS` (1D→2D 3단계), `DAILY_COMPLETE_REWARD`
+- 신규 저장 필드: `dailyMissions.tier` (0~3, 하위 호환 ?? 0)
+- 데이터 구조 변경: `dailyMissions` 객체에 `tier` 필드 추가 (기존 데이터 호환)
+
+### v4.19.0 (2026-02-11)
+- ⚖️ **게임 밸런싱 전면 조정**
+  - 일일 미션 목표 하향: 합성 100→50, 생성 200→100
+  - 퀘스트 보상 레벨 보너스: `+ floor(userLevel/3)*5` 추가
+  - 카드 퀘스트 초반 보호: Lv.3 미만 카드 퀘스트 제외
+  - 앨범 뽑기 개선: 비용 20→15🃏, 장수 2→3장, 주기 21→42일
+  - 에너지 구매 가격 인하: 500+n×100 → 300+n×50
+  - 레이스 목표/보상 조정: 목표 10→7, 패배 50🪙→100🪙+3💎, 무승부 100🪙→150🪙, 시간초과 50🪙→100🪙+3💎
+  - 상점 아이템 가격 상향: lv💎 → lv×2💎 (다이아 싱크 확대)
+  - 다이아팩 수량 감소: 10→5💎
+  - 카드팩 변경: 20장/10💎 → 15장/15💎
+  - 주사위 초반 보상 미세 상향: 1~5번 칸 min +3~5
+- 수정 파일: constants.js, game.js, race.js, systems.js, index.html
+- 수정 함수: `generateNewQuest()` (레벨 보너스+카드 보호), `getEnergyPrice()` (300+n×50), `renderShop()` (lv×2 가격), `buyShopItem()` (lv×2 가격), `refreshShop()` (카드팩 15장/15💎, 다이아팩 5개)
+- 데이터 구조 변경 없음 (상수만 변경, 기존 저장 데이터 호환)
 
 ### v4.18.0 (2026-02-11)
 - 🏷️ **하단 배지 내비게이션 바** 추가
@@ -693,7 +724,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
   - 레벨업 보상: `💎 +5` → `+5💎`
   - 앨범 테마 보상: `완성 보상: 500🪙` → `완성 시 +500🪙`
   - 창고 잠금해제: `💎5` → `5💎`
-  - 보상 힌트 통일: `(승리 시 +200🪙 +10💎)`, `(완성 시 +100💎)`, `(완주 시 +1000🪙 +50💎)`
+  - 보상 힌트 통일: `(승리 시 +150🪙 +5💎)`, `(완성 시 +100💎)`, `(완주 시 +500🪙 +20💎)`
   - 수정 파일: index.html, game.js, systems.js, ui.js, album.js, race.js
 - ✏️ **UX 라이팅 2차 통일** - 비용/보유/부족/판매 표기 정리
   - 비용: `💎n` → `n💎`, `🪙n` → `n🪙` (상점 가격표 3곳)
@@ -701,7 +732,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
   - 부족: `코인부족`/`다이아부족` → `코인 부족!`/`다이아 부족!`
   - 보유: 에너지 팝업 `보유: 0 🪙` → `보유: 0🪙` (줄바꿈 제거)
   - 버튼 순서: `500🪙 구매` → `구매 500🪙` (뽑기 🃏20 패턴에 통일)
-  - 레이스 참가 문구: race.js 동적 렌더링에도 `(승리 시 +200🪙 +10💎)` 추가
+  - 레이스 참가 문구: race.js 동적 렌더링에도 `(승리 시 +150🪙 +5💎)` 추가
   - 수정 파일: index.html, game.js, main.js, systems.js, race.js
 - 🐛 **에너지 구매 리셋 타이머 자정 넘김 버그 수정**
   - 기존: 저장된 remaining ms 복원 → 자정 넘기면 타이머 어긋남

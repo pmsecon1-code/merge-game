@@ -613,13 +613,27 @@ function updateDailyMissionUI() {
 
     if (!dailyMissionsContainer) return;
 
+    const tier = dailyMissions.tier;
+    const missions = tier < 3 ? DAILY_MISSIONS[tier] : DAILY_MISSIONS[2];
+    const allDone = tier >= 3;
+
+    // 단계 표시 업데이트
+    const tierInfo = document.getElementById('daily-tier-info');
+    if (tierInfo) {
+        if (allDone) {
+            tierInfo.textContent = `✅ 완료! +${DAILY_COMPLETE_REWARD.diamonds}💎 +${DAILY_COMPLETE_REWARD.cards}🃏`;
+        } else {
+            tierInfo.textContent = `${'★'.repeat(tier + 1)} ${tier + 1}단계`;
+        }
+    }
+
     // 미션 목록 렌더링
     let html = '';
-    DAILY_MISSIONS.forEach((mission, idx) => {
+    missions.forEach((mission, idx) => {
         const progress = dailyMissions[mission.id];
         const target = mission.target;
         const pct = Math.min((progress / target) * 100, 100);
-        const done = dailyMissions.claimed[idx];
+        const done = allDone || dailyMissions.claimed[idx];
 
         html += `
             <div class="flex items-center gap-2">
