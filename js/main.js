@@ -114,6 +114,7 @@ function startQuestTimer() {
     setInterval(() => {
         checkExpiredQuests();
         updateQuestUI();
+        if (tutorialStep > 0) repositionTutorial();
     }, 1000);
 }
 

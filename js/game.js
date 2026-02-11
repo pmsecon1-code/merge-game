@@ -114,7 +114,7 @@ function completeQuest(i) {
     updateAll();
     // 튜토리얼 Step 4 퀘스트 완료 훅
     if (tutorialStep === 4) {
-        setTimeout(() => advanceTutorial(), 500);
+        setTimeout(() => advanceTutorial(), 200);
     }
 }
 
@@ -371,7 +371,7 @@ function triggerGen(idx, item) {
         spawnItem(baseType, 1, false);
         // 튜토리얼: 실제 생성된 경우만 진행
         if ((tutorialStep === 1 || tutorialStep === 2) && boardState.filter((x) => x === null).length < prevEmpty) {
-            setTimeout(() => advanceTutorial(), 400);
+            setTimeout(() => advanceTutorial(), 200);
         }
     }
 }
@@ -500,7 +500,7 @@ function moveItem(fz, fi, tz, ti) {
             if (tutorialStep <= 0) tryDropDice();
             // 튜토리얼 Step 3 합성 완료 훅
             if (tutorialStep === 3) {
-                setTimeout(() => advanceTutorial(), 500);
+                setTimeout(() => advanceTutorial(), 200);
             }
         } else {
             ts[ti] = fIt;

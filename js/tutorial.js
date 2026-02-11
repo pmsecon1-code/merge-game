@@ -80,7 +80,7 @@ function showTutorialStep(step) {
     setTimeout(() => {
         positionSpotlight(targets, spotlight);
         positionBubble(targets, config.arrow, bubble);
-    }, 350);
+    }, 200);
 
     // 스포트라이트 + 말풍선 위치 (즉시)
     positionSpotlight(targets, spotlight);
