@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.17.0)
+# 멍냥 머지 게임 - Architecture (v4.18.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.17.0
+- **버전**: 4.18.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -14,21 +14,21 @@
 
 ```
 merge2/
-├── index.html          # 메인 HTML (~595줄)
+├── index.html          # 메인 HTML (~567줄)
 ├── css/
-│   └── styles.css      # 모든 CSS (~1450줄)
+│   └── styles.css      # 모든 CSS (~1800줄)
 ├── js/
 │   ├── constants.js    # 상수 + 데이터 + 헬퍼 (~380줄)
-│   ├── state.js        # 전역 변수 + DOM 참조 (~102줄)
+│   ├── state.js        # 전역 변수 + DOM 참조 (~117줄)
 │   ├── auth.js         # 인증 + 세션 관리 (~129줄)
 │   ├── save.js         # 저장/로드/검증 (~430줄)
 │   ├── game.js         # 코어 게임 메커닉 (~550줄)
-│   ├── systems.js      # 7행미션/주사위 여행/상점 (~340줄)
-│   ├── album.js        # 앨범 (사진 수집) 시스템 (~225줄)
+│   ├── systems.js      # 7행미션/주사위 여행/상점 (~444줄)
+│   ├── album.js        # 앨범 (사진 수집) 시스템 (~240줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1060줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~191줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감 (~520줄)
-│   └── main.js         # 초기화 + 타이머 (~257줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바 (~647줄)
+│   └── main.js         # 초기화 + 타이머 (~258줄)
 ├── firestore.rules     # Firebase 보안 규칙
 ├── firebase.json       # Firebase Hosting + Firestore 설정
 ├── .firebaserc         # Firebase 프로젝트 연결
@@ -38,7 +38,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → tutorial → ui → main
 
-**총 JS**: ~3500줄, **함수**: ~120개
+**총 JS**: ~3800줄, **함수**: ~125개
 
 ---
 
@@ -52,11 +52,29 @@ merge2/
 | 3 | 📋 퀘스트 (7개, 3개씩 페이지) | event-bar 보라 |
 | 4 | 맵 (5×7 = 35칸) | board-wrapper 분홍 |
 | 5 | 📋 일일 미션 (합성/생성/코인) | event-bar 황색 |
-| 6 | 🏁 레이스 (1:1 경쟁) | event-bar 시안 |
-| 7 | 📸 앨범 (진행도/타이머/뽑기/앨범보기) | event-bar 보라 |
-| 8 | 🎲 주사위 여행 (50칸 보드게임) | event-bar 초록 |
-| 9 | 🛒 상점 (5칸: 랜덤×3 + 🃏카드팩 + 💎다이아팩) | event-bar 주황 |
-| 10 | 📦 창고 (5칸) | event-bar 초록 |
+| 6 | 콘텐츠 영역 (배지 탭 시 일일미션 대체) | #bottom-content |
+| 7 | 하단 배지 바 (🏁📸🎲🛒📦) | #bottom-nav 5열 그리드 |
+
+### 하단 배지 바 (v4.18.0)
+```
+┌─────┬──────┬──────┬─────┬─────┐
+│ 🏁  │  📸  │  🎲  │ 🛒  │ 📦  │
+│레이스│ 앨범 │주사위│ 상점│ 창고│
+│참가  │0/81  │1/50  │4:32 │0/0  │
+└─────┴──────┴──────┴─────┴─────┘
+```
+- 배지 탭 → 해당 콘텐츠 표시 (일일미션 자리 대체, 90px 고정높이)
+- 같은 배지 재탭 → 닫힘 (일일미션 복원)
+- 배지 요약 정보: 레이스(상태별), 앨범(진행도), 주사위(위치), 상점(갱신타이머), 창고(보관/열린칸)
+- 각 콘텐츠는 기본 숨김 (`display:none`)
+
+| 배지 | data-tab | 콘텐츠 ID | 요약정보 |
+|------|----------|-----------|----------|
+| 🏁 레이스 | race | #race-bar | 참가하기/⏱초대타이머/n/10 |
+| 📸 앨범 | album | #album-bar | n/81 (테마 미니칩 9개) |
+| 🎲 주사위 여행 | dice | #dice-trip-wrapper | n/50 |
+| 🛒 상점 | shop | #shop-wrapper | m:ss (갱신 타이머) |
+| 📦 창고 | storage | #storage-wrapper | 보관중/열린칸 |
 
 ---
 
@@ -295,11 +313,12 @@ ALBUM_CYCLE_MS = 21일        // 초기화 주기
 | 8 | 특별한 순간 | 🌟 |
 
 ### UI
-- **앨범바**: 진행도(0/81), 보상(100💎), 타이머, 뽑기 버튼, 앨범 보기 버튼, 프로그레스바(사진)
+- **앨범바** (배지 탭 콘텐츠, 90px): 뽑기 버튼(🃏20) + 테마 미니칩 9개 (아이콘+진행도, 클릭→앨범모달)
 - **상단바**: 🃏카드 수 표시 (다이아와 레벨 사이)
 - **뽑기 버튼**: 항상 활성화, 카드 부족 시 토스트 메시지
 - **앨범 모달**: 9개 테마 탭 + 3×3 사진 그리드 + 등급별 테두리색 (N:회색, R:파랑, SR:금색)
 - **미발견 사진**: opacity 0.5, 등급 테두리색 유지 (grayscale 없음)
+- **테마 미니칩**: 1행 9열 그리드, 완성 테마 금색 배경, 클릭 시 해당 테마 앨범 모달 오픈
 
 ### 관련 함수 (album.js, 14개)
 | 함수 | 역할 |
@@ -565,8 +584,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### systems.js (21개)
 `hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `moveTripPosition`, `giveStepReward`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`
 
-### ui.js (26개)
-`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`
+### ui.js (28개)
+`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`, `toggleBottomTab`, `updateBottomBadges`
 
 ### race.js (30개)
 `generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `findActiveOrPendingRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `quickJoinRace`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
@@ -628,6 +647,34 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.18.0 (2026-02-11)
+- 🏷️ **하단 배지 내비게이션 바** 추가
+  - 5개 섹션(레이스/앨범/주사위/상점/창고)을 1행 5열 배지 바로 변환
+  - 배지 탭 → 해당 콘텐츠가 일일미션 자리에 표시 (90px 고정높이)
+  - 같은 배지 재탭 → 닫힘 (일일미션 복원)
+  - 기본 상태: 모든 콘텐츠 숨김, 배지 바만 표시
+- **배지 요약정보** (실시간 갱신)
+  - 🏁 레이스: 상태별 (참가하기/⏱초대타이머/n/10)
+  - 📸 앨범: n/81 진행도
+  - 🎲 주사위 여행: n/50 위치
+  - 🛒 상점: m:ss 갱신 타이머 (매초 실시간)
+  - 📦 창고: 보관중/열린칸
+- **앨범바 리디자인**
+  - 테마 미니칩 9개 (1행 9열, 아이콘+진행도, 완성 시 금색)
+  - "앨범 보기" 버튼 제거 → 테마 칩 클릭으로 대체
+  - 뽑기 버튼 가격 표기 통일 (🃏20)
+- **상점 카드팩/다이아팩 UI**
+  - ×20/×10 수량 표시 (8px, 이모지 아래 컴팩트 표시)
+- **창고/상점 셀 개선**
+  - 보드와 동일한 정사각형 비율 (52px, aspect-ratio: 1)
+  - 테두리+배경 추가로 칸 구분 명확화
+- 신규 변수: `currentBottomTab` (state.js)
+- 신규 함수 (2개): `toggleBottomTab()`, `updateBottomBadges()` (ui.js)
+- 수정 함수: `updateAll()` (배지 업데이트 호출), `startCooldownTimer()` (실시간 배지 갱신), `updateAlbumBarUI()` (테마 미니칩), `renderShop()` (카드/다이아팩 수량)
+- 신규 HTML: `#bottom-content` 래퍼, `#bottom-nav` 배지 바, `#album-theme-grid`
+- 신규 CSS: `#bottom-nav`, `.bottom-nav-badge`, `.album-theme-chip`, 콘텐츠 높이 통일
+- eslint.config.js: `toggleBottomTab`, `updateBottomBadges`, `currentBottomTab`, `lastRaceData`, `RACE_EXPIRE_MS` 전역 추가
 
 ### v4.17.0 (2026-02-11)
 - 🗑️ **전설 퀘스트 시스템 완전 제거**
@@ -952,6 +999,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ## To-do
 
 - [ ] 사운드 효과 추가
+- [x] 하단 배지 내비게이션 바 (v4.18.0)
 - [x] 전설 퀘스트 시스템 제거 (v4.17.0)
 - [x] 스페셜 퀘스트 일반 퀘스트 통합 (v4.16.0)
 - [x] 온보딩 튜토리얼 시스템 (v4.15.0)
