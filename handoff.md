@@ -235,7 +235,7 @@ merge2/
 - 10분 타이머 (만료 시 자동 교체)
 - 30% 확률 카드 퀘스트 (생성 시 결정)
 - 카드 퀘스트: 카드만 지급 / 일반 퀘스트: 코인만 지급
-- 난이도: `baseLevel = 1 + floor(userLevel/3)`, 6개 중 2개는 Lv.3 이하 보장
+- 난이도: easy `minLv=4`, 일반 `max(3, floor(lv/2)+1)` (상한 7), 6개 중 2개는 Lv.4 이하 보장
 - 보상: `10 + score + random(0~4)` (동물×5, 간식/장난감×7)
 
 ### 상점 (systems.js)
@@ -253,7 +253,7 @@ merge2/
 | 퀘스트 완료 (일반) | 가변 코인 (레벨 스케일링) |
 | 퀘스트 완료 (카드) | 2~6장 🃏 |
 | 누적 코인 1000 | 칸마다 100🪙 |
-| 스페셜 퀘스트 (7번째 슬롯) | 300🪙 + 저금통(300~1000🪙) |
+| 스페셜 퀘스트 (7번째 슬롯) | 🐷 저금통 (300~1000🪙, 1시간 타이머) |
 | 저금통 개봉 (1시간 또는 광고) | 300~1000🪙 |
 | 주사위 여행 완주 | 500🪙 + 20💎 |
 | 레벨업 | ceil(레벨/5)×5 💎 |
@@ -662,10 +662,14 @@ firebase deploy --only firestore:rules   # 보안 규칙
   - 합성 불가 (위치 교환만 허용), 판매 불가
   - 보드 가득 시 코인 직접 지급 (fallback)
   - 창고 이동 허용 (타이머 유지, openAt 절대 시간)
-  - 퀘스트 카드 보상 UI: `🐷 저금통` 표시
+  - 미개봉 저금통 UI: cooldown-overlay (회색 그라데이션 + mm:ss 타이머), 개봉 시 금색 🐷
+  - 퀘스트 보상 UI: `🪙🐷` 표시
+- 🐛 **퀘스트 보상 하향 + easy quest 버그 수정**
+  - 퀘스트 보상에서 레벨 보너스 `floor(userLevel/3)*5` 제거 (v4.19.0에서 추가된 것)
+  - `countEasyQuests()` 임계값 `<=3` → `<=4` (v4.19.1 minLv +1과 동기화)
 - 신규 상수: `PIGGY_BANK_TIMER_MS`, `PIGGY_BANK_MIN_COINS`, `PIGGY_BANK_MAX_COINS`
 - 신규 함수 (2개): `openAdPopup()`, `confirmAd()` (game.js)
-- 수정 함수: `completeQuest()` (코인 직접 지급 제거 + 저금통 스폰), `handleCellClick()` (piggy_bank 분기), `moveItem()` (합성 차단), `createItem()` (저금통 렌더링), `updateQuestUI()` (보상 표시 🐷), `askSellItem()` (판매 차단)
+- 수정 함수: `completeQuest()` (코인 직접 지급 제거 + 저금통 스폰), `handleCellClick()` (piggy_bank 분기), `moveItem()` (합성 차단), `createItem()` (cooldown-overlay 저금통 렌더링), `updateQuestUI()` (보상 표시 🪙🐷), `askSellItem()` (판매 차단), `generateNewQuest()` (레벨 보너스 제거), `countEasyQuests()` (임계값 수정)
 - 신규 HTML: `#ad-popup` (광고 확인 팝업)
 - 신규 CSS: `.piggy-bank-item`, `.ad-btn`
 - 데이터 구조: boardState 아이템에 `{type:'piggy_bank', coins, openAt}` 추가 (기존 데이터 호환)
