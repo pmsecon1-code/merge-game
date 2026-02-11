@@ -251,6 +251,7 @@ window.addEventListener('online', () => {
 
 // --- 리사이즈 시 튜토리얼 재배치 ---
 window.addEventListener('resize', () => {
+    syncSectionHeight();
     if (tutorialStep > 0) repositionTutorial();
 });
 

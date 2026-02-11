@@ -1730,7 +1730,7 @@ body.tutorial-active {
 /* 콘텐츠 영역 - 모든 섹션 창고 높이로 통일 */
 #daily-mission-bar,
 #bottom-content .event-bar {
-    height: 81px;
+    height: var(--section-height, auto);
     box-sizing: border-box;
     overflow: hidden;
 }
