@@ -319,6 +319,8 @@ export default [
                 toggleBottomTab: 'readonly',
                 updateBottomBadges: 'readonly',
                 currentBottomTab: 'writable',
+                lastRaceData: 'writable',
+                RACE_EXPIRE_MS: 'readonly',
             },
         },
         rules: {

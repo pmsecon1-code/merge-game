@@ -107,6 +107,7 @@ function startCooldownTimer() {
             renderGrid('board', boardState, boardEl);
             renderGrid('storage', storageState, storageEl);
         }
+        updateBottomBadges();
     }, 1000);
 }
 

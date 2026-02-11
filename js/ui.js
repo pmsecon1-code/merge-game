@@ -558,15 +558,34 @@ function toggleBottomTab(tabId) {
 }
 
 function updateBottomBadges() {
-    // 레이스: 승수
+    // 레이스: 상태별 표시
     const raceInfo = document.getElementById('badge-race-info');
-    if (raceInfo) raceInfo.textContent = `${raceWins}승`;
+    if (raceInfo) {
+        if (currentRaceId && lastRaceData) {
+            if (lastRaceData.status === 'pending' && lastRaceData.inviteExpiresAt) {
+                // 초대 대기 중 → 남은 시간
+                const rem = Math.max(0, lastRaceData.inviteExpiresAt - Date.now());
+                const m = Math.floor(rem / 60000);
+                const s = Math.floor((rem % 60000) / 1000);
+                raceInfo.textContent = `⏱️${m}:${s.toString().padStart(2, '0')}`;
+            } else if (lastRaceData.status === 'active') {
+                // 진행 중 → 내 진행도/10
+                const isP1 = currentUser && lastRaceData.player1Uid === currentUser.uid;
+                const myProg = isP1 ? lastRaceData.player1Progress : lastRaceData.player2Progress;
+                raceInfo.textContent = `${myProg || 0}/${RACE_GOAL}`;
+            } else {
+                raceInfo.textContent = `${raceWins}승`;
+            }
+        } else {
+            raceInfo.textContent = '참가하기';
+        }
+    }
 
     // 앨범: 수집 진행도
     const albumInfo = document.getElementById('badge-album-info');
     if (albumInfo) albumInfo.textContent = `${getAlbumProgress()}/81`;
 
-    // 주사위: 위치/총칸
+    // 주사위 여행: 위치/총칸
     const diceInfo = document.getElementById('badge-dice-info');
     if (diceInfo) diceInfo.textContent = `${diceTripPosition + 1}/50`;
 
