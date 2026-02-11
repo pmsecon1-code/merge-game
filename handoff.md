@@ -655,16 +655,17 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ### v4.20.0 (2026-02-11)
 - 🐷 **저금통 시스템** 추가
-  - 스페셜 퀘스트 완료 시 저금통 아이템 보드에 스폰
+  - 스페셜 퀘스트 완료 시 저금통 아이템 보드에 스폰 (기존 300🪙 직접 지급 제거)
   - 코인 300~1000 랜덤 (생성 시 결정)
   - 1시간 타이머 후 터치로 개봉 → 코인 지급
   - 미개봉 시 📺 버튼 → 광고(페이크) 시청 → 즉시 개봉
   - 합성 불가 (위치 교환만 허용), 판매 불가
   - 보드 가득 시 코인 직접 지급 (fallback)
   - 창고 이동 허용 (타이머 유지, openAt 절대 시간)
+  - 퀘스트 카드 보상 UI: `🐷 저금통` 표시
 - 신규 상수: `PIGGY_BANK_TIMER_MS`, `PIGGY_BANK_MIN_COINS`, `PIGGY_BANK_MAX_COINS`
 - 신규 함수 (2개): `openAdPopup()`, `confirmAd()` (game.js)
-- 수정 함수: `completeQuest()` (저금통 스폰), `handleCellClick()` (piggy_bank 분기), `moveItem()` (합성 차단), `createItem()` (저금통 렌더링), `askSellItem()` (판매 차단)
+- 수정 함수: `completeQuest()` (코인 직접 지급 제거 + 저금통 스폰), `handleCellClick()` (piggy_bank 분기), `moveItem()` (합성 차단), `createItem()` (저금통 렌더링), `updateQuestUI()` (보상 표시 🐷), `askSellItem()` (판매 차단)
 - 신규 HTML: `#ad-popup` (광고 확인 팝업)
 - 신규 CSS: `.piggy-bank-item`, `.ad-btn`
 - 데이터 구조: boardState 아이템에 `{type:'piggy_bank', coins, openAt}` 추가 (기존 데이터 호환)
