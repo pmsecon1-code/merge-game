@@ -141,99 +141,131 @@
                 </div>
             </div>
 
-            <!-- 4-1. 레이스 -->
-            <div id="race-bar" class="event-bar" style="border: 2px solid #06b6d4">
-                <div class="flex items-center gap-1 mb-1 flex-wrap">
-                    <span class="text-[10px] font-bold text-cyan-600">🏁 레이스</span>
-                    <span class="text-[9px] text-cyan-500">내 코드:</span>
-                    <span id="my-race-code" class="text-[9px] text-cyan-700 font-mono font-bold">------</span>
-                    <button
-                        id="race-copy-btn"
-                        onclick="copyRaceCode(document.getElementById('my-race-code').innerText)"
-                        class="text-[8px] bg-cyan-500 text-white px-1 py-0.5 rounded"
-                    >📋</button>
-                    <span id="race-timer" class="text-[9px] text-orange-500 font-bold hidden">⏱️ --:--</span>
-                    <!-- 대기 상태 UI -->
-                    <div id="race-pending-status" class="hidden flex items-center gap-1">
-                        <span id="race-pending-timer" class="text-[9px] text-orange-500 font-bold">⏱️ 9:59</span>
-                        <button onclick="cancelPendingInvite()" class="text-[8px] bg-gray-300 text-gray-600 px-1.5 py-0.5 rounded font-bold">취소</button>
+            <!-- 콘텐츠 영역 (배지 탭으로 표시) -->
+            <div id="bottom-content">
+                <!-- 4-1. 레이스 -->
+                <div id="race-bar" class="event-bar" style="display:none; border: 2px solid #06b6d4">
+                    <div class="flex items-center gap-1 mb-1 flex-wrap">
+                        <span class="text-[10px] font-bold text-cyan-600">🏁 레이스</span>
+                        <span class="text-[9px] text-cyan-500">내 코드:</span>
+                        <span id="my-race-code" class="text-[9px] text-cyan-700 font-mono font-bold">------</span>
+                        <button
+                            id="race-copy-btn"
+                            onclick="copyRaceCode(document.getElementById('my-race-code').innerText)"
+                            class="text-[8px] bg-cyan-500 text-white px-1 py-0.5 rounded"
+                        >📋</button>
+                        <span id="race-timer" class="text-[9px] text-orange-500 font-bold hidden">⏱️ --:--</span>
+                        <!-- 대기 상태 UI -->
+                        <div id="race-pending-status" class="hidden flex items-center gap-1">
+                            <span id="race-pending-timer" class="text-[9px] text-orange-500 font-bold">⏱️ 9:59</span>
+                            <button onclick="cancelPendingInvite()" class="text-[8px] bg-gray-300 text-gray-600 px-1.5 py-0.5 rounded font-bold">취소</button>
+                        </div>
+                        <button
+                            id="race-join-btn"
+                            onclick="openRaceJoinPopup()"
+                            class="text-[9px] bg-cyan-100 text-cyan-600 px-2 py-0.5 rounded-full font-bold ml-auto"
+                        >코드 입력</button>
                     </div>
-                    <button
-                        id="race-join-btn"
-                        onclick="openRaceJoinPopup()"
-                        class="text-[9px] bg-cyan-100 text-cyan-600 px-2 py-0.5 rounded-full font-bold ml-auto"
-                    >코드 입력</button>
-                </div>
-                <div id="race-track" class="race-track-container">
-                    <div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요!</div>
-                </div>
-            </div>
-
-            <!-- 5. 앨범 -->
-            <div id="album-bar" class="event-bar" style="border: 2px solid #e879f9">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-[10px] font-bold text-fuchsia-600">
-                        📸 앨범
-                        <span id="album-progress-text" class="text-[9px] text-fuchsia-400">0/81</span>
-                        <span class="text-[9px] text-fuchsia-300">(100💎)</span>
-                    </span>
-                    <div class="flex gap-1 items-center">
-                        <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold">⏱21일</span>
-                        <button
-                            onclick="openPhotoDraw()"
-                            class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold"
-                        >
-                            뽑기 (20🃏)
-                        </button>
-                        <button
-                            onclick="openAlbum()"
-                            class="text-[9px] bg-fuchsia-100 text-fuchsia-600 px-2 py-0.5 rounded-full font-bold"
-                        >
-                            앨범 보기
-                        </button>
+                    <div id="race-track" class="race-track-container">
+                        <div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요!</div>
                     </div>
                 </div>
-                <div class="progress-track">
-                    <div
-                        id="album-photo-bar"
-                        class="progress-fill"
-                        style="background: linear-gradient(90deg, #d946ef, #a855f7)"
-                    ></div>
+
+                <!-- 5. 앨범 -->
+                <div id="album-bar" class="event-bar" style="display:none; border: 2px solid #e879f9">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold text-fuchsia-600">
+                            📸 앨범
+                            <span id="album-progress-text" class="text-[9px] text-fuchsia-400">0/81</span>
+                            <span class="text-[9px] text-fuchsia-300">(100💎)</span>
+                        </span>
+                        <div class="flex gap-1 items-center">
+                            <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold">⏱21일</span>
+                            <button
+                                onclick="openPhotoDraw()"
+                                class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold"
+                            >
+                                뽑기 (20🃏)
+                            </button>
+                            <button
+                                onclick="openAlbum()"
+                                class="text-[9px] bg-fuchsia-100 text-fuchsia-600 px-2 py-0.5 rounded-full font-bold"
+                            >
+                                앨범 보기
+                            </button>
+                        </div>
+                    </div>
+                    <div class="progress-track">
+                        <div
+                            id="album-photo-bar"
+                            class="progress-fill"
+                            style="background: linear-gradient(90deg, #d946ef, #a855f7)"
+                        ></div>
+                    </div>
+                </div>
+
+                <!-- 6. 주사위 여행 -->
+                <div id="dice-trip-wrapper" class="event-bar" style="display:none; border: 2px solid #10b981">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold text-emerald-600">
+                            🎲 주사위 여행
+                            <span id="dice-trip-position" class="text-[9px] text-emerald-400">1/20</span>
+                            <span class="text-[9px] text-emerald-300">(완주: 1000🪙+50💎)</span>
+                        </span>
+                        <button
+                            id="dice-roll-btn"
+                            onclick="useDice()"
+                            class="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold disabled:opacity-50"
+                        >
+                            🎲 굴리기 (0)
+                        </button>
+                    </div>
+                    <div id="dice-trip-board" class="dice-trip-board"></div>
+                </div>
+
+                <!-- 7. 상점 -->
+                <div id="shop-wrapper" class="event-bar" style="display:none; border: 2px solid #f59e0b">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-orange-600">🛒 상점</span>
+                        <span id="shop-timer-badge" class="text-[9px] text-orange-500 font-bold">갱신: 05:00</span>
+                    </div>
+                    <div class="grid-layout" id="shop-grid"></div>
+                </div>
+
+                <!-- 8. 창고 -->
+                <div id="storage-wrapper" class="event-bar" style="display:none; border: 2px solid #10b981">
+                    <span class="text-[10px] font-bold text-emerald-600">📦 창고</span>
+                    <div id="storage-area" class="grid-layout"></div>
                 </div>
             </div>
 
-            <!-- 6. 주사위 여행 -->
-            <div id="dice-trip-wrapper" class="event-bar" style="border: 2px solid #10b981">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-[10px] font-bold text-emerald-600">
-                        🎲 주사위 여행
-                        <span id="dice-trip-position" class="text-[9px] text-emerald-400">1/20</span>
-                        <span class="text-[9px] text-emerald-300">(완주: 1000🪙+50💎)</span>
-                    </span>
-                    <button
-                        id="dice-roll-btn"
-                        onclick="useDice()"
-                        class="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold disabled:opacity-50"
-                    >
-                        🎲 굴리기 (0)
-                    </button>
-                </div>
-                <div id="dice-trip-board" class="dice-trip-board"></div>
-            </div>
-
-            <!-- 7. 상점 -->
-            <div id="shop-wrapper" class="event-bar">
-                <div class="flex justify-between items-center">
-                    <span class="text-[10px] font-bold text-orange-600">🛒 상점</span>
-                    <span id="shop-timer-badge" class="text-[9px] text-orange-500 font-bold">갱신: 05:00</span>
-                </div>
-                <div class="grid-layout" id="shop-grid"></div>
-            </div>
-
-            <!-- 8. 창고 -->
-            <div id="storage-wrapper" class="event-bar">
-                <span class="text-[10px] font-bold text-emerald-600">📦 창고</span>
-                <div id="storage-area" class="grid-layout"></div>
+            <!-- 하단 배지 내비게이션 -->
+            <div id="bottom-nav">
+                <button class="bottom-nav-badge" data-tab="race" onclick="toggleBottomTab('race')">
+                    <span class="badge-icon">🏁</span>
+                    <span class="badge-label">레이스</span>
+                    <span class="badge-info" id="badge-race-info"></span>
+                </button>
+                <button class="bottom-nav-badge" data-tab="album" onclick="toggleBottomTab('album')">
+                    <span class="badge-icon">📸</span>
+                    <span class="badge-label">앨범</span>
+                    <span class="badge-info" id="badge-album-info"></span>
+                </button>
+                <button class="bottom-nav-badge" data-tab="dice" onclick="toggleBottomTab('dice')">
+                    <span class="badge-icon">🎲</span>
+                    <span class="badge-label">주사위</span>
+                    <span class="badge-info" id="badge-dice-info"></span>
+                </button>
+                <button class="bottom-nav-badge" data-tab="shop" onclick="toggleBottomTab('shop')">
+                    <span class="badge-icon">🛒</span>
+                    <span class="badge-label">상점</span>
+                    <span class="badge-info" id="badge-shop-info"></span>
+                </button>
+                <button class="bottom-nav-badge" data-tab="storage" onclick="toggleBottomTab('storage')">
+                    <span class="badge-icon">📦</span>
+                    <span class="badge-label">창고</span>
+                    <span class="badge-info" id="badge-storage-info"></span>
+                </button>
             </div>
 
             <div id="tutorial-pointer" class="hidden">👆</div>

@@ -122,6 +122,7 @@ function updateAll() {
     updateDailyMissionUI();
     updateAlbumBarUI();
     updateDiceTripUI();
+    updateBottomBadges();
     saveGame();
     // 튜토리얼 중이면 스포트라이트 재배치
     if (tutorialStep > 0) repositionTutorial();
@@ -527,6 +528,44 @@ function upgradeGenerator() {
     });
     updateUpgradeUI();
     updateAll();
+}
+
+// --- 하단 배지 탭 ---
+function toggleBottomTab(tabId) {
+    const mapping = {
+        race: 'race-bar',
+        album: 'album-bar',
+        dice: 'dice-trip-wrapper',
+        shop: 'shop-wrapper',
+        storage: 'storage-wrapper'
+    };
+
+    if (currentBottomTab === tabId) {
+        document.getElementById(mapping[tabId]).style.display = 'none';
+        currentBottomTab = null;
+    } else {
+        Object.values(mapping).forEach(id => document.getElementById(id).style.display = 'none');
+        document.getElementById(mapping[tabId]).style.display = 'flex';
+        currentBottomTab = tabId;
+    }
+
+    document.querySelectorAll('.bottom-nav-badge').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === currentBottomTab);
+    });
+}
+
+function updateBottomBadges() {
+    const diceInfo = document.getElementById('badge-dice-info');
+    if (diceInfo) diceInfo.textContent = diceCount > 0 ? `${diceCount}개` : '';
+
+    const albumInfo = document.getElementById('badge-album-info');
+    if (albumInfo) albumInfo.textContent = `${getAlbumProgress()}/81`;
+
+    const storageInfo = document.getElementById('badge-storage-info');
+    if (storageInfo) {
+        const used = storageState.filter(s => s && s.type !== 'locked_storage').length;
+        storageInfo.textContent = used > 0 ? `${used}/${STORAGE_SIZE}` : '';
+    }
 }
 
 // --- 일일 미션 UI ---

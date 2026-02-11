@@ -316,6 +316,9 @@ export default [
                 upgradeGenerator: 'readonly',
                 updateDailyMissionUI: 'readonly',
                 startDailyMissionTimer: 'readonly',
+                toggleBottomTab: 'readonly',
+                updateBottomBadges: 'readonly',
+                currentBottomTab: 'writable',
             },
         },
         rules: {
