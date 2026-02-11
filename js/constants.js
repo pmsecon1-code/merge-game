@@ -36,7 +36,7 @@ const SNACK_CHANCE = 0.08;
 
 // --- 주사위 여행 설정 ---
 const DICE_TRIP_SIZE = 50;
-const DICE_DROP_CHANCE = 0.05;
+const DICE_DROP_CHANCE = 0.03;
 const DICE_TRIP_COMPLETE_REWARD = { coins: 500, diamonds: 20 };
 
 const DICE_TRIP_REWARDS = [
