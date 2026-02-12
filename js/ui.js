@@ -32,7 +32,8 @@ function renderGrid(zone, state, cont) {
                     storageState.some((s) => s && s.type === item.target && s.level >= item.reqLevel);
                 c.classList.add('upgrade-mission-cell');
                 if (done) c.classList.add('done');
-                c.innerHTML = `<div class="text-lg">${done ? '✅' : targetData.emoji}</div><div class="text-[8px] font-bold text-center">${targetData.name}<br>만들기</div>`;
+                const missionVisual = done ? '✅' : (targetData.img ? `<img src="${targetData.img}" style="width:1.2rem;height:1.2rem;object-fit:contain">` : targetData.emoji);
+                c.innerHTML = `<div class="text-lg">${missionVisual}</div><div class="text-[8px] font-bold text-center">${targetData.name}<br>만들기</div>`;
             } else if (item.type === 'quest_count_mission') {
                 const done = totalQuestsCompleted >= item.reqCount;
                 c.classList.add('upgrade-mission-cell');
@@ -121,7 +122,10 @@ function createItem(item, zone, index) {
     const discoveredAt = newlyDiscoveredItems.get(itemKey);
     const isNew = discoveredAt && Date.now() - discoveredAt < 10000;
     const newBadge = isNew ? '<div class="new-badge">NEW</div>' : '';
-    d.innerHTML = `<div class="${isSnack || isToy ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:${isSnack || isToy ? '1.5rem' : '2rem'}">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div>${newBadge}`;
+    const itemVisual = data.img
+        ? `<img src="${data.img}" alt="${data.name}" style="width:${isSnack || isToy ? '1.5rem' : '2rem'};height:${isSnack || isToy ? '1.5rem' : '2rem'};object-fit:contain">`
+        : `<div style="font-size:${isSnack || isToy ? '1.5rem' : '2rem'}">${data.emoji}</div>`;
+    d.innerHTML = `<div class="${isSnack || isToy ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div>${itemVisual}<div class="level-badge">Lv.${item.level}</div>${newBadge}`;
     if (tutorialStep <= 0) {
         const sellBtn = document.createElement('div');
         sellBtn.className = 'sell-btn';
@@ -215,7 +219,11 @@ function updateQuestUI() {
             else if (r.type === 'reptile') l = REPTILES;
             else if (r.type.includes('snack')) l = r.type.includes('cat') ? CAT_SNACKS : DOG_SNACKS;
             else if (r.type.includes('toy')) l = r.type.includes('cat') ? CAT_TOYS : DOG_TOYS;
-            h += `<div class="req-item" title="Lv.${r.level}"><span class="text-lg">${l[r.level - 1].emoji}</span></div>`;
+            const reqData = l[r.level - 1];
+            const reqVisual = reqData.img
+                ? `<img src="${reqData.img}" style="width:1.2rem;height:1.2rem;object-fit:contain">`
+                : `<span class="text-lg">${reqData.emoji}</span>`;
+            h += `<div class="req-item" title="Lv.${r.level}">${reqVisual}</div>`;
         });
         let timerText, rewardText;
         if (q.isSpecial) {
@@ -520,7 +528,7 @@ function renderGuideList(tab) {
         const isDiscovered = discoveredItems.has(key);
         html += `
                 <div class="guide-item ${isDiscovered ? '' : 'locked'}">
-                    <div class="guide-emoji">${item.emoji}</div>
+                    <div class="guide-emoji">${item.img ? `<img src="${item.img}" style="width:2rem;height:2rem;object-fit:contain">` : item.emoji}</div>
                     <div class="guide-name">${isDiscovered ? item.name : '???'}</div>
                     <div class="guide-level">Lv.${item.level}</div>
                 </div>

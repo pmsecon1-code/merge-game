@@ -118,7 +118,10 @@ function renderShop() {
                 const priceTag = item.isAd
                     ? '<div class="shop-price-tag" style="color:#fbbf24">📺</div>'
                     : `<div class="shop-price-tag">${item.level * 2}💎</div>`;
-                d.innerHTML = `<div class="${isS || isT ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:1.2rem">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div>${priceTag}`;
+                const shopVisual = data.img
+                    ? `<img src="${data.img}" style="width:1.2rem;height:1.2rem;object-fit:contain">`
+                    : `<div style="font-size:1.2rem">${data.emoji}</div>`;
+                d.innerHTML = `<div class="${isS || isT ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div>${shopVisual}<div class="level-badge">Lv.${item.level}</div>${priceTag}`;
             }
         } else d.innerHTML = `<span class="text-xs text-gray-400">품절</span>`;
         shopGrid.appendChild(d);

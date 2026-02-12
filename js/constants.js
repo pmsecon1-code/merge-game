@@ -138,17 +138,17 @@ const DAILY_COMPLETE_REWARD = { diamonds: 5, cards: 3 };
 // ============================================
 
 const CATS = [
-    { level: 1, emoji: '🐱', name: '아기 냥이', color: '#fecdd3' },
-    { level: 2, emoji: '🐈', name: '얼룩 냥이', color: '#a3e635' },
-    { level: 3, emoji: '🐈‍⬛', name: '검은 냥이', color: '#a1a1aa' },
-    { level: 4, emoji: '😹', name: '웃음 냥이', color: '#38bdf8' },
-    { level: 5, emoji: '😾', name: '뾰로통 냥이', color: '#fb923c' },
-    { level: 6, emoji: '😻', name: '사랑 냥이', color: '#f472b6' },
-    { level: 7, emoji: '😼', name: '시크 냥이', color: '#a78bfa' },
-    { level: 8, emoji: '🙀', name: '깜짝 냥이', color: '#fde047' },
-    { level: 9, emoji: '😽', name: '뽀뽀 냥이', color: '#2dd4bf' },
-    { level: 10, emoji: '🐯', name: '호랑이', color: '#fbbf24' },
-    { level: 11, emoji: '🦁', name: '사자 왕', color: '#ef4444' },
+    { level: 1, emoji: '🐱', img: 'images/cats/cat1.png', name: '아기 고양이', color: '#fecdd3' },
+    { level: 2, emoji: '🐈', img: 'images/cats/cat2.png', name: '코리안 숏헤어', color: '#d4a574' },
+    { level: 3, emoji: '🐈‍⬛', img: 'images/cats/cat3.png', name: '러시안 블루', color: '#a1a1aa' },
+    { level: 4, emoji: '😺', img: 'images/cats/cat4.png', name: '스코티시 폴드', color: '#fbbf24' },
+    { level: 5, emoji: '😸', img: 'images/cats/cat5.png', name: '페르시안', color: '#f0f0f0' },
+    { level: 6, emoji: '😻', img: 'images/cats/cat6.png', name: '벵갈', color: '#d4a030' },
+    { level: 7, emoji: '😼', img: 'images/cats/cat7.png', name: '살쾡이', color: '#a78bfa' },
+    { level: 8, emoji: '🐆', img: 'images/cats/cat8.png', name: '치타', color: '#fde047' },
+    { level: 9, emoji: '🐆', img: 'images/cats/cat9.png', name: '표범', color: '#f59e0b' },
+    { level: 10, emoji: '🐯', img: 'images/cats/cat10.png', name: '호랑이', color: '#fbbf24' },
+    { level: 11, emoji: '🦁', img: 'images/cats/cat11.png', name: '사자', color: '#ef4444' },
 ];
 
 const DOGS = [
