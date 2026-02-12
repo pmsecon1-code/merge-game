@@ -45,61 +45,61 @@ const DICE_DROP_CHANCE = 0.03;
 const DICE_TRIP_COMPLETE_REWARD = { coins: 500, diamonds: 20 };
 
 const DICE_TRIP_REWARDS = [
-    // 1~10: 초반 (낮은 보상)
-    { type: 'coins', min: 5, max: 20 },       // 1
-    { type: 'energy', min: 3, max: 7 },       // 2
-    { type: 'coins', min: 10, max: 25 },      // 3
-    { type: 'cards', min: 1, max: 2 },        // 4
-    { type: 'diamonds', min: 1, max: 2 },     // 5
-    { type: 'coins', min: 15, max: 35 },      // 6
-    { type: 'energy', min: 3, max: 7 },       // 7
-    { type: 'cards', min: 1, max: 2 },        // 8
-    { type: 'coins', min: 18, max: 40 },      // 9
-    { type: 'diamonds', min: 1, max: 2 },     // 10
+    // 1~10: 초반
+    { type: 'coins', min: 3, max: 10 },       // 1
+    { type: 'energy', min: 2, max: 5 },       // 2
+    { type: 'coins', min: 5, max: 15 },       // 3
+    { type: 'cards', min: 1, max: 1 },        // 4
+    { type: 'diamonds', min: 1, max: 1 },     // 5
+    { type: 'coins', min: 8, max: 20 },       // 6
+    { type: 'energy', min: 2, max: 5 },       // 7
+    { type: 'cards', min: 1, max: 1 },        // 8
+    { type: 'coins', min: 10, max: 25 },      // 9
+    { type: 'diamonds', min: 1, max: 1 },     // 10
     // 11~20: 중반 초입
-    { type: 'coins', min: 20, max: 50 },      // 11
-    { type: 'energy', min: 5, max: 10 },      // 12
-    { type: 'cards', min: 1, max: 3 },        // 13
-    { type: 'coins', min: 25, max: 55 },      // 14
-    { type: 'diamonds', min: 1, max: 3 },     // 15
-    { type: 'coins', min: 28, max: 60 },      // 16
-    { type: 'energy', min: 7, max: 12 },      // 17
-    { type: 'cards', min: 1, max: 3 },        // 18
-    { type: 'coins', min: 30, max: 70 },      // 19
-    { type: 'diamonds', min: 1, max: 3 },     // 20
+    { type: 'coins', min: 12, max: 30 },      // 11
+    { type: 'energy', min: 3, max: 7 },       // 12
+    { type: 'cards', min: 1, max: 2 },        // 13
+    { type: 'coins', min: 15, max: 35 },      // 14
+    { type: 'diamonds', min: 1, max: 2 },     // 15
+    { type: 'coins', min: 18, max: 38 },      // 16
+    { type: 'energy', min: 4, max: 8 },       // 17
+    { type: 'cards', min: 1, max: 2 },        // 18
+    { type: 'coins', min: 20, max: 42 },      // 19
+    { type: 'diamonds', min: 1, max: 2 },     // 20
     // 21~30: 중반
-    { type: 'coins', min: 35, max: 75 },      // 21
-    { type: 'energy', min: 8, max: 14 },      // 22
-    { type: 'cards', min: 2, max: 4 },        // 23
-    { type: 'coins', min: 38, max: 85 },      // 24
-    { type: 'diamonds', min: 2, max: 4 },     // 25
-    { type: 'coins', min: 42, max: 90 },      // 26
-    { type: 'energy', min: 10, max: 18 },     // 27
-    { type: 'cards', min: 2, max: 4 },        // 28
-    { type: 'coins', min: 50, max: 100 },     // 29
-    { type: 'diamonds', min: 2, max: 4 },     // 30
+    { type: 'coins', min: 22, max: 45 },      // 21
+    { type: 'energy', min: 5, max: 10 },      // 22
+    { type: 'cards', min: 1, max: 2 },        // 23
+    { type: 'coins', min: 25, max: 50 },      // 24
+    { type: 'diamonds', min: 1, max: 2 },     // 25
+    { type: 'coins', min: 28, max: 55 },      // 26
+    { type: 'energy', min: 6, max: 12 },      // 27
+    { type: 'cards', min: 1, max: 3 },        // 28
+    { type: 'coins', min: 30, max: 60 },      // 29
+    { type: 'diamonds', min: 1, max: 3 },     // 30
     // 31~40: 후반 초입
-    { type: 'coins', min: 55, max: 105 },     // 31
-    { type: 'energy', min: 12, max: 20 },     // 32
-    { type: 'cards', min: 3, max: 4 },        // 33
-    { type: 'coins', min: 60, max: 110 },     // 34
-    { type: 'diamonds', min: 3, max: 5 },     // 35
-    { type: 'coins', min: 70, max: 125 },     // 36
-    { type: 'energy', min: 14, max: 22 },     // 37
-    { type: 'cards', min: 3, max: 5 },        // 38
-    { type: 'coins', min: 75, max: 140 },     // 39
-    { type: 'diamonds', min: 3, max: 5 },     // 40
-    // 41~50: 후반 (높은 보상)
-    { type: 'coins', min: 85, max: 155 },     // 41
-    { type: 'energy', min: 15, max: 25 },     // 42
-    { type: 'cards', min: 3, max: 6 },        // 43
-    { type: 'coins', min: 100, max: 175 },    // 44
-    { type: 'diamonds', min: 4, max: 7 },     // 45
-    { type: 'coins', min: 110, max: 200 },    // 46
-    { type: 'energy', min: 18, max: 28 },     // 47
-    { type: 'cards', min: 4, max: 7 },        // 48
-    { type: 'diamonds', min: 5, max: 8 },     // 49
-    { type: 'coins', min: 140, max: 250 },    // 50 (완주 직전)
+    { type: 'coins', min: 35, max: 65 },      // 31
+    { type: 'energy', min: 7, max: 14 },      // 32
+    { type: 'cards', min: 2, max: 3 },        // 33
+    { type: 'coins', min: 38, max: 70 },      // 34
+    { type: 'diamonds', min: 2, max: 3 },     // 35
+    { type: 'coins', min: 42, max: 75 },      // 36
+    { type: 'energy', min: 8, max: 15 },      // 37
+    { type: 'cards', min: 2, max: 3 },        // 38
+    { type: 'coins', min: 45, max: 85 },      // 39
+    { type: 'diamonds', min: 2, max: 3 },     // 40
+    // 41~50: 후반
+    { type: 'coins', min: 50, max: 95 },      // 41
+    { type: 'energy', min: 10, max: 18 },     // 42
+    { type: 'cards', min: 2, max: 4 },        // 43
+    { type: 'coins', min: 60, max: 110 },     // 44
+    { type: 'diamonds', min: 2, max: 4 },     // 45
+    { type: 'coins', min: 65, max: 120 },     // 46
+    { type: 'energy', min: 12, max: 20 },     // 47
+    { type: 'cards', min: 2, max: 4 },        // 48
+    { type: 'diamonds', min: 3, max: 5 },     // 49
+    { type: 'coins', min: 80, max: 150 },     // 50 (완주 직전)
 ];
 
 // --- NPC 아바타 ---
