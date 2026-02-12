@@ -186,7 +186,7 @@ function completeQuest(i) {
 
     // 레벨업 체크
     if (questProgress >= Math.min(userLevel * 2, 20)) {
-        const reward = Math.ceil(userLevel / 5) * 5;
+        const reward = Math.ceil(userLevel / 10) * 3;
         userLevel++;
         questProgress = 0;
         diamonds += reward;
