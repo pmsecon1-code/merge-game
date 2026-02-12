@@ -252,7 +252,10 @@ function migrateRow7Missions() {
     if (genLevels.dog < 2 && boardState[31] !== null && boardState[31]?.type !== 'upgrade_mission') {
         boardState[31] = { type: 'upgrade_mission', target: 'dog', reqLevel: 2 };
     }
-    if (boardState[32] !== null && boardState[32]?.type !== 'animal_mission') {
+    // discoveredItems에 Lv.11 기록 있으면 이미 완료 → 해제
+    if (boardState[32]?.type === 'animal_mission' && discoveredItems.has('cat_11')) {
+        boardState[32] = null;
+    } else if (boardState[32] !== null && boardState[32]?.type !== 'animal_mission') {
         const hasCatMax =
             boardState.some((b) => b && b.type === 'cat' && b.level >= 11) ||
             storageState.some((s) => s && s.type === 'cat' && s.level >= 11);
@@ -260,7 +263,9 @@ function migrateRow7Missions() {
             boardState[32] = { type: 'animal_mission', target: 'cat', reqLevel: 11 };
         }
     }
-    if (boardState[33] !== null && boardState[33]?.type !== 'animal_mission') {
+    if (boardState[33]?.type === 'animal_mission' && discoveredItems.has('dog_11')) {
+        boardState[33] = null;
+    } else if (boardState[33] !== null && boardState[33]?.type !== 'animal_mission') {
         const hasDogMax =
             boardState.some((b) => b && b.type === 'dog' && b.level >= 11) ||
             storageState.some((s) => s && s.type === 'dog' && s.level >= 11);
