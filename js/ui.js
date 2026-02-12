@@ -441,7 +441,7 @@ function handleDragEnd(e) {
         const tz = tc.dataset.zone,
             ti = parseInt(tc.dataset.index),
             ts = tz === 'board' ? boardState : storageState;
-        if (ts[ti] && (ts[ti].type.includes('locked') || ts[ti].type.includes('mission'))) showToast('잠겨있음!');
+        if (ts[ti] && (ts[ti].type.includes('locked') || ts[ti].type.includes('mission'))) { playSound('error'); showToast('잠겨있음!'); }
         else moveItem(dragData.zone, dragData.index, tz, ti);
     }
     dragData = null;
@@ -553,10 +553,12 @@ function upgradeGenerator() {
     const type = currentGuideType;
     if (type !== 'cat' && type !== 'dog') return;
     if (genLevels[type] >= CAGE_MAX_LEVEL) {
+        playSound('error');
         showToast('최대 레벨!');
         return;
     }
     if (coins < CAGE_UPGRADE_COST) {
+        playSound('error');
         showToast('코인 부족!');
         return;
     }
@@ -567,6 +569,7 @@ function upgradeGenerator() {
     boardState.forEach((item, idx) => {
         if (item && item.type === 'upgrade_mission' && item.target === type && genLevels[type] >= item.reqLevel) {
             boardState[idx] = null;
+            playSound('milestone');
             showToast('미션 완료! 칸 해제!');
         }
     });

@@ -90,18 +90,6 @@ function createSynthSound(id) {
             osc.stop(now + 0.25);
             break;
         }
-        case 'click': {
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = 600;
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-            osc.connect(gain).connect(audioContext.destination);
-            osc.start(now);
-            osc.stop(now + 0.1);
-            break;
-        }
         case 'dice_drop': {
             const osc = audioContext.createOscillator();
             const gain = audioContext.createGain();

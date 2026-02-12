@@ -257,6 +257,7 @@ function spawnItem(baseType, inputLevel = 1, isFree = false) {
         if (v === null) empties.push(i);
     });
     if (empties.length === 0) {
+        playSound('error');
         showToast('공간 부족!');
         return;
     }
@@ -395,6 +396,7 @@ function handleCellClick(zone, idx) {
         const done = genLevels[it.target] >= it.reqLevel;
         if (done) {
             s[idx] = null;
+            playSound('milestone');
             showToast('미션 완료! 칸 해제!');
             updateAll();
         } else {
@@ -409,6 +411,7 @@ function handleCellClick(zone, idx) {
             storageState.some((st) => st && st.type === it.target && st.level >= it.reqLevel);
         if (done) {
             s[idx] = null;
+            playSound('milestone');
             showToast(`${targetData.name} 미션 완료! 칸 해제!`);
             updateAll();
         } else {
@@ -418,6 +421,7 @@ function handleCellClick(zone, idx) {
         const done = totalQuestsCompleted >= it.reqCount;
         if (done) {
             s[idx] = null;
+            playSound('milestone');
             showToast('퀘스트 미션 완료! 칸 해제!');
             updateAll();
         } else {
@@ -436,6 +440,7 @@ function handleCellClick(zone, idx) {
             const rem = it.openAt - Date.now();
             const m = Math.floor(rem / 60000);
             const sec = Math.floor((rem % 60000) / 1000);
+            playSound('error');
             showToast(`🔒 ${m}분 ${sec}초 후 개봉 가능`);
         }
     } else if (it.type.includes('generator')) triggerGen(idx, it);
@@ -509,6 +514,7 @@ function checkEnergyAfterUse() {
             firstEnergyRewardGiven = true;
             energy = MAX_ENERGY;
             recoveryCountdown = RECOVERY_SEC;
+            playSound('milestone');
             showToast('🎁 첫 에너지 소진 보상! +100⚡');
             updateUI();
             updateTimerUI();
@@ -577,6 +583,7 @@ function checkToyGeneratorUnlock() {
         if (e !== -1) {
             boardState[e] = { type: 'toy_generator', clicks: 0, cooldown: 0 };
             renderGrid('board', boardState, boardEl);
+            playSound('milestone');
             showToast('🧸 장난감 생성기 해제!');
         }
     }
@@ -623,6 +630,7 @@ function moveItem(fz, fi, tz, ti) {
                 setTimeout(() => advanceTutorial(), 200);
             }
         } else {
+            playSound('error');
             ts[ti] = fIt;
             ss[fi] = tIt;
         }
@@ -675,6 +683,7 @@ function checkDailyMissionComplete(type) {
     if (progress >= mission.target && !dailyMissions.claimed[idx]) {
         dailyMissions.claimed[idx] = true;
         coins += mission.reward;
+        playSound('quest_complete');
         showToast(`${mission.icon} ${mission.label} 완료! +${mission.reward}🪙`);
 
         // 현재 단계 올클리어 → 다음 단계 승급
@@ -686,6 +695,7 @@ function checkDailyMissionComplete(type) {
                 dailyMissions.spawn = 0;
                 dailyMissions.coins = 0;
                 dailyMissions.claimed = [false, false, false];
+                playSound('milestone');
                 showToast(`⭐ ${tier + 2}단계 미션 해금!`);
                 updateDailyMissionUI();
             } else {
@@ -756,7 +766,7 @@ function confirmAd() {
             const si = storageState.findIndex((v) => v === null);
             if (si !== -1) { tz = 'storage'; eIdx = si; }
         }
-        if (eIdx === -1) { showToast('공간 부족!'); return; }
+        if (eIdx === -1) { playSound('error'); showToast('공간 부족!'); return; }
         (tz === 'board' ? boardState : storageState)[eIdx] = { type: item.type, level: item.level };
         discoverItem(item.type, item.level);
         shopItems[idx] = null;

@@ -41,12 +41,14 @@ function checkAutoCompleteMissions() {
                 const list = item.target === 'cat' ? CATS : DOGS;
                 const targetData = list[item.reqLevel - 1];
                 boardState[idx] = null;
+                playSound('milestone');
                 showToast(`${targetData.name} 미션 완료! 칸 해제!`);
                 changed = true;
             }
         } else if (item.type === 'quest_count_mission') {
             if (totalQuestsCompleted >= item.reqCount) {
                 boardState[idx] = null;
+                playSound('milestone');
                 showToast('퀘스트 미션 완료! 칸 해제!');
                 changed = true;
             }
@@ -132,22 +134,26 @@ function buyShopItem(idx) {
     }
     if (item.type === 'card_pack') {
         if (diamonds < item.price) {
+            playSound('error');
             showToast('다이아 부족!');
             return;
         }
         diamonds -= item.price;
         cards += item.amount;
+        playSound('purchase');
         showToast(`+${item.amount}🃏 획득!`);
         updateAll();
         return;
     }
     if (item.type === 'diamond_pack') {
         if (coins < item.price) {
+            playSound('error');
             showToast('코인 부족!');
             return;
         }
         coins -= item.price;
         diamonds += item.amount;
+        playSound('purchase');
         showToast(`+${item.amount}💎 획득!`);
         updateAll();
         return;
@@ -442,12 +448,14 @@ function askSellItem(z, i, e) {
 
     // 생성기는 판매 불가
     if (it.type.includes('generator')) {
+        playSound('error');
         showToast('생성기는 판매할 수 없어요!');
         return;
     }
 
     // 저금통은 판매 불가
     if (it.type === 'piggy_bank') {
+        playSound('error');
         showToast('저금통은 판매할 수 없어요!');
         return;
     }

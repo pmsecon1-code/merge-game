@@ -75,6 +75,7 @@ function drawPhotos() {
 
 function openPhotoDraw() {
     if (cards < ALBUM_CARD_COST) {
+        playSound('error');
         showToast(`카드가 부족해요! (${cards}/${ALBUM_CARD_COST})`);
         return;
     }
