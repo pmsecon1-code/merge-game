@@ -256,9 +256,9 @@ merge2/
 | 퀘스트 완료 (카드) | 2~6장 🃏 |
 | 퀘스트 완료 (저금통) | 🐷 저금통 (easy 20% 확률) |
 | 누적 코인 1000 | 칸마다 100🪙 |
-| 스페셜 퀘스트 (7번째 슬롯) | 🐷 저금통 (100~300🪙, 1시간 타이머) |
-| 저금통 개봉 (1시간 대기) | 100~300🪙 |
-| 저금통 개봉 (광고 시청) | 200~600🪙 (×2) + 즉시 개봉 |
+| 스페셜 퀘스트 (7번째 슬롯) | 🐷 저금통 (100~200🪙, 1시간 타이머) |
+| 저금통 개봉 (1시간 대기) | 100~200🪙 |
+| 저금통 개봉 (광고 시청) | 200~400🪙 (×2) + 즉시 개봉 |
 | 주사위 여행 완주 | 500🪙 + 20💎 |
 | 레벨업 | ceil(레벨/5)×5 💎 |
 | 테마 완성 (9/9) | 500🪙 (×9 테마) |
@@ -613,7 +613,7 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 `MAX_ENERGY=100`, `RECOVERY_SEC=30`, `SHOP_REFRESH_MS=300000`, `UNLOCK_COST_BOARD=100`, `SNACK_CHANCE=0.08`
 
 ### 저금통
-`PIGGY_BANK_TIMER_MS=3600000`, `PIGGY_BANK_MIN_COINS=100`, `PIGGY_BANK_MAX_COINS=300`
+`PIGGY_BANK_TIMER_MS=3600000`, `PIGGY_BANK_MIN_COINS=100`, `PIGGY_BANK_MAX_COINS=200`
 
 ### 주사위 여행
 `DICE_TRIP_SIZE=50`, `DICE_DROP_CHANCE=0.03`, `DICE_TRIP_COMPLETE_REWARD={coins:500, diamonds:20}`
