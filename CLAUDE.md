@@ -14,6 +14,7 @@ js/game.js          # 게임 로직 (~816줄)
 js/systems.js       # 미션/주사위여행/상점 (~460줄)
 js/album.js         # 앨범 시스템 (~244줄)
 js/race.js          # 레이스 시스템 (~1068줄)
+js/sound.js         # 사운드 (효과음+BGM) (~422줄)
 js/tutorial.js      # 온보딩 튜토리얼 (~194줄)
 js/ui.js            # UI/렌더링/배지바/설정 (~705줄)
 js/main.js          # 초기화 (~268줄)
@@ -39,7 +40,7 @@ firebase.json       # Firebase 설정
 - 멀티 파일 JS 구조 (전역 변수 기반, 모듈 없음)
 - 모바일 퍼스트 (5x7 그리드, 터치 최적화)
 - Firestore 보안 규칙 변경 시 범위 검증 필수
-- script 로드 순서: constants → state → auth → save → game → systems → album → race → tutorial → ui → main
+- script 로드 순서: constants → state → auth → save → game → systems → album → race → sound → ui → tutorial → main
 
 ## 데이터 구조 변경 시 체크리스트
 배열/객체에 새로운 타입의 데이터 추가 시 **반드시** 확인:

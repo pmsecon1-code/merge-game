@@ -26,6 +26,7 @@ merge2/
 │   ├── systems.js      # 7행미션/주사위 여행/상점 (~460줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~244줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1068줄)
+│   ├── sound.js        # 사운드 시스템 (효과음+BGM) (~422줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~194줄)
 │   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~705줄)
 │   └── main.js         # 초기화 + 타이머 (~268줄)
@@ -36,9 +37,9 @@ merge2/
 └── handoff.md          # 이 문서
 ```
 
-**script 로드 순서**: constants → state → auth → save → game → systems → album → race → tutorial → ui → main
+**script 로드 순서**: constants → state → auth → save → game → systems → album → race → sound → ui → tutorial → main
 
-**총 JS**: ~5590줄, **함수**: ~133개
+**총 JS**: ~5590줄, **함수**: ~143개
 
 ---
 
@@ -392,6 +393,54 @@ DICE_TRIP_COMPLETE_REWARD = { coins: 500, diamonds: 20 }
 
 ---
 
+## 사운드 시스템 (v4.23.0)
+
+### 개요
+Web Audio API 기반 합성음 효과음 + BGM. 외부 파일 없이 코드로 생성.
+
+### 구조
+- **효과음**: `playSound(id)` → `createSynthSound(id)` → Web Audio oscillator 합성
+- **BGM**: C 펜타토닉 뮤직박스 루프 (멜로디 + 베이스, 220ms interval)
+- **iOS 대응**: 첫 터치 시 `unlockAudio()` → AudioContext resume
+- **설정 저장**: `soundEnabled`, `musicEnabled` → saveGame()으로 저장/복원
+
+### 효과음 목록 (17종)
+| ID | 용도 | 파형 |
+|----|------|------|
+| `spawn` | 동물 생성 | sine 상승 |
+| `merge` | 합성 | sine 상승 |
+| `purchase` | 구매/업그레이드 | 2음 화음 |
+| `error` | 에러 | sawtooth |
+| `click` | 클릭 | sine 단음 |
+| `dice_drop` | 주사위 획득 | sine 고음 |
+| `dice_roll` | 주사위 굴리기 | triangle 랜덤 |
+| `piggy_open` | 저금통 개봉 | sine 상승 |
+| `daily_bonus` | 출석 보상 | 3음 아르페지오 |
+| `milestone` | 마일스톤 | 3음 상승 |
+| `levelup` | 레벨업 | C5-E5-G5-C6 팡파레 |
+| `quest_complete` | 퀘스트 완료 | G4-C5 차임 |
+| `lucky` | 럭키 드랍 | 고음 빠른 아르페지오 |
+| `album_draw` | 앨범 뽑기 | 스윕 + 딩 |
+| `theme_complete` | 테마 완성 | 5음 팡파레 |
+| `race_start` | 레이스 시작 | square 삐삐삐~ |
+| `race_win` / `race_lose` | 승리/패배 | 장조/단조 |
+
+### 관련 함수 (sound.js, 10개)
+| 함수 | 역할 |
+|------|------|
+| `initSound()` | AudioContext 생성 + UI 초기화 |
+| `unlockAudio()` | iOS 첫 터치 오디오 unlock |
+| `createSynthSound(id)` | ID별 합성음 생성/재생 |
+| `preloadAllSounds()` | 프리로드 (합성음이므로 빈 함수) |
+| `playSound(id)` | 통합 재생 API |
+| `playBGM()` | BGM 루프 시작 |
+| `stopBGM()` | BGM 정지 |
+| `toggleSound()` | 효과음 ON/OFF |
+| `toggleMusic()` | BGM ON/OFF |
+| `updateSoundUI()` | 설정 팝업 토글 버튼 동기화 |
+
+---
+
 ## 온보딩 튜토리얼 (v4.15.0)
 
 ### 개요
@@ -597,6 +646,9 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### race.js (30개)
 `generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `findActiveOrPendingRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `quickJoinRace`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
 
+### sound.js (10개)
+`initSound`, `unlockAudio`, `createSynthSound`, `preloadAllSounds`, `playSound`, `playBGM`, `stopBGM`, `toggleSound`, `toggleMusic`, `updateSoundUI`
+
 ### tutorial.js (10개)
 `startTutorial`, `showTutorialStep`, `positionSpotlight`, `positionBubble`, `advanceTutorial`, `completeTutorial`, `isTutorialClickAllowed`, `findSameLevelPair`, `findReadyQuestBtn`, `repositionTutorial`
 
@@ -676,6 +728,19 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 신규 HTML: `#settings-popup`, `#privacy-popup`, `#setting-sound-btn`, `#setting-music-btn`
 - 삭제 HTML: `#sound-toggle-btn`, `#music-toggle-btn`, `#login-btn`
 - 신규 CSS: `.settings-row`, `.settings-toggle`, `.settings-btn`, `.settings-btn-danger`, `.settings-btn-link`
+
+### v4.23.0 (2026-02-12)
+- 🔊 **사운드 시스템** 추가
+  - Web Audio API 기반 합성음 (외부 파일 없음)
+  - 효과음 17종: spawn, merge, purchase, error, click, dice_drop, dice_roll, piggy_open, daily_bonus, milestone, levelup, quest_complete, lucky, album_draw, theme_complete, race_start, race_win, race_lose
+  - BGM: C 펜타토닉 뮤직박스 루프 (멜로디 + 베이스, 220ms interval)
+  - iOS AudioContext 첫 터치 unlock 대응
+  - 효과음/BGM 개별 토글 + saveGame()으로 설정 저장/복원
+- 신규 파일: `js/sound.js` (~422줄)
+- 신규 변수 (state.js): `audioContext`, `bgmAudio`, `soundEnabled`, `musicEnabled`, `audioUnlocked`, `soundBuffers`
+- 신규 함수 (10개): `initSound`, `unlockAudio`, `createSynthSound`, `preloadAllSounds`, `playSound`, `playBGM`, `stopBGM`, `toggleSound`, `toggleMusic`, `updateSoundUI`
+- 저장 데이터: `soundEnabled`, `musicEnabled` 필드 추가 (기존 데이터 호환, 기본값 true)
+- script 로드 순서 변경: race → **sound** → ui → tutorial → main
 
 ### v4.22.0 (2026-02-12)
 - 🛒 **상점 1번 칸: Lv.6 동물 광고 구매**
@@ -1170,7 +1235,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## To-do
 
-- [ ] 사운드 효과 추가
+- [x] 사운드 시스템 (v4.23.0)
 - [x] UX 라이팅 통일 (v4.18.0)
 - [x] 하단 배지 내비게이션 바 (v4.18.0)
 - [x] 전설 퀘스트 시스템 제거 (v4.17.0)
