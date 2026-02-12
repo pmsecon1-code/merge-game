@@ -53,5 +53,26 @@ firebase.json       # Firebase 설정
 album 배열에 완성 마커 추가 → 검증 로직 미업데이트 → 데이터 손실
 ```
 
+## 밸런스 변경 시 체크리스트
+숫자/공식을 변경할 때 **반드시** 확인:
+- [ ] `constants.js`에 상수/헬퍼 함수가 있는지 확인 → 있으면 그곳만 수정
+- [ ] 같은 값이 다른 파일에 하드코딩되어 있지 않은지 `Grep`으로 검색
+- [ ] `index.html`에 초기값으로 하드코딩된 텍스트 확인
+- [ ] `firestore.rules`에 검증 범위가 연동되는지 확인
+
+**원칙**: 같은 값은 반드시 1곳에서만 정의. 중복 발견 시 상수화 먼저.
+
+**중앙화된 헬퍼 함수** (constants.js):
+- `getLevelUpGoal(lv)` - 레벨업 필요 퀘스트 수
+- `getLevelUpReward(lv)` - 레벨업 다이아 보상
+- `getMaxLevel(type)` - 타입별 합성 최대 레벨
+- `getEnergyPrice()` - 에너지 구매 가격 (game.js)
+
+**예시 (레벨업 보상 버그 교훈):**
+```
+game.js에서 공식 변경 → ui.js 프리뷰는 미변경 → 표시 불일치
+→ 해결: getLevelUpReward() 헬퍼 함수로 중앙화
+```
+
 ## 상세 컨텍스트
 @handoff.md - 전체 아키텍처, 함수 목록, 밸런스, 변경 이력 (v4.24.0)
