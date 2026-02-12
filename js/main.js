@@ -161,9 +161,6 @@ auth.onAuthStateChanged(async (user) => {
     if (user) {
         try {
             currentUser = user;
-            const name = user.displayName?.split(' ')[0] || '유저';
-            document.getElementById('login-text').innerText = name.length > 3 ? name.substring(0, 3) : name;
-
             console.log('[Auth] Registering session...');
             await registerSession();
             console.log('[Auth] Session registered OK');
@@ -217,7 +214,6 @@ auth.onAuthStateChanged(async (user) => {
         stopSessionListener();
         currentUser = null;
         currentSessionId = null;
-        document.getElementById('login-text').innerText = '로그인';
         showLoginScreen();
     }
 });
