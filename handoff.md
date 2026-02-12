@@ -404,26 +404,47 @@ Web Audio API 기반 합성음 효과음 + BGM. 외부 파일 없이 코드로 �
 - **iOS 대응**: 첫 터치 시 `unlockAudio()` → AudioContext resume
 - **설정 저장**: `soundEnabled`, `musicEnabled` → saveGame()으로 저장/복원
 
-### 효과음 목록 (17종)
-| ID | 용도 | 파형 |
-|----|------|------|
-| `spawn` | 동물 생성 | sine 상승 |
-| `merge` | 합성 | sine 상승 |
-| `purchase` | 구매/업그레이드 | 2음 화음 |
-| `error` | 에러 | sawtooth |
-| `click` | 클릭 | sine 단음 |
-| `dice_drop` | 주사위 획득 | sine 고음 |
-| `dice_roll` | 주사위 굴리기 | triangle 랜덤 |
-| `piggy_open` | 저금통 개봉 | sine 상승 |
-| `daily_bonus` | 출석 보상 | 3음 아르페지오 |
-| `milestone` | 마일스톤 | 3음 상승 |
-| `levelup` | 레벨업 | C5-E5-G5-C6 팡파레 |
-| `quest_complete` | 퀘스트 완료 | G4-C5 차임 |
-| `lucky` | 럭키 드랍 | 고음 빠른 아르페지오 |
-| `album_draw` | 앨범 뽑기 | 스윕 + 딩 |
-| `theme_complete` | 테마 완성 | 5음 팡파레 |
-| `race_start` | 레이스 시작 | square 삐삐삐~ |
-| `race_win` / `race_lose` | 승리/패배 | 장조/단조 |
+### 효과음 목록 (16종, 카테고리별)
+
+**A. Action (게임 액션)**
+| ID | 용도 | 사용처 |
+|----|------|--------|
+| `spawn` | 아이템 생성 (440→880Hz) | spawnItem, spawnToy |
+| `merge` | 합성 성공 (330→660Hz) | moveItem |
+| `dice_roll` | 주사위 굴리기 (triangle 랜덤) | rollDice |
+
+**B. Purchase (구매/거래/충전)**
+| ID | 용도 | 사용처 |
+|----|------|--------|
+| `purchase` | 재화 소비/획득 거래 (2음 화음) | 상점구매, 에너지충전, 광고보상, 업그레이드, 보드해제, 카드팩, 다이아팩 |
+
+**C. Reward (보상/달성)**
+| ID | 용도 | 사용처 |
+|----|------|--------|
+| `quest_complete` | 개별 완료 (G4-C5 차임) | 퀘스트완료, 일일미션 개별완료 |
+| `milestone` | 대형 달성 (E5-G5-C6) | 주사위완주, 일일올클, 7행미션, 첫에너지, 생성기해제, 단계승급 |
+| `levelup` | 레벨업 (C5-E5-G5-C6 팡파레) | 레벨업 |
+| `daily_bonus` | 출석 보상 (3음 아르페지오) | 7일출석 |
+| `piggy_open` | 저금통 개봉 (500→1000Hz) | 저금통 터치 개봉 |
+| `lucky` | 럭키 드랍 (고음 반짝임) | 럭키 아이템 생성 |
+| `dice_drop` | 주사위 획득 (1200→1800Hz) | 합성 시 주사위 드랍 |
+
+**D. Album (앨범 전용)**
+| ID | 용도 | 사용처 |
+|----|------|--------|
+| `album_draw` | 카드 뽑기 (스윕+딩) | drawPhotos |
+| `theme_complete` | 테마/앨범 완성 (5음 팡파레) | 테마완성, 앨범전체완성 |
+
+**E. Race (레이스 전용)**
+| ID | 용도 | 사용처 |
+|----|------|--------|
+| `race_start` | 출발 신호 (square wave) | 초대 수락 |
+| `race_win` / `race_lose` | 승리·무승부 / 패배 | 레이스 결과 |
+
+**F. Error (실패/제한/부족)**
+| ID | 용도 | 사용처 |
+|----|------|--------|
+| `error` | 거부/실패 (sawtooth 110Hz) | 재화부족, 공간부족, 과열, 판매불가, 최대레벨, 잠금 터치 |
 
 ### 관련 함수 (sound.js, 10개)
 | 함수 | 역할 |
@@ -728,11 +749,18 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 신규 HTML: `#settings-popup`, `#privacy-popup`, `#setting-sound-btn`, `#setting-music-btn`
 - 삭제 HTML: `#sound-toggle-btn`, `#music-toggle-btn`, `#login-btn`
 - 신규 CSS: `.settings-row`, `.settings-toggle`, `.settings-btn`, `.settings-btn-danger`, `.settings-btn-link`
+- 🔊 **효과음 카테고리화 + 누락 효과음 24건 전수 추가**
+  - sound.js: 미사용 `click` case 삭제 (dead code 제거, 17종→16종)
+  - game.js: `error` 6건, `milestone` 5건, `quest_complete` 1건 추가
+  - systems.js: `error` 4건, `purchase` 2건, `milestone` 2건 추가
+  - album.js: `error` 1건 추가
+  - ui.js: `error` 3건, `milestone` 1건 추가
+  - 카테고리: Action / Purchase / Reward / Album / Race / Error 6분류로 정리
 
 ### v4.23.0 (2026-02-12)
 - 🔊 **사운드 시스템** 추가
   - Web Audio API 기반 합성음 (외부 파일 없음)
-  - 효과음 17종: spawn, merge, purchase, error, click, dice_drop, dice_roll, piggy_open, daily_bonus, milestone, levelup, quest_complete, lucky, album_draw, theme_complete, race_start, race_win, race_lose
+  - 효과음 16종: spawn, merge, purchase, error, dice_drop, dice_roll, piggy_open, daily_bonus, milestone, levelup, quest_complete, lucky, album_draw, theme_complete, race_start, race_win, race_lose
   - BGM: C 펜타토닉 뮤직박스 루프 (멜로디 + 베이스, 220ms interval)
   - iOS AudioContext 첫 터치 unlock 대응
   - 효과음/BGM 개별 토글 + saveGame()으로 설정 저장/복원
