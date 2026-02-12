@@ -122,8 +122,9 @@ function createItem(item, zone, index) {
     const discoveredAt = newlyDiscoveredItems.get(itemKey);
     const isNew = discoveredAt && Date.now() - discoveredAt < 10000;
     const newBadge = isNew ? '<div class="new-badge">NEW</div>' : '';
+    const imgSize = isSnack || isToy ? '65%' : '80%';
     const itemVisual = data.img
-        ? `<img src="${data.img}" alt="${data.name}" style="width:${isSnack || isToy ? '1.5rem' : '2rem'};height:${isSnack || isToy ? '1.5rem' : '2rem'};object-fit:contain">`
+        ? `<img src="${data.img}" alt="${data.name}" style="width:${imgSize};height:${imgSize};object-fit:contain">`
         : `<div style="font-size:${isSnack || isToy ? '1.5rem' : '2rem'}">${data.emoji}</div>`;
     d.innerHTML = `<div class="${isSnack || isToy ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div>${itemVisual}<div class="level-badge">Lv.${item.level}</div>${newBadge}`;
     if (tutorialStep <= 0) {
@@ -221,7 +222,7 @@ function updateQuestUI() {
             else if (r.type.includes('toy')) l = r.type.includes('cat') ? CAT_TOYS : DOG_TOYS;
             const reqData = l[r.level - 1];
             const reqVisual = reqData.img
-                ? `<img src="${reqData.img}" style="width:1.2rem;height:1.2rem;object-fit:contain">`
+                ? `<img src="${reqData.img}" style="width:22px;height:22px;object-fit:contain;vertical-align:middle">`
                 : `<span class="text-lg">${reqData.emoji}</span>`;
             h += `<div class="req-item" title="Lv.${r.level}">${reqVisual}</div>`;
         });
