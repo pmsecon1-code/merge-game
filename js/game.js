@@ -41,7 +41,8 @@ function generateNewQuest(forceEasy = false) {
         reqs.push({ type, level: lv });
         sc += lv * (isSnack || isToy ? 7 : 5);
     }
-    const isCardQuest = userLevel >= 3 && Math.random() < ALBUM_CARD_CHANCE;
+    const isPiggyQuest = needEasy && Math.random() < 0.2;
+    const isCardQuest = !isPiggyQuest && userLevel >= 3 && Math.random() < ALBUM_CARD_CHANCE;
     const cardReward = isCardQuest
         ? ALBUM_CARD_MIN + Math.floor(Math.random() * (ALBUM_CARD_MAX - ALBUM_CARD_MIN + 1))
         : 0;
@@ -51,6 +52,7 @@ function generateNewQuest(forceEasy = false) {
         reqs,
         reward: 10 + sc + Math.floor(Math.random() * 5),
         cardReward,
+        piggyReward: isPiggyQuest,
         expiresAt: Date.now() + 10 * 60 * 1000,
     };
     // 스페셜 퀘스트가 있으면 그 앞에 삽입
@@ -153,7 +155,18 @@ function completeQuest(i) {
         };
         delArr(boardState);
         if (rem.length > 0) delArr(storageState);
-        if (q.cardReward > 0) {
+        if (q.piggyReward) {
+            const piggyCoins = PIGGY_BANK_MIN_COINS + Math.floor(Math.random() * (PIGGY_BANK_MAX_COINS - PIGGY_BANK_MIN_COINS + 1));
+            const piggyIdx = boardState.findIndex(x => x === null);
+            if (piggyIdx !== -1) {
+                boardState[piggyIdx] = { type: 'piggy_bank', coins: piggyCoins, openAt: Date.now() + PIGGY_BANK_TIMER_MS };
+                showToast('완료! 🐷 저금통 획득!');
+            } else {
+                coins += piggyCoins;
+                cumulativeCoins += piggyCoins;
+                showToast(`보드 가득! +${piggyCoins}🪙`);
+            }
+        } else if (q.cardReward > 0) {
             cards += q.cardReward;
             showToast(`완료! +${q.cardReward}🃏`);
         } else {
