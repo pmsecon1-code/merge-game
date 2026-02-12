@@ -63,7 +63,9 @@ function startShopTimer() {
         const d = shopNextRefresh - Date.now(),
             m = Math.floor(d / 60000),
             s = Math.floor((d % 60000) / 1000);
-        document.getElementById('shop-timer-badge').innerText = `갱신: ${m}:${s.toString().padStart(2, '0')}`;
+        const timerText = `${m}:${s.toString().padStart(2, '0')}`;
+        document.getElementById('shop-timer-badge').innerText = `갱신: ${timerText}`;
+        document.getElementById('badge-shop-info').innerText = timerText;
     }, 1000);
 }
 

@@ -103,7 +103,9 @@ function applyGameData(d) {
     questIdCounter = d.questIdCounter ?? 0;
     genLevels = d.genLevels || { cat: 1, dog: 1 };
     shopItems = d.shopItems || shopItems;
-    shopNextRefresh = Date.now() + (d.shopNextRefresh ?? SHOP_REFRESH_MS);
+    const savedShopRemaining = d.shopNextRefresh ?? SHOP_REFRESH_MS;
+    shopNextRefresh = Date.now() + savedShopRemaining;
+    if (savedShopRemaining <= 0) refreshShop();
     discoveredItems = new Set(d.discoveredItems || []);
     // 스페셜 퀘스트 순환 인덱스 (마이그레이션)
     if (d.currentSpecialIndex !== undefined) {
