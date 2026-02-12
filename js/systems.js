@@ -70,7 +70,10 @@ function startShopTimer() {
 function refreshShop() {
     shopNextRefresh = Date.now() + SHOP_REFRESH_MS;
     const t = getActiveTypes();
-    for (let i = 0; i < SHOP_SIZE - 2; i++) shopItems[i] = generateRandomShopItem(t);
+    // 1번 칸: cat/dog Lv.6 광고 아이템
+    shopItems[0] = { type: Math.random() > 0.5 ? 'cat' : 'dog', level: 6, isAd: true };
+    // 2~3번 칸: 기존 랜덤
+    for (let i = 1; i < SHOP_SIZE - 2; i++) shopItems[i] = generateRandomShopItem(t);
     shopItems[SHOP_SIZE - 2] = { type: 'card_pack', amount: 15, price: 15 };
     shopItems[SHOP_SIZE - 1] = { type: 'diamond_pack', amount: 5, price: 500 };
     renderShop();
@@ -108,7 +111,10 @@ function renderShop() {
                 const data = list[item.level - 1] || list[list.length - 1],
                     isS = item.type.includes('snack'),
                     isT = item.type.includes('toy');
-                d.innerHTML = `<div class="${isS || isT ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:1.2rem">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div><div class="shop-price-tag">${item.level * 2}💎</div>`;
+                const priceTag = item.isAd
+                    ? '<div class="shop-price-tag" style="color:#fbbf24">📺</div>'
+                    : `<div class="shop-price-tag">${item.level * 2}💎</div>`;
+                d.innerHTML = `<div class="${isS || isT ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div><div style="font-size:1.2rem">${data.emoji}</div><div class="level-badge">Lv.${item.level}</div>${priceTag}`;
             }
         } else d.innerHTML = `<span class="text-xs text-gray-400">품절</span>`;
         shopGrid.appendChild(d);
@@ -118,6 +124,10 @@ function renderShop() {
 function buyShopItem(idx) {
     const item = shopItems[idx];
     if (!item) return;
+    if (item.isAd) {
+        openAdPopup('shop', idx);
+        return;
+    }
     if (item.type === 'card_pack') {
         if (diamonds < item.price) {
             showToast('다이아 부족!');

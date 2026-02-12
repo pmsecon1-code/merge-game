@@ -205,6 +205,7 @@ export default [
                 checkDailyMissionComplete: 'readonly',
                 claimDailyBonus: 'readonly',
                 openAdPopup: 'readonly',
+                adEnergy: 'readonly',
                 confirmAd: 'readonly',
                 // systems.js globals - 헬퍼 함수
                 hasItemOfType: 'readonly',

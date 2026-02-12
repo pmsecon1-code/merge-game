@@ -490,7 +490,7 @@ function getEnergyPrice() {
         energyPurchaseCount = 0;
         energyPurchaseResetTime = Date.now() + getMsUntilKSTMidnight();
     }
-    return 300 + energyPurchaseCount * 50;
+    return 500 + energyPurchaseCount * 50;
 }
 
 function checkEnergyAfterUse() {
@@ -698,15 +698,28 @@ function claimDailyBonus() {
     updateAll();
 }
 
-// --- 광고 팝업 (저금통/창고 공용) ---
+// --- 에너지 광고 ---
+function adEnergy() {
+    closeEnergyPopup();
+    openAdPopup('energy', 0);
+}
+
+// --- 광고 팝업 (저금통/창고/상점/에너지 공용) ---
 function openAdPopup(zone, idx) {
     document.getElementById('ad-piggy-zone').value = zone;
     document.getElementById('ad-piggy-idx').value = idx;
+    const isEnergy = zone === 'energy';
     const isStorage = zone === 'storage' && storageState[idx]?.type === 'locked_storage';
-    document.getElementById('ad-piggy-mode').value = isStorage ? 'storage' : 'piggy';
-    document.getElementById('ad-popup-desc').innerHTML = isStorage
-        ? '광고를 시청하면<br>창고 칸을 열 수 있습니다!'
-        : '광고를 시청하면 저금통을<br>즉시 열고 <b class="text-yellow-600">보상 2배</b>!';
+    const isShop = zone === 'shop';
+    const mode = isEnergy ? 'energy' : isShop ? 'shop' : isStorage ? 'storage' : 'piggy';
+    document.getElementById('ad-piggy-mode').value = mode;
+    document.getElementById('ad-popup-desc').innerHTML = isEnergy
+        ? '광고를 시청하면<br>에너지 <b class="text-yellow-600">50⚡</b>를 받을 수 있습니다!'
+        : isShop
+            ? '광고를 시청하면<br>아이템을 받을 수 있습니다!'
+            : isStorage
+                ? '광고를 시청하면<br>창고 칸을 열 수 있습니다!'
+                : '광고를 시청하면 저금통을<br>즉시 열고 <b class="text-yellow-600">보상 2배</b>!';
     document.getElementById('ad-popup').style.display = 'flex';
 }
 
@@ -716,7 +729,28 @@ function confirmAd() {
     const idx = parseInt(document.getElementById('ad-piggy-idx').value);
     closeOverlay('ad-popup');
 
-    if (mode === 'storage') {
+    if (mode === 'energy') {
+        energy = Math.min(energy + 50, 999);
+        showToast('+50⚡ 충전!');
+        updateUI();
+        updateTimerUI();
+        saveGame();
+    } else if (mode === 'shop') {
+        const item = shopItems[idx];
+        if (!item) return;
+        let tz = 'board', eIdx = boardState.findIndex((v) => v === null);
+        if (eIdx === -1) {
+            const si = storageState.findIndex((v) => v === null);
+            if (si !== -1) { tz = 'storage'; eIdx = si; }
+        }
+        if (eIdx === -1) { showToast('공간 부족!'); return; }
+        (tz === 'board' ? boardState : storageState)[eIdx] = { type: item.type, level: item.level };
+        discoverItem(item.type, item.level);
+        shopItems[idx] = null;
+        showToast('구매 완료!');
+        updateAll();
+        renderShop();
+    } else if (mode === 'storage') {
         storageState[idx] = null;
         showToast('창고 확장!');
         updateAll();
