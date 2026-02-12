@@ -244,25 +244,31 @@ function applyGameData(d) {
 
 // --- 7행 미션 마이그레이션 ---
 function migrateRow7Missions() {
-    if (genLevels.cat < 2 && (!boardState[30] || boardState[30].type !== 'upgrade_mission')) {
+    // null = 미션 완료 후 해제된 칸 → 건드리지 않음
+    // 다른 아이템이 있을 때만 미션으로 교체 (구버전 마이그레이션)
+    if (genLevels.cat < 2 && boardState[30] !== null && boardState[30]?.type !== 'upgrade_mission') {
         boardState[30] = { type: 'upgrade_mission', target: 'cat', reqLevel: 2 };
     }
-    if (genLevels.dog < 2 && (!boardState[31] || boardState[31].type !== 'upgrade_mission')) {
+    if (genLevels.dog < 2 && boardState[31] !== null && boardState[31]?.type !== 'upgrade_mission') {
         boardState[31] = { type: 'upgrade_mission', target: 'dog', reqLevel: 2 };
     }
-    const hasCatMax =
-        boardState.some((b) => b && b.type === 'cat' && b.level >= 11) ||
-        storageState.some((s) => s && s.type === 'cat' && s.level >= 11);
-    if (!hasCatMax && (!boardState[32] || boardState[32].type !== 'animal_mission')) {
-        boardState[32] = { type: 'animal_mission', target: 'cat', reqLevel: 11 };
+    if (boardState[32] !== null && boardState[32]?.type !== 'animal_mission') {
+        const hasCatMax =
+            boardState.some((b) => b && b.type === 'cat' && b.level >= 11) ||
+            storageState.some((s) => s && s.type === 'cat' && s.level >= 11);
+        if (!hasCatMax) {
+            boardState[32] = { type: 'animal_mission', target: 'cat', reqLevel: 11 };
+        }
     }
-    const hasDogMax =
-        boardState.some((b) => b && b.type === 'dog' && b.level >= 11) ||
-        storageState.some((s) => s && s.type === 'dog' && s.level >= 11);
-    if (!hasDogMax && (!boardState[33] || boardState[33].type !== 'animal_mission')) {
-        boardState[33] = { type: 'animal_mission', target: 'dog', reqLevel: 11 };
+    if (boardState[33] !== null && boardState[33]?.type !== 'animal_mission') {
+        const hasDogMax =
+            boardState.some((b) => b && b.type === 'dog' && b.level >= 11) ||
+            storageState.some((s) => s && s.type === 'dog' && s.level >= 11);
+        if (!hasDogMax) {
+            boardState[33] = { type: 'animal_mission', target: 'dog', reqLevel: 11 };
+        }
     }
-    if (totalQuestsCompleted < 100 && (!boardState[34] || boardState[34].type !== 'quest_count_mission')) {
+    if (totalQuestsCompleted < 100 && boardState[34] !== null && boardState[34]?.type !== 'quest_count_mission') {
         boardState[34] = { type: 'quest_count_mission', reqCount: 100 };
     }
 }
