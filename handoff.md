@@ -1,4 +1,4 @@
-# 멍냥 머지 게임 - Architecture (v4.21.0)
+# 멍냥 머지 게임 - Architecture (v4.22.0)
 
 ## 개요
 
@@ -241,11 +241,13 @@ merge2/
 ### 상점 (systems.js)
 | 칸 | 내용 | 가격 |
 |----|------|------|
-| 1~3 | 랜덤 아이템 (동물/간식/장난감) | 레벨 만큼 💎 |
-| 4 | 🃏 카드팩 ×20 (고정) | 10💎 |
-| 5 | 💎 다이아팩 ×10 (고정) | 500🪙 |
+| 1 | cat/dog Lv.6 (고정) | 📺 광고 |
+| 2~3 | 랜덤 아이템 (동물/간식/장난감) | 레벨×2 💎 |
+| 4 | 🃏 카드팩 ×15 (고정) | 15💎 |
+| 5 | 💎 다이아팩 ×5 (고정) | 500🪙 |
 
 - 5분마다 갱신 (카드팩/다이아팩은 재구매 가능, 품절 안 됨)
+- 1번 칸 광고 아이템: 구매 시 광고 팝업 → 시청 → 보드/창고 배치 + 품절
 
 ### 보상 구조
 | 항목 | 보상 |
@@ -582,8 +584,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 
 ## 주요 함수 목록 (파일별)
 
-### game.js (28개)
-`discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
+### game.js (29개)
+`discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `adEnergy`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
 
 ### systems.js (21개)
 `hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `moveTripPosition`, `giveStepReward`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`
@@ -617,7 +619,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 `DICE_TRIP_SIZE=50`, `DICE_DROP_CHANCE=0.03`, `DICE_TRIP_COMPLETE_REWARD={coins:500, diamonds:20}`
 
 ### 에너지 구매
-`getEnergyPrice()` → 300 + 구매횟수×50 (KST 자정 리셋)
+`getEnergyPrice()` → 500 + 구매횟수×50 (KST 자정 리셋)
+- 광고 시청 → +50⚡ (에너지 팝업 내 광고 버튼)
 
 ### 데이터 배열 (11개)
 `CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `CAT_SNACKS`(5), `DOG_SNACKS`(5), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `DAILY_MISSIONS`(3단계×3개), `ATTENDANCE_REWARDS`(7일), `DICE_TRIP_REWARDS`(50칸)
@@ -654,6 +657,20 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.22.0 (2026-02-12)
+- 🛒 **상점 1번 칸: Lv.6 동물 광고 구매**
+  - 1번 칸 = cat/dog Lv.6 고정 (`isAd:true`), 5분마다 랜덤 교체
+  - 가격표 `📺` 표시, 클릭 → 광고 팝업 → 시청 → 보드/창고 배치 + 품절
+  - 공간 부족 시 "공간 부족!" 토스트
+- ⚡ **에너지 광고 충전**
+  - 에너지 팝업에 `📺 광고 시청 → +50⚡` 버튼 추가 (취소+구매 합친 폭, 강조 테두리)
+  - 광고 시청 → 에너지 50 충전 (상한 999)
+- ⚖️ **에너지 구매 시작 가격 인상**: 300 → 500🪙
+- 🔧 **광고 팝업 모드 확장**: piggy/storage → piggy/storage/shop/energy 4모드
+- 수정 파일: game.js, systems.js, index.html, eslint.config.js
+- 신규 함수 (1개): `adEnergy()` (game.js)
+- 수정 함수: `refreshShop()` (1번 칸 광고 고정), `renderShop()` (📺 가격표), `buyShopItem()` (isAd 분기), `openAdPopup()` (energy/shop 모드), `confirmAd()` (energy/shop 분기), `getEnergyPrice()` (500+n×50)
 
 ### v4.21.0 (2026-02-12)
 - 📦 **창고 해제: 다이아 구매 → 광고 시청으로 변경**
