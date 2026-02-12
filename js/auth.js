@@ -114,6 +114,55 @@ async function handleGoogleLogin() {
     }
 }
 
+// --- 회원탈퇴 ---
+async function deleteAccount() {
+    if (!currentUser) return;
+    if (!confirm('정말 탈퇴하시겠습니까?\n모든 게임 데이터가 삭제됩니다.')) return;
+    if (!confirm('되돌릴 수 없습니다. 정말 삭제하시겠습니까?')) return;
+
+    const uid = currentUser.uid;
+    try {
+        // Firestore 데이터 삭제
+        await db.collection('saves').doc(uid).delete();
+        await db.collection('sessions').doc(uid).delete();
+        // raceCodes 삭제 (내 코드가 있으면)
+        if (myRaceCode) {
+            await db.collection('raceCodes').doc(myRaceCode).delete();
+        }
+        // Firebase Auth 계정 삭제
+        await currentUser.delete();
+        showToast('회원탈퇴가 완료되었습니다.');
+        localStorage.clear();
+        showLoginScreen();
+    } catch (e) {
+        if (e.code === 'auth/requires-recent-login') {
+            showToast('보안을 위해 재로그인이 필요합니다.');
+            try {
+                await auth.signInWithPopup(googleProvider);
+                // 재로그인 후 재시도
+                const user = auth.currentUser;
+                if (user) {
+                    await db.collection('saves').doc(user.uid).delete();
+                    await db.collection('sessions').doc(user.uid).delete();
+                    if (myRaceCode) {
+                        await db.collection('raceCodes').doc(myRaceCode).delete();
+                    }
+                    await user.delete();
+                    showToast('회원탈퇴가 완료되었습니다.');
+                    localStorage.clear();
+                    showLoginScreen();
+                }
+            } catch (e2) {
+                console.error('[Auth] Re-auth failed:', e2);
+                showToast('탈퇴 실패: ' + e2.message);
+            }
+        } else {
+            console.error('[Auth] Delete account failed:', e);
+            showToast('탈퇴 실패: ' + e.message);
+        }
+    }
+}
+
 // --- 화면 전환 ---
 function showLoginScreen() {
     document.getElementById('login-screen').style.display = 'flex';

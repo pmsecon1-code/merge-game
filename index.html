@@ -87,16 +87,7 @@
                 <div class="status-item border-purple-400">
                     <span id="level-val" class="text-xs font-bold text-purple-600">Lv.1</span>
                 </div>
-                <button id="sound-toggle-btn" onclick="toggleSound()" class="sound-toggle-btn" title="효과음">🔊</button>
-                <button id="music-toggle-btn" onclick="toggleMusic()" class="sound-toggle-btn" title="배경음악">🎵</button>
-                <button
-                    id="login-btn"
-                    onclick="handleGoogleLogin()"
-                    class="status-item border-blue-400 cursor-pointer hover:bg-blue-50"
-                >
-                    <span class="text-xs">🔑</span>
-                    <span id="login-text" class="text-xs text-blue-600 font-bold">로그인</span>
-                </button>
+                <button onclick="openSettings()" class="sound-toggle-btn" title="설정">⚙️</button>
                 <div id="save-status" class="text-[10px] text-gray-400 hidden">💾</div>
             </div>
 
@@ -397,6 +388,42 @@
                     <button onclick="closeOverlay('ad-popup')" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">취소</button>
                     <button onclick="confirmAd()" class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold shadow-md">시청하기</button>
                 </div>
+            </div>
+        </div>
+
+        <div id="settings-popup" class="overlay-bg" style="display:none">
+            <div class="overlay-content bg-white p-5 rounded-2xl shadow-xl border-4 border-gray-300">
+                <div class="text-lg font-bold mb-3">⚙️ 설정</div>
+                <div class="settings-row">
+                    <span class="text-sm">🔊 효과음</span>
+                    <button id="setting-sound-btn" onclick="toggleSound()" class="settings-toggle">ON</button>
+                </div>
+                <div class="settings-row">
+                    <span class="text-sm">🎵 배경음악</span>
+                    <button id="setting-music-btn" onclick="toggleMusic()" class="settings-toggle">ON</button>
+                </div>
+                <hr class="my-3 border-gray-200">
+                <div class="flex flex-col gap-2">
+                    <button onclick="handleGoogleLogin()" class="settings-btn">🔑 로그아웃</button>
+                    <button onclick="deleteAccount()" class="settings-btn settings-btn-danger">🗑️ 회원탈퇴</button>
+                    <button onclick="closeOverlay('settings-popup');document.getElementById('privacy-popup').style.display='flex'" class="settings-btn settings-btn-link">📋 개인정보처리방침</button>
+                </div>
+                <hr class="my-3 border-gray-200">
+                <button onclick="closeOverlay('settings-popup')" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-bold text-sm">닫기</button>
+            </div>
+        </div>
+
+        <div id="privacy-popup" class="overlay-bg" style="display:none">
+            <div class="overlay-content bg-white p-5 rounded-2xl shadow-xl border-4 border-gray-300" style="max-height:70vh; overflow-y:auto">
+                <div class="text-lg font-bold mb-2">📋 개인정보처리방침</div>
+                <div class="text-left text-xs leading-relaxed text-gray-600 space-y-2">
+                    <p><b>1. 수집항목</b><br>Google 계정 이메일, 닉네임 (로그인 시 자동 수집)</p>
+                    <p><b>2. 이용목적</b><br>게임 데이터 저장, 레이스 매칭, 세션 관리</p>
+                    <p><b>3. 보관기간</b><br>회원 탈퇴 시 즉시 삭제</p>
+                    <p><b>4. 제3자 제공</b><br>제공하지 않음</p>
+                    <p><b>5. 이용자 권리</b><br>설정 > 회원탈퇴를 통해 언제든 계정 및 데이터를 삭제할 수 있습니다.</p>
+                </div>
+                <button onclick="closeOverlay('privacy-popup')" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-bold text-sm mt-3">확인</button>
             </div>
         </div>
 

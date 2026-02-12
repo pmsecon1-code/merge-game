@@ -328,6 +328,25 @@ function closeOverlay(id) {
     document.getElementById(id).style.display = 'none';
 }
 
+// --- 설정 팝업 ---
+function openSettings() {
+    const soundBtn = document.getElementById('setting-sound-btn');
+    const musicBtn = document.getElementById('setting-music-btn');
+    if (soundBtn) {
+        soundBtn.textContent = soundEnabled ? 'ON' : 'OFF';
+        soundBtn.classList.toggle('active', soundEnabled);
+    }
+    if (musicBtn) {
+        musicBtn.textContent = musicEnabled ? 'ON' : 'OFF';
+        musicBtn.classList.toggle('active', musicEnabled);
+    }
+    document.getElementById('settings-popup').style.display = 'flex';
+}
+
+function closeSettings() {
+    closeOverlay('settings-popup');
+}
+
 // --- 유틸리티 ---
 function formatTime(ms) {
     if (ms <= 0) return '00:00:00';

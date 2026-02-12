@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.22.0)
+# 멍냥 머지 게임 - Architecture (v4.24.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.22.0
+- **버전**: 4.24.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -14,20 +14,20 @@
 
 ```
 merge2/
-├── index.html          # 메인 HTML (~579줄)
+├── index.html          # 메인 HTML (~609줄)
 ├── css/
-│   └── styles.css      # 모든 CSS (~1804줄)
+│   └── styles.css      # 모든 CSS (~1870줄)
 ├── js/
 │   ├── constants.js    # 상수 + 데이터 + 헬퍼 (~498줄)
 │   ├── state.js        # 전역 변수 + DOM 참조 (~118줄)
-│   ├── auth.js         # 인증 + 세션 관리 (~128줄)
+│   ├── auth.js         # 인증 + 세션 + 회원탈퇴 (~177줄)
 │   ├── save.js         # 저장/로드/검증 (~564줄)
 │   ├── game.js         # 코어 게임 메커닉 (~816줄)
 │   ├── systems.js      # 7행미션/주사위 여행/상점 (~460줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~244줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1068줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~194줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바 (~684줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~705줄)
 │   └── main.js         # 초기화 + 타이머 (~268줄)
 ├── firestore.rules     # Firebase 보안 규칙
 ├── firebase.json       # Firebase Hosting + Firestore 설정
@@ -38,7 +38,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → tutorial → ui → main
 
-**총 JS**: ~5042줄, **함수**: ~130개
+**총 JS**: ~5590줄, **함수**: ~133개
 
 ---
 
@@ -47,7 +47,7 @@ merge2/
 | 순서 | 요소 | 스타일 |
 |------|------|--------|
 | 0 | 로그인 화면 (비로그인 시) | 전체 화면 |
-| 1 | 상단바 (⚡에너지, 🪙코인, 💎다이아, 🃏카드, Lv.n, 🔑로그아웃) | status-bar |
+| 1 | 상단바 (⚡에너지, 🪙코인, 💎다이아, 🃏카드, Lv.n, ⚙️설정) | status-bar |
 | 2 | 📋 레벨업 진행도 (n/min(레벨×2,20)) | event-bar 파랑 |
 | 3 | 📋 퀘스트 (7개, 3개씩 페이지) | event-bar 보라 |
 | 4 | 맵 (5×7 = 35칸) | board-wrapper 분홍 |
@@ -94,6 +94,7 @@ merge2/
 |------|------|
 | `startGoogleLogin()` | Google 팝업 로그인 |
 | `handleGoogleLogin()` | 로그아웃 버튼 |
+| `deleteAccount()` | 회원탈퇴 (Firestore+Auth 삭제) |
 | `registerSession()` | Firestore 세션 등록 |
 | `startSessionListener()` | onSnapshot 실시간 감시 |
 | `stopSessionListener()` | 리스너 해제 |
@@ -590,8 +591,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### systems.js (21개)
 `hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `moveTripPosition`, `giveStepReward`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`
 
-### ui.js (28개)
-`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`, `toggleBottomTab`, `updateBottomBadges`
+### ui.js (30개)
+`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`, `toggleBottomTab`, `updateBottomBadges`
 
 ### race.js (30개)
 `generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `findActiveOrPendingRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `quickJoinRace`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
@@ -657,6 +658,24 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.24.0 (2026-02-12)
+- ⚙️ **설정 팝업** 추가
+  - 상단바 3개 버튼(🔊효과음, 🎵BGM, 🔑로그아웃) → ⚙️ 설정 버튼 1개로 통합
+  - 설정 팝업: 효과음 ON/OFF 토글, 배경음악 ON/OFF 토글, 로그아웃, 회원탈퇴, 개인정보처리방침
+  - 토글 버튼: 활성 시 파란색(`.active`), 비활성 시 회색
+- 🗑️ **회원탈퇴 기능** 추가
+  - 이중 확인(confirm 2회) → Firestore saves/sessions/raceCodes 삭제 → Firebase Auth 계정 삭제
+  - `auth/requires-recent-login` 에러 시 재로그인 유도 후 자동 재시도
+  - 성공 시 localStorage 클리어 + 로그인 화면 전환
+- 📋 **개인정보처리방침 팝업** 추가
+  - 수집항목, 이용목적, 보관기간, 제3자 제공, 이용자 권리 5항목
+- 수정 파일: index.html, css/styles.css, js/ui.js, js/auth.js, js/sound.js, eslint.config.js
+- 신규 함수 (3개): `openSettings()` (ui.js), `closeSettings()` (ui.js), `deleteAccount()` (auth.js)
+- 수정 함수: `updateSoundUI()` (sound.js - 설정 팝업 내 토글 버튼 업데이트로 변경)
+- 신규 HTML: `#settings-popup`, `#privacy-popup`, `#setting-sound-btn`, `#setting-music-btn`
+- 삭제 HTML: `#sound-toggle-btn`, `#music-toggle-btn`, `#login-btn`
+- 신규 CSS: `.settings-row`, `.settings-toggle`, `.settings-btn`, `.settings-btn-danger`, `.settings-btn-link`
 
 ### v4.22.0 (2026-02-12)
 - 🛒 **상점 1번 칸: Lv.6 동물 광고 구매**

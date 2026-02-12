@@ -1817,3 +1817,54 @@ body.tutorial-active {
 .sound-toggle-btn.sound-disabled {
     opacity: 0.4;
 }
+
+/* ============================================
+   설정 팝업
+   ============================================ */
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+}
+.settings-toggle {
+    min-width: 48px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: bold;
+    border: 2px solid #d1d5db;
+    background: #e5e7eb;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.settings-toggle.active {
+    background: #3b82f6;
+    border-color: #2563eb;
+    color: white;
+}
+.settings-btn {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
+    cursor: pointer;
+}
+.settings-btn:active { background: #e5e7eb; }
+.settings-btn-danger {
+    border-color: #fca5a5;
+    color: #dc2626;
+    background: #fef2f2;
+}
+.settings-btn-danger:active { background: #fee2e2; }
+.settings-btn-link {
+    border-color: #bfdbfe;
+    color: #2563eb;
+    background: #eff6ff;
+}
+.settings-btn-link:active { background: #dbeafe; }

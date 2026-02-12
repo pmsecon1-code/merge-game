@@ -160,6 +160,7 @@ export default [
                 stopSessionListener: 'readonly',
                 startGoogleLogin: 'readonly',
                 handleGoogleLogin: 'readonly',
+                deleteAccount: 'readonly',
                 showLoginScreen: 'readonly',
                 showGameScreen: 'readonly',
                 // save.js globals
@@ -342,6 +343,8 @@ export default [
                 startDailyMissionTimer: 'readonly',
                 toggleBottomTab: 'readonly',
                 updateBottomBadges: 'readonly',
+                openSettings: 'readonly',
+                closeSettings: 'readonly',
                 currentBottomTab: 'writable',
                 lastRaceData: 'writable',
                 RACE_EXPIRE_MS: 'readonly',

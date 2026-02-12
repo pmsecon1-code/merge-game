@@ -408,14 +408,15 @@ function toggleMusic() {
 
 // --- UI 업데이트 ---
 function updateSoundUI() {
-    const soundBtn = document.getElementById('sound-toggle-btn');
-    const musicBtn = document.getElementById('music-toggle-btn');
+    // 설정 팝업 내 토글 버튼 업데이트
+    const soundBtn = document.getElementById('setting-sound-btn');
+    const musicBtn = document.getElementById('setting-music-btn');
     if (soundBtn) {
-        soundBtn.textContent = soundEnabled ? '\uD83D\uDD0A' : '\uD83D\uDD07';
-        soundBtn.classList.toggle('sound-disabled', !soundEnabled);
+        soundBtn.textContent = soundEnabled ? 'ON' : 'OFF';
+        soundBtn.classList.toggle('active', soundEnabled);
     }
     if (musicBtn) {
-        musicBtn.textContent = '\uD83C\uDFB5';
-        musicBtn.classList.toggle('sound-disabled', !musicEnabled);
+        musicBtn.textContent = musicEnabled ? 'ON' : 'OFF';
+        musicBtn.classList.toggle('active', musicEnabled);
     }
 }
