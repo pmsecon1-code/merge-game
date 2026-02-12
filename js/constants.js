@@ -37,7 +37,7 @@ const SNACK_CHANCE = 0.08;
 // --- 저금통 설정 ---
 const PIGGY_BANK_TIMER_MS = 60 * 60 * 1000; // 1시간
 const PIGGY_BANK_MIN_COINS = 100;
-const PIGGY_BANK_MAX_COINS = 300;
+const PIGGY_BANK_MAX_COINS = 200;
 
 // --- 주사위 여행 설정 ---
 const DICE_TRIP_SIZE = 50;
