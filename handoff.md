@@ -670,9 +670,12 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - ⚖️ **레이스 목표 복원**: 7 → 10
 - ⚖️ **에너지 구매 시작 가격 인상**: 300 → 500🪙
 - 🔧 **광고 팝업 모드 확장**: piggy/storage → piggy/storage/shop/energy 4모드
-- 수정 파일: game.js, systems.js, index.html, eslint.config.js
+- 🐛 **상점 타이머 버그 2건 수정**
+  - 재접속 시 상점 미갱신: 저장된 남은시간 ≤ 0이면 즉시 `refreshShop()` (save.js)
+  - 상점 탭 내부 타이머 멈춤: `startShopTimer()`에서 `#badge-shop-info`도 동시 갱신 (systems.js)
+- 수정 파일: game.js, systems.js, save.js, index.html, race.js, eslint.config.js
 - 신규 함수 (1개): `adEnergy()` (game.js)
-- 수정 함수: `refreshShop()` (1번 칸 광고 고정), `renderShop()` (📺 가격표), `buyShopItem()` (isAd 분기), `openAdPopup()` (energy/shop 모드), `confirmAd()` (energy/shop 분기), `getEnergyPrice()` (500+n×50)
+- 수정 함수: `refreshShop()` (1번 칸 광고 고정), `renderShop()` (📺 가격표), `buyShopItem()` (isAd 분기), `openAdPopup()` (energy/shop 모드), `confirmAd()` (energy/shop 분기), `getEnergyPrice()` (500+n×50), `startShopTimer()` (배지 타이머 동시 갱신), `applyGameData()` (상점 만료 시 즉시 갱신)
 
 ### v4.21.0 (2026-02-12)
 - 📦 **창고 해제: 다이아 구매 → 광고 시청으로 변경**
