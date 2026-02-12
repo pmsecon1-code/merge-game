@@ -179,7 +179,7 @@ function updateTimerUI() {
             : `${Math.floor(recoveryCountdown / 60)}:${(recoveryCountdown % 60).toString().padStart(2, '0')}`;
 }
 
-function updateQuestUI() {
+function updateQuestUI(scrollToFront = false) {
     questContainer.innerHTML = '';
     const inv = {};
     [...boardState, ...storageState].forEach((i) => {
@@ -239,7 +239,9 @@ function updateQuestUI() {
         d.innerHTML = h;
         questContainer.appendChild(d);
     });
-    requestAnimationFrame(() => { questContainer.scrollLeft = 0; });
+    if (scrollToFront) {
+        requestAnimationFrame(() => { questContainer.scrollLeft = 0; });
+    }
 }
 
 // --- 이펙트 ---
