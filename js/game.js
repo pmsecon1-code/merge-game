@@ -714,7 +714,7 @@ function openAdPopup(zone, idx) {
     const mode = isEnergy ? 'energy' : isShop ? 'shop' : isStorage ? 'storage' : 'piggy';
     document.getElementById('ad-piggy-mode').value = mode;
     document.getElementById('ad-popup-desc').innerHTML = isEnergy
-        ? '광고를 시청하면<br>에너지 <b class="text-yellow-600">50⚡</b>를 받을 수 있습니다!'
+        ? '광고를 시청하면<br>에너지 <b class="text-yellow-600">30⚡</b>를 받을 수 있습니다!'
         : isShop
             ? '광고를 시청하면<br>아이템을 받을 수 있습니다!'
             : isStorage
@@ -730,8 +730,8 @@ function confirmAd() {
     closeOverlay('ad-popup');
 
     if (mode === 'energy') {
-        energy = Math.min(energy + 50, 999);
-        showToast('+50⚡ 충전!');
+        energy = Math.min(energy + 30, 999);
+        showToast('+30⚡ 충전!');
         updateUI();
         updateTimerUI();
         saveGame();
