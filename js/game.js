@@ -128,13 +128,14 @@ function completeQuest(i) {
         renderShop();
         // 스페셜 퀘스트 완료 시 저금통 스폰 (코인 직접 지급 없음)
         const piggyCoins = PIGGY_BANK_MIN_COINS + Math.floor(Math.random() * (PIGGY_BANK_MAX_COINS - PIGGY_BANK_MIN_COINS + 1));
-        const piggyIdx = boardState.findIndex(x => x === null);
+        const piggyIdx = boardState.findIndex((x, i) => x === null && i < 30);
         if (piggyIdx !== -1) {
             boardState[piggyIdx] = { type: 'piggy_bank', coins: piggyCoins, openAt: Date.now() + PIGGY_BANK_TIMER_MS };
             showToast('🐷 저금통 획득!');
         } else {
             coins += piggyCoins;
             cumulativeCoins += piggyCoins;
+            addDailyProgress('coins', piggyCoins);
             showToast(`보드 가득! +${piggyCoins}🪙`);
         }
     } else {
@@ -157,13 +158,14 @@ function completeQuest(i) {
         if (rem.length > 0) delArr(storageState);
         if (q.piggyReward) {
             const piggyCoins = PIGGY_BANK_MIN_COINS + Math.floor(Math.random() * (PIGGY_BANK_MAX_COINS - PIGGY_BANK_MIN_COINS + 1));
-            const piggyIdx = boardState.findIndex(x => x === null);
+            const piggyIdx = boardState.findIndex((x, i) => x === null && i < 30);
             if (piggyIdx !== -1) {
                 boardState[piggyIdx] = { type: 'piggy_bank', coins: piggyCoins, openAt: Date.now() + PIGGY_BANK_TIMER_MS };
                 showToast('완료! 🐷 저금통 획득!');
             } else {
                 coins += piggyCoins;
                 cumulativeCoins += piggyCoins;
+                addDailyProgress('coins', piggyCoins);
                 showToast(`보드 가득! +${piggyCoins}🪙`);
             }
         } else if (q.cardReward > 0) {
