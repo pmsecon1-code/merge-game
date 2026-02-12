@@ -241,7 +241,7 @@ const ALBUM_CARD_MIN = 2;
 const ALBUM_CARD_MAX = 6;
 const ALBUM_DUPE_REWARD = { N: 1, R: 3, SR: 8 };
 const ALBUM_COMPLETE_COINS = 500;
-const ALBUM_ALL_COMPLETE_DIAMONDS = 100;
+const ALBUM_ALL_COMPLETE_DIAMONDS = 500;
 const ALBUM_CYCLE_MS = 42 * 24 * 60 * 60 * 1000; // 42일
 
 // --- 7일 출석 보상 ---
