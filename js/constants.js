@@ -27,12 +27,17 @@ const RECOVERY_SEC = 30;
 
 // --- 비용 설정 ---
 const UNLOCK_COST_BOARD = 100;
-const ENERGY_COST = 300;
 const CAGE_UPGRADE_COST = 1000;
 
 // --- 게임 밸런스 ---
 const CAGE_MAX_LEVEL = 5;
 const SNACK_CHANCE = 0.08;
+const GENERATOR_MAX_CLICKS = 6; // 스페셜 생성기 과열 클릭 수
+const AD_ENERGY_AMOUNT = 30; // 광고 시청 에너지 충전량
+
+// --- 레벨업 공식 (중앙화) ---
+function getLevelUpGoal(lv) { return Math.min(lv * 2, 20); }
+function getLevelUpReward(lv) { return Math.ceil(lv / 10) * 3; }
 
 // --- 저금통 설정 ---
 const PIGGY_BANK_TIMER_MS = 60 * 60 * 1000; // 1시간

@@ -52,7 +52,7 @@ function createItem(item, zone, index) {
             type = item.type.replace('_generator', '');
         let specialUI = '';
         if (['bird', 'fish', 'reptile', 'toy'].includes(type)) {
-            const rem = 6 - (item.clicks || 0);
+            const rem = GENERATOR_MAX_CLICKS - (item.clicks || 0);
             if (item.cooldown > Date.now())
                 specialUI = `<div class="cooldown-overlay"><span>💤</span><span>${Math.ceil((item.cooldown - Date.now()) / 1000)}s</span></div>`;
             else specialUI = `<div class="usage-badge">${rem}/6</div>`;
@@ -160,8 +160,8 @@ function updateUI() {
 }
 
 function updateLevelupProgressUI() {
-    const goal = Math.min(userLevel * 2, 20);
-    const reward = Math.ceil(userLevel / 10) * 3;
+    const goal = getLevelUpGoal(userLevel);
+    const reward = getLevelUpReward(userLevel);
     document.getElementById('levelup-progress-text').innerText = `${questProgress}/${goal}`;
     document.getElementById('levelup-progress-fill').style.width = `${(questProgress / goal) * 100}%`;
     document.getElementById('levelup-reward-preview').innerText = reward;

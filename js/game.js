@@ -187,8 +187,8 @@ function completeQuest(i) {
     checkAutoCompleteMissions();
 
     // 레벨업 체크
-    if (questProgress >= Math.min(userLevel * 2, 20)) {
-        const reward = Math.ceil(userLevel / 10) * 3;
+    if (questProgress >= getLevelUpGoal(userLevel)) {
+        const reward = getLevelUpReward(userLevel);
         userLevel++;
         questProgress = 0;
         diamonds += reward;
@@ -458,8 +458,8 @@ function triggerGen(idx, item) {
             return;
         }
         item.clicks = (item.clicks || 0) + 1;
-        if (item.clicks >= 6) {
-            item.cooldown = Date.now() + 60000;
+        if (item.clicks >= GENERATOR_MAX_CLICKS) {
+            item.cooldown = Date.now() + GENERATOR_COOLDOWN_MS;
             item.clicks = 0;
             showToast('과열! 1분 휴식');
         }
@@ -474,8 +474,8 @@ function triggerGen(idx, item) {
             return;
         }
         item.clicks = (item.clicks || 0) + 1;
-        if (item.clicks >= 6) {
-            item.cooldown = Date.now() + 60000;
+        if (item.clicks >= GENERATOR_MAX_CLICKS) {
+            item.cooldown = Date.now() + GENERATOR_COOLDOWN_MS;
             item.clicks = 0;
             showToast('과열! 1분 휴식');
         }
@@ -597,9 +597,7 @@ function moveItem(fz, fi, tz, ti) {
         return;
     }
     if (fIt.type === tIt.type && fIt.level === tIt.level) {
-        let max = 11;
-        if (fIt.type.includes('snack') || fIt.type.includes('toy')) max = 5;
-        if (['bird', 'fish', 'reptile'].includes(fIt.type)) max = 7;
+        const max = getMaxLevel(fIt.type);
         if (fIt.level < max) {
             const newLv = fIt.level + 1;
             ts[ti] = { type: fIt.type, level: newLv };
@@ -724,7 +722,7 @@ function openAdPopup(zone, idx) {
     const mode = isEnergy ? 'energy' : isShop ? 'shop' : isStorage ? 'storage' : 'piggy';
     document.getElementById('ad-piggy-mode').value = mode;
     document.getElementById('ad-popup-desc').innerHTML = isEnergy
-        ? '광고를 시청하면<br>에너지 <b class="text-yellow-600">30⚡</b>를 받을 수 있습니다!'
+        ? `광고를 시청하면<br>에너지 <b class="text-yellow-600">${AD_ENERGY_AMOUNT}⚡</b>를 받을 수 있습니다!`
         : isShop
             ? '광고를 시청하면<br>아이템을 받을 수 있습니다!'
             : isStorage
@@ -740,9 +738,9 @@ function confirmAd() {
     closeOverlay('ad-popup');
 
     if (mode === 'energy') {
-        energy = Math.min(energy + 30, 999);
+        energy = Math.min(energy + AD_ENERGY_AMOUNT, 999);
         playSound('purchase');
-        showToast('+30⚡ 충전!');
+        showToast(`+${AD_ENERGY_AMOUNT}⚡ 충전!`);
         updateUI();
         updateTimerUI();
         saveGame();

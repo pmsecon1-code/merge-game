@@ -22,7 +22,7 @@ export default [
                 MAX_ENERGY: 'readonly',
                 RECOVERY_SEC: 'readonly',
                 UNLOCK_COST_BOARD: 'readonly',
-                ENERGY_COST: 'readonly',
+
                 CAGE_UPGRADE_COST: 'readonly',
                 CAGE_MAX_LEVEL: 'readonly',
                 GRID_COLS: 'readonly',
@@ -37,6 +37,10 @@ export default [
                 PIGGY_BANK_MIN_COINS: 'readonly',
                 PIGGY_BANK_MAX_COINS: 'readonly',
                 GENERATOR_COOLDOWN_MS: 'readonly',
+                GENERATOR_MAX_CLICKS: 'readonly',
+                AD_ENERGY_AMOUNT: 'readonly',
+                getLevelUpGoal: 'readonly',
+                getLevelUpReward: 'readonly',
                 // UI 타이밍 상수
                 TOAST_DURATION_MS: 'readonly',
                 MILESTONE_POPUP_MS: 'readonly',
@@ -376,7 +380,7 @@ export default [
                 MAX_ENERGY: 'readonly',
                 RECOVERY_SEC: 'readonly',
                 UNLOCK_COST_BOARD: 'readonly',
-                ENERGY_COST: 'readonly',
+
                 CAGE_UPGRADE_COST: 'readonly',
                 CAGE_MAX_LEVEL: 'readonly',
                 FIRE_EXTINGUISH_COST: 'readonly',
