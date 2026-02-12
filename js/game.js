@@ -331,6 +331,7 @@ function spawnToy() {
         if (v === null) empties.push(i);
     });
     if (empties.length === 0) {
+        playSound('error');
         showToast('공간 부족!');
         return;
     }
@@ -359,6 +360,7 @@ function spawnToy() {
     boardState[targetIdx] = { type: finalType, level: 1 };
     discoverItem(finalType, 1);
     addDailyProgress('spawn');
+    playSound('spawn');
     renderGrid('board', boardState, boardEl);
     const cell = boardEl.children[targetIdx];
     if (cell && cell.firstChild) {
@@ -383,10 +385,10 @@ function handleCellClick(zone, idx) {
         if (coins >= UNLOCK_COST_BOARD) {
             coins -= UNLOCK_COST_BOARD;
             s[idx] = null;
-            playSound('click');
+            playSound('purchase');
             showToast('해제!');
             updateAll();
-        } else showToast('코인 부족!');
+        } else { playSound('error'); showToast('코인 부족!'); }
     } else if (it.type === 'locked_storage') {
         openAdPopup('storage', idx);
     } else if (it.type === 'upgrade_mission') {
@@ -450,6 +452,7 @@ function triggerGen(idx, item) {
     const baseType = item.type.replace('_generator', '');
     if (['bird', 'fish', 'reptile'].includes(baseType)) {
         if (item.cooldown > Date.now()) {
+            playSound('error');
             showToast('과열!');
             return;
         }
@@ -466,6 +469,7 @@ function triggerGen(idx, item) {
         spawnItem(baseType, 1, false);
     } else if (baseType === 'toy') {
         if (item.cooldown > Date.now()) {
+            playSound('error');
             showToast('과열!');
             return;
         }

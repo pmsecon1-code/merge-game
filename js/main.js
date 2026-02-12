@@ -227,6 +227,7 @@ document.getElementById('confirm-sell-btn').onclick = () => {
         cumulativeCoins += p;
         addDailyProgress('coins', p);
         (sellTarget.zone === 'board' ? boardState : storageState)[sellTarget.index] = null;
+        playSound('purchase');
         updateAll();
         showToast(`+${p}🪙 획득!`);
         closeOverlay('sell-popup');

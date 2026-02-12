@@ -168,6 +168,7 @@ function buyShopItem(idx) {
         }
     }
     if (eIdx === -1) {
+        playSound('error');
         showToast('공간 부족!');
         return;
     }
