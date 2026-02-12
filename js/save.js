@@ -69,6 +69,9 @@ function getGameData() {
         diceTripPosition,
         diceCount,
         visitedSteps: [...visitedSteps],
+        // 사운드 설정
+        soundEnabled,
+        musicEnabled,
         savedAt: Date.now(),
     };
 }
@@ -208,6 +211,12 @@ function applyGameData(d) {
     diceTripPosition = d.diceTripPosition ?? 0;
     diceCount = d.diceCount ?? 0;
     visitedSteps = d.visitedSteps && Array.isArray(d.visitedSteps) ? d.visitedSteps : [0];
+
+    // 사운드 설정 로드
+    if (d.soundEnabled !== undefined) soundEnabled = d.soundEnabled;
+    if (d.musicEnabled !== undefined) musicEnabled = d.musicEnabled;
+    updateSoundUI();
+    if (!musicEnabled) stopBGM();
 
     // 전설 퀘스트 아이템 정리 (v4.17.0 삭제 마이그레이션)
     for (let i = 0; i < BOARD_SIZE; i++) {

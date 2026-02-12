@@ -108,6 +108,14 @@ let sessionUnsubscribe = null;
 // --- 하단 배지 탭 ---
 let currentBottomTab = null; // null | 'race' | 'album' | 'dice' | 'shop' | 'storage'
 
+// --- 사운드 ---
+let audioContext = null;
+let bgmAudio = null;
+let soundEnabled = true;
+let musicEnabled = true;
+let audioUnlocked = false;
+let soundBuffers = {};
+
 // --- DOM 참조 (init에서 할당) ---
 let boardEl, storageEl, shopGrid;
 let coinEl, diamondEl, energyEl, energyTimerEl;

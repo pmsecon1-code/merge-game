@@ -1802,3 +1802,18 @@ body.tutorial-active {
    ============================================ */
 .piggy-bank-item { position: relative; }
 .ad-btn { background: #f59e0b !important; color: white !important; }
+
+/* ============================================
+   사운드 토글
+   ============================================ */
+.sound-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+}
+.sound-toggle-btn.sound-disabled {
+    opacity: 0.4;
+}

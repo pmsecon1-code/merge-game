@@ -138,6 +138,7 @@ function completeQuest(i) {
             addDailyProgress('coins', piggyCoins);
             showToast(`보드 가득! +${piggyCoins}🪙`);
         }
+        playSound('quest_complete');
     } else {
         // --- 일반 퀘스트 완료 ---
         const rem = [...q.reqs];
@@ -177,6 +178,7 @@ function completeQuest(i) {
             addDailyProgress('coins', q.reward);
             showToast(`완료! +${q.reward}🪙`);
         }
+        playSound('quest_complete');
     }
 
     // --- 공통: 진행도 ---
@@ -193,6 +195,7 @@ function completeQuest(i) {
         document.getElementById('levelup-num').innerText = userLevel;
         document.getElementById('levelup-reward').innerText = reward;
         document.getElementById('levelup-overlay').style.display = 'flex';
+        playSound('levelup');
         setTimeout(() => {
             document.getElementById('levelup-overlay').style.display = 'none';
         }, 2000);
@@ -307,6 +310,7 @@ function spawnItem(baseType, inputLevel = 1, isFree = false) {
     discoverItem(finalType, finalLevel);
     addDailyProgress('spawn');
     renderGrid('board', boardState, boardEl);
+    playSound('spawn');
     const cell = boardEl.children[targetIdx];
     if (cell && cell.firstChild) {
         cell.firstChild.classList.add('pop-anim');
@@ -379,6 +383,7 @@ function handleCellClick(zone, idx) {
         if (coins >= UNLOCK_COST_BOARD) {
             coins -= UNLOCK_COST_BOARD;
             s[idx] = null;
+            playSound('click');
             showToast('해제!');
             updateAll();
         } else showToast('코인 부족!');
@@ -422,6 +427,7 @@ function handleCellClick(zone, idx) {
             cumulativeCoins += it.coins;
             addDailyProgress('coins', it.coins);
             s[idx] = null;
+            playSound('piggy_open');
             showMilestonePopup('🐷 저금통 개봉!', `+${it.coins}🪙`);
             updateAll();
         } else {
@@ -537,11 +543,13 @@ function buyEnergy() {
         recoveryCountdown = RECOVERY_SEC;
         energyPurchaseCount++;
         closeEnergyPopup();
+        playSound('purchase');
         showToast('충전 완료!');
         updateUI();
         updateTimerUI();
         saveGame();
     } else {
+        playSound('error');
         document.getElementById('energy-err').innerText = '코인 부족!';
         document.getElementById('energy-err').classList.remove('hidden');
     }
@@ -598,6 +606,7 @@ function moveItem(fz, fi, tz, ti) {
             ss[fi] = null;
             discoverItem(fIt.type, newLv);
             addDailyProgress('merge');
+            playSound('merge');
             checkAutoCompleteMissions();
             const cell = (tz === 'board' ? boardEl : storageEl).children[ti];
             // 합성 위치 추적 (튜토리얼용)
@@ -693,6 +702,7 @@ function claimDailyBonus() {
     dailyMissions.bonusClaimed = true;
     diamonds += DAILY_COMPLETE_REWARD.diamonds;
     cards += DAILY_COMPLETE_REWARD.cards;
+    playSound('milestone');
     showMilestonePopup('🎁 일일 미션 완료!', `${DAILY_COMPLETE_REWARD.diamonds}💎 + ${DAILY_COMPLETE_REWARD.cards}🃏`);
     updateDailyMissionUI();
     updateAll();
@@ -731,6 +741,7 @@ function confirmAd() {
 
     if (mode === 'energy') {
         energy = Math.min(energy + 30, 999);
+        playSound('purchase');
         showToast('+30⚡ 충전!');
         updateUI();
         updateTimerUI();
@@ -747,11 +758,13 @@ function confirmAd() {
         (tz === 'board' ? boardState : storageState)[eIdx] = { type: item.type, level: item.level };
         discoverItem(item.type, item.level);
         shopItems[idx] = null;
+        playSound('purchase');
         showToast('구매 완료!');
         updateAll();
         renderShop();
     } else if (mode === 'storage') {
         storageState[idx] = null;
+        playSound('purchase');
         showToast('창고 확장!');
         updateAll();
     } else {
@@ -763,6 +776,7 @@ function confirmAd() {
         cumulativeCoins += reward;
         addDailyProgress('coins', reward);
         s[idx] = null;
+        playSound('purchase');
         showMilestonePopup('🐷 저금통 개봉! (×2)', `+${reward}🪙`);
         updateAll();
     }
@@ -811,6 +825,7 @@ function checkDailyBonus() {
         rewardText = `${reward.cards}🃏`;
     }
 
+    playSound('daily_bonus');
     showMilestonePopup(`🎁 ${reward.day}일차 출석!`, rewardText);
     saveGame();
 }

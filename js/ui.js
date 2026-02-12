@@ -280,6 +280,7 @@ function spawnItemEffect(cell, isLucky) {
 }
 
 function showLuckyEffect(cell) {
+    playSound('lucky');
     cell.classList.add('lucky-glow');
     setTimeout(() => cell.classList.remove('lucky-glow'), 800);
     const flash = document.createElement('div');
@@ -542,6 +543,7 @@ function upgradeGenerator() {
     }
     coins -= CAGE_UPGRADE_COST;
     genLevels[type]++;
+    playSound('purchase');
     showToast(`${type === 'cat' ? '캣타워' : '개집'} Lv.${genLevels[type]}!`);
     boardState.forEach((item, idx) => {
         if (item && item.type === 'upgrade_mission' && item.target === type && genLevels[type] >= item.reqLevel) {

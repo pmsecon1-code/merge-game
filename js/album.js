@@ -60,6 +60,7 @@ function drawPhotos() {
         })
         .join('');
 
+    playSound('album_draw');
     document.getElementById('photo-draw-overlay').style.display = 'flex';
     setTimeout(() => closePhotoDraw(), DICE_RESULT_POPUP_MS);
     updateAlbumBarUI();
@@ -162,6 +163,7 @@ function checkThemeComplete(themeIdx) {
             album.push(rewardKey);
             coins += ALBUM_COMPLETE_COINS;
             cumulativeCoins += ALBUM_COMPLETE_COINS;
+            playSound('theme_complete');
             showMilestonePopup(`${theme.icon} ${theme.name} 완성!`, `${ALBUM_COMPLETE_COINS}🪙`);
         }
     }
@@ -170,6 +172,7 @@ function checkThemeComplete(themeIdx) {
 function checkAlbumAllComplete() {
     const totalPhotos = ALBUM_THEMES.reduce((s, t) => s + t.photos.length, 0);
     if (getAlbumProgress() === totalPhotos) {
+        playSound('theme_complete');
         diamonds += ALBUM_ALL_COMPLETE_DIAMONDS;
         // 테마 완성 팝업이 먼저 보이도록 딜레이
         setTimeout(() => {

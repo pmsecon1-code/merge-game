@@ -502,6 +502,10 @@ function showRaceResult(data) {
         raceLosses++;
     }
 
+    // 사운드
+    if (result.includes('win') || result.includes('draw')) playSound('race_win');
+    else playSound('race_lose');
+
     // 보상 지급
     coins += reward.coins;
     cumulativeCoins += reward.coins;
@@ -938,6 +942,7 @@ async function acceptRaceInvite() {
         closeRaceInvitePopup();
         stopPlayer2Listener();
         startRaceListener(raceId);
+        playSound('race_start');
         saveGame();
         showToast('레이스 시작!');
         updateRaceUI();

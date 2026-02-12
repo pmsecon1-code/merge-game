@@ -154,6 +154,7 @@ function buyShopItem(idx) {
     }
     const p = item.level * 2;
     if (diamonds < p) {
+        playSound('error');
         showToast('다이아 부족!');
         return;
     }
@@ -174,6 +175,7 @@ function buyShopItem(idx) {
     (tz === 'board' ? boardState : storageState)[eIdx] = { ...item };
     discoverItem(item.type, item.level);
     shopItems[idx] = generateRandomShopItem(getActiveTypes());
+    playSound('purchase');
     showToast('구매 완료!');
     updateAll();
     renderShop();
@@ -183,6 +185,7 @@ function buyShopItem(idx) {
 function tryDropDice() {
     if (Math.random() < DICE_DROP_CHANCE) {
         diceCount++;
+        playSound('dice_drop');
         // 주사위 획득 팝업
         const popup = document.getElementById('dice-drop-popup');
         const countEl = document.getElementById('dice-drop-count');
@@ -208,6 +211,7 @@ let pendingDiceResult = 0;
 
 function rollDice() {
     isRollingDice = true;
+    playSound('dice_roll');
     pendingDiceResult = Math.floor(Math.random() * 6) + 1;
 
     // 팝업 요소
@@ -346,6 +350,7 @@ function completeTrip() {
     diamonds += DICE_TRIP_COMPLETE_REWARD.diamonds;
     addDailyProgress('coins', DICE_TRIP_COMPLETE_REWARD.coins);
 
+    playSound('milestone');
     showMilestonePopup('🎉 주사위 여행 완주!', `${DICE_TRIP_COMPLETE_REWARD.coins}🪙 + ${DICE_TRIP_COMPLETE_REWARD.diamonds}💎`);
 
     // 즉시 리셋

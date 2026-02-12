@@ -42,8 +42,14 @@ function init() {
     document.addEventListener('touchmove', handleDragMove, { passive: false });
     document.addEventListener('touchend', handleDragEnd);
 
+    initSound();
+
     console.log('[Init] Game UI ready');
 }
+
+// --- 사운드 unlock (첫 터치) ---
+document.addEventListener('touchstart', unlockAudio, { once: true });
+document.addEventListener('click', unlockAudio, { once: true });
 
 // --- 셀 생성 ---
 function createBoardCells() {
@@ -193,6 +199,7 @@ auth.onAuthStateChanged(async (user) => {
 
             console.log('[Auth] Showing game screen...');
             showGameScreen();
+            playBGM();
 
             // 튜토리얼 진행 중이면 지연, 아니면 즉시 실행
             if (tutorialStep > 0) {
