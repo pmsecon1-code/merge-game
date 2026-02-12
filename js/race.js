@@ -2,7 +2,7 @@
 // race.js - 레이스 시스템 (단순화 버전)
 // ============================================
 
-const RACE_GOAL = 7; // 퀘스트 7개 완료
+const RACE_GOAL = 10; // 퀘스트 10개 완료
 const RACE_EXPIRE_MS = 60 * 60 * 1000; // 1시간 제한
 const RACE_INVITE_EXPIRE_MS = 10 * 60 * 1000; // 초대 10분 만료
 const RACE_REWARDS = {
