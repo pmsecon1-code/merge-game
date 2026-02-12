@@ -161,7 +161,7 @@ function updateUI() {
 
 function updateLevelupProgressUI() {
     const goal = Math.min(userLevel * 2, 20);
-    const reward = Math.ceil(userLevel / 5) * 5;
+    const reward = Math.ceil(userLevel / 10) * 3;
     document.getElementById('levelup-progress-text').innerText = `${questProgress}/${goal}`;
     document.getElementById('levelup-progress-fill').style.width = `${(questProgress / goal) * 100}%`;
     document.getElementById('levelup-reward-preview').innerText = reward;
