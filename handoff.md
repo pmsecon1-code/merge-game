@@ -14,21 +14,21 @@
 
 ```
 merge2/
-├── index.html          # 메인 HTML (~567줄)
+├── index.html          # 메인 HTML (~579줄)
 ├── css/
-│   └── styles.css      # 모든 CSS (~1800줄)
+│   └── styles.css      # 모든 CSS (~1804줄)
 ├── js/
-│   ├── constants.js    # 상수 + 데이터 + 헬퍼 (~380줄)
-│   ├── state.js        # 전역 변수 + DOM 참조 (~117줄)
-│   ├── auth.js         # 인증 + 세션 관리 (~129줄)
-│   ├── save.js         # 저장/로드/검증 (~430줄)
-│   ├── game.js         # 코어 게임 메커닉 (~550줄)
-│   ├── systems.js      # 7행미션/주사위 여행/상점 (~444줄)
-│   ├── album.js        # 앨범 (사진 수집) 시스템 (~240줄)
-│   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1060줄)
-│   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~191줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바 (~647줄)
-│   └── main.js         # 초기화 + 타이머 (~258줄)
+│   ├── constants.js    # 상수 + 데이터 + 헬퍼 (~498줄)
+│   ├── state.js        # 전역 변수 + DOM 참조 (~118줄)
+│   ├── auth.js         # 인증 + 세션 관리 (~128줄)
+│   ├── save.js         # 저장/로드/검증 (~564줄)
+│   ├── game.js         # 코어 게임 메커닉 (~816줄)
+│   ├── systems.js      # 7행미션/주사위 여행/상점 (~460줄)
+│   ├── album.js        # 앨범 (사진 수집) 시스템 (~244줄)
+│   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1068줄)
+│   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~194줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바 (~684줄)
+│   └── main.js         # 초기화 + 타이머 (~268줄)
 ├── firestore.rules     # Firebase 보안 규칙
 ├── firebase.json       # Firebase Hosting + Firestore 설정
 ├── .firebaserc         # Firebase 프로젝트 연결
@@ -38,7 +38,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → tutorial → ui → main
 
-**총 JS**: ~3800줄, **함수**: ~125개
+**총 JS**: ~5042줄, **함수**: ~130개
 
 ---
 
