@@ -167,7 +167,7 @@
                         >코드 입력</button>
                     </div>
                     <div id="race-track" class="race-track-container">
-                        <div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요! (승리 시 +150🪙 +5💎)</div>
+                        <div id="race-hint" class="text-gray-400 text-[10px] py-2"></div>
                     </div>
                 </div>
 
@@ -177,7 +177,7 @@
                         <span class="text-[10px] font-bold text-fuchsia-600">
                             📸 앨범
                             <span id="album-progress-text" class="text-[9px] text-fuchsia-400">0/81</span>
-                            <span class="text-[9px] text-fuchsia-300">(완성 시 +100💎)</span>
+                            <span id="album-reward-hint" class="text-[9px] text-fuchsia-300"></span>
                         </span>
                         <div class="flex gap-1 items-center">
                             <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold">⏱42일</span>
@@ -198,7 +198,7 @@
                         <span class="text-[10px] font-bold text-emerald-600">
                             🎲 주사위 여행
                             <span id="dice-trip-position" class="text-[9px] text-emerald-400">1/20</span>
-                            <span class="text-[9px] text-emerald-300">(완주 시 +500🪙 +20💎)</span>
+                            <span id="dice-reward-hint" class="text-[9px] text-emerald-300"></span>
                         </span>
                         <button
                             id="dice-roll-btn"
@@ -379,10 +379,11 @@
         <div id="ad-popup" class="overlay-bg" style="display:none">
             <input type="hidden" id="ad-piggy-zone" />
             <input type="hidden" id="ad-piggy-idx" />
+            <input type="hidden" id="ad-piggy-mode" value="piggy" />
             <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-yellow-400">
                 <div class="text-5xl mb-3">📺</div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">광고 시청</h2>
-                <p class="text-sm text-gray-500 mb-4">광고를 시청하면 저금통을<br>즉시 열고 <b class="text-yellow-600">보상 2배</b>!</p>
+                <p id="ad-popup-desc" class="text-sm text-gray-500 mb-4">광고를 시청하면 저금통을<br>즉시 열고 <b class="text-yellow-600">보상 2배</b>!</p>
                 <div class="flex gap-2 justify-center">
                     <button onclick="closeOverlay('ad-popup')" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">취소</button>
                     <button onclick="confirmAd()" class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold shadow-md">시청하기</button>

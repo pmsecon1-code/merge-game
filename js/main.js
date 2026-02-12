@@ -24,6 +24,11 @@ function init() {
     createStorageCells();
     createShopCells();
 
+    // 보상 힌트 텍스트 (상수 기반)
+    document.getElementById('race-hint').textContent = `친구 코드를 입력해서 경쟁하세요! (승리 시 +${RACE_REWARDS.win.coins}🪙 +${RACE_REWARDS.win.diamonds}💎)`;
+    document.getElementById('album-reward-hint').textContent = `(완성 시 +${ALBUM_ALL_COMPLETE_DIAMONDS}💎)`;
+    document.getElementById('dice-reward-hint').textContent = `(완주 시 +${DICE_TRIP_COMPLETE_REWARD.coins}🪙 +${DICE_TRIP_COMPLETE_REWARD.diamonds}💎)`;
+
     startEnergyRecovery();
     startShopTimer();
     startCooldownTimer();

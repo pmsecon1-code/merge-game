@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.20.0)
+# 멍냥 머지 게임 - Architecture (v4.21.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.20.0
+- **버전**: 4.21.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -654,6 +654,30 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.21.0 (2026-02-12)
+- 📦 **창고 해제: 다이아 구매 → 광고 시청으로 변경**
+  - 잠긴 창고 칸 클릭 → 광고(페이크) 팝업 → 시청하기 → 칸 해제
+  - 순서 제한 제거 (앞 칸부터 → 아무 칸이나 해제 가능)
+  - 다이아 소비 제거 (기존 5/10/15/20/25💎 → 무료 광고)
+  - 잠긴 칸 UI: `${cost}💎` → `📺` 표시
+  - 광고 팝업 범용화: piggy/storage 모드 분기 (`ad-piggy-mode` hidden input)
+  - 팝업 설명 동적 변경: 창고="창고 칸을 열 수 있습니다!", 저금통="보상 2배!"
+  - 기존 유저 데이터 완전 호환 (save.js 변경 없음, locked_storage 구조 유지)
+- 🐛 **7행 미션 재잠금 버그 재수정**
+  - 사자/북극곰 미션 완료 후 빈 칸에 아이템 배치 → 재접속 시 미션 재생성되는 버그
+  - 원인: `discoveredItems` 체크가 `animal_mission` 타입일 때만 동작 → 아이템이 놓인 경우 건너뜀
+  - 수정: `discoveredItems`에 기록 있으면 어떤 상태든 미션 생성 스킵 (최우선 체크)
+- 🐛 **퀘스트 완료 시 슬라이드 맨 앞 이동 안 되는 버그 수정**
+  - `updateQuestUI()` DOM 재생성 후 `requestAnimationFrame`으로 `scrollLeft = 0` 명시적 설정
+- 🔧 **보상 힌트 하드코딩 제거**
+  - index.html의 레이스/앨범/주사위 보상 텍스트를 상수 기반 동적 렌더링으로 변경
+  - `init()`에서 `RACE_REWARDS`, `ALBUM_ALL_COMPLETE_DIAMONDS`, `DICE_TRIP_COMPLETE_REWARD`로 설정
+  - race.js 하드코딩도 템플릿 리터럴로 변경
+  - 앨범 완성 보상 표시 `+100💎` → `+500💎` 수정 (v4.20.0 상수 변경 누락분)
+- 수정 파일: game.js, ui.js, index.html, save.js, race.js, main.js
+- 수정 함수: `handleCellClick()` (순서 제한 제거 + 광고 팝업 호출), `openAdPopup()` (piggy/storage 모드 분기), `confirmAd()` (storage 분기 추가), `renderGrid()` (📺 표시), `migrateRow7Missions()` (discoveredItems 최우선 체크), `updateQuestUI()` (scrollLeft 초기화), `updateRaceUI()` (보상 템플릿 리터럴), `init()` (보상 힌트 동적 설정)
+- 신규 HTML: `#ad-piggy-mode` (hidden input), `#ad-popup-desc`, `#race-hint`, `#album-reward-hint`, `#dice-reward-hint`
 
 ### v4.20.0 (2026-02-11)
 - 🐷 **저금통 시스템** 추가

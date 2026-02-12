@@ -383,16 +383,7 @@ function handleCellClick(zone, idx) {
             updateAll();
         } else showToast('코인 부족!');
     } else if (it.type === 'locked_storage') {
-        if (idx > 0 && s[idx - 1]?.type === 'locked_storage') {
-            showToast('앞 칸부터!');
-            return;
-        }
-        if (diamonds >= it.cost) {
-            diamonds -= it.cost;
-            s[idx] = null;
-            showToast('확장!');
-            updateAll();
-        } else showToast('다이아 부족!');
+        openAdPopup('storage', idx);
     } else if (it.type === 'upgrade_mission') {
         const done = genLevels[it.target] >= it.reqLevel;
         if (done) {
@@ -707,31 +698,40 @@ function claimDailyBonus() {
     updateAll();
 }
 
-// --- 저금통 광고 ---
+// --- 광고 팝업 (저금통/창고 공용) ---
 function openAdPopup(zone, idx) {
-    const s = zone === 'board' ? boardState : storageState;
-    const it = s[idx];
-    if (!it || it.type !== 'piggy_bank') return;
     document.getElementById('ad-piggy-zone').value = zone;
     document.getElementById('ad-piggy-idx').value = idx;
+    const isStorage = zone === 'storage' && storageState[idx]?.type === 'locked_storage';
+    document.getElementById('ad-piggy-mode').value = isStorage ? 'storage' : 'piggy';
+    document.getElementById('ad-popup-desc').innerHTML = isStorage
+        ? '광고를 시청하면<br>창고 칸을 열 수 있습니다!'
+        : '광고를 시청하면 저금통을<br>즉시 열고 <b class="text-yellow-600">보상 2배</b>!';
     document.getElementById('ad-popup').style.display = 'flex';
 }
 
 function confirmAd() {
+    const mode = document.getElementById('ad-piggy-mode').value;
     const zone = document.getElementById('ad-piggy-zone').value;
     const idx = parseInt(document.getElementById('ad-piggy-idx').value);
-    const s = zone === 'board' ? boardState : storageState;
-    const it = s[idx];
-    if (!it || it.type !== 'piggy_bank') return;
-
     closeOverlay('ad-popup');
-    const reward = it.coins * 2;
-    coins += reward;
-    cumulativeCoins += reward;
-    addDailyProgress('coins', reward);
-    s[idx] = null;
-    showMilestonePopup('🐷 저금통 개봉! (×2)', `+${reward}🪙`);
-    updateAll();
+
+    if (mode === 'storage') {
+        storageState[idx] = null;
+        showToast('창고 확장!');
+        updateAll();
+    } else {
+        const s = zone === 'board' ? boardState : storageState;
+        const it = s[idx];
+        if (!it || it.type !== 'piggy_bank') return;
+        const reward = it.coins * 2;
+        coins += reward;
+        cumulativeCoins += reward;
+        addDailyProgress('coins', reward);
+        s[idx] = null;
+        showMilestonePopup('🐷 저금통 개봉! (×2)', `+${reward}🪙`);
+        updateAll();
+    }
 }
 
 // --- 7일 출석 보너스 ---
