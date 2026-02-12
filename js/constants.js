@@ -152,17 +152,17 @@ const CATS = [
 ];
 
 const DOGS = [
-    { level: 1, emoji: '🐶', name: '아기 멍멍', color: '#fecdd3' },
-    { level: 2, emoji: '🐕', name: '누렁이', color: '#fcd34d' },
-    { level: 3, emoji: '🐩', name: '푸들', color: '#e9d5ff' },
-    { level: 4, emoji: '🦮', name: '안내견', color: '#86efac' },
-    { level: 5, emoji: '🐕‍🦺', name: '듬직견', color: '#38bdf8' },
-    { level: 6, emoji: '🐺', name: '늑대', color: '#94a3b8' },
-    { level: 7, emoji: '🦊', name: '여우', color: '#fb923c' },
-    { level: 8, emoji: '🦝', name: '너구리', color: '#a78bfa' },
-    { level: 9, emoji: '🐼', name: '팬더', color: '#1e293b' },
-    { level: 10, emoji: '🐻', name: '곰돌이', color: '#92400e' },
-    { level: 11, emoji: '🐻‍❄️', name: '북극곰', color: '#e0f2fe' },
+    { level: 1, emoji: '🐶', img: 'images/dogs/dog1.png', name: '아기 강아지', color: '#fecdd3' },
+    { level: 2, emoji: '🐕', img: 'images/dogs/dog2.png', name: '치와와', color: '#fcd34d' },
+    { level: 3, emoji: '🐩', img: 'images/dogs/dog3.png', name: '포메라니안', color: '#e9d5ff' },
+    { level: 4, emoji: '🦮', img: 'images/dogs/dog4.png', name: '코기', color: '#86efac' },
+    { level: 5, emoji: '🐕‍🦺', img: 'images/dogs/dog5.png', name: '비글', color: '#38bdf8' },
+    { level: 6, emoji: '🐺', img: 'images/dogs/dog6.png', name: '시바견', color: '#d4a030' },
+    { level: 7, emoji: '🦊', img: 'images/dogs/dog7.png', name: '허스키', color: '#94a3b8' },
+    { level: 8, emoji: '🦝', img: 'images/dogs/dog8.png', name: '셰퍼드', color: '#a78bfa' },
+    { level: 9, emoji: '🐺', img: 'images/dogs/dog9.png', name: '늑대', color: '#64748b' },
+    { level: 10, emoji: '🐻', img: 'images/dogs/dog10.png', name: '곰', color: '#92400e' },
+    { level: 11, emoji: '🐻‍❄️', img: 'images/dogs/dog11.png', name: '북극곰', color: '#e0f2fe' },
 ];
 
 const BIRDS = [
