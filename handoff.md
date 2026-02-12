@@ -674,6 +674,12 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 신규 HTML: `#ad-popup` (광고 확인 팝업)
 - 신규 CSS: `.piggy-bank-item`, `.ad-btn`
 - 데이터 구조: boardState 아이템에 `{type:'piggy_bank', coins, openAt}` 추가 (기존 데이터 호환)
+- 🐛 **7행 미션 재잠금 버그 수정**
+  - 사자(cat Lv.11)/북극곰(dog Lv.11) 미션 완료 후 동물을 퀘스트 제출 → 재접속 시 칸이 다시 잠기는 버그
+  - 원인: `migrateRow7Missions()`에서 `null`(완료)을 "미션 미생성"으로 오판 → 미션 재생성
+  - 수정: `null`인 칸은 건드리지 않음, 다른 아이템 점유 시에만 마이그레이션
+- 🐛 **과열/저금통 타이머 실시간 미갱신 수정**
+  - `startCooldownTimer()`에서 과열 중 생성기/미개봉 저금통 있을 때 매초 renderGrid 호출
 
 ### v4.19.1 (2026-02-11)
 - 💰 **경제 긴축 패치** - 재화 과잉 해소
