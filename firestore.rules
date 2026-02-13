@@ -29,8 +29,11 @@ service cloud.firestore {
       // 읽기: 본인만 가능
       allow read: if isOwner(userId);
 
-      // 쓰기: 본인만 + 데이터 검증
-      allow write: if isOwner(userId) && isValidSaveData(request.resource.data);
+      // 생성/수정: 본인만 + 데이터 검증
+      allow create, update: if isOwner(userId) && isValidSaveData(request.resource.data);
+
+      // 삭제: 본인만 (회원탈퇴용)
+      allow delete: if isOwner(userId);
 
       // 저장 데이터 검증 함수
       function isValidSaveData(data) {
@@ -74,8 +77,11 @@ service cloud.firestore {
       // 읽기: 본인만 가능
       allow read: if isOwner(userId);
 
-      // 쓰기: 본인만 + 데이터 검증
-      allow write: if isOwner(userId) && isValidSessionData(request.resource.data);
+      // 생성/수정: 본인만 + 데이터 검증
+      allow create, update: if isOwner(userId) && isValidSessionData(request.resource.data);
+
+      // 삭제: 본인만 (회원탈퇴용)
+      allow delete: if isOwner(userId);
 
       // 세션 데이터 검증 함수
       function isValidSessionData(data) {
@@ -150,6 +156,8 @@ service cloud.firestore {
         && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.ownerName is string
         && request.resource.data.createdAt is number;
+      // 삭제: 본인 코드만 (회원탈퇴용)
+      allow delete: if isAuthenticated() && resource.data.ownerUid == request.auth.uid;
     }
 
     // ========================================
