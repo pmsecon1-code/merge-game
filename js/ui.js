@@ -223,9 +223,6 @@ function updateQuestUI(scrollToFront = false) {
         questContainer.appendChild(d);
     });
     questContainer.scrollLeft = savedScroll;
-    if (scrollToFront && questContainer.firstChild) {
-        questContainer.firstChild.scrollIntoView({ inline: 'start', block: 'nearest' });
-    }
 }
 
 // --- 이펙트 ---
