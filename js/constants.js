@@ -40,6 +40,13 @@ const ICON = {
     trash: '<img src="images/icons/trash.png" class="icon icon-sm">',
 };
 
+// --- 유저 이름 ---
+const MAX_NAME_LENGTH = 6;
+function getDisplayName(user) {
+    const raw = user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || '유저';
+    return raw.length > MAX_NAME_LENGTH ? raw.slice(0, MAX_NAME_LENGTH) : raw;
+}
+
 // --- 그리드 설정 ---
 const GRID_COLS = 5;
 const GRID_ROWS = 7;

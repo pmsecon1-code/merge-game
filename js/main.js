@@ -229,7 +229,7 @@ auth.onAuthStateChanged(async (user) => {
             } else {
                 checkDailyBonus();
                 initRace();
-                showToast(`환영합니다, ${user.displayName}!`);
+                showToast(`환영합니다, ${getDisplayName(user)}!`);
             }
         } catch (e) {
             console.error('[Auth] Login process error:', e);

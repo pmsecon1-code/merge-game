@@ -90,6 +90,8 @@ export default [
                 getItemList: 'readonly',
                 getGeneratorName: 'readonly',
                 getSpecialTypeName: 'readonly',
+                MAX_NAME_LENGTH: 'readonly',
+                getDisplayName: 'readonly',
                 getKSTDateString: 'readonly',
                 getMsUntilKSTMidnight: 'readonly',
                 formatMinSec: 'readonly',

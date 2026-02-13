@@ -49,7 +49,7 @@ async function getOrCreateMyCode() {
     try {
         await db.collection('raceCodes').doc(myRaceCode).set({
             ownerUid: currentUser.uid,
-            ownerName: currentUser.displayName?.split(' ')[0] || '유저',
+            ownerName: getDisplayName(currentUser),
             createdAt: Date.now(),
         });
         saveGame();
@@ -139,7 +139,7 @@ async function joinRaceByCode(code) {
         const now = Date.now();
         await raceRef.set({
             player1Uid: currentUser.uid, // 코드 입력한 사람 (초대자)
-            player1Name: currentUser.displayName?.split(' ')[0] || '유저',
+            player1Name: getDisplayName(currentUser),
             player2Uid: codeData.ownerUid, // 코드 주인 (초대받는 사람)
             player2Name: codeData.ownerName,
             status: 'pending',
