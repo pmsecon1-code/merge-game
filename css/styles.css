@@ -706,18 +706,7 @@ body {
 }
 
 .cage-generator::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 2;
-    background: repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 10px,
-        rgba(100, 116, 139, 0.6) 10px,
-        rgba(100, 116, 139, 0.6) 13px
-    );
+    display: none;
 }
 
 .cage-label {
@@ -733,7 +722,6 @@ body {
 
 .animal-inside {
     z-index: 1;
-    filter: grayscale(0.2);
 }
 
 .help-btn {
