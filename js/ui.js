@@ -104,18 +104,9 @@ function createItem(item, zone, index) {
     }
     const d = document.createElement('div');
     d.className = 'item';
-    let list,
-        isSnack = item.type.includes('snack'),
+    const isSnack = item.type.includes('snack'),
         isToy = item.type.includes('toy');
-    if (item.type === 'cat') list = CATS;
-    else if (item.type === 'dog') list = DOGS;
-    else if (item.type === 'cat_snack') list = CAT_SNACKS;
-    else if (item.type === 'dog_snack') list = DOG_SNACKS;
-    else if (item.type === 'cat_toy') list = CAT_TOYS;
-    else if (item.type === 'dog_toy') list = DOG_TOYS;
-    else if (item.type === 'bird') list = BIRDS;
-    else if (item.type === 'fish') list = FISH;
-    else if (item.type === 'reptile') list = REPTILES;
+    const list = getItemList(item.type);
     const data = list[item.level - 1] || list[list.length - 1];
     const itemKey = `${item.type}_${item.level}`;
     const discoveredAt = newlyDiscoveredItems.get(itemKey);
@@ -211,14 +202,7 @@ function updateQuestUI(scrollToFront = false) {
         if (ok) d.classList.add('ready');
         let h = `<div class="quest-top"><div class="quest-npc">${q.npc}</div><div class="quest-reqs">`;
         q.reqs.forEach((r) => {
-            let l;
-            if (r.type === 'cat') l = CATS;
-            else if (r.type === 'dog') l = DOGS;
-            else if (r.type === 'bird') l = BIRDS;
-            else if (r.type === 'fish') l = FISH;
-            else if (r.type === 'reptile') l = REPTILES;
-            else if (r.type.includes('snack')) l = r.type.includes('cat') ? CAT_SNACKS : DOG_SNACKS;
-            else if (r.type.includes('toy')) l = r.type.includes('cat') ? CAT_TOYS : DOG_TOYS;
+            const l = getItemList(r.type);
             const reqData = l[r.level - 1];
             const reqVisual = reqData.img
                 ? `<img src="${reqData.img}" style="width:22px;height:22px;object-fit:contain;vertical-align:middle">`
@@ -336,11 +320,15 @@ let _milestoneTimer = null;
 function showMilestonePopup(t, r) {
     document.getElementById('milestone-text').innerHTML = t;
     document.getElementById('milestone-reward').innerHTML = r;
-    document.getElementById('milestone-overlay').style.display = 'flex';
+    openOverlay('milestone-overlay');
     if (_milestoneTimer) clearTimeout(_milestoneTimer);
     _milestoneTimer = setTimeout(() => {
-        document.getElementById('milestone-overlay').style.display = 'none';
+        closeOverlay('milestone-overlay');
     }, MILESTONE_POPUP_MS);
+}
+
+function openOverlay(id) {
+    document.getElementById(id).style.display = 'flex';
 }
 
 function closeOverlay(id) {
@@ -359,7 +347,7 @@ function openSettings() {
         musicBtn.textContent = musicEnabled ? 'ON' : 'OFF';
         musicBtn.classList.toggle('active', musicEnabled);
     }
-    document.getElementById('settings-popup').style.display = 'flex';
+    openOverlay('settings-popup');
 }
 
 function closeSettings() {
@@ -512,22 +500,15 @@ function renderGuideList(tab) {
     let list = [];
 
     if (tab === 'animal') {
-        if (currentGuideType === 'cat') list = CATS;
-        else if (currentGuideType === 'dog') list = DOGS;
-        else if (currentGuideType === 'bird') list = BIRDS;
-        else if (currentGuideType === 'fish') list = FISH;
-        else if (currentGuideType === 'reptile') list = REPTILES;
+        list = getItemList(currentGuideType);
     } else if (tab === 'snack') {
-        if (currentGuideType === 'cat' || currentGuideType === 'dog') {
-            list = currentGuideType === 'cat' ? CAT_SNACKS : DOG_SNACKS;
-        } else {
+        list = getItemList(currentGuideType + '_snack');
+        if (!list) {
             container.innerHTML = '<div class="text-center text-gray-400 py-8">이 동물은 간식이 없어요</div>';
             return;
         }
-    } else if (tab === 'cat_toy') {
-        list = CAT_TOYS;
-    } else if (tab === 'dog_toy') {
-        list = DOG_TOYS;
+    } else if (tab === 'cat_toy' || tab === 'dog_toy') {
+        list = getItemList(tab);
     }
 
     let html = '<div class="guide-list">';

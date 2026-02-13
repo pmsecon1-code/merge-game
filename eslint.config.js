@@ -245,6 +245,7 @@ export default [
                 updateDiceTripUI: 'readonly',
                 renderDiceTripBoard: 'readonly',
                 // album.js globals
+                getThemeCollectedCount: 'readonly',
                 getRandomPhoto: 'readonly',
                 processDrawResult: 'readonly',
                 drawPhotos: 'readonly',
@@ -336,6 +337,7 @@ export default [
                 showToast: 'readonly',
                 showError: 'readonly',
                 showMilestonePopup: 'readonly',
+                openOverlay: 'readonly',
                 closeOverlay: 'readonly',
                 formatTime: 'readonly',
                 updateEnergyPopupTimer: 'readonly',

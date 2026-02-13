@@ -195,9 +195,9 @@ function tryDropDice() {
         const countEl = document.getElementById('dice-drop-count');
         if (countEl) countEl.textContent = `보유: ${diceCount}개`;
         if (popup) {
-            popup.style.display = 'flex';
+            openOverlay('dice-drop-popup');
             setTimeout(() => {
-                popup.style.display = 'none';
+                closeOverlay('dice-drop-popup');
             }, DICE_DROP_POPUP_MS);
         }
         updateDiceTripUI();
@@ -228,7 +228,7 @@ function rollDice() {
     const confirmBtn = document.getElementById('dice-confirm-btn');
 
     // 초기화
-    popup.style.display = 'flex';
+    openOverlay('dice-roll-popup');
     diceAnim.classList.add('rolling');
     resultNum.classList.add('slot');
     resultNum.textContent = '?';
@@ -433,15 +433,8 @@ function askSellItem(z, i, e) {
 
     sellTarget = { zone: z, index: i, item: it };
     const p = it.level;
-    let list;
-    if (it.type.includes('cat'))
-        list = it.type.includes('snack') ? CAT_SNACKS : it.type.includes('toy') ? CAT_TOYS : CATS;
-    else if (it.type.includes('dog'))
-        list = it.type.includes('snack') ? DOG_SNACKS : it.type.includes('toy') ? DOG_TOYS : DOGS;
-    else if (it.type.includes('bird')) list = BIRDS;
-    else if (it.type.includes('fish')) list = FISH;
-    else list = REPTILES;
+    const list = getItemList(it.type);
     const n = (list[it.level - 1] || list[list.length - 1]).name;
     document.getElementById('sell-desc').innerHTML = `${n} (Lv.${it.level}) : ${p}${ICON.coin}`;
-    document.getElementById('sell-popup').style.display = 'flex';
+    openOverlay('sell-popup');
 }

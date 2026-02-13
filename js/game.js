@@ -189,10 +189,10 @@ function completeQuest(i) {
         diamonds += reward;
         document.getElementById('levelup-num').innerText = userLevel;
         document.getElementById('levelup-reward').innerText = reward;
-        document.getElementById('levelup-overlay').style.display = 'flex';
+        openOverlay('levelup-overlay');
         playSound('levelup');
         setTimeout(() => {
-            document.getElementById('levelup-overlay').style.display = 'none';
+            closeOverlay('levelup-overlay');
         }, 2000);
         checkToyGeneratorUnlock();
         // 레벨업 후 스페셜 퀘스트 추가 체크
@@ -515,7 +515,7 @@ function openEnergyPopup() {
     document.getElementById('energy-price').innerText = price;
     updateEnergyPopupTimer();
     document.getElementById('energy-err').classList.add('hidden');
-    document.getElementById('energy-popup').style.display = 'flex';
+    openOverlay('energy-popup');
     if (energyPopupTimer) clearInterval(energyPopupTimer);
     energyPopupTimer = setInterval(updateEnergyPopupTimer, 1000);
 }
@@ -726,7 +726,7 @@ function openAdPopup(zone, idx) {
             : isStorage
                 ? '광고를 시청하면<br>창고 칸을 열 수 있습니다!'
                 : '광고를 시청하면 저금통을<br>즉시 열고 <b class="text-yellow-600">보상 2배</b>!';
-    document.getElementById('ad-popup').style.display = 'flex';
+    openOverlay('ad-popup');
 }
 
 function confirmAd() {

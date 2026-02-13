@@ -692,7 +692,7 @@ function openRaceJoinPopup() {
         }
     }
 
-    popup.style.display = 'flex';
+    openOverlay('race-join-popup');
 }
 
 // --- 퀵 조인 (최근 상대) ---
@@ -848,7 +848,7 @@ function showRaceInvitePopup(raceId, data) {
     if (!popup || !fromName) return;
 
     fromName.textContent = data.player1Name || '???';
-    popup.style.display = 'flex';
+    openOverlay('race-invite-popup');
 
     // 초대 타이머 시작
     startInviteTimer(data.inviteExpiresAt);

@@ -2,6 +2,11 @@
 // album.js - 앨범 (사진 수집) 시스템
 // ============================================
 
+function getThemeCollectedCount(themeIdx) {
+    const theme = ALBUM_THEMES[themeIdx];
+    return theme.photos.filter((p) => album.includes(`${theme.id}_${p.id}`)).length;
+}
+
 // --- 사진 뽑기 ---
 function getRandomPhoto() {
     const roll = Math.random();
@@ -61,7 +66,7 @@ function drawPhotos() {
         .join('');
 
     playSound('album_draw');
-    document.getElementById('photo-draw-overlay').style.display = 'flex';
+    openOverlay('photo-draw-overlay');
     setTimeout(() => closePhotoDraw(), DICE_RESULT_POPUP_MS);
     updateAlbumBarUI();
 
@@ -111,8 +116,8 @@ function closeAlbum() {
 
 function renderAlbumTabs() {
     const tabsEl = document.getElementById('album-tabs');
-    tabsEl.innerHTML = ALBUM_THEMES.map((t) => {
-        const collected = t.photos.filter((p) => album.includes(`${t.id}_${p.id}`)).length;
+    tabsEl.innerHTML = ALBUM_THEMES.map((t, ti) => {
+        const collected = getThemeCollectedCount(ti);
         const isComplete = collected === t.photos.length;
         const isActive = t.id === currentAlbumTheme;
         return `<div class="album-tab ${isActive ? 'active' : ''} ${isComplete ? 'complete' : ''}"
@@ -130,7 +135,7 @@ function renderAlbumGrid(idx) {
     const theme = ALBUM_THEMES[idx];
     const gridEl = document.getElementById('album-grid');
     const rewardEl = document.getElementById('album-theme-reward');
-    const collected = theme.photos.filter((p) => album.includes(`${theme.id}_${p.id}`)).length;
+    const collected = getThemeCollectedCount(idx);
     const isComplete = collected === theme.photos.length;
 
     let html = '<div class="grid grid-cols-3 gap-2">';
@@ -156,7 +161,7 @@ function renderAlbumGrid(idx) {
 
 function checkThemeComplete(themeIdx) {
     const theme = ALBUM_THEMES[themeIdx];
-    const collected = theme.photos.filter((p) => album.includes(`${theme.id}_${p.id}`)).length;
+    const collected = getThemeCollectedCount(themeIdx);
     if (collected === theme.photos.length) {
         const rewardKey = `album_complete_${themeIdx}`;
         if (!album.includes(rewardKey)) {
@@ -186,8 +191,8 @@ function checkAlbumAllComplete() {
 
 function getAlbumProgress() {
     let total = 0;
-    for (const theme of ALBUM_THEMES) {
-        total += theme.photos.filter((p) => album.includes(`${theme.id}_${p.id}`)).length;
+    for (let i = 0; i < ALBUM_THEMES.length; i++) {
+        total += getThemeCollectedCount(i);
     }
     return total;
 }
@@ -224,7 +229,7 @@ function updateAlbumBarUI() {
         const icons = ['🐱','🐶','🐦','🐟','🦎','🍰','🧸','🚑','🌟'];
         let html = '';
         ALBUM_THEMES.forEach((theme, i) => {
-            const collected = theme.photos.filter(p => album.includes(`${theme.id}_${p.id}`)).length;
+            const collected = getThemeCollectedCount(i);
             const total = theme.photos.length;
             const complete = collected === total;
             html += `<div class="album-theme-chip${complete ? ' complete' : ''}" onclick="openAlbum();switchAlbumTheme(${i})">
