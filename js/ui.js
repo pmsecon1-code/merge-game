@@ -127,13 +127,13 @@ function createItem(item, zone, index) {
 }
 
 // --- UI 업데이트 ---
-function updateAll() {
+function updateAll(opts) {
     renderGrid('board', boardState, boardEl);
     renderGrid('storage', storageState, storageEl);
     renderShop();
     updateUI();
     updateTimerUI();
-    updateQuestUI();
+    updateQuestUI(opts && opts.scrollQuestToFront);
     trySpawnSpecialGenerator();
     updateDailyMissionUI();
     updateAlbumBarUI();

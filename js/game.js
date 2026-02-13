@@ -210,8 +210,7 @@ function completeQuest(i) {
     }
 
     updateRaceProgress();
-    updateAll();
-    updateQuestUI(true);
+    updateAll({ scrollQuestToFront: true });
     // 튜토리얼 Step 4 퀘스트 완료 훅
     if (tutorialStep === 4) {
         setTimeout(() => advanceTutorial(), 200);
