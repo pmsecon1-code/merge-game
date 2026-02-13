@@ -302,26 +302,6 @@ function closeDiceRollPopup() {
     document.getElementById('dice-roll-popup').style.display = 'none';
 }
 
-function moveTripPosition(steps) {
-    const newPos = Math.min(diceTripPosition + steps, DICE_TRIP_SIZE - 1);
-    diceTripPosition = newPos;
-
-    // 완주 체크 (마지막 칸 도착 시 완주)
-    if (diceTripPosition >= DICE_TRIP_SIZE - 1) {
-        completeTrip();
-    } else {
-        // 착지 칸에서만 보상 (완주 아닐 때)
-        if (!visitedSteps.includes(diceTripPosition)) {
-            visitedSteps.push(diceTripPosition);
-        }
-        giveStepReward(diceTripPosition);
-    }
-}
-
-function giveStepReward(pos) {
-    giveStepRewardWithInfo(pos);
-}
-
 function giveStepRewardWithInfo(pos) {
     const reward = DICE_TRIP_REWARDS[pos];
     if (!reward) return null;

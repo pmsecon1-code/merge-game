@@ -15,8 +15,6 @@ function init() {
     questContainer = document.getElementById('quest-container');
     dailyMissionsContainer = document.getElementById('daily-missions-container');
     dailyResetTimer = document.getElementById('daily-reset-timer');
-    shopTimerBadge = document.getElementById('shop-timer-badge');
-    tutorialPointer = document.getElementById('tutorial-pointer');
     diceTripContainer = document.getElementById('dice-trip-wrapper');
     diceTripBoard = document.getElementById('dice-trip-board');
 

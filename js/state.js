@@ -25,9 +25,7 @@ let visitedSteps = [0];      // 밟았던 칸 인덱스 (시작 칸 포함)
 let userLevel = 1,
     questProgress = 0,
     quests = [],
-    questIdCounter = 0,
-    questPage = 0,
-    prevReadyCount = 0;
+    questIdCounter = 0;
 let totalQuestsCompleted = 0;
 
 // --- 생성기/드래그 ---
@@ -110,17 +108,13 @@ let currentBottomTab = null; // null | 'race' | 'album' | 'dice' | 'shop' | 'sto
 
 // --- 사운드 ---
 let audioContext = null;
-let bgmAudio = null;
 let soundEnabled = true;
 let musicEnabled = true;
 let audioUnlocked = false;
-let soundBuffers = {};
 
 // --- DOM 참조 (init에서 할당) ---
 let boardEl, storageEl, shopGrid;
 let coinEl, diamondEl, energyEl, energyTimerEl;
 let levelEl, questContainer;
 let dailyMissionsContainer, dailyResetTimer;
-let shopTimerBadge;
-let tutorialPointer;
 let diceTripContainer, diceTripBoard;

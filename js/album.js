@@ -194,15 +194,6 @@ function getAlbumProgress() {
     return total;
 }
 
-function getCompletedThemes() {
-    let count = 0;
-    for (const theme of ALBUM_THEMES) {
-        const collected = theme.photos.filter((p) => album.includes(`${theme.id}_${p.id}`)).length;
-        if (collected === theme.photos.length) count++;
-    }
-    return count;
-}
-
 function formatAlbumTimer() {
     const remaining = albumResetTime - Date.now();
     if (remaining <= 0) return '초기화!';

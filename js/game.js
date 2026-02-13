@@ -98,12 +98,6 @@ function trySpawnSpecialGenerator() {
     }
 }
 
-function scrollQuests(dir) {
-    const maxPage = Math.ceil(quests.length / 3) - 1;
-    questPage = Math.max(0, Math.min(maxPage, questPage + dir));
-    updateQuestUI();
-}
-
 function completeQuest(i) {
     const q = quests[i];
 
@@ -217,7 +211,6 @@ function completeQuest(i) {
         generateNewQuest();
     }
 
-    questPage = 0;
     updateRaceProgress();
     updateAll();
     updateQuestUI(true);

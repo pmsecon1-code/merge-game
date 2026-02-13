@@ -10,7 +10,6 @@ function initSound() {
     } catch (e) {
         console.warn('[Sound] Web Audio API not supported:', e);
     }
-    preloadAllSounds();
     updateSoundUI();
 }
 
@@ -309,9 +308,6 @@ function createSynthSound(id) {
         }
     }
 }
-
-// --- 프리로드 (전부 합성음이므로 빈 함수) ---
-function preloadAllSounds() {}
 
 // --- 통합 재생 API ---
 function playSound(id) {
