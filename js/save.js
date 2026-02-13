@@ -288,8 +288,8 @@ function migrateRow7Missions() {
     } else if (boardState[33]?.type === 'animal_mission') {
         boardState[33] = null;
     }
-    if (totalQuestsCompleted < 100 && boardState[34] !== null && boardState[34]?.type !== 'quest_count_mission') {
-        boardState[34] = { type: 'quest_count_mission', reqCount: 100 };
+    if (totalQuestsCompleted < QUEST_COUNT_MISSION_GOAL && boardState[34] !== null && boardState[34]?.type !== 'quest_count_mission') {
+        boardState[34] = { type: 'quest_count_mission', reqCount: QUEST_COUNT_MISSION_GOAL };
     }
 }
 
@@ -307,7 +307,7 @@ function saveGame() {
                 saveToCloud(pendingCloudData);
                 pendingCloudData = null;
             }
-        }, 500);
+        }, CLOUD_SAVE_DEBOUNCE_MS);
     }
 }
 

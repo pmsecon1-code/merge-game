@@ -28,7 +28,7 @@ function countEasyQuests() {
 function generateNewQuest(forceEasy = false) {
     const needEasy = forceEasy || countEasyQuests() < 2;
     const npc = NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)];
-    const twoItemChance = Math.min(0.3 + userLevel * 0.05, 0.8);
+    const twoItemChance = Math.min(QUEST_MULTI_BASE_CHANCE + userLevel * QUEST_MULTI_LEVEL_FACTOR, QUEST_MULTI_MAX_CHANCE);
     const cnt = Math.random() < twoItemChance ? 2 : 1;
     const minLv = needEasy ? 4 : Math.min(Math.max(3, Math.floor(userLevel / 2) + 1), 7);
     const maxLvAnimal = needEasy ? 5 : Math.min(minLv + 3 + Math.floor(userLevel / 4), 11);
@@ -38,7 +38,7 @@ function generateNewQuest(forceEasy = false) {
     for (let i = 0; i < cnt; i++) {
         const rand = Math.random();
         const hasToyGen = userLevel >= 5;
-        const isSnack = rand < 0.3;
+        const isSnack = rand < QUEST_SNACK_CHANCE;
         const isToy = !isSnack && hasToyGen && rand < 0.5;
         const base = Math.random() > 0.5 ? 'cat' : 'dog';
         const type = isSnack ? base + '_snack' : isToy ? base + '_toy' : base;
@@ -48,7 +48,7 @@ function generateNewQuest(forceEasy = false) {
         reqs.push({ type, level: lv });
         sc += lv * (isSnack || isToy ? 7 : 5);
     }
-    const isPiggyQuest = needEasy && Math.random() < 0.2;
+    const isPiggyQuest = needEasy && Math.random() < QUEST_PIGGY_CHANCE;
     const isCardQuest = !isPiggyQuest && userLevel >= 3 && Math.random() < ALBUM_CARD_CHANCE;
     const cardReward = isCardQuest
         ? ALBUM_CARD_MIN + Math.floor(Math.random() * (ALBUM_CARD_MAX - ALBUM_CARD_MIN + 1))
@@ -60,7 +60,7 @@ function generateNewQuest(forceEasy = false) {
         reward: 10 + sc + Math.floor(Math.random() * 5),
         cardReward,
         piggyReward: isPiggyQuest,
-        expiresAt: Date.now() + 10 * 60 * 1000,
+        expiresAt: Date.now() + QUEST_EXPIRE_MS,
     };
     // 스페셜 퀘스트가 있으면 그 앞에 삽입
     const spIdx = quests.findIndex((q) => q.isSpecial);
@@ -82,7 +82,7 @@ function generateSpecialQuest() {
         id: questIdCounter++,
         npc: npcs[idx],
         reqs: [{ type: types[idx], level: 7 }],
-        reward: 300,
+        reward: SPECIAL_QUEST_REWARD,
         cardReward: 0,
         expiresAt: null,
         isSpecial: true,
@@ -268,10 +268,10 @@ function spawnItem(baseType, inputLevel = 1, isFree = false) {
     if (inputLevel === 1 && (baseType === 'cat' || baseType === 'dog') && tutorialStep <= 0) {
         const rand = Math.random(),
             gl = genLevels[baseType];
-        const luckChance = 0.05 + (gl - 1) * 0.01;
+        const luckChance = LUCKY_BASE_CHANCE + (gl - 1) * LUCKY_LEVEL_BONUS;
         if (rand < luckChance) {
             const luckyLv = gl >= 3 ? 4 : gl + 1;
-            const isSnack = Math.random() < 0.5;
+            const isSnack = Math.random() < LUCKY_SNACK_CHANCE;
             if (isSnack) {
                 finalType += '_snack';
                 finalLevel = Math.min(luckyLv, 3);
