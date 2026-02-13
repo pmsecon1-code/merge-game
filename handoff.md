@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.25.3)
+# 멍냥 머지 게임 - Architecture (v4.25.4)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.25.3
+- **버전**: 4.25.4
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -676,8 +676,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### systems.js (19개)
 `hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`
 
-### ui.js (32개)
-`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `showError`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`, `toggleBottomTab`, `updateBottomBadges`
+### ui.js (33개)
+`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `showError`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuideForItem`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`, `toggleBottomTab`, `updateBottomBadges`
 
 ### race.js (30개)
 `generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `findActiveOrPendingRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `quickJoinRace`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
@@ -752,6 +752,17 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.25.4 (2026-02-13) - 퀘스트 아이템 도감 연동
+- 🆕 **퀘스트 아이템 클릭 → 도감 열기 + 하이라이트**
+  - `openGuideForItem(type, level)` 함수 추가 (ui.js)
+  - 아이템 타입별 도감 탭 자동 선택: 동물→animal, 간식→snack, 장난감→cat_toy/dog_toy
+  - 해당 레벨 아이템에 금색 테두리 하이라이트 (`guide-highlight`) + scrollIntoView
+  - 도감 닫을 때 하이라이트 자동 제거 (`closeModal`)
+- 수정 파일: js/ui.js, css/styles.css, eslint.config.js
+- 신규 함수: `openGuideForItem()` (ui.js)
+- 신규 CSS: `.guide-item.guide-highlight` (금색 테두리 + 연한 노랑 배경)
+- 수정 함수: `updateQuestUI()` (req-item onclick 추가), `closeModal()` (하이라이트 제거)
 
 ### v4.25.3 (2026-02-13) - 스크롤/클릭 버그 수정
 - 🐛 **퀘스트 완료 시 스크롤 맨 앞 이동 — Chrome scroll anchoring 근본 수정**
