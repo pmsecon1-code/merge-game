@@ -75,8 +75,7 @@ function drawPhotos() {
 
 function openPhotoDraw() {
     if (cards < ALBUM_CARD_COST) {
-        playSound('error');
-        showToast(`카드가 부족해요! (${cards}/${ALBUM_CARD_COST})`);
+        showError(`카드가 부족해요! (${cards}/${ALBUM_CARD_COST})`);
         return;
     }
     drawPhotos();
@@ -162,8 +161,7 @@ function checkThemeComplete(themeIdx) {
         const rewardKey = `album_complete_${themeIdx}`;
         if (!album.includes(rewardKey)) {
             album.push(rewardKey);
-            coins += ALBUM_COMPLETE_COINS;
-            cumulativeCoins += ALBUM_COMPLETE_COINS;
+            addCoins(ALBUM_COMPLETE_COINS);
             playSound('theme_complete');
             showMilestonePopup(`${theme.icon} ${theme.name} 완성!`, `${ALBUM_COMPLETE_COINS}${ICON.coin}`);
         }

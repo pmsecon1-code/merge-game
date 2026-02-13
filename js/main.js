@@ -247,9 +247,7 @@ auth.onAuthStateChanged(async (user) => {
 document.getElementById('confirm-sell-btn').onclick = () => {
     if (sellTarget) {
         const p = sellTarget.item.level;
-        coins += p;
-        cumulativeCoins += p;
-        addDailyProgress('coins', p);
+        addCoins(p);
         (sellTarget.zone === 'board' ? boardState : storageState)[sellTarget.index] = null;
         playSound('purchase');
         updateAll();

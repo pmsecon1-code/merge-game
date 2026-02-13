@@ -62,10 +62,8 @@ function checkAutoCompleteMissions() {
 function startShopTimer() {
     setInterval(() => {
         if (Date.now() >= shopNextRefresh) refreshShop();
-        const d = shopNextRefresh - Date.now(),
-            m = Math.floor(d / 60000),
-            s = Math.floor((d % 60000) / 1000);
-        const timerText = `${m}:${s.toString().padStart(2, '0')}`;
+        const d = shopNextRefresh - Date.now();
+        const timerText = formatMinSec(d);
         document.getElementById('shop-timer-badge').innerText = `갱신: ${timerText}`;
         document.getElementById('badge-shop-info').innerText = timerText;
     }, 1000);
@@ -137,8 +135,7 @@ function buyShopItem(idx) {
     }
     if (item.type === 'card_pack') {
         if (diamonds < item.price) {
-            playSound('error');
-            showToast('다이아 부족!');
+            showError('다이아 부족!');
             return;
         }
         diamonds -= item.price;
@@ -150,8 +147,7 @@ function buyShopItem(idx) {
     }
     if (item.type === 'diamond_pack') {
         if (coins < item.price) {
-            playSound('error');
-            showToast('코인 부족!');
+            showError('코인 부족!');
             return;
         }
         coins -= item.price;
@@ -163,8 +159,7 @@ function buyShopItem(idx) {
     }
     const p = item.level * 2;
     if (diamonds < p) {
-        playSound('error');
-        showToast('다이아 부족!');
+        showError('다이아 부족!');
         return;
     }
     let tz = 'board',
@@ -177,8 +172,7 @@ function buyShopItem(idx) {
         }
     }
     if (eIdx === -1) {
-        playSound('error');
-        showToast('공간 부족!');
+        showError('공간 부족!');
         return;
     }
     diamonds -= p;
@@ -311,9 +305,7 @@ function giveStepRewardWithInfo(pos) {
 
     switch (reward.type) {
         case 'coins':
-            coins += amount;
-            cumulativeCoins += amount;
-            addDailyProgress('coins', amount);
+            addCoins(amount);
             rewardStr = `${amount}${ICON.coin}`;
             break;
         case 'diamonds':
@@ -335,10 +327,8 @@ function giveStepRewardWithInfo(pos) {
 
 function completeTrip() {
     // 완주 보상
-    coins += DICE_TRIP_COMPLETE_REWARD.coins;
-    cumulativeCoins += DICE_TRIP_COMPLETE_REWARD.coins;
+    addCoins(DICE_TRIP_COMPLETE_REWARD.coins);
     diamonds += DICE_TRIP_COMPLETE_REWARD.diamonds;
-    addDailyProgress('coins', DICE_TRIP_COMPLETE_REWARD.coins);
 
     playSound('milestone');
     showMilestonePopup(`${ICON.party} 주사위 여행 완주!`, `${DICE_TRIP_COMPLETE_REWARD.coins}${ICON.coin} + ${DICE_TRIP_COMPLETE_REWARD.diamonds}${ICON.diamond}`);
@@ -431,15 +421,13 @@ function askSellItem(z, i, e) {
 
     // 생성기는 판매 불가
     if (it.type.includes('generator')) {
-        playSound('error');
-        showToast('생성기는 판매할 수 없어요!');
+        showError('생성기는 판매할 수 없어요!');
         return;
     }
 
     // 저금통은 판매 불가
     if (it.type === 'piggy_bank') {
-        playSound('error');
-        showToast('저금통은 판매할 수 없어요!');
+        showError('저금통은 판매할 수 없어요!');
         return;
     }
 

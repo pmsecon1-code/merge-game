@@ -507,8 +507,7 @@ function showRaceResult(data) {
     else playSound('race_lose');
 
     // 보상 지급
-    coins += reward.coins;
-    cumulativeCoins += reward.coins;
+    addCoins(reward.coins);
     diamonds += reward.diamonds;
 
     // 보상 수령 표시
@@ -634,9 +633,7 @@ function updateRaceUIFromData(data) {
     if (timerEl && data.status === 'active') {
         const expiresAt = data.expiresAt || (data.createdAt + RACE_EXPIRE_MS);
         const remaining = Math.max(0, expiresAt - Date.now());
-        const minutes = Math.floor(remaining / 60000);
-        const seconds = Math.floor((remaining % 60000) / 1000);
-        timerEl.textContent = `⏱️ ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        timerEl.textContent = `⏱️ ${formatMinSec(remaining)}`;
         timerEl.classList.remove('hidden');
     }
 
@@ -875,9 +872,7 @@ function startInviteTimer(expiresAt) {
 
     const updateTimer = () => {
         const remaining = Math.max(0, expiresAt - Date.now());
-        const minutes = Math.floor(remaining / 60000);
-        const seconds = Math.floor((remaining % 60000) / 1000);
-        timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        timerEl.textContent = formatMinSec(remaining);
 
         if (remaining <= 0) {
             stopInviteTimer();
@@ -1043,9 +1038,7 @@ function updatePendingInviteUI(data) {
     // 타이머 업데이트
     if (timerEl && data.inviteExpiresAt) {
         const remaining = Math.max(0, data.inviteExpiresAt - Date.now());
-        const minutes = Math.floor(remaining / 60000);
-        const seconds = Math.floor((remaining % 60000) / 1000);
-        timerEl.textContent = `⏱️ ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        timerEl.textContent = `⏱️ ${formatMinSec(remaining)}`;
     }
 
     // 트랙에 대기 메시지 표시

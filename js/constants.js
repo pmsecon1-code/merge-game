@@ -539,3 +539,12 @@ function getSpecialTypeName(type) {
     };
     return names[type] || type;
 }
+
+/**
+ * 밀리초 → "m:ss" 포맷
+ */
+function formatMinSec(ms) {
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}

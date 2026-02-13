@@ -2,6 +2,13 @@
 // game.js - 코어 게임 메커닉
 // ============================================
 
+// --- 코인 추가 헬퍼 ---
+function addCoins(amount) {
+    coins += amount;
+    cumulativeCoins += amount;
+    addDailyProgress('coins', amount);
+}
+
 // --- 발견 기록 ---
 function discoverItem(type, level) {
     const key = `${type}_${level}`;
@@ -127,9 +134,7 @@ function completeQuest(i) {
             boardState[piggyIdx] = { type: 'piggy_bank', coins: piggyCoins, openAt: Date.now() + PIGGY_BANK_TIMER_MS };
             showToast(`${ICON.piggy} 저금통 획득!`);
         } else {
-            coins += piggyCoins;
-            cumulativeCoins += piggyCoins;
-            addDailyProgress('coins', piggyCoins);
+            addCoins(piggyCoins);
             showToast(`보드 가득! +${piggyCoins}${ICON.coin}`);
         }
         playSound('quest_complete');
@@ -158,18 +163,14 @@ function completeQuest(i) {
                 boardState[piggyIdx] = { type: 'piggy_bank', coins: piggyCoins, openAt: Date.now() + PIGGY_BANK_TIMER_MS };
                 showToast(`완료! ${ICON.piggy} 저금통 획득!`);
             } else {
-                coins += piggyCoins;
-                cumulativeCoins += piggyCoins;
-                addDailyProgress('coins', piggyCoins);
+                addCoins(piggyCoins);
                 showToast(`보드 가득! +${piggyCoins}${ICON.coin}`);
             }
         } else if (q.cardReward > 0) {
             cards += q.cardReward;
             showToast(`완료! +${q.cardReward}${ICON.card}`);
         } else {
-            coins += q.reward;
-            cumulativeCoins += q.reward;
-            addDailyProgress('coins', q.reward);
+            addCoins(q.reward);
             showToast(`완료! +${q.reward}${ICON.coin}`);
         }
         playSound('quest_complete');
@@ -236,10 +237,7 @@ function checkExpiredQuests() {
 
 function formatQuestTimer(ms) {
     if (ms <= 0) return '0:00';
-    const sec = Math.floor(ms / 1000);
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
+    return formatMinSec(ms);
 }
 
 // --- 아이템 생성 ---
@@ -250,8 +248,7 @@ function spawnItem(baseType, inputLevel = 1, isFree = false) {
         if (v === null) empties.push(i);
     });
     if (empties.length === 0) {
-        playSound('error');
-        showToast('공간 부족!');
+        showError('공간 부족!');
         return;
     }
     // 에너지 소비
@@ -325,8 +322,7 @@ function spawnToy() {
         if (v === null) empties.push(i);
     });
     if (empties.length === 0) {
-        playSound('error');
-        showToast('공간 부족!');
+        showError('공간 부족!');
         return;
     }
     // 에너지 소비
@@ -382,7 +378,7 @@ function handleCellClick(zone, idx) {
             playSound('purchase');
             showToast('해제!');
             updateAll();
-        } else { playSound('error'); showToast('코인 부족!'); }
+        } else { showError('코인 부족!'); }
     } else if (it.type === 'locked_storage') {
         openAdPopup('storage', idx);
     } else if (it.type === 'upgrade_mission') {
@@ -422,9 +418,7 @@ function handleCellClick(zone, idx) {
         }
     } else if (it.type === 'piggy_bank') {
         if (Date.now() >= it.openAt) {
-            coins += it.coins;
-            cumulativeCoins += it.coins;
-            addDailyProgress('coins', it.coins);
+            addCoins(it.coins);
             s[idx] = null;
             playSound('piggy_open');
             showMilestonePopup(`${ICON.piggy} 저금통 개봉!`, `+${it.coins}${ICON.coin}`);
@@ -433,8 +427,7 @@ function handleCellClick(zone, idx) {
             const rem = it.openAt - Date.now();
             const m = Math.floor(rem / 60000);
             const sec = Math.floor((rem % 60000) / 1000);
-            playSound('error');
-            showToast(`${ICON.lock} ${m}분 ${sec}초 후 개봉 가능`);
+            showError(`${ICON.lock} ${m}분 ${sec}초 후 개봉 가능`);
         }
     } else if (it.type.includes('generator')) triggerGen(idx, it);
 }
@@ -450,8 +443,7 @@ function triggerGen(idx, item) {
     const baseType = item.type.replace('_generator', '');
     if (['bird', 'fish', 'reptile'].includes(baseType)) {
         if (item.cooldown > Date.now()) {
-            playSound('error');
-            showToast('과열!');
+            showError('과열!');
             return;
         }
         if (energy <= 0) {
@@ -467,8 +459,7 @@ function triggerGen(idx, item) {
         spawnItem(baseType, 1, false);
     } else if (baseType === 'toy') {
         if (item.cooldown > Date.now()) {
-            playSound('error');
-            showToast('과열!');
+            showError('과열!');
             return;
         }
         if (energy <= 0) {
@@ -759,7 +750,7 @@ function confirmAd() {
             const si = storageState.findIndex((v) => v === null);
             if (si !== -1) { tz = 'storage'; eIdx = si; }
         }
-        if (eIdx === -1) { playSound('error'); showToast('공간 부족!'); return; }
+        if (eIdx === -1) { showError('공간 부족!'); return; }
         (tz === 'board' ? boardState : storageState)[eIdx] = { type: item.type, level: item.level };
         discoverItem(item.type, item.level);
         shopItems[idx] = null;
@@ -777,9 +768,7 @@ function confirmAd() {
         const it = s[idx];
         if (!it || it.type !== 'piggy_bank') return;
         const reward = it.coins * 2;
-        coins += reward;
-        cumulativeCoins += reward;
-        addDailyProgress('coins', reward);
+        addCoins(reward);
         s[idx] = null;
         playSound('purchase');
         showMilestonePopup(`${ICON.piggy} 저금통 개봉! (×2)`, `+${reward}${ICON.coin}`);
@@ -817,8 +806,7 @@ function checkDailyBonus() {
     let rewardText = '';
 
     if (reward.coins) {
-        coins += reward.coins;
-        cumulativeCoins += reward.coins;
+        addCoins(reward.coins);
         rewardText = `${reward.coins}${ICON.coin}`;
     }
     if (reward.diamonds) {

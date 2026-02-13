@@ -79,6 +79,7 @@ export default [
                 getSpecialTypeName: 'readonly',
                 getKSTDateString: 'readonly',
                 getMsUntilKSTMidnight: 'readonly',
+                formatMinSec: 'readonly',
                 // state.js globals (writable - shared state)
                 boardState: 'writable',
                 storageState: 'writable',
@@ -206,6 +207,7 @@ export default [
                 claimDailyBonus: 'readonly',
                 openAdPopup: 'readonly',
                 adEnergy: 'readonly',
+                addCoins: 'readonly',
                 confirmAd: 'readonly',
                 // systems.js globals - 헬퍼 함수
                 hasItemOfType: 'readonly',
@@ -320,6 +322,7 @@ export default [
                 showLuckyEffect: 'readonly',
                 showFloatText: 'readonly',
                 showToast: 'readonly',
+                showError: 'readonly',
                 showMilestonePopup: 'readonly',
                 closeOverlay: 'readonly',
                 formatTime: 'readonly',

@@ -87,9 +87,7 @@ function createItem(item, zone, index) {
         d.className = 'item piggy-bank-item';
         const ready = Date.now() >= item.openAt;
         const rem = Math.max(0, item.openAt - Date.now());
-        const m = Math.floor(rem / 60000);
-        const s = Math.floor((rem % 60000) / 1000);
-        const cooldown = ready ? '' : `<div class="cooldown-overlay"><span>${m}:${s.toString().padStart(2, '0')}</span></div>`;
+        const cooldown = ready ? '' : `<div class="cooldown-overlay"><span>${formatMinSec(rem)}</span></div>`;
         d.innerHTML = `
             <div class="bg-circle" style="background-color:#fbbf24"></div>
             <img src="images/spawners/spawner_piggybank.png" style="width:80%;height:80%;object-fit:contain;position:relative;z-index:1">
@@ -320,6 +318,11 @@ function showFloatText(c, t, col) {
 }
 
 // --- 팝업/토스트 ---
+function showError(msg) {
+    playSound('error');
+    showToast(msg);
+}
+
 let _toastTimer = null;
 function showToast(m) {
     const t = document.getElementById('toast');
@@ -457,7 +460,7 @@ function handleDragEnd(e) {
         const tz = tc.dataset.zone,
             ti = parseInt(tc.dataset.index),
             ts = tz === 'board' ? boardState : storageState;
-        if (ts[ti] && (ts[ti].type.includes('locked') || ts[ti].type.includes('mission'))) { playSound('error'); showToast('잠겨있음!'); }
+        if (ts[ti] && (ts[ti].type.includes('locked') || ts[ti].type.includes('mission'))) { showError('잠겨있음!'); }
         else moveItem(dragData.zone, dragData.index, tz, ti);
     }
     dragData = null;
@@ -569,13 +572,11 @@ function upgradeGenerator() {
     const type = currentGuideType;
     if (type !== 'cat' && type !== 'dog') return;
     if (genLevels[type] >= CAGE_MAX_LEVEL) {
-        playSound('error');
-        showToast('최대 레벨!');
+        showError('최대 레벨!');
         return;
     }
     if (coins < CAGE_UPGRADE_COST) {
-        playSound('error');
-        showToast('코인 부족!');
+        showError('코인 부족!');
         return;
     }
     coins -= CAGE_UPGRADE_COST;
@@ -628,9 +629,7 @@ function updateBottomBadges() {
             if (lastRaceData.status === 'pending' && lastRaceData.inviteExpiresAt) {
                 // 초대 대기 중 → 남은 시간
                 const rem = Math.max(0, lastRaceData.inviteExpiresAt - Date.now());
-                const m = Math.floor(rem / 60000);
-                const s = Math.floor((rem % 60000) / 1000);
-                raceInfo.textContent = `⏱️${m}:${s.toString().padStart(2, '0')}`;
+                raceInfo.textContent = `⏱️${formatMinSec(rem)}`;
             } else if (lastRaceData.status === 'active') {
                 // 진행 중 → 내 진행도/10
                 const isP1 = currentUser && lastRaceData.player1Uid === currentUser.uid;
@@ -656,9 +655,7 @@ function updateBottomBadges() {
     const shopInfo = document.getElementById('badge-shop-info');
     if (shopInfo) {
         const rem = Math.max(0, shopNextRefresh - Date.now());
-        const m = Math.floor(rem / 60000);
-        const s = Math.floor((rem % 60000) / 1000);
-        shopInfo.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+        shopInfo.textContent = formatMinSec(rem);
     }
 
     // 창고: 보관 중 / 열린 칸
