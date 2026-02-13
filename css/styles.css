@@ -1719,7 +1719,7 @@ body.tutorial-active {
     box-shadow: 0 0 0 2px #3b82f6;
 }
 
-.badge-icon { font-size: 1.2rem; }
+.badge-icon { font-size: 1.2rem; line-height: 1; }
 .badge-label { font-size: 8px; color: #6b7280; }
 .badge-info { font-size: 7px; color: #9ca3af; min-height: 10px; }
 

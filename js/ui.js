@@ -703,7 +703,7 @@ function updateDailyMissionUI() {
                 <span class="text-[9px] w-14 text-right ${done ? 'text-green-600' : 'text-amber-600'} font-bold">
                     ${Math.min(progress, target)}/${target} ${done ? '✓' : ''}
                 </span>
-                <span class="text-[8px] text-gray-400">(${mission.reward}${ICON.coin})</span>
+                <span class="text-[8px] text-gray-400">(${mission.reward}<img src="images/icons/coin.png" class="icon" style="width:10px;height:10px">)</span>
             </div>
         `;
     });

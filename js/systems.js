@@ -100,9 +100,9 @@ function renderShop() {
         if (item) {
             d.onclick = () => buyShopItem(idx);
             if (item.type === 'card_pack') {
-                d.innerHTML = `<div class="bg-circle" style="background-color:#f0abfc"></div><div style="font-size:1.5rem">${ICON.card}</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag">${item.price}${ICON.diamond}</div>`;
+                d.innerHTML = `<div class="bg-circle" style="background-color:#f0abfc"></div><img src="images/icons/card.png" class="icon icon-md"><div class="level-badge">×${item.amount}</div><div class="shop-price-tag">${item.price}<img src="images/icons/diamond.png" class="icon" style="width:8px;height:8px"></div>`;
             } else if (item.type === 'diamond_pack') {
-                d.innerHTML = `<div class="bg-circle" style="background-color:#67e8f9"></div><div style="font-size:1.5rem">${ICON.diamond}</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">${item.price}${ICON.coin}</div>`;
+                d.innerHTML = `<div class="bg-circle" style="background-color:#67e8f9"></div><img src="images/icons/diamond.png" class="icon icon-md"><div class="level-badge">×${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">${item.price}<img src="images/icons/coin.png" class="icon" style="width:8px;height:8px"></div>`;
             } else {
                 let list;
                 if (item.type.includes('cat'))
@@ -116,8 +116,8 @@ function renderShop() {
                     isS = item.type.includes('snack'),
                     isT = item.type.includes('toy');
                 const priceTag = item.isAd
-                    ? `<div class="shop-price-tag">${ICON.tv}</div>`
-                    : `<div class="shop-price-tag">${item.level * 2}${ICON.diamond}</div>`;
+                    ? `<div class="shop-price-tag"><img src="images/icons/tv.png" class="icon" style="width:10px;height:10px"></div>`
+                    : `<div class="shop-price-tag">${item.level * 2}<img src="images/icons/diamond.png" class="icon" style="width:8px;height:8px"></div>`;
                 const shopVisual = data.img
                     ? `<img src="${data.img}" style="width:1.2rem;height:1.2rem;object-fit:contain">`
                     : `<div style="font-size:1.2rem">${data.emoji}</div>`;
