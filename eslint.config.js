@@ -39,6 +39,7 @@ export default [
                 GENERATOR_COOLDOWN_MS: 'readonly',
                 GENERATOR_MAX_CLICKS: 'readonly',
                 AD_ENERGY_AMOUNT: 'readonly',
+                // 퀘스트/럭키/저장 상수
                 SPECIAL_QUEST_REWARD: 'readonly',
                 QUEST_EXPIRE_MS: 'readonly',
                 QUEST_SNACK_CHANCE: 'readonly',
@@ -192,6 +193,7 @@ export default [
                 recoverOfflineEnergy: 'readonly',
                 lastSavedAt: 'writable',
                 // game.js globals
+                addCoins: 'readonly',
                 discoverItem: 'readonly',
                 countEasyQuests: 'readonly',
                 generateNewQuest: 'readonly',
@@ -219,7 +221,6 @@ export default [
                 claimDailyBonus: 'readonly',
                 openAdPopup: 'readonly',
                 adEnergy: 'readonly',
-                addCoins: 'readonly',
                 confirmAd: 'readonly',
                 // systems.js globals - 헬퍼 함수
                 hasItemOfType: 'readonly',
@@ -334,8 +335,8 @@ export default [
                 spawnItemEffect: 'readonly',
                 showLuckyEffect: 'readonly',
                 showFloatText: 'readonly',
-                showToast: 'readonly',
                 showError: 'readonly',
+                showToast: 'readonly',
                 showMilestonePopup: 'readonly',
                 openOverlay: 'readonly',
                 closeOverlay: 'readonly',

@@ -73,23 +73,34 @@ const SNACK_CHANCE = 0.08;
 const GENERATOR_MAX_CLICKS = 6; // 스페셜 생성기 과열 클릭 수
 const AD_ENERGY_AMOUNT = 30; // 광고 시청 에너지 충전량
 
-// --- 퀘스트 상수 ---
+// --- 퀘스트 밸런스 ---
 const SPECIAL_QUEST_REWARD = 300;
-const QUEST_EXPIRE_MS = 10 * 60 * 1000;
+const QUEST_EXPIRE_MS = 10 * 60 * 1000; // 10분
 const QUEST_SNACK_CHANCE = 0.3;
 const QUEST_PIGGY_CHANCE = 0.2;
 const QUEST_MULTI_BASE_CHANCE = 0.3;
 const QUEST_MULTI_LEVEL_FACTOR = 0.05;
 const QUEST_MULTI_MAX_CHANCE = 0.8;
+
+// --- 럭키 드랍 확률 ---
 const LUCKY_BASE_CHANCE = 0.05;
 const LUCKY_LEVEL_BONUS = 0.01;
 const LUCKY_SNACK_CHANCE = 0.5;
+
+// --- 기타 ---
 const QUEST_COUNT_MISSION_GOAL = 100;
 const CLOUD_SAVE_DEBOUNCE_MS = 500;
 
 // --- 레벨업 공식 (중앙화) ---
 function getLevelUpGoal(lv) { return Math.min(lv * 2, 20); }
 function getLevelUpReward(lv) { return Math.ceil(lv / 10) * 3; }
+
+// --- 시간 포맷 헬퍼 (mm:ss) ---
+function formatMinSec(ms) {
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
 
 // --- 저금통 설정 ---
 const PIGGY_BANK_TIMER_MS = 60 * 60 * 1000; // 1시간
@@ -552,13 +563,4 @@ function getSpecialTypeName(type) {
         reptile: '파충류',
     };
     return names[type] || type;
-}
-
-/**
- * 밀리초 → "m:ss" 포맷
- */
-function formatMinSec(ms) {
-    const m = Math.floor(ms / 60000);
-    const s = Math.floor((ms % 60000) / 1000);
-    return `${m}:${s.toString().padStart(2, '0')}`;
 }

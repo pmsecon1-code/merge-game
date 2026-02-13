@@ -510,7 +510,7 @@ function showRaceResult(data) {
     addCoins(reward.coins);
     diamonds += reward.diamonds;
 
-    // 보상 수령 표시
+    // 보상 수령 표시 (currentRaceId를 캡처해서 전달 - null 설정 전)
     claimRaceReward(currentRaceId);
 
     // 최근 상대 저장

@@ -86,8 +86,7 @@ function createItem(item, zone, index) {
         const d = document.createElement('div');
         d.className = 'item piggy-bank-item';
         const ready = Date.now() >= item.openAt;
-        const rem = Math.max(0, item.openAt - Date.now());
-        const cooldown = ready ? '' : `<div class="cooldown-overlay"><span>${formatMinSec(rem)}</span></div>`;
+        const cooldown = ready ? '' : `<div class="cooldown-overlay"><span>${formatMinSec(item.openAt - Date.now())}</span></div>`;
         d.innerHTML = `
             <div class="bg-circle" style="background-color:#fbbf24"></div>
             <img src="images/spawners/spawner_piggybank.png" style="width:80%;height:80%;object-fit:contain;position:relative;z-index:1">
@@ -301,12 +300,13 @@ function showFloatText(c, t, col) {
     setTimeout(() => d.remove(), 1000);
 }
 
-// --- 팝업/토스트 ---
+// --- 에러 헬퍼 ---
 function showError(msg) {
     playSound('error');
     showToast(msg);
 }
 
+// --- 팝업/토스트 ---
 let _toastTimer = null;
 function showToast(m) {
     const t = document.getElementById('toast');
@@ -609,8 +609,7 @@ function updateBottomBadges() {
         if (currentRaceId && lastRaceData) {
             if (lastRaceData.status === 'pending' && lastRaceData.inviteExpiresAt) {
                 // 초대 대기 중 → 남은 시간
-                const rem = Math.max(0, lastRaceData.inviteExpiresAt - Date.now());
-                raceInfo.textContent = `⏱️${formatMinSec(rem)}`;
+                raceInfo.textContent = `⏱️${formatMinSec(Math.max(0, lastRaceData.inviteExpiresAt - Date.now()))}`;
             } else if (lastRaceData.status === 'active') {
                 // 진행 중 → 내 진행도/10
                 const isP1 = currentUser && lastRaceData.player1Uid === currentUser.uid;
@@ -635,8 +634,7 @@ function updateBottomBadges() {
     // 상점: 갱신 타이머
     const shopInfo = document.getElementById('badge-shop-info');
     if (shopInfo) {
-        const rem = Math.max(0, shopNextRefresh - Date.now());
-        shopInfo.textContent = formatMinSec(rem);
+        shopInfo.textContent = formatMinSec(Math.max(0, shopNextRefresh - Date.now()));
     }
 
     // 창고: 보관 중 / 열린 칸

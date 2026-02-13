@@ -161,8 +161,7 @@ function renderAlbumGrid(idx) {
 
 function checkThemeComplete(themeIdx) {
     const theme = ALBUM_THEMES[themeIdx];
-    const collected = getThemeCollectedCount(themeIdx);
-    if (collected === theme.photos.length) {
+    if (getThemeCollectedCount(themeIdx) === theme.photos.length) {
         const rewardKey = `album_complete_${themeIdx}`;
         if (!album.includes(rewardKey)) {
             album.push(rewardKey);

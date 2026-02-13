@@ -62,8 +62,7 @@ function checkAutoCompleteMissions() {
 function startShopTimer() {
     setInterval(() => {
         if (Date.now() >= shopNextRefresh) refreshShop();
-        const d = shopNextRefresh - Date.now();
-        const timerText = formatMinSec(d);
+        const timerText = formatMinSec(shopNextRefresh - Date.now());
         document.getElementById('shop-timer-badge').innerText = `갱신: ${timerText}`;
         document.getElementById('badge-shop-info').innerText = timerText;
     }, 1000);
@@ -253,7 +252,7 @@ function rollDice() {
         setTimeout(() => {
             const rewardInfo = executeMove(pendingDiceResult);
             if (rewardInfo) {
-                rewardText.textContent = rewardInfo;
+                rewardText.innerHTML = rewardInfo;
                 rewardBox.classList.remove('hidden');
             }
             isRollingDice = false;
