@@ -397,6 +397,8 @@ function handleDragStart(e) {
     const t = e.target.closest('.item, .cage-generator');
     if (!t) return;
     e.preventDefault();
+    const p = t.closest('.cell');
+    if (!p) return;
     const z = p.dataset.zone,
         i = parseInt(p.dataset.index);
     dragData = {

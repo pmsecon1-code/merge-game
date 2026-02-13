@@ -119,12 +119,16 @@ async function joinRaceByCode(code) {
             return false;
         }
 
-        // 3. 상대방이 레이스/초대 중인지 확인
-        const opponentRace = await findActiveOrPendingRace(codeData.ownerUid);
-        if (opponentRace) {
-            const status = opponentRace.data().status;
-            showToast(status === 'pending' ? '상대방이 다른 초대를 확인 중입니다' : '상대방이 레이스 중입니다');
-            return false;
+        // 3. 상대방이 레이스/초대 중인지 확인 (권한 오류 시 스킵)
+        try {
+            const opponentRace = await findActiveOrPendingRace(codeData.ownerUid);
+            if (opponentRace) {
+                const status = opponentRace.data().status;
+                showToast(status === 'pending' ? '상대방이 다른 초대를 확인 중입니다' : '상대방이 레이스 중입니다');
+                return false;
+            }
+        } catch (permErr) {
+            console.log('[Race] Cannot check opponent status (expected):', permErr.code);
         }
 
         // 4. 내가 이미 레이스/초대 중인지 다시 확인 (동시성)
