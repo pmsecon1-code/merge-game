@@ -169,6 +169,7 @@ function updateTimerUI() {
 }
 
 function updateQuestUI(scrollToFront = false) {
+    const savedScroll = scrollToFront ? 0 : questContainer.scrollLeft;
     questContainer.innerHTML = '';
     const inv = {};
     [...boardState, ...storageState].forEach((i) => {
@@ -221,9 +222,7 @@ function updateQuestUI(scrollToFront = false) {
         d.innerHTML = h;
         questContainer.appendChild(d);
     });
-    if (scrollToFront) {
-        setTimeout(() => { questContainer.scrollLeft = 0; }, 50);
-    }
+    questContainer.scrollLeft = savedScroll;
 }
 
 // --- 이펙트 ---

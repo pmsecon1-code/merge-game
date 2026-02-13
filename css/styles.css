@@ -208,7 +208,6 @@ body {
     gap: 6px;
     overflow-x: auto;
     padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
 }
 
 .quest-card {
