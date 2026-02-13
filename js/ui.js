@@ -22,7 +22,7 @@ function renderGrid(zone, state, cont) {
                 const name = item.target === 'cat' ? '캣타워' : '개집';
                 c.classList.add('upgrade-mission-cell');
                 if (done) c.classList.add('done');
-                c.innerHTML = `<div>${done ? '✅' : '<img src="images/icons/target.png" class="icon icon-md">'}</div><div class="text-[8px] font-bold text-center">${name}<br>Lv.${item.reqLevel}</div>`;
+                c.innerHTML = `<div>${done ? '<img src="images/icons/check.png" class="icon icon-md">' : '<img src="images/icons/target.png" class="icon icon-md">'}</div><div class="text-[8px] font-bold text-center">${name}<br>Lv.${item.reqLevel}</div>`;
                 c.dataset.missionTarget = item.target;
             } else if (item.type === 'animal_mission') {
                 const list = item.target === 'cat' ? CATS : DOGS;
@@ -32,13 +32,13 @@ function renderGrid(zone, state, cont) {
                     storageState.some((s) => s && s.type === item.target && s.level >= item.reqLevel);
                 c.classList.add('upgrade-mission-cell');
                 if (done) c.classList.add('done');
-                const missionVisual = done ? '✅' : (targetData.img ? `<img src="${targetData.img}" style="width:1.2rem;height:1.2rem;object-fit:contain">` : targetData.emoji);
+                const missionVisual = done ? '<img src="images/icons/check.png" class="icon icon-md">' : (targetData.img ? `<img src="${targetData.img}" style="width:1.2rem;height:1.2rem;object-fit:contain">` : targetData.emoji);
                 c.innerHTML = `<div class="text-lg">${missionVisual}</div><div class="text-[8px] font-bold text-center">${targetData.name}<br>만들기</div>`;
             } else if (item.type === 'quest_count_mission') {
                 const done = totalQuestsCompleted >= item.reqCount;
                 c.classList.add('upgrade-mission-cell');
                 if (done) c.classList.add('done');
-                c.innerHTML = `<div class="text-lg">${done ? '✅' : '📋'}</div><div class="text-[8px] font-bold text-center">퀘스트<br>${totalQuestsCompleted}/${item.reqCount}</div>`;
+                c.innerHTML = `<div>${done ? '<img src="images/icons/check.png" class="icon icon-md">' : '<img src="images/icons/clipboard.png" class="icon icon-md">'}</div><div class="text-[8px] font-bold text-center">퀘스트<br>${totalQuestsCompleted}/${item.reqCount}</div>`;
             } else c.appendChild(createItem(item, zone, i));
         }
     });
@@ -56,7 +56,7 @@ function createItem(item, zone, index) {
         if (['bird', 'fish', 'reptile', 'toy'].includes(type)) {
             const rem = GENERATOR_MAX_CLICKS - (item.clicks || 0);
             if (item.cooldown > Date.now())
-                specialUI = `<div class="cooldown-overlay"><span>💤</span><span>${Math.ceil((item.cooldown - Date.now()) / 1000)}s</span></div>`;
+                specialUI = `<div class="cooldown-overlay"><span><img src="images/icons/sleep.png" class="icon icon-sm"></span><span>${Math.ceil((item.cooldown - Date.now()) / 1000)}s</span></div>`;
             else specialUI = `<div class="usage-badge">${rem}/6</div>`;
         }
         const genColors = { cat: ['#fff1f2','#f472b6'], dog: ['#fef3c7','#fbbf24'], bird: ['#e0f2fe','#38bdf8'], fish: ['#ccfbf1','#2dd4bf'], reptile: ['#dcfce7','#4ade80'], toy: ['#f3e8ff','#a78bfa'] };
@@ -208,11 +208,11 @@ function updateQuestUI(scrollToFront = false) {
         });
         let timerText, rewardText;
         if (q.isSpecial) {
-            timerText = '⭐스페셜';
+            timerText = `${ICON.star}스페셜`;
             rewardText = `${ICON.coin}${ICON.piggy}`;
         } else {
             const remaining = q.expiresAt ? q.expiresAt - Date.now() : 0;
-            timerText = remaining > 0 ? `⏱${formatQuestTimer(remaining)}` : '만료';
+            timerText = remaining > 0 ? `${ICON.timer}${formatQuestTimer(remaining)}` : '만료';
             rewardText = q.piggyReward ? `${ICON.coin}${ICON.piggy}` : q.cardReward > 0 ? `${q.cardReward}${ICON.card}` : `${q.reward}${ICON.coin}`;
         }
         h += `</div></div><div class="text-[9px] mb-1 text-center"><div class="text-yellow-600">보상: ${rewardText}</div><div class="${q.isSpecial ? 'text-purple-500' : 'text-red-500'}">${timerText}</div></div><div class="quest-btn ${ok ? 'complete' : 'incomplete'}" onclick="${ok ? `completeQuest(${i})` : ''}">${ok ? '완료!' : '구해줘'}</div>`;
@@ -639,7 +639,7 @@ function updateBottomBadges() {
         if (currentRaceId && lastRaceData) {
             if (lastRaceData.status === 'pending' && lastRaceData.inviteExpiresAt) {
                 // 초대 대기 중 → 남은 시간
-                raceInfo.textContent = `⏱️${formatMinSec(Math.max(0, lastRaceData.inviteExpiresAt - Date.now()))}`;
+                raceInfo.innerHTML = `${ICON.timer}${formatMinSec(Math.max(0, lastRaceData.inviteExpiresAt - Date.now()))}`;
             } else if (lastRaceData.status === 'active') {
                 // 진행 중 → 내 진행도/10
                 const isP1 = currentUser && lastRaceData.player1Uid === currentUser.uid;
@@ -690,7 +690,7 @@ function updateDailyMissionUI() {
     const tierInfo = document.getElementById('daily-tier-info');
     if (tierInfo) {
         if (allDone) {
-            tierInfo.innerHTML = `<span class="text-green-600">✅ 완료!</span> +${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} +${DAILY_COMPLETE_REWARD.cards}${ICON.card}`;
+            tierInfo.innerHTML = `<span class="text-green-600">${ICON.check} 완료!</span> +${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} +${DAILY_COMPLETE_REWARD.cards}${ICON.card}`;
         } else {
             tierInfo.textContent = `${'★'.repeat(tier + 1)} ${tier + 1}단계`;
         }

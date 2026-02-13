@@ -38,6 +38,11 @@ const ICON = {
     ticket: '<img src="images/icons/ticket.png" class="icon icon-sm">',
     mail: '<img src="images/icons/mail.png" class="icon icon-sm">',
     trash: '<img src="images/icons/trash.png" class="icon icon-sm">',
+    timer: '<img src="images/icons/timer.png" class="icon icon-sm">',
+    check: '<img src="images/icons/check.png" class="icon icon-sm">',
+    sleep: '<img src="images/icons/sleep.png" class="icon icon-sm">',
+    offline: '<img src="images/icons/offline.png" class="icon icon-sm">',
+    star: '<img src="images/effects/star.png" class="icon icon-sm">',
 };
 
 // --- 유저 이름 ---

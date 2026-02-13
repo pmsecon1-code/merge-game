@@ -635,7 +635,7 @@ function updateRaceUIFromData(data) {
     if (timerEl && data.status === 'active') {
         const expiresAt = data.expiresAt || (data.createdAt + RACE_EXPIRE_MS);
         const remaining = Math.max(0, expiresAt - Date.now());
-        timerEl.textContent = `⏱️ ${formatMinSec(remaining)}`;
+        timerEl.innerHTML = `${ICON.timer} ${formatMinSec(remaining)}`;
         timerEl.classList.remove('hidden');
     }
 
@@ -1041,7 +1041,7 @@ function updatePendingInviteUI(data) {
     // 타이머 업데이트
     if (timerEl && data.inviteExpiresAt) {
         const remaining = Math.max(0, data.inviteExpiresAt - Date.now());
-        timerEl.textContent = `⏱️ ${formatMinSec(remaining)}`;
+        timerEl.innerHTML = `${ICON.timer} ${formatMinSec(remaining)}`;
     }
 
     // 트랙에 대기 메시지 표시

@@ -202,7 +202,7 @@ auth.onAuthStateChanged(async (user) => {
                         const parsed = JSON.parse(localData);
                         const validated = validateGameData(parsed);
                         applyGameData(validated);
-                        showToast('⚠️ 오프라인 데이터 사용 중');
+                        showToast(`${ICON.offline} 오프라인 데이터 사용 중`);
                     } catch (e) {
                         console.error('[Auth] LocalStorage parse failed:', e);
                         showToast('⚠️ 데이터 로드 실패. 새로고침 해주세요.');
@@ -274,7 +274,7 @@ document.addEventListener('visibilitychange', () => {
 
 window.addEventListener('offline', () => {
     updateSaveStatus('offline');
-    showToast('오프라인 상태입니다');
+    showToast(`${ICON.offline} 오프라인 상태입니다`);
 });
 
 window.addEventListener('online', () => {

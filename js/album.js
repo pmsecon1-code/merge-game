@@ -155,7 +155,7 @@ function renderAlbumGrid(idx) {
     gridEl.innerHTML = html;
 
     if (isComplete) {
-        rewardEl.innerHTML = `<span class="text-green-500 font-bold">✅ 완성!</span> +${ALBUM_COMPLETE_COINS}${ICON.coin}`;
+        rewardEl.innerHTML = `<span class="text-green-500 font-bold">${ICON.check} 완성!</span> +${ALBUM_COMPLETE_COINS}${ICON.coin}`;
     } else {
         rewardEl.innerHTML = `완성 시 +${ALBUM_COMPLETE_COINS}${ICON.coin} (${collected}/${theme.photos.length})`;
     }
@@ -220,7 +220,7 @@ function updateAlbumBarUI() {
     const cardValEl = document.getElementById('card-val');
 
     if (progressEl) progressEl.innerText = `${progress}/${totalPhotos}`;
-    if (timerEl) timerEl.innerText = `⏱${formatAlbumTimer()}`;
+    if (timerEl) timerEl.innerHTML = `${ICON.timer}${formatAlbumTimer()}`;
     if (photoBar) photoBar.style.width = `${Math.min((progress / totalPhotos) * 100, 100)}%`;
     if (cardValEl) cardValEl.innerText = cards;
 

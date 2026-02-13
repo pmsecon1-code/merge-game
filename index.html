@@ -129,10 +129,10 @@
                             onclick="copyRaceCode(document.getElementById('my-race-code').innerText)"
                             class="text-[8px] bg-cyan-500 text-white px-1 py-0.5 rounded"
                         ><img src="images/icons/clipboard.png" class="icon icon-xs"></button>
-                        <span id="race-timer" class="text-[9px] text-orange-500 font-bold hidden">⏱️ --:--</span>
+                        <span id="race-timer" class="text-[9px] text-orange-500 font-bold hidden"><img src="images/icons/timer.png" class="icon icon-xs"> --:--</span>
                         <!-- 대기 상태 UI -->
                         <div id="race-pending-status" class="hidden flex items-center gap-1">
-                            <span id="race-pending-timer" class="text-[9px] text-orange-500 font-bold">⏱️ 9:59</span>
+                            <span id="race-pending-timer" class="text-[9px] text-orange-500 font-bold"><img src="images/icons/timer.png" class="icon icon-xs"> 9:59</span>
                             <button onclick="cancelPendingInvite()" class="text-[8px] bg-gray-300 text-gray-600 px-1.5 py-0.5 rounded font-bold">취소</button>
                         </div>
                         <button
@@ -155,7 +155,7 @@
                             <span id="album-reward-hint" class="text-[9px] text-fuchsia-300"></span>
                         </span>
                         <div class="flex gap-1 items-center">
-                            <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold">⏱42일</span>
+                            <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold"><img src="images/icons/timer.png" class="icon icon-xs">42일</span>
                             <button onclick="openPhotoDraw()" class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold">뽑기 <img src="images/icons/card.png" class="icon icon-xs">15</button>
                         </div>
                     </div>
@@ -562,7 +562,7 @@
                     레이스에 초대했습니다!
                 </p>
                 <p class="text-lg text-orange-500 font-bold mb-4">
-                    ⏱️ <span id="invite-timer">9:59</span>
+                    <img src="images/icons/timer.png" class="icon icon-md"> <span id="invite-timer">9:59</span>
                 </p>
                 <div class="flex gap-2 justify-center">
                     <button onclick="declineRaceInvite()"

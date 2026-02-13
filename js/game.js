@@ -675,7 +675,7 @@ function checkDailyMissionComplete(type) {
                 dailyMissions.coins = 0;
                 dailyMissions.claimed = [false, false, false];
                 playSound('milestone');
-                showToast(`⭐ ${tier + 2}단계 미션 해금!`);
+                showToast(`${ICON.star} ${tier + 2}단계 미션 해금!`);
                 updateDailyMissionUI();
             } else {
                 // 3단계 올클리어 → 보너스
