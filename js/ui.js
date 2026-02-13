@@ -222,7 +222,7 @@ function updateQuestUI(scrollToFront = false) {
         questContainer.appendChild(d);
     });
     if (scrollToFront) {
-        requestAnimationFrame(() => { questContainer.scrollLeft = 0; });
+        setTimeout(() => { questContainer.scrollTo({ left: 0, behavior: 'smooth' }); }, 100);
     }
 }
 
