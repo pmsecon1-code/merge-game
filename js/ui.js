@@ -98,7 +98,7 @@ function createItem(item, zone, index) {
         if (!ready && tutorialStep <= 0) {
             const adBtn = document.createElement('div');
             adBtn.className = 'sell-btn ad-btn';
-            adBtn.innerHTML = '<img src="images/icons/tv.png" class="icon icon-sm">';
+            adBtn.innerHTML = '<img src="images/icons/tv.png" class="icon icon-xs">';
             adBtn.onclick = (e) => { e.stopPropagation(); openAdPopup(zone, index); };
             d.appendChild(adBtn);
         }
