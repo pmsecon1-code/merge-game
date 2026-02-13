@@ -415,7 +415,7 @@ function renderDiceTripBoard() {
         }
 
         const rewardDisplay = isCurrent
-            ? '🐾'
+            ? '<img src="images/icons/paw.png" class="icon icon-sm">'
             : isVisited
                 ? '✓'
                 : `<span class="reward-icon">${rewardIcon}</span><span class="reward-amount">${rewardAmount}</span>`;
@@ -428,7 +428,7 @@ function renderDiceTripBoard() {
     // 골인 지점 (마지막 칸 = 49번)
     const isAtGoal = diceTripPosition >= DICE_TRIP_SIZE - 1;
     html += `<div class="dice-step goal ${isAtGoal ? 'reached current' : ''}">
-        ${isAtGoal ? '🐾' : '🏁'}
+        ${isAtGoal ? '<img src="images/icons/paw.png" class="icon icon-sm">' : '🏁'}
     </div>`;
 
     diceTripBoard.innerHTML = html;

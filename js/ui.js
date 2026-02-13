@@ -22,7 +22,7 @@ function renderGrid(zone, state, cont) {
                 const name = item.target === 'cat' ? '캣타워' : '개집';
                 c.classList.add('upgrade-mission-cell');
                 if (done) c.classList.add('done');
-                c.innerHTML = `<div class="text-lg">${done ? '✅' : '🎯'}</div><div class="text-[8px] font-bold text-center">${name}<br>Lv.${item.reqLevel}</div>`;
+                c.innerHTML = `<div>${done ? '✅' : '<img src="images/icons/target.png" class="icon icon-md">'}</div><div class="text-[8px] font-bold text-center">${name}<br>Lv.${item.reqLevel}</div>`;
                 c.dataset.missionTarget = item.target;
             } else if (item.type === 'animal_mission') {
                 const list = item.target === 'cat' ? CATS : DOGS;

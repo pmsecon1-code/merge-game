@@ -20,6 +20,11 @@ const ICON = {
     trophy: '<img src="images/race/trophy.png" class="icon icon-sm">',
     lose: '<img src="images/race/lose.png" class="icon icon-sm">',
     draw: '<img src="images/race/draw.png" class="icon icon-sm">',
+    target: '<img src="images/icons/target.png" class="icon icon-sm">',
+    paw: '<img src="images/icons/paw.png" class="icon icon-sm">',
+    pointer: '<img src="images/icons/pointer.png" class="icon icon-sm">',
+    music: '<img src="images/icons/music.png" class="icon icon-sm">',
+    key: '<img src="images/icons/key.png" class="icon icon-sm">',
 };
 
 // --- 그리드 설정 ---
