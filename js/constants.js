@@ -220,11 +220,11 @@ const DOG_SNACKS = [
 // ============================================
 
 const CAT_TOYS = [
-    { level: 1, emoji: '🧶', name: '털실', color: '#fce7f3' },
-    { level: 2, emoji: '🪶', name: '깃털', color: '#fbcfe8' },
-    { level: 3, emoji: '🐭', name: '쥐인형', color: '#f9a8d4' },
-    { level: 4, emoji: '🎣', name: '낚싯대', color: '#f472b6' },
-    { level: 5, emoji: '🏠', name: '숨숨집', color: '#ec4899' },
+    { level: 1, emoji: '🧶', img: 'images/cat_toys/cat_toy1.png', name: '털실', color: '#fce7f3' },
+    { level: 2, emoji: '🪶', img: 'images/cat_toys/cat_toy2.png', name: '깃털', color: '#fbcfe8' },
+    { level: 3, emoji: '🐭', img: 'images/cat_toys/cat_toy3.png', name: '쥐인형', color: '#f9a8d4' },
+    { level: 4, emoji: '🎣', img: 'images/cat_toys/cat_toy4.png', name: '낚싯대', color: '#f472b6' },
+    { level: 5, emoji: '🏠', img: 'images/cat_toys/cat_toy5.png', name: '숨숨집', color: '#ec4899' },
 ];
 
 const DOG_TOYS = [
