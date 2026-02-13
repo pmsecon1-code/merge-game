@@ -320,18 +320,22 @@ function showFloatText(c, t, col) {
 }
 
 // --- 팝업/토스트 ---
+let _toastTimer = null;
 function showToast(m) {
     const t = document.getElementById('toast');
     t.innerHTML = m;
     t.style.opacity = '1';
-    setTimeout(() => (t.style.opacity = '0'), TOAST_DURATION_MS);
+    if (_toastTimer) clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => (t.style.opacity = '0'), TOAST_DURATION_MS);
 }
 
+let _milestoneTimer = null;
 function showMilestonePopup(t, r) {
     document.getElementById('milestone-text').innerHTML = t;
     document.getElementById('milestone-reward').innerHTML = r;
     document.getElementById('milestone-overlay').style.display = 'flex';
-    setTimeout(() => {
+    if (_milestoneTimer) clearTimeout(_milestoneTimer);
+    _milestoneTimer = setTimeout(() => {
         document.getElementById('milestone-overlay').style.display = 'none';
     }, MILESTONE_POPUP_MS);
 }

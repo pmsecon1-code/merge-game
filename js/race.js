@@ -512,7 +512,7 @@ function showRaceResult(data) {
     diamonds += reward.diamonds;
 
     // 보상 수령 표시
-    claimRaceReward();
+    claimRaceReward(currentRaceId);
 
     // 최근 상대 저장
     const isPlayer1 = data.player1Uid === uid;
@@ -535,13 +535,13 @@ function showRaceResult(data) {
 }
 
 // --- 보상 수령 기록 ---
-async function claimRaceReward() {
-    if (!currentUser || !currentRaceId) return;
+async function claimRaceReward(raceId) {
+    if (!currentUser || !raceId) return;
 
     try {
         await db
             .collection('races')
-            .doc(currentRaceId)
+            .doc(raceId)
             .update({
                 [`rewardClaimed.${currentUser.uid}`]: true,
             });
