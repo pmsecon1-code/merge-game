@@ -208,11 +208,11 @@ const CAT_SNACKS = [
 ];
 
 const DOG_SNACKS = [
-    { level: 1, emoji: '🦴', name: '뼈다귀', color: '#e0f2fe' },
-    { level: 2, emoji: '🥖', name: '개껌', color: '#bae6fd' },
-    { level: 3, emoji: '🥩', name: '육포', color: '#7dd3fc' },
-    { level: 4, emoji: '🌭', name: '소세지', color: '#38bdf8' },
-    { level: 5, emoji: '🍖', name: '스테이크', color: '#0ea5e9' },
+    { level: 1, emoji: '🦴', img: 'images/dog_snacks/dog_snack1.png', name: '뼈다귀', color: '#e0f2fe' },
+    { level: 2, emoji: '🥖', img: 'images/dog_snacks/dog_snack2.png', name: '개껌', color: '#bae6fd' },
+    { level: 3, emoji: '🥩', img: 'images/dog_snacks/dog_snack3.png', name: '육포', color: '#7dd3fc' },
+    { level: 4, emoji: '🌭', img: 'images/dog_snacks/dog_snack4.png', name: '소세지', color: '#38bdf8' },
+    { level: 5, emoji: '🍖', img: 'images/dog_snacks/dog_snack5.png', name: '스테이크', color: '#0ea5e9' },
 ];
 
 // ============================================
