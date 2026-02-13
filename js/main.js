@@ -39,10 +39,10 @@ function init() {
     });
 
     // 보상 힌트 텍스트 (상수 기반)
-    document.getElementById('race-hint').textContent = `친구 코드를 입력해서 경쟁하세요! (승리 시 +${RACE_REWARDS.win.coins}🪙 +${RACE_REWARDS.win.diamonds}💎)`;
-    document.getElementById('album-reward-hint').textContent = `(완성 시 +${ALBUM_ALL_COMPLETE_DIAMONDS}💎)`;
-    document.getElementById('dice-reward-hint').textContent = `(완주 시 +${DICE_TRIP_COMPLETE_REWARD.coins}🪙 +${DICE_TRIP_COMPLETE_REWARD.diamonds}💎)`;
-    document.getElementById('ad-energy-btn-text').textContent = `📺 광고 시청 → +${AD_ENERGY_AMOUNT}⚡`;
+    document.getElementById('race-hint').innerHTML = `친구 코드를 입력해서 경쟁하세요! (승리 시 +${RACE_REWARDS.win.coins}${ICON.coin} +${RACE_REWARDS.win.diamonds}${ICON.diamond})`;
+    document.getElementById('album-reward-hint').innerHTML = `(완성 시 +${ALBUM_ALL_COMPLETE_DIAMONDS}${ICON.diamond})`;
+    document.getElementById('dice-reward-hint').innerHTML = `(완주 시 +${DICE_TRIP_COMPLETE_REWARD.coins}${ICON.coin} +${DICE_TRIP_COMPLETE_REWARD.diamonds}${ICON.diamond})`;
+    document.getElementById('ad-energy-btn-text').innerHTML = `📺 광고 시청 → +${AD_ENERGY_AMOUNT}${ICON.energy}`;
 
     startEnergyRecovery();
     startShopTimer();
@@ -243,7 +243,7 @@ document.getElementById('confirm-sell-btn').onclick = () => {
         (sellTarget.zone === 'board' ? boardState : storageState)[sellTarget.index] = null;
         playSound('purchase');
         updateAll();
-        showToast(`+${p}🪙 획득!`);
+        showToast(`+${p}${ICON.coin} 획득!`);
         closeOverlay('sell-popup');
         sellTarget = null;
     }

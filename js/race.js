@@ -530,7 +530,7 @@ function showRaceResult(data) {
 
     // 결과 팝업
     const resultText = result === 'win' ? '🏆 승리!' : result === 'lose' ? '😢 패배' : '🤝 무승부';
-    const rewardText = `${reward.coins}🪙` + (reward.diamonds > 0 ? ` + ${reward.diamonds}💎` : '');
+    const rewardText = `${reward.coins}${ICON.coin}` + (reward.diamonds > 0 ? ` + ${reward.diamonds}${ICON.diamond}` : '');
     showMilestonePopup(resultText, rewardText);
 }
 
@@ -603,7 +603,7 @@ function updateRaceUI() {
     // 레이스/초대 진행 중이 아닐 때
     if (!currentRaceId) {
         if (trackEl)
-            trackEl.innerHTML = `<div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요! (승리 시 +${RACE_REWARDS.win.coins}🪙 +${RACE_REWARDS.win.diamonds}💎)</div>`;
+            trackEl.innerHTML = `<div class="text-gray-400 text-[10px] py-2">친구 코드를 입력해서 경쟁하세요! (승리 시 +${RACE_REWARDS.win.coins}${ICON.coin} +${RACE_REWARDS.win.diamonds}${ICON.diamond})</div>`;
         if (copyBtn) copyBtn.classList.remove('hidden');
         if (joinBtn) joinBtn.classList.remove('hidden');
         if (timerEl) timerEl.classList.add('hidden');

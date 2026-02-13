@@ -66,22 +66,22 @@
             <!-- 상태바 -->
             <div class="status-bar">
                 <div class="status-item border-yellow-300">
-                    <span class="text-xs">⚡</span>
+                    <img src="images/icons/energy.png" class="icon icon-xs">
                     <div class="flex flex-col leading-none">
                         <span id="energy-val" class="text-xs font-bold text-yellow-500">100</span>
                         <span id="energy-timer" class="text-[8px] text-gray-400 font-mono">FULL</span>
                     </div>
                 </div>
                 <div class="status-item border-yellow-500">
-                    <span class="text-xs">🪙</span>
+                    <img src="images/icons/coin.png" class="icon icon-xs">
                     <span id="coin-val" class="text-xs text-yellow-600 font-bold">0</span>
                 </div>
                 <div class="status-item border-cyan-400">
-                    <span class="text-xs">💎</span>
+                    <img src="images/icons/diamond.png" class="icon icon-xs">
                     <span id="diamond-val" class="text-xs text-cyan-600 font-bold">0</span>
                 </div>
                 <div class="status-item border-fuchsia-400">
-                    <span class="text-xs">🃏</span>
+                    <img src="images/icons/card.png" class="icon icon-xs">
                     <span id="card-val" class="text-xs text-fuchsia-600 font-bold">0</span>
                 </div>
                 <div class="status-item border-purple-400">
@@ -96,8 +96,7 @@
                 <div class="flex justify-between items-center mb-1">
                     <span class="text-[10px] font-bold text-blue-600">
                         📋 퀘스트 완료하기 (Lv.업 +
-                        <span id="levelup-reward-preview">5</span>
-                        💎)
+                        <span id="levelup-reward-preview">5</span><img src="images/icons/diamond.png" class="icon icon-sm">)
                     </span>
                     <span id="levelup-progress-text" class="text-[9px] text-blue-500 font-bold">0/2</span>
                 </div>
@@ -174,7 +173,7 @@
                         </span>
                         <div class="flex gap-1 items-center">
                             <span id="album-timer" class="text-[9px] text-fuchsia-400 font-bold">⏱42일</span>
-                            <button onclick="openPhotoDraw()" class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold">뽑기 🃏15</button>
+                            <button onclick="openPhotoDraw()" class="text-[9px] bg-fuchsia-500 text-white px-2 py-0.5 rounded-full font-bold">뽑기 <img src="images/icons/card.png" class="icon icon-xs">15</button>
                         </div>
                     </div>
                     <div class="progress-track">
@@ -275,7 +274,7 @@
                     달성!
                 </p>
                 <div class="bg-cyan-100 text-cyan-700 px-6 py-3 rounded-xl font-bold text-lg mb-6">
-                    +<span id="levelup-reward">5</span>💎
+                    +<span id="levelup-reward">5</span><img src="images/icons/diamond.png" class="icon icon-sm">
                 </div>
                 <button
                     onclick="closeOverlay('levelup-overlay')"
@@ -341,11 +340,11 @@
 
         <div id="energy-popup" class="overlay-bg">
             <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-yellow-300">
-                <div class="text-5xl mb-3">⚡</div>
+                <div class="mb-3"><img src="images/icons/energy.png" class="icon icon-xl mx-auto"></div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">에너지 부족!</h2>
                 <p class="text-sm text-gray-500 mb-2">에너지 100개 충전</p>
                 <p class="text-xs text-yellow-600 font-bold mb-2">
-                    보유: <span id="popup-coin-val">0</span>🪙
+                    보유: <span id="popup-coin-val">0</span><img src="images/icons/coin.png" class="icon icon-sm">
                 </p>
                 <p class="text-xs text-blue-500 mb-4">
                     🔄 가격 리셋:
@@ -357,7 +356,7 @@
                     class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-2 rounded-lg font-bold shadow-md mb-2"
                     style="border:2px solid #10b981; box-shadow:0 0 8px rgba(16,185,129,0.5)"
                 >
-                    <span id="ad-energy-btn-text">📺 광고 시청 → +30⚡</span>
+                    <span id="ad-energy-btn-text">📺 광고 시청 → +30<img src="images/icons/energy.png" class="icon icon-sm"></span>
                 </button>
                 <div class="flex gap-2 justify-center">
                     <button
@@ -370,7 +369,7 @@
                         onclick="buyEnergy()"
                         class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold shadow-md"
                     >
-                        구매 <span id="energy-price">500</span>🪙
+                        구매 <span id="energy-price">500</span><img src="images/icons/coin.png" class="icon icon-sm">
                     </button>
                 </div>
             </div>
@@ -500,7 +499,7 @@
                             onclick="upgradeGenerator()"
                             class="bg-blue-500 text-white w-full py-3 rounded-xl font-bold shadow-md mt-4 flex justify-center items-center gap-2"
                         >
-                            <span>1,000🪙</span>
+                            <span>1,000<img src="images/icons/coin.png" class="icon icon-sm"></span>
                             업그레이드
                         </button>
                     </div>

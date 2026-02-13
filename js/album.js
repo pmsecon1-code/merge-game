@@ -47,7 +47,7 @@ function drawPhotos() {
         .map((r) => {
             const rarityLabel = { N: '', R: '\u2605', SR: '\u2605\u2605' }[r.photo.rarity];
             const dupeText = r.isDupe
-                ? `<div class="text-[10px] text-gray-400 mt-1">중복! +${r.refund}🃏</div>`
+                ? `<div class="text-[10px] text-gray-400 mt-1">중복! +${r.refund}${ICON.card}</div>`
                 : '<div class="text-[10px] text-green-500 mt-1 font-bold">NEW!</div>';
             return `
             <div class="draw-card ${r.isDupe ? 'dupe' : 'new'} rarity-${r.photo.rarity}">
@@ -149,9 +149,9 @@ function renderAlbumGrid(idx) {
     gridEl.innerHTML = html;
 
     if (isComplete) {
-        rewardEl.innerHTML = `<span class="text-green-500 font-bold">✅ 완성!</span> +${ALBUM_COMPLETE_COINS}🪙`;
+        rewardEl.innerHTML = `<span class="text-green-500 font-bold">✅ 완성!</span> +${ALBUM_COMPLETE_COINS}${ICON.coin}`;
     } else {
-        rewardEl.innerHTML = `완성 시 +${ALBUM_COMPLETE_COINS}🪙 (${collected}/${theme.photos.length})`;
+        rewardEl.innerHTML = `완성 시 +${ALBUM_COMPLETE_COINS}${ICON.coin} (${collected}/${theme.photos.length})`;
     }
 }
 
@@ -165,7 +165,7 @@ function checkThemeComplete(themeIdx) {
             coins += ALBUM_COMPLETE_COINS;
             cumulativeCoins += ALBUM_COMPLETE_COINS;
             playSound('theme_complete');
-            showMilestonePopup(`${theme.icon} ${theme.name} 완성!`, `${ALBUM_COMPLETE_COINS}🪙`);
+            showMilestonePopup(`${theme.icon} ${theme.name} 완성!`, `${ALBUM_COMPLETE_COINS}${ICON.coin}`);
         }
     }
 }
@@ -177,7 +177,7 @@ function checkAlbumAllComplete() {
         diamonds += ALBUM_ALL_COMPLETE_DIAMONDS;
         // 테마 완성 팝업이 먼저 보이도록 딜레이
         setTimeout(() => {
-            showMilestonePopup('📸 앨범 완성! 새 주기 시작', `${ALBUM_ALL_COMPLETE_DIAMONDS}💎`);
+            showMilestonePopup('📸 앨범 완성! 새 주기 시작', `${ALBUM_ALL_COMPLETE_DIAMONDS}${ICON.diamond}`);
         }, MILESTONE_POPUP_MS + 500);
         cards = 0;
         album = [];

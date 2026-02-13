@@ -2,6 +2,14 @@
 // constants.js - 게임 상수 및 데이터
 // ============================================
 
+// --- 아이콘 헬퍼 ---
+const ICON = {
+    coin: '<img src="images/icons/coin.png" class="icon icon-sm">',
+    diamond: '<img src="images/icons/diamond.png" class="icon icon-sm">',
+    energy: '<img src="images/icons/energy.png" class="icon icon-sm">',
+    card: '<img src="images/icons/card.png" class="icon icon-sm">',
+};
+
 // --- 그리드 설정 ---
 const GRID_COLS = 5;
 const GRID_ROWS = 7;

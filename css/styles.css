@@ -2,6 +2,14 @@
    styles.css - 게임 스타일시트
    ============================================ */
 
+/* --- 인라인 아이콘 --- */
+.icon { display:inline-block; vertical-align:middle; object-fit:contain; }
+.icon-xs { width:14px; height:14px; }
+.icon-sm { width:18px; height:18px; }
+.icon-md { width:24px; height:24px; }
+.icon-lg { width:48px; height:48px; }
+.icon-xl { width:80px; height:80px; }
+
 /* --- 기본 스타일 --- */
 body {
     font-family: 'Jua', sans-serif;

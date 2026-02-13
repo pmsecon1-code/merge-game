@@ -136,7 +136,7 @@ function completeQuest(i) {
             coins += piggyCoins;
             cumulativeCoins += piggyCoins;
             addDailyProgress('coins', piggyCoins);
-            showToast(`보드 가득! +${piggyCoins}🪙`);
+            showToast(`보드 가득! +${piggyCoins}${ICON.coin}`);
         }
         playSound('quest_complete');
     } else {
@@ -167,16 +167,16 @@ function completeQuest(i) {
                 coins += piggyCoins;
                 cumulativeCoins += piggyCoins;
                 addDailyProgress('coins', piggyCoins);
-                showToast(`보드 가득! +${piggyCoins}🪙`);
+                showToast(`보드 가득! +${piggyCoins}${ICON.coin}`);
             }
         } else if (q.cardReward > 0) {
             cards += q.cardReward;
-            showToast(`완료! +${q.cardReward}🃏`);
+            showToast(`완료! +${q.cardReward}${ICON.card}`);
         } else {
             coins += q.reward;
             cumulativeCoins += q.reward;
             addDailyProgress('coins', q.reward);
-            showToast(`완료! +${q.reward}🪙`);
+            showToast(`완료! +${q.reward}${ICON.coin}`);
         }
         playSound('quest_complete');
     }
@@ -434,7 +434,7 @@ function handleCellClick(zone, idx) {
             addDailyProgress('coins', it.coins);
             s[idx] = null;
             playSound('piggy_open');
-            showMilestonePopup('🐷 저금통 개봉!', `+${it.coins}🪙`);
+            showMilestonePopup('🐷 저금통 개봉!', `+${it.coins}${ICON.coin}`);
             updateAll();
         } else {
             const rem = it.openAt - Date.now();
@@ -515,7 +515,7 @@ function checkEnergyAfterUse() {
             energy = MAX_ENERGY;
             recoveryCountdown = RECOVERY_SEC;
             playSound('milestone');
-            showToast('🎁 첫 에너지 소진 보상! +100⚡');
+            showToast(`🎁 첫 에너지 소진 보상! +100${ICON.energy}`);
             updateUI();
             updateTimerUI();
             saveGame();
@@ -684,7 +684,7 @@ function checkDailyMissionComplete(type) {
         dailyMissions.claimed[idx] = true;
         coins += mission.reward;
         playSound('quest_complete');
-        showToast(`${mission.icon} ${mission.label} 완료! +${mission.reward}🪙`);
+        showToast(`${mission.icon} ${mission.label} 완료! +${mission.reward}${ICON.coin}`);
 
         // 현재 단계 올클리어 → 다음 단계 승급
         if (dailyMissions.claimed.every((c) => c)) {
@@ -715,7 +715,7 @@ function claimDailyBonus() {
     diamonds += DAILY_COMPLETE_REWARD.diamonds;
     cards += DAILY_COMPLETE_REWARD.cards;
     playSound('milestone');
-    showMilestonePopup('🎁 일일 미션 완료!', `${DAILY_COMPLETE_REWARD.diamonds}💎 + ${DAILY_COMPLETE_REWARD.cards}🃏`);
+    showMilestonePopup('🎁 일일 미션 완료!', `${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} + ${DAILY_COMPLETE_REWARD.cards}${ICON.card}`);
     updateDailyMissionUI();
     updateAll();
 }
@@ -736,7 +736,7 @@ function openAdPopup(zone, idx) {
     const mode = isEnergy ? 'energy' : isShop ? 'shop' : isStorage ? 'storage' : 'piggy';
     document.getElementById('ad-piggy-mode').value = mode;
     document.getElementById('ad-popup-desc').innerHTML = isEnergy
-        ? `광고를 시청하면<br>에너지 <b class="text-yellow-600">${AD_ENERGY_AMOUNT}⚡</b>를 받을 수 있습니다!`
+        ? `광고를 시청하면<br>에너지 <b class="text-yellow-600">${AD_ENERGY_AMOUNT}${ICON.energy}</b>를 받을 수 있습니다!`
         : isShop
             ? '광고를 시청하면<br>아이템을 받을 수 있습니다!'
             : isStorage
@@ -754,7 +754,7 @@ function confirmAd() {
     if (mode === 'energy') {
         energy = Math.min(energy + AD_ENERGY_AMOUNT, 999);
         playSound('purchase');
-        showToast(`+${AD_ENERGY_AMOUNT}⚡ 충전!`);
+        showToast(`+${AD_ENERGY_AMOUNT}${ICON.energy} 충전!`);
         updateUI();
         updateTimerUI();
         saveGame();
@@ -789,7 +789,7 @@ function confirmAd() {
         addDailyProgress('coins', reward);
         s[idx] = null;
         playSound('purchase');
-        showMilestonePopup('🐷 저금통 개봉! (×2)', `+${reward}🪙`);
+        showMilestonePopup('🐷 저금통 개봉! (×2)', `+${reward}${ICON.coin}`);
         updateAll();
     }
 }
@@ -826,15 +826,15 @@ function checkDailyBonus() {
     if (reward.coins) {
         coins += reward.coins;
         cumulativeCoins += reward.coins;
-        rewardText = `${reward.coins}🪙`;
+        rewardText = `${reward.coins}${ICON.coin}`;
     }
     if (reward.diamonds) {
         diamonds += reward.diamonds;
-        rewardText = `${reward.diamonds}💎`;
+        rewardText = `${reward.diamonds}${ICON.diamond}`;
     }
     if (reward.cards) {
         cards += reward.cards;
-        rewardText = `${reward.cards}🃏`;
+        rewardText = `${reward.cards}${ICON.card}`;
     }
 
     playSound('daily_bonus');

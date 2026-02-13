@@ -100,9 +100,9 @@ function renderShop() {
         if (item) {
             d.onclick = () => buyShopItem(idx);
             if (item.type === 'card_pack') {
-                d.innerHTML = `<div class="bg-circle" style="background-color:#f0abfc"></div><div style="font-size:1.5rem">🃏</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag">${item.price}💎</div>`;
+                d.innerHTML = `<div class="bg-circle" style="background-color:#f0abfc"></div><div style="font-size:1.5rem">${ICON.card}</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag">${item.price}${ICON.diamond}</div>`;
             } else if (item.type === 'diamond_pack') {
-                d.innerHTML = `<div class="bg-circle" style="background-color:#67e8f9"></div><div style="font-size:1.5rem">💎</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">${item.price}🪙</div>`;
+                d.innerHTML = `<div class="bg-circle" style="background-color:#67e8f9"></div><div style="font-size:1.5rem">${ICON.diamond}</div><div class="level-badge">×${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">${item.price}${ICON.coin}</div>`;
             } else {
                 let list;
                 if (item.type.includes('cat'))
@@ -117,7 +117,7 @@ function renderShop() {
                     isT = item.type.includes('toy');
                 const priceTag = item.isAd
                     ? '<div class="shop-price-tag" style="color:#fbbf24">📺</div>'
-                    : `<div class="shop-price-tag">${item.level * 2}💎</div>`;
+                    : `<div class="shop-price-tag">${item.level * 2}${ICON.diamond}</div>`;
                 const shopVisual = data.img
                     ? `<img src="${data.img}" style="width:1.2rem;height:1.2rem;object-fit:contain">`
                     : `<div style="font-size:1.2rem">${data.emoji}</div>`;
@@ -144,7 +144,7 @@ function buyShopItem(idx) {
         diamonds -= item.price;
         cards += item.amount;
         playSound('purchase');
-        showToast(`+${item.amount}🃏 획득!`);
+        showToast(`+${item.amount}${ICON.card} 획득!`);
         updateAll();
         return;
     }
@@ -157,7 +157,7 @@ function buyShopItem(idx) {
         coins -= item.price;
         diamonds += item.amount;
         playSound('purchase');
-        showToast(`+${item.amount}💎 획득!`);
+        showToast(`+${item.amount}${ICON.diamond} 획득!`);
         updateAll();
         return;
     }
@@ -334,19 +334,19 @@ function giveStepRewardWithInfo(pos) {
             coins += amount;
             cumulativeCoins += amount;
             addDailyProgress('coins', amount);
-            rewardStr = `${amount}🪙`;
+            rewardStr = `${amount}${ICON.coin}`;
             break;
         case 'diamonds':
             diamonds += amount;
-            rewardStr = `${amount}💎`;
+            rewardStr = `${amount}${ICON.diamond}`;
             break;
         case 'cards':
             cards += amount;
-            rewardStr = `${amount}🃏`;
+            rewardStr = `${amount}${ICON.card}`;
             break;
         case 'energy':
             energy += amount;
-            rewardStr = `${amount}⚡`;
+            rewardStr = `${amount}${ICON.energy}`;
             break;
     }
     updateUI();
@@ -361,7 +361,7 @@ function completeTrip() {
     addDailyProgress('coins', DICE_TRIP_COMPLETE_REWARD.coins);
 
     playSound('milestone');
-    showMilestonePopup('🎉 주사위 여행 완주!', `${DICE_TRIP_COMPLETE_REWARD.coins}🪙 + ${DICE_TRIP_COMPLETE_REWARD.diamonds}💎`);
+    showMilestonePopup('🎉 주사위 여행 완주!', `${DICE_TRIP_COMPLETE_REWARD.coins}${ICON.coin} + ${DICE_TRIP_COMPLETE_REWARD.diamonds}${ICON.diamond}`);
 
     // 즉시 리셋
     diceTripPosition = 0;
@@ -406,10 +406,10 @@ function renderDiceTripBoard() {
         let rewardAmount = '';
         if (reward) {
             switch (reward.type) {
-                case 'coins': rewardIcon = '🪙'; break;
-                case 'diamonds': rewardIcon = '💎'; break;
-                case 'cards': rewardIcon = '🃏'; break;
-                case 'energy': rewardIcon = '⚡'; break;
+                case 'coins': rewardIcon = ICON.coin; break;
+                case 'diamonds': rewardIcon = ICON.diamond; break;
+                case 'cards': rewardIcon = ICON.card; break;
+                case 'energy': rewardIcon = ICON.energy; break;
             }
             rewardAmount = reward.min;
         }
@@ -474,6 +474,6 @@ function askSellItem(z, i, e) {
     else if (it.type.includes('fish')) list = FISH;
     else list = REPTILES;
     const n = (list[it.level - 1] || list[list.length - 1]).name;
-    document.getElementById('sell-desc').innerText = `${n} (Lv.${it.level}) : ${p}🪙`;
+    document.getElementById('sell-desc').innerText = `${n} (Lv.${it.level}) : ${p}${ICON.coin}`;
     document.getElementById('sell-popup').style.display = 'flex';
 }

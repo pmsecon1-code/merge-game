@@ -13,7 +13,7 @@ function renderGrid(zone, state, cont) {
         if (item) {
             if (item.type === 'locked_board') {
                 c.classList.add('locked');
-                c.innerHTML = `<div class="text-xl opacity-50">🔒</div><div class="text-[8px] font-bold text-gray-500">${UNLOCK_COST_BOARD}🪙</div>`;
+                c.innerHTML = `<div class="text-xl opacity-50">🔒</div><div class="text-[8px] font-bold text-gray-500">${UNLOCK_COST_BOARD}${ICON.coin}</div>`;
             } else if (item.type === 'locked_storage') {
                 c.classList.add('storage-locked');
                 c.innerHTML = `<div class="text-xl">🔒</div><div class="text-[9px] font-bold mt-1">📺</div>`;
@@ -230,11 +230,11 @@ function updateQuestUI(scrollToFront = false) {
         let timerText, rewardText;
         if (q.isSpecial) {
             timerText = '⭐스페셜';
-            rewardText = '🪙🐷';
+            rewardText = `${ICON.coin}🐷`;
         } else {
             const remaining = q.expiresAt ? q.expiresAt - Date.now() : 0;
             timerText = remaining > 0 ? `⏱${formatQuestTimer(remaining)}` : '만료';
-            rewardText = q.piggyReward ? '🪙🐷' : q.cardReward > 0 ? `${q.cardReward}🃏` : `${q.reward}🪙`;
+            rewardText = q.piggyReward ? `${ICON.coin}🐷` : q.cardReward > 0 ? `${q.cardReward}${ICON.card}` : `${q.reward}${ICON.coin}`;
         }
         h += `</div></div><div class="text-[9px] mb-1 text-center"><div class="text-yellow-600">보상: ${rewardText}</div><div class="${q.isSpecial ? 'text-purple-500' : 'text-red-500'}">${timerText}</div></div><div class="quest-btn ${ok ? 'complete' : 'incomplete'}" onclick="${ok ? `completeQuest(${i})` : ''}">${ok ? '완료!' : '구해줘'}</div>`;
         d.innerHTML = h;
@@ -680,7 +680,7 @@ function updateDailyMissionUI() {
     const tierInfo = document.getElementById('daily-tier-info');
     if (tierInfo) {
         if (allDone) {
-            tierInfo.textContent = `✅ 완료! +${DAILY_COMPLETE_REWARD.diamonds}💎 +${DAILY_COMPLETE_REWARD.cards}🃏`;
+            tierInfo.innerHTML = `✅ 완료! +${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} +${DAILY_COMPLETE_REWARD.cards}${ICON.card}`;
         } else {
             tierInfo.textContent = `${'★'.repeat(tier + 1)} ${tier + 1}단계`;
         }
@@ -703,7 +703,7 @@ function updateDailyMissionUI() {
                 <span class="text-[9px] w-14 text-right ${done ? 'text-green-600' : 'text-amber-600'} font-bold">
                     ${Math.min(progress, target)}/${target} ${done ? '✓' : ''}
                 </span>
-                <span class="text-[8px] text-gray-400">(${mission.reward}🪙)</span>
+                <span class="text-[8px] text-gray-400">(${mission.reward}${ICON.coin})</span>
             </div>
         `;
     });
