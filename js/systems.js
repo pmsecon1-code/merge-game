@@ -474,6 +474,6 @@ function askSellItem(z, i, e) {
     else if (it.type.includes('fish')) list = FISH;
     else list = REPTILES;
     const n = (list[it.level - 1] || list[list.length - 1]).name;
-    document.getElementById('sell-desc').innerText = `${n} (Lv.${it.level}) : ${p}${ICON.coin}`;
+    document.getElementById('sell-desc').innerHTML = `${n} (Lv.${it.level}) : ${p}${ICON.coin}`;
     document.getElementById('sell-popup').style.display = 'flex';
 }
