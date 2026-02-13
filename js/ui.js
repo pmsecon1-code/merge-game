@@ -389,10 +389,13 @@ function handleDragStart(e) {
         e.stopPropagation();
         return;
     }
+    const lockedCell = e.target.closest('.locked, .storage-locked');
+    if (lockedCell) {
+        handleCellClick(lockedCell.dataset.zone, parseInt(lockedCell.dataset.index));
+        return;
+    }
     const t = e.target.closest('.item, .cage-generator');
     if (!t) return;
-    const p = t.parentElement;
-    if (p.classList.contains('locked') || p.classList.contains('storage-locked')) return;
     e.preventDefault();
     const z = p.dataset.zone,
         i = parseInt(p.dataset.index);
