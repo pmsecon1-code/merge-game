@@ -59,6 +59,8 @@ function createItem(item, zone, index) {
                 specialUI = `<div class="cooldown-overlay"><span>💤</span><span>${Math.ceil((item.cooldown - Date.now()) / 1000)}s</span></div>`;
             else specialUI = `<div class="usage-badge">${rem}/6</div>`;
         }
+        const genColors = { cat: ['#fff1f2','#e11d48'], dog: ['#fef3c7','#d97706'], bird: ['#e0f2fe','#0284c7'], fish: ['#ccfbf1','#0d9488'], reptile: ['#dcfce7','#16a34a'], toy: ['#f3e8ff','#9333ea'] };
+        const [bg, accent] = genColors[type] || ['#f1f5f9','#64748b'];
         if (type === 'cat') {
             label = `캣타워 (Lv.${genLevels.cat})`;
         } else if (type === 'dog') {
@@ -72,9 +74,12 @@ function createItem(item, zone, index) {
         } else if (type === 'toy') {
             label = '장난감 생성기';
         }
+        d.style.background = bg;
+        d.style.borderColor = accent;
+        d.style.boxShadow = `0 3px 0 ${accent}`;
         const visual = `<img src="${spawnerImg}" style="width:80%;height:80%;object-fit:contain">`;
         const helpDisplay = tutorialStep > 0 ? ' style="display:none"' : '';
-        d.innerHTML = `${specialUI}<div class="animal-inside">${visual}</div><div class="cage-label">${label}</div><div class="help-btn"${helpDisplay} data-gen-type="${type}">?</div>`;
+        d.innerHTML = `${specialUI}<div class="animal-inside">${visual}</div><div class="cage-label" style="background:${accent}">${label}</div><div class="help-btn"${helpDisplay} data-gen-type="${type}">?</div>`;
         return d;
     }
     if (item.type === 'piggy_bank') {
