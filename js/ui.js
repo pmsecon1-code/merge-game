@@ -247,7 +247,7 @@ function updateQuestUI(scrollToFront = false) {
 
 // --- 이펙트 ---
 function spawnParticles(cell) {
-    const particles = ['✨', '⭐', '💫', '🌟', '✦'];
+    const particles = ['✦', '·', '•', '✦', '·'];
     const rect = cell.getBoundingClientRect();
     for (let i = 0; i < 6; i++) {
         const p = document.createElement('div');
@@ -273,7 +273,7 @@ function spawnItemEffect(cell, isLucky) {
     if (isLucky) ring.classList.add('lucky');
     document.body.appendChild(ring);
     setTimeout(() => ring.remove(), 500);
-    const sparkles = isLucky ? ['🌟', '⭐', '✨', '💎', '🎉'] : ['✨', '·', '•'];
+    const sparkles = isLucky ? ['✦', '·', '•', '✦', '·'] : ['✨', '·', '•'];
     const particleCount = isLucky ? 12 : 4;
     for (let i = 0; i < particleCount; i++) {
         const s = document.createElement('div');
@@ -301,7 +301,7 @@ function showLuckyEffect(cell) {
     setTimeout(() => flash.remove(), 500);
     const txt = document.createElement('div');
     txt.className = 'lucky-text';
-    txt.innerText = '✨ Lucky! ✨';
+    txt.innerHTML = `${ICON.sparkle} Lucky! ${ICON.sparkle}`;
     document.body.appendChild(txt);
     setTimeout(() => txt.remove(), 1000);
 }

@@ -92,7 +92,7 @@ function checkAlbumReset() {
         cards = 0;
         album = [];
         albumResetTime = Date.now() + ALBUM_CYCLE_MS;
-        showToast('📸 앨범이 초기화되었습니다!');
+        showToast(`${ICON.camera} 앨범이 초기화되었습니다!`);
         updateAlbumBarUI();
         saveGame();
     }
@@ -177,7 +177,7 @@ function checkAlbumAllComplete() {
         diamonds += ALBUM_ALL_COMPLETE_DIAMONDS;
         // 테마 완성 팝업이 먼저 보이도록 딜레이
         setTimeout(() => {
-            showMilestonePopup('📸 앨범 완성! 새 주기 시작', `${ALBUM_ALL_COMPLETE_DIAMONDS}${ICON.diamond}`);
+            showMilestonePopup(`${ICON.camera} 앨범 완성! 새 주기 시작`, `${ALBUM_ALL_COMPLETE_DIAMONDS}${ICON.diamond}`);
         }, MILESTONE_POPUP_MS + 500);
         cards = 0;
         album = [];

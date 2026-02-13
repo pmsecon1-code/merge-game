@@ -385,7 +385,7 @@ function updateDiceTripUI() {
     const rollBtn = document.getElementById('dice-roll-btn');
     if (rollBtn) {
         rollBtn.disabled = diceCount <= 0 || isRollingDice;
-        rollBtn.textContent = diceCount > 0 ? `🎲 굴리기 (${diceCount})` : '🎲 주사위 없음';
+        rollBtn.innerHTML = diceCount > 0 ? `${ICON.dice} 굴리기 (${diceCount})` : `${ICON.dice} 주사위 없음`;
     }
 
     // 보드 렌더링
@@ -428,7 +428,7 @@ function renderDiceTripBoard() {
     // 골인 지점 (마지막 칸 = 49번)
     const isAtGoal = diceTripPosition >= DICE_TRIP_SIZE - 1;
     html += `<div class="dice-step goal ${isAtGoal ? 'reached current' : ''}">
-        ${isAtGoal ? '<img src="images/icons/paw.png" class="icon icon-sm">' : '🏁'}
+        ${isAtGoal ? '<img src="images/icons/paw.png" class="icon icon-sm">' : '<img src="images/icons/finish.png" class="icon icon-sm">'}
     </div>`;
 
     diceTripBoard.innerHTML = html;

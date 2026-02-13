@@ -28,6 +28,16 @@ const ICON = {
     party: '<img src="images/effects/party.png" class="icon icon-sm">',
     confetti: '<img src="images/effects/confetti.png" class="icon icon-sm">',
     sparkle: '<img src="images/effects/sparkle.png" class="icon icon-sm">',
+    clipboard: '<img src="images/icons/clipboard.png" class="icon icon-sm">',
+    finish: '<img src="images/icons/finish.png" class="icon icon-sm">',
+    camera: '<img src="images/icons/camera.png" class="icon icon-sm">',
+    dice: '<img src="images/icons/dice.png" class="icon icon-sm">',
+    cart: '<img src="images/icons/cart.png" class="icon icon-sm">',
+    box: '<img src="images/icons/box.png" class="icon icon-sm">',
+    moneybag: '<img src="images/icons/moneybag.png" class="icon icon-sm">',
+    ticket: '<img src="images/icons/ticket.png" class="icon icon-sm">',
+    mail: '<img src="images/icons/mail.png" class="icon icon-sm">',
+    trash: '<img src="images/icons/trash.png" class="icon icon-sm">',
 };
 
 // --- 그리드 설정 ---

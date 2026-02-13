@@ -95,7 +95,7 @@
             <div id="levelup-progress-bar" class="event-bar">
                 <div class="flex justify-between items-center mb-1">
                     <span class="text-[10px] font-bold text-blue-600">
-                        📋 퀘스트 완료하기 (Lv.업 +
+                        <img src="images/icons/clipboard.png" class="icon icon-xs"> 퀘스트 완료하기 (Lv.업 +
                         <span id="levelup-reward-preview">5</span><img src="images/icons/diamond.png" class="icon icon-xs">)
                     </span>
                     <span id="levelup-progress-text" class="text-[9px] text-blue-500 font-bold">0/2</span>
@@ -111,7 +111,7 @@
 
             <!-- 2. 일반 퀘스트 -->
             <div id="quest-area" class="event-bar">
-                <span class="text-[10px] font-bold text-purple-600">📋 퀘스트</span>
+                <span class="text-[10px] font-bold text-purple-600"><img src="images/icons/clipboard.png" class="icon icon-xs"> 퀘스트</span>
                 <div id="quest-container"></div>
             </div>
 
@@ -125,7 +125,7 @@
             <!-- 4. 일일 미션 -->
             <div id="daily-mission-bar" class="event-bar" style="border: 2px solid #f59e0b">
                 <div class="flex justify-between items-center mb-1">
-                    <span class="text-[10px] font-bold text-amber-700">📋 일일 미션 <span id="daily-tier-info" class="text-[8px] text-amber-500 font-bold">★ 1단계</span></span>
+                    <span class="text-[10px] font-bold text-amber-700"><img src="images/icons/clipboard.png" class="icon icon-xs"> 일일 미션 <span id="daily-tier-info" class="text-[8px] text-amber-500 font-bold">★ 1단계</span></span>
                     <span id="daily-reset-timer" class="text-[9px] text-amber-500">리셋 00:00:00</span>
                 </div>
                 <div id="daily-missions-container" class="space-y-1">
@@ -138,14 +138,14 @@
                 <!-- 4-1. 레이스 -->
                 <div id="race-bar" class="event-bar" style="display:none; border: 2px solid #06b6d4">
                     <div class="flex items-center gap-1 mb-1 flex-wrap">
-                        <span class="text-[10px] font-bold text-cyan-600">🏁 레이스</span>
+                        <span class="text-[10px] font-bold text-cyan-600"><img src="images/icons/finish.png" class="icon icon-xs"> 레이스</span>
                         <span class="text-[9px] text-cyan-500">내 코드:</span>
                         <span id="my-race-code" class="text-[9px] text-cyan-700 font-mono font-bold">------</span>
                         <button
                             id="race-copy-btn"
                             onclick="copyRaceCode(document.getElementById('my-race-code').innerText)"
                             class="text-[8px] bg-cyan-500 text-white px-1 py-0.5 rounded"
-                        >📋</button>
+                        ><img src="images/icons/clipboard.png" class="icon icon-xs"></button>
                         <span id="race-timer" class="text-[9px] text-orange-500 font-bold hidden">⏱️ --:--</span>
                         <!-- 대기 상태 UI -->
                         <div id="race-pending-status" class="hidden flex items-center gap-1">
@@ -167,7 +167,7 @@
                 <div id="album-bar" class="event-bar" style="display:none; border: 2px solid #e879f9">
                     <div class="flex justify-between items-center">
                         <span class="text-[10px] font-bold text-fuchsia-600">
-                            📸 앨범
+                            <img src="images/icons/camera.png" class="icon icon-xs"> 앨범
                             <span id="album-progress-text" class="text-[9px] text-fuchsia-400">0/81</span>
                             <span id="album-reward-hint" class="text-[9px] text-fuchsia-300"></span>
                         </span>
@@ -188,7 +188,7 @@
                 <div id="dice-trip-wrapper" class="event-bar" style="display:none; border: 2px solid #10b981">
                     <div class="flex justify-between items-center mb-1">
                         <span class="text-[10px] font-bold text-emerald-600">
-                            🎲 주사위 여행
+                            <img src="images/icons/dice.png" class="icon icon-xs"> 주사위 여행
                             <span id="dice-trip-position" class="text-[9px] text-emerald-400">1/20</span>
                             <span id="dice-reward-hint" class="text-[9px] text-emerald-300"></span>
                         </span>
@@ -197,7 +197,7 @@
                             onclick="useDice()"
                             class="text-[9px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold disabled:opacity-50"
                         >
-                            🎲 굴리기 (0)
+                            <img src="images/icons/dice.png" class="icon icon-xs"> 굴리기 (0)
                         </button>
                     </div>
                     <div id="dice-trip-board" class="dice-trip-board"></div>
@@ -206,7 +206,7 @@
                 <!-- 7. 상점 -->
                 <div id="shop-wrapper" class="event-bar" style="display:none; border: 2px solid #f59e0b">
                     <div class="flex justify-between items-center">
-                        <span class="text-[10px] font-bold text-orange-600">🛒 상점</span>
+                        <span class="text-[10px] font-bold text-orange-600"><img src="images/icons/cart.png" class="icon icon-xs"> 상점</span>
                         <span id="shop-timer-badge" class="text-[9px] text-orange-500 font-bold">갱신: 05:00</span>
                     </div>
                     <div class="grid-layout" id="shop-grid"></div>
@@ -214,7 +214,7 @@
 
                 <!-- 8. 창고 -->
                 <div id="storage-wrapper" class="event-bar" style="display:none; border: 2px solid #10b981">
-                    <span class="text-[10px] font-bold text-emerald-600">📦 창고</span>
+                    <span class="text-[10px] font-bold text-emerald-600"><img src="images/icons/box.png" class="icon icon-xs"> 창고</span>
                     <div id="storage-area" class="grid-layout"></div>
                 </div>
             </div>
@@ -305,7 +305,7 @@
 
         <div id="dice-drop-popup" class="overlay-bg">
             <div class="overlay-content">
-                <div class="text-6xl mb-4">🎲</div>
+                <div class="mb-4"><img src="images/icons/dice.png" class="icon icon-xl mx-auto"></div>
                 <h2 class="text-2xl font-bold text-emerald-600 mb-2">주사위 획득!</h2>
                 <div class="bg-emerald-100 text-emerald-700 px-6 py-3 rounded-xl font-bold text-lg mb-2">
                     보상: 주사위 1개
@@ -322,7 +322,7 @@
 
         <div id="dice-roll-popup" class="overlay-bg">
             <div class="overlay-content">
-                <div id="dice-anim" class="text-7xl mb-4">🎲</div>
+                <div id="dice-anim" class="mb-4"><img src="images/icons/dice.png" class="icon icon-xl mx-auto"></div>
                 <h2 id="dice-title" class="text-2xl font-bold text-emerald-600 mb-2">주사위 굴리기!</h2>
                 <div id="dice-result-num" class="text-6xl font-bold text-emerald-500 mb-2">?</div>
                 <div id="dice-reward-box" class="bg-emerald-100 text-emerald-700 px-6 py-3 rounded-xl font-bold text-lg mb-4 hidden">
@@ -404,8 +404,8 @@
                 <hr class="my-3 border-gray-200">
                 <div class="flex flex-col gap-2">
                     <button onclick="handleGoogleLogin()" class="settings-btn"><img src="images/icons/key.png" class="icon icon-sm"> 로그아웃</button>
-                    <button onclick="deleteAccount()" class="settings-btn settings-btn-danger">🗑️ 회원탈퇴</button>
-                    <button onclick="closeOverlay('settings-popup');document.getElementById('privacy-popup').style.display='flex'" class="settings-btn settings-btn-link">📋 개인정보처리방침</button>
+                    <button onclick="deleteAccount()" class="settings-btn settings-btn-danger"><img src="images/icons/trash.png" class="icon icon-sm"> 회원탈퇴</button>
+                    <button onclick="closeOverlay('settings-popup');document.getElementById('privacy-popup').style.display='flex'" class="settings-btn settings-btn-link"><img src="images/icons/clipboard.png" class="icon icon-sm"> 개인정보처리방침</button>
                 </div>
                 <hr class="my-3 border-gray-200">
                 <button onclick="closeOverlay('settings-popup')" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-bold text-sm">닫기</button>
@@ -414,7 +414,7 @@
 
         <div id="privacy-popup" class="overlay-bg" style="display:none">
             <div class="overlay-content bg-white p-5 rounded-2xl shadow-xl border-4 border-gray-300" style="max-height:70vh; overflow-y:auto">
-                <div class="text-lg font-bold mb-2">📋 개인정보처리방침</div>
+                <div class="text-lg font-bold mb-2"><img src="images/icons/clipboard.png" class="icon icon-sm"> 개인정보처리방침</div>
                 <div class="text-left text-xs leading-relaxed text-gray-600 space-y-2">
                     <p><b>1. 수집항목</b><br>Google 계정 이메일, 닉네임 (로그인 시 자동 수집)</p>
                     <p><b>2. 이용목적</b><br>게임 데이터 저장, 레이스 매칭, 세션 관리</p>
@@ -428,7 +428,7 @@
 
         <div id="sell-popup" class="overlay-bg">
             <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-yellow-400">
-                <div class="text-4xl mb-2">💰</div>
+                <div class="mb-2"><img src="images/icons/moneybag.png" class="icon icon-xl mx-auto"></div>
                 <h2 class="text-xl font-bold text-gray-800 mb-2">판매하시겠습니까?</h2>
                 <p id="sell-desc" class="text-sm text-gray-500 mb-4"></p>
                 <div class="flex gap-2 justify-center">
@@ -513,7 +513,7 @@
         <!-- 사진 뽑기 팝업 -->
         <div id="photo-draw-overlay" class="overlay-bg">
             <div class="overlay-content">
-                <div class="text-4xl mb-3">📸</div>
+                <div class="mb-3"><img src="images/icons/camera.png" class="icon icon-xl mx-auto"></div>
                 <h2 class="text-2xl font-bold text-fuchsia-500 mb-3">사진 뽑기!</h2>
                 <div id="draw-results" class="flex gap-4 justify-center mb-4"></div>
             </div>
@@ -522,7 +522,7 @@
         <!-- 앨범 모달 -->
         <div id="album-modal" class="modal" onclick="if (event.target === this) closeAlbum();">
             <div class="modal-content album-modal-content">
-                <h2 class="text-center text-lg text-fuchsia-600 font-bold mb-2">📸 앨범</h2>
+                <h2 class="text-center text-lg text-fuchsia-600 font-bold mb-2"><img src="images/icons/camera.png" class="icon icon-sm"> 앨범</h2>
                 <div id="album-tabs" class="flex gap-1 mb-2 overflow-x-auto pb-1 flex-shrink-0"></div>
                 <div id="album-grid" class="album-grid-scroll"></div>
                 <div id="album-theme-reward" class="text-center text-[10px] text-gray-400 my-2 flex-shrink-0"></div>
@@ -538,7 +538,7 @@
         <!-- 레이스 참가 팝업 -->
         <div id="race-join-popup" class="overlay-bg">
             <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-cyan-400">
-                <div class="text-5xl mb-3">🎫</div>
+                <div class="mb-3"><img src="images/icons/ticket.png" class="icon icon-xl mx-auto"></div>
                 <h2 class="text-2xl font-bold text-cyan-600 mb-2">코드 입력</h2>
                 <div id="recent-opponents" class="mb-3 hidden">
                     <p class="text-xs text-gray-400 mb-2">최근 상대</p>
@@ -570,7 +570,7 @@
         <!-- 레이스 초대 팝업 (player2) -->
         <div id="race-invite-popup" class="overlay-bg" style="display: none">
             <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-cyan-400">
-                <div class="text-5xl mb-3">🏁</div>
+                <div class="mb-3"><img src="images/icons/finish.png" class="icon icon-xl mx-auto"></div>
                 <h2 class="text-2xl font-bold text-cyan-600 mb-2">레이스 초대</h2>
                 <p class="text-sm text-gray-600 mb-2">
                     <span id="invite-from-name" class="font-bold text-cyan-700">???</span>님이
