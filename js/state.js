@@ -13,7 +13,7 @@ let coins = 0,
     cumulativeCoins = 0;
 let diamonds = 0,
     energy = MAX_ENERGY,
-    recoveryCountdown = RECOVERY_SEC;
+    energyRecoverAt = Date.now() + RECOVERY_SEC * 1000;
 
 // --- 주사위 여행 ---
 let diceTripPosition = 0;    // 현재 위치 (0~50)

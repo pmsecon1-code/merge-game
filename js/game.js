@@ -492,7 +492,7 @@ function checkEnergyAfterUse() {
         if (!firstEnergyRewardGiven) {
             firstEnergyRewardGiven = true;
             energy = MAX_ENERGY;
-            recoveryCountdown = RECOVERY_SEC;
+            energyRecoverAt = Date.now() + RECOVERY_SEC * 1000;
             playSound('milestone');
             showToast(`${ICON.gift} 첫 에너지 소진 보상! +100${ICON.energy}`);
             updateUI();
@@ -529,7 +529,7 @@ function buyEnergy() {
     if (coins >= price) {
         coins -= price;
         energy = MAX_ENERGY;
-        recoveryCountdown = RECOVERY_SEC;
+        energyRecoverAt = Date.now() + RECOVERY_SEC * 1000;
         energyPurchaseCount++;
         closeEnergyPopup();
         playSound('purchase');

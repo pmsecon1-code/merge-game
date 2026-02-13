@@ -110,7 +110,7 @@ export default [
                 diceTripContainer: 'writable',
                 diceTripBoard: 'writable',
                 energy: 'writable',
-                recoveryCountdown: 'writable',
+                energyRecoverAt: 'writable',
                 userLevel: 'writable',
                 questProgress: 'writable',
                 quests: 'writable',
@@ -192,7 +192,6 @@ export default [
                 loadFromCloud: 'readonly',
                 validateGameData: 'readonly',
                 initNewGame: 'readonly',
-                recoverOfflineEnergy: 'readonly',
                 lastSavedAt: 'writable',
                 // game.js globals
                 addCoins: 'readonly',

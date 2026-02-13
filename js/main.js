@@ -115,17 +115,15 @@ function createShopCells() {
 function startEnergyRecovery() {
     setInterval(() => {
         if (energy < MAX_ENERGY) {
-            recoveryCountdown--;
-            if (recoveryCountdown <= 0) {
+            while (energy < MAX_ENERGY && Date.now() >= energyRecoverAt) {
                 energy++;
-                recoveryCountdown = RECOVERY_SEC;
-                updateUI();
+                energyRecoverAt += RECOVERY_SEC * 1000;
             }
-            updateTimerUI();
+            updateUI();
         } else {
-            recoveryCountdown = RECOVERY_SEC;
-            updateTimerUI();
+            energyRecoverAt = Date.now() + RECOVERY_SEC * 1000;
         }
+        updateTimerUI();
     }, 1000);
 }
 
@@ -267,8 +265,6 @@ document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         saveGameNow();
     } else {
-        // 포그라운드 복귀 시 오프라인 에너지 회복
-        recoverOfflineEnergy();
         // 에너지 팝업 열려있으면 타이머 즉시 갱신
         if (document.getElementById('energy-popup').style.display === 'flex') {
             updateEnergyPopupTimer();

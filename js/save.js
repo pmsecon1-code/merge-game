@@ -2,33 +2,8 @@
 // save.js - 저장/로드/검증/마이그레이션
 // ============================================
 
-// 마지막 저장 시간 (포그라운드 복귀 시 회복 계산용)
+// 마지막 저장 시간 (포그라운드 복귀 시 사용)
 let lastSavedAt = Date.now();
-
-// --- 오프라인 에너지 회복 ---
-function recoverOfflineEnergy(savedAt) {
-    // savedAt가 없으면 lastSavedAt 사용 (포그라운드 복귀 시)
-    const baseTime = savedAt || lastSavedAt;
-    if (!baseTime || energy >= MAX_ENERGY) return;
-
-    const elapsed = Date.now() - baseTime;
-    if (elapsed <= 0) return;
-
-    const recoveryMs = RECOVERY_SEC * 1000;
-    const fullRecoveries = Math.floor(elapsed / recoveryMs);
-    const remainingMs = elapsed % recoveryMs;
-
-    if (fullRecoveries > 0) {
-        const before = energy;
-        energy = Math.min(MAX_ENERGY, energy + fullRecoveries);
-        recoveryCountdown = Math.max(0, RECOVERY_SEC - Math.floor(remainingMs / 1000));
-        console.log(`[Energy] 오프라인 회복: +${energy - before} (${before} → ${energy})`);
-        updateUI();
-    }
-
-    // 마지막 저장 시간 갱신
-    lastSavedAt = Date.now();
-}
 
 // --- 게임 데이터 직렬화 ---
 function getGameData() {
@@ -40,7 +15,7 @@ function getGameData() {
         totalQuestsCompleted,
         diamonds,
         energy,
-        recoveryCountdown,
+        energyRecoverAt,
         userLevel,
         questProgress,
         quests,
@@ -93,10 +68,15 @@ function applyGameData(d) {
     totalQuestsCompleted = d.totalQuestsCompleted ?? 0;
     diamonds = d.diamonds ?? 0;
 
-    // 오프라인 에너지 회복 (v4.3.0)
     energy = d.energy ?? MAX_ENERGY;
-    recoveryCountdown = d.recoveryCountdown ?? RECOVERY_SEC;
-    recoverOfflineEnergy(d.savedAt);
+    // 마이그레이션: recoveryCountdown → energyRecoverAt
+    if (d.energyRecoverAt) {
+        energyRecoverAt = d.energyRecoverAt;
+    } else {
+        // 구버전: savedAt + 남은 카운트다운으로 절대 시간 복원
+        const cd = d.recoveryCountdown ?? RECOVERY_SEC;
+        energyRecoverAt = (d.savedAt || Date.now()) + cd * 1000;
+    }
     userLevel = d.userLevel ?? 1;
     questProgress = d.questProgress ?? 0;
     quests = (d.quests || []).map((q) => ({

@@ -162,7 +162,7 @@ function updateTimerUI() {
     energyTimerEl.innerText =
         energy >= MAX_ENERGY
             ? 'FULL'
-            : `${Math.floor(recoveryCountdown / 60)}:${(recoveryCountdown % 60).toString().padStart(2, '0')}`;
+            : formatMinSec(energyRecoverAt - Date.now());
 }
 
 function updateQuestUI(scrollToFront = false) {
@@ -624,7 +624,7 @@ function toggleBottomTab(tabId) {
         dailyBar.style.display = 'none';
         document.getElementById(mapping[tabId]).style.display = 'flex';
         currentBottomTab = tabId;
-        if (tabId === 'dice') renderDiceTripBoard();
+        if (tabId === 'dice') requestAnimationFrame(() => renderDiceTripBoard());
     }
 
     document.querySelectorAll('.bottom-nav-badge').forEach(btn => {
