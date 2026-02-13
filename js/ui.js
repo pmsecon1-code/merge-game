@@ -148,17 +148,14 @@ function updateUI() {
     coinEl.innerText = coins.toLocaleString();
     diamondEl.innerText = diamonds.toLocaleString();
     energyEl.innerText = energy;
-    levelEl.innerText = `Lv.${userLevel}`;
+    const goal = getLevelUpGoal(userLevel);
+    levelEl.innerText = `Lv.${userLevel} ${questProgress}/${goal}`;
     energyEl.className = energy === 0 ? 'text-xs font-bold text-red-500' : 'text-xs font-bold text-yellow-500';
-    updateLevelupProgressUI();
 }
 
 function updateLevelupProgressUI() {
     const goal = getLevelUpGoal(userLevel);
-    const reward = getLevelUpReward(userLevel);
-    document.getElementById('levelup-progress-text').innerText = `${questProgress}/${goal}`;
-    document.getElementById('levelup-progress-fill').style.width = `${(questProgress / goal) * 100}%`;
-    document.getElementById('levelup-reward-preview').innerText = reward;
+    levelEl.innerText = `Lv.${userLevel} ${questProgress}/${goal}`;
 }
 
 function updateTimerUI() {
