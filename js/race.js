@@ -529,7 +529,7 @@ function showRaceResult(data) {
     startPlayer2Listener(); // 다음 레이스 감지용
 
     // 결과 팝업
-    const resultText = result === 'win' ? '🏆 승리!' : result === 'lose' ? '😢 패배' : '🤝 무승부';
+    const resultText = result === 'win' ? `${ICON.trophy} 승리!` : result === 'lose' ? `${ICON.lose} 패배` : `${ICON.draw} 무승부`;
     const rewardText = `${reward.coins}${ICON.coin}` + (reward.diamonds > 0 ? ` + ${reward.diamonds}${ICON.diamond}` : '');
     showMilestonePopup(resultText, rewardText);
 }
@@ -644,7 +644,7 @@ function updateRaceUIFromData(data) {
         <div class="race-lane">
             <span class="race-label">나</span>
             <div class="race-road">
-                <div class="race-car" style="left: ${myPercent}%">🚗</div>
+                <div class="race-car" style="left: ${myPercent}%"><img src="images/race/mycar.png" class="icon icon-md"></div>
                 <div class="race-finish">🏁</div>
             </div>
             <span class="race-progress">${myProgress}/${RACE_GOAL}</span>
@@ -652,7 +652,7 @@ function updateRaceUIFromData(data) {
         <div class="race-lane">
             <span class="race-label">${oppName || '상대'}</span>
             <div class="race-road">
-                <div class="race-car" style="left: ${oppPercent}%">🚙</div>
+                <div class="race-car" style="left: ${oppPercent}%"><img src="images/race/rival.png" class="icon icon-md"></div>
                 <div class="race-finish">🏁</div>
             </div>
             <span class="race-progress">${oppProgress}/${RACE_GOAL}</span>

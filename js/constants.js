@@ -15,6 +15,11 @@ const ICON = {
     save: '<img src="images/icons/save.png" class="icon icon-sm">',
     gift: '<img src="images/icons/gift.png" class="icon icon-sm">',
     sound: '<img src="images/icons/sound.png" class="icon icon-sm">',
+    mycar: '<img src="images/race/mycar.png" class="icon icon-md">',
+    rival: '<img src="images/race/rival.png" class="icon icon-md">',
+    trophy: '<img src="images/race/trophy.png" class="icon icon-sm">',
+    lose: '<img src="images/race/lose.png" class="icon icon-sm">',
+    draw: '<img src="images/race/draw.png" class="icon icon-sm">',
 };
 
 // --- 그리드 설정 ---

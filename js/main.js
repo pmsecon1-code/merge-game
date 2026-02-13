@@ -45,6 +45,10 @@ function init() {
         const img = new Image();
         img.src = `images/badges/${t}.png`;
     });
+    ['mycar', 'rival', 'trophy', 'lose', 'draw'].forEach(t => {
+        const img = new Image();
+        img.src = `images/race/${t}.png`;
+    });
 
     // 보상 힌트 텍스트 (상수 기반)
     document.getElementById('race-hint').innerHTML = `친구 코드를 입력해서 경쟁하세요! (승리 시 +${RACE_REWARDS.win.coins}${ICON.coin} +${RACE_REWARDS.win.diamonds}${ICON.diamond})`;
