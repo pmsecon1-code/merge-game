@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.25.4)
+# 멍냥 머지 게임 - Architecture (v4.25.5)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.25.4
+- **버전**: 4.25.5
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -752,6 +752,17 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.25.5 (2026-02-13) - 보드 클릭 + 레이스 초대 버그 수정
+- 🐛 **보드 클릭/드래그 완전 불가 버그 수정**
+  - 원인: `handleDragStart`에서 미정의 변수 `p` 참조 → ReferenceError → `dragData` 미설정 → `handleDragEnd` 무동작
+  - 수정: `const p = t.closest('.cell')` 추가 (부모 셀 참조)
+- 🐛 **레이스 초대 실패 버그 수정**
+  - 원인: `joinRaceByCode`에서 `findActiveOrPendingRace(codeData.ownerUid)` 호출 시 Firestore 읽기 권한 부족 (상대방 레이스 조회 불가)
+  - Firestore 규칙: `isPlayer()` → 본인 참가 레이스만 읽기 가능, 상대방 레이스 조회는 권한 오류
+  - 수정: 상대방 레이스 조회를 try-catch로 감싸서 권한 오류 시 스킵 (초대 정상 진행)
+- 수정 파일: js/ui.js, js/race.js
+- 수정 함수: `handleDragStart()` (ui.js), `joinRaceByCode()` (race.js)
 
 ### v4.25.4 (2026-02-13) - 퀘스트 아이템 도감 연동
 - 🆕 **퀘스트 아이템 클릭 → 도감 열기 + 하이라이트**
