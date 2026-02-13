@@ -24,6 +24,16 @@ function init() {
     createStorageCells();
     createShopCells();
 
+    // 이미지 프리로드 (합성 시 딜레이 방지)
+    [CATS, DOGS, BIRDS, FISH, REPTILES, CAT_SNACKS, DOG_SNACKS, CAT_TOYS, DOG_TOYS].forEach(list => {
+        list.forEach(item => {
+            if (item.img) {
+                const img = new Image();
+                img.src = item.img;
+            }
+        });
+    });
+
     // 보상 힌트 텍스트 (상수 기반)
     document.getElementById('race-hint').textContent = `친구 코드를 입력해서 경쟁하세요! (승리 시 +${RACE_REWARDS.win.coins}🪙 +${RACE_REWARDS.win.diamonds}💎)`;
     document.getElementById('album-reward-hint').textContent = `(완성 시 +${ALBUM_ALL_COMPLETE_DIAMONDS}💎)`;
