@@ -223,9 +223,8 @@ function updateQuestUI(scrollToFront = false) {
         questContainer.appendChild(d);
     });
     questContainer.scrollLeft = savedScroll;
-    if (scrollToFront) {
-        void questContainer.offsetWidth;
-        questContainer.scrollLeft = 0;
+    if (scrollToFront && questContainer.firstChild) {
+        questContainer.firstChild.scrollIntoView({ inline: 'start', block: 'nearest' });
     }
 }
 
@@ -600,6 +599,7 @@ function toggleBottomTab(tabId) {
         dailyBar.style.display = 'none';
         document.getElementById(mapping[tabId]).style.display = 'flex';
         currentBottomTab = tabId;
+        if (tabId === 'dice') renderDiceTripBoard();
     }
 
     document.querySelectorAll('.bottom-nav-badge').forEach(btn => {
