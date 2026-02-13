@@ -717,8 +717,11 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 퀘스트/럭키 (v4.25.1)
 `SPECIAL_QUEST_REWARD=300`, `QUEST_EXPIRE_MS=600000`, `QUEST_SNACK_CHANCE=0.3`, `QUEST_PIGGY_CHANCE=0.2`, `QUEST_MULTI_BASE_CHANCE=0.3`, `QUEST_MULTI_LEVEL_FACTOR=0.05`, `QUEST_MULTI_MAX_CHANCE=0.8`, `LUCKY_BASE_CHANCE=0.05`, `LUCKY_LEVEL_BONUS=0.01`, `LUCKY_SNACK_CHANCE=0.5`, `QUEST_COUNT_MISSION_GOAL=100`, `CLOUD_SAVE_DEBOUNCE_MS=500`
 
-### 헬퍼 함수 (6개)
-`getItemList`, `getMaxLevel`, `getItemData`, `getGeneratorName`, `getSpecialTypeName`, `formatMinSec`
+### 유저 이름 (v4.25.2)
+`MAX_NAME_LENGTH=6`, `getDisplayName(user)` → 첫 단어 기준 최대 6자
+
+### 헬퍼 함수 (7개)
+`getItemList`, `getMaxLevel`, `getItemData`, `getGeneratorName`, `getSpecialTypeName`, `formatMinSec`, `getDisplayName`
 
 ---
 
@@ -749,6 +752,29 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.25.2 (2026-02-13) - 버그 수정 + UI 개선
+- 🐛 **퀘스트 완료 시 스크롤 앞으로 이동 안 되는 버그 수정**
+  - `updateAll()` + `updateQuestUI(true)` 이중 호출 → `updateAll({ scrollQuestToFront: true })` 단일 호출로 통합
+  - `requestAnimationFrame` → `setTimeout(50ms)` + `scrollLeft=0` 즉시 점프로 변경
+- 🐛 **레이스 중 유저에게 초대 보내지는 버그 수정**
+  - `findActiveOrPendingRace()` 에러 시 `null` 반환 → try-catch 제거하여 에러 전파
+  - player2 리스너에서 `pendingInviteId` 체크 추가 (초대 확인 중 2번째 초대 차단)
+- 🐛 **일반 스폰 파티클 이모지(✨) → 텍스트 문자(✦) 교체**
+- 🎨 **설정 팝업 레이아웃 개선**
+  - 유저 이름 표시 추가
+  - 회원탈퇴/개인정보처리방침을 한 줄 10px 회색 텍스트로 축소
+  - `|` 구분자 수직 가운데 정렬 (`items-center` + `leading-none`)
+- 🎨 **유저 이름 최대 6자 제한**
+  - `getDisplayName(user)` 헬퍼 추가 (constants.js): 첫 단어 기준 `MAX_NAME_LENGTH=6`
+  - 적용: 설정 팝업, 레이스 코드/초대, 환영 토스트
+- 🎨 **이름 말줄임표 공통 CSS `.name-ellipsis`**
+  - 레이스 트랙(40px), 초대 팝업(80px), 초대 전송(80px), 설정(150px) 4곳 적용
+- 수정 파일: css/styles.css, index.html, js/constants.js, js/game.js, js/ui.js, js/race.js, js/main.js, eslint.config.js
+- 신규 상수: `MAX_NAME_LENGTH` (constants.js)
+- 신규 함수: `getDisplayName()` (constants.js)
+- 신규 CSS: `.name-ellipsis`
+- 수정 함수: `updateAll(opts)` (ui.js - scrollQuestToFront 옵션), `openSettings()` (ui.js - 이름 표시), `findActiveOrPendingRace()` (race.js - 에러 전파)
 
 ### v4.25.1 (2026-02-13) - 코드 리팩토링
 - 🧹 **Phase 1: Dead Code 제거**
