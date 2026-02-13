@@ -692,7 +692,7 @@ function updateDailyMissionUI() {
         if (allDone) {
             tierInfo.innerHTML = `<span class="text-green-600">${ICON.check} 완료!</span> +${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} +${DAILY_COMPLETE_REWARD.cards}${ICON.card}`;
         } else {
-            tierInfo.textContent = `${'★'.repeat(tier + 1)} ${tier + 1}단계`;
+            tierInfo.innerHTML = `${ICON.star.repeat(tier + 1)} ${tier + 1}단계`;
         }
     }
 
@@ -711,9 +711,9 @@ function updateDailyMissionUI() {
                     <div class="h-full ${done ? 'bg-green-400' : 'bg-amber-400'} transition-all" style="width:${pct}%"></div>
                 </div>
                 <span class="text-[9px] w-14 text-right ${done ? 'text-green-600' : 'text-amber-600'} font-bold">
-                    ${Math.min(progress, target)}/${target} ${done ? '✓' : ''}
+                    ${Math.min(progress, target)}/${target} ${done ? ICON.check : ''}
                 </span>
-                <span class="text-[8px] text-amber-400">(${mission.reward}<img src="images/icons/coin.png" class="icon" style="width:10px;height:10px">)</span>
+                <span class="text-[8px] text-amber-400">(${mission.reward}${ICON.coin})</span>
             </div>
         `;
     });

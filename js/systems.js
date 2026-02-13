@@ -386,7 +386,7 @@ function renderDiceTripBoard() {
         const rewardDisplay = isCurrent
             ? '<img src="images/icons/paw.png" class="icon icon-sm">'
             : isVisited
-                ? '✓'
+                ? ICON.check
                 : `<span class="reward-icon">${rewardIcon}</span><span class="reward-amount">${rewardAmount}</span>`;
 
         html += `<div class="dice-step ${isVisited ? 'visited' : ''} ${isCurrent ? 'current' : ''}">

@@ -307,10 +307,10 @@ function updateSaveStatus(status) {
     if (!el) return;
     el.classList.remove('hidden');
     if (status === 'saving') {
-        el.innerHTML = `${ICON.save}⏳`;
+        el.innerHTML = `${ICON.save}${ICON.timer}`;
         el.className = 'text-[10px] text-yellow-500';
     } else if (status === 'saved') {
-        el.innerHTML = `${ICON.save}✓`;
+        el.innerHTML = `${ICON.save}${ICON.check}`;
         el.className = 'text-[10px] text-green-500';
         setTimeout(() => {
             el.className = 'text-[10px] text-gray-400';

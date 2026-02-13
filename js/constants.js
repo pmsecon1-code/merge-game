@@ -43,6 +43,7 @@ const ICON = {
     sleep: '<img src="images/icons/sleep.png" class="icon icon-sm">',
     offline: '<img src="images/icons/offline.png" class="icon icon-sm">',
     star: '<img src="images/effects/star.png" class="icon icon-sm">',
+    merge: '<img src="images/icons/merge.png" class="icon icon-sm">',
 };
 
 // --- 유저 이름 ---
@@ -189,21 +190,21 @@ const NPC_AVATARS = ['👩‍🌾', '👨‍🍳', '👮‍♀️', '🧙‍♂�
 const DAILY_MISSIONS = [
     // 1단계 (쉬움)
     [
-        { id: 'merge', icon: '🔨', label: '합성', target: 15, reward: 30 },
-        { id: 'spawn', icon: '✨', label: '생성', target: 30, reward: 30 },
-        { id: 'coins', icon: '👑', label: '코인 획득', target: 150, reward: 30 },
+        { id: 'merge', icon: ICON.merge, label: '합성', target: 15, reward: 30 },
+        { id: 'spawn', icon: ICON.sparkle, label: '생성', target: 30, reward: 30 },
+        { id: 'coins', icon: ICON.coin, label: '코인 획득', target: 150, reward: 30 },
     ],
     // 2단계 (보통)
     [
-        { id: 'merge', icon: '🔨', label: '합성', target: 40, reward: 60 },
-        { id: 'spawn', icon: '✨', label: '생성', target: 80, reward: 60 },
-        { id: 'coins', icon: '👑', label: '코인 획득', target: 400, reward: 60 },
+        { id: 'merge', icon: ICON.merge, label: '합성', target: 40, reward: 60 },
+        { id: 'spawn', icon: ICON.sparkle, label: '생성', target: 80, reward: 60 },
+        { id: 'coins', icon: ICON.coin, label: '코인 획득', target: 400, reward: 60 },
     ],
     // 3단계 (어려움)
     [
-        { id: 'merge', icon: '🔨', label: '합성', target: 80, reward: 100 },
-        { id: 'spawn', icon: '✨', label: '생성', target: 150, reward: 100 },
-        { id: 'coins', icon: '👑', label: '코인 획득', target: 800, reward: 100 },
+        { id: 'merge', icon: ICON.merge, label: '합성', target: 80, reward: 100 },
+        { id: 'spawn', icon: ICON.sparkle, label: '생성', target: 150, reward: 100 },
+        { id: 'coins', icon: ICON.coin, label: '코인 획득', target: 800, reward: 100 },
     ],
 ];
 const DAILY_COMPLETE_REWARD = { diamonds: 5, cards: 3 };
