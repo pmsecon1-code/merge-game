@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.25.0)
+# 멍냥 머지 게임 - Architecture (v4.25.1)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.25.0
+- **버전**: 4.25.1
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -18,18 +18,18 @@ merge2/
 ├── css/
 │   └── styles.css      # 모든 CSS (~1866줄)
 ├── js/
-│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~541줄)
-│   ├── state.js        # 전역 변수 + DOM 참조 (~126줄)
+│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~566줄)
+│   ├── state.js        # 전역 변수 + DOM 참조 (~120줄)
 │   ├── auth.js         # 인증 + 세션 + 회원탈퇴 (~177줄)
 │   ├── save.js         # 저장/로드/검증 (~575줄)
-│   ├── game.js         # 코어 게임 메커닉 (~843줄)
-│   ├── systems.js      # 7행미션/주사위 여행/상점 (~479줄)
-│   ├── album.js        # 앨범 (사진 수집) 시스템 (~248줄)
-│   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1073줄)
-│   ├── sound.js        # 사운드 시스템 (효과음+BGM) (~410줄)
+│   ├── game.js         # 코어 게임 메커닉 (~821줄)
+│   ├── systems.js      # 7행미션/주사위 여행/상점 (~439줄)
+│   ├── album.js        # 앨범 (사진 수집) 시스템 (~241줄)
+│   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1066줄)
+│   ├── sound.js        # 사운드 시스템 (효과음+BGM) (~406줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~194줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~720줄)
-│   └── main.js         # 초기화 + 타이머 (~299줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~700줄)
+│   └── main.js         # 초기화 + 타이머 (~295줄)
 ├── images/
 │   ├── icons/          # UI 아이콘 27종 (128×128 PNG)
 │   ├── effects/        # 이펙트 아이콘 3종
@@ -54,7 +54,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → sound → ui → tutorial → main
 
-**총 JS**: ~5685줄, **함수**: ~143개
+**총 JS**: ~5600줄, **함수**: ~143개
 
 ---
 
@@ -358,6 +358,7 @@ ALBUM_CYCLE_MS = 42일        // 초기화 주기
 | `checkThemeComplete()` | 테마 완성 → 500🪙 |
 | `checkAlbumAllComplete()` | 전체 완성 → 100💎 + 리셋 |
 | `getAlbumProgress()` | 수집 수 계산 |
+| `getThemeCollectedCount(themeIdx)` | 테마별 수집 수 계산 |
 | `updateAlbumBarUI()` | 앨범바 + 상단바 카드 업데이트 |
 
 ---
@@ -461,13 +462,12 @@ Web Audio API 기반 합성음 효과음 + BGM. 외부 파일 없이 코드로 �
 |----|------|--------|
 | `error` | 거부/실패 (sawtooth 110Hz) | 재화부족, 공간부족, 과열, 판매불가, 최대레벨, 잠금 터치 |
 
-### 관련 함수 (sound.js, 10개)
+### 관련 함수 (sound.js, 9개)
 | 함수 | 역할 |
 |------|------|
 | `initSound()` | AudioContext 생성 + UI 초기화 |
 | `unlockAudio()` | iOS 첫 터치 오디오 unlock |
 | `createSynthSound(id)` | ID별 합성음 생성/재생 |
-| `preloadAllSounds()` | 프리로드 (합성음이므로 빈 함수) |
 | `playSound(id)` | 통합 재생 API |
 | `playBGM()` | BGM 루프 시작 |
 | `stopBGM()` | BGM 정지 |
@@ -670,20 +670,20 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 
 ## 주요 함수 목록 (파일별)
 
-### game.js (29개)
-`discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `scrollQuests`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `adEnergy`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
+### game.js (30개)
+`discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `addCoins`, `spawnPiggyBank`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `adEnergy`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
 
-### systems.js (21개)
-`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `moveTripPosition`, `giveStepReward`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`
+### systems.js (19개)
+`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`
 
-### ui.js (30개)
-`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `closeOverlay`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`, `toggleBottomTab`, `updateBottomBadges`
+### ui.js (32개)
+`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `showError`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`, `toggleBottomTab`, `updateBottomBadges`
 
 ### race.js (30개)
 `generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `findActiveOrPendingRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `quickJoinRace`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
 
-### sound.js (10개)
-`initSound`, `unlockAudio`, `createSynthSound`, `preloadAllSounds`, `playSound`, `playBGM`, `stopBGM`, `toggleSound`, `toggleMusic`, `updateSoundUI`
+### sound.js (9개)
+`initSound`, `unlockAudio`, `createSynthSound`, `playSound`, `playBGM`, `stopBGM`, `toggleSound`, `toggleMusic`, `updateSoundUI`
 
 ### tutorial.js (10개)
 `startTutorial`, `showTutorialStep`, `positionSpotlight`, `positionBubble`, `advanceTutorial`, `completeTutorial`, `isTutorialClickAllowed`, `findSameLevelPair`, `findReadyQuestBtn`, `repositionTutorial`
@@ -714,8 +714,11 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 데이터 배열 (11개)
 `CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `CAT_SNACKS`(5), `DOG_SNACKS`(5), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `DAILY_MISSIONS`(3단계×3개), `ATTENDANCE_REWARDS`(7일), `DICE_TRIP_REWARDS`(50칸)
 
-### 헬퍼 함수 (5개)
-`getItemList`, `getMaxLevel`, `getItemData`, `getGeneratorName`, `getSpecialTypeName`
+### 퀘스트/럭키 (v4.25.1)
+`SPECIAL_QUEST_REWARD=300`, `QUEST_EXPIRE_MS=600000`, `QUEST_SNACK_CHANCE=0.3`, `QUEST_PIGGY_CHANCE=0.2`, `QUEST_MULTI_BASE_CHANCE=0.3`, `QUEST_MULTI_LEVEL_FACTOR=0.05`, `QUEST_MULTI_MAX_CHANCE=0.8`, `LUCKY_BASE_CHANCE=0.05`, `LUCKY_LEVEL_BONUS=0.01`, `LUCKY_SNACK_CHANCE=0.5`, `QUEST_COUNT_MISSION_GOAL=100`, `CLOUD_SAVE_DEBOUNCE_MS=500`
+
+### 헬퍼 함수 (6개)
+`getItemList`, `getMaxLevel`, `getItemData`, `getGeneratorName`, `getSpecialTypeName`, `formatMinSec`
 
 ---
 
@@ -746,6 +749,34 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.25.1 (2026-02-13) - 코드 리팩토링
+- 🧹 **Phase 1: Dead Code 제거**
+  - 변수 6개 삭제 (state.js): `questPage`, `prevReadyCount`, `bgmAudio`, `soundBuffers`, `shopTimerBadge`, `tutorialPointer`
+  - 함수 5개 삭제: `scrollQuests()` (game.js), `moveTripPosition()` (systems.js), `giveStepReward()` (systems.js), `getCompletedThemes()` (album.js), `preloadAllSounds()` (sound.js)
+  - main.js: `shopTimerBadge`/`tutorialPointer` DOM 할당 제거
+- 🐛 **Phase 2: Bug Fixes**
+  - `showToast()` 타이머 간섭 수정: `_toastTimer` + `clearTimeout` (ui.js)
+  - `showMilestonePopup()` 타이머 간섭 수정: `_milestoneTimer` + `clearTimeout` (ui.js)
+  - `claimRaceReward()` race condition 수정: `raceId` 파라미터로 캡처 (race.js)
+- 🔧 **Phase 3: 유틸리티 헬퍼 추출**
+  - `addCoins(amount)` (game.js): `coins += amount; cumulativeCoins += amount; addDailyProgress('coins', amount)` → 10곳 적용 (race.js/album.js 누락 `addDailyProgress` 자동 수정)
+  - `showError(msg)` (ui.js): `playSound('error'); showToast(msg)` → 17곳 적용
+  - `formatMinSec(ms)` (constants.js): `m:ss` 포맷 → 8곳 적용
+- 🔧 **Phase 4: 매직 넘버 상수화**
+  - 12개 상수 추가 (constants.js): `SPECIAL_QUEST_REWARD`, `QUEST_EXPIRE_MS`, `QUEST_SNACK_CHANCE`, `QUEST_PIGGY_CHANCE`, `QUEST_MULTI_BASE_CHANCE`, `QUEST_MULTI_LEVEL_FACTOR`, `QUEST_MULTI_MAX_CHANCE`, `LUCKY_BASE_CHANCE`, `LUCKY_LEVEL_BONUS`, `LUCKY_SNACK_CHANCE`, `QUEST_COUNT_MISSION_GOAL`, `CLOUD_SAVE_DEBOUNCE_MS`
+  - 적용: game.js (7곳), save.js (2곳)
+- 🔧 **Phase 5: UI 패턴 정리**
+  - `openOverlay(id)` 함수 추가 (ui.js): 12곳의 `style.display='flex'` 대체
+  - `getItemList()` 활용 확대: if/else 체인 4곳 교체 (ui.js 3곳, systems.js 1곳)
+  - `getThemeCollectedCount(themeIdx)` 헬퍼 추가 (album.js): 5곳 중복 필터 통합
+- 🔧 **Phase 6: spawnPiggyBank 헬퍼 추출**
+  - `spawnPiggyBank(toastPrefix)` (game.js): 저금통 스폰 로직 2곳 통합
+- 수정 파일: constants.js, state.js, game.js, systems.js, album.js, race.js, sound.js, ui.js, main.js, index.html, eslint.config.js (11개)
+- 순 코드 감소: ~85줄 (5685→5600줄)
+- 신규 함수 (6개): `addCoins` (game.js), `spawnPiggyBank` (game.js), `showError` (ui.js), `openOverlay` (ui.js), `getThemeCollectedCount` (album.js), `formatMinSec` (constants.js)
+- 삭제 함수 (5개): `scrollQuests` (game.js), `moveTripPosition` (systems.js), `giveStepReward` (systems.js), `getCompletedThemes` (album.js), `preloadAllSounds` (sound.js)
+- 삭제 변수 (6개): `questPage`, `prevReadyCount`, `bgmAudio`, `soundBuffers`, `shopTimerBadge`, `tutorialPointer`
 
 ### v4.25.0 (2026-02-12)
 - 🎨 **커스텀 아이콘 시스템 (ICON 헬퍼)** 추가
@@ -1315,6 +1346,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - [ ] 이모지 → 아이콘 교체 잔여: 카테고리 B(timer, check, sleep, offline) + C(star) + 추가(arrow_down, question)
 - [ ] NPC 아바타 이미지 교체 (10종)
 - [ ] 앨범 테마 아이콘 이미지 교체 (9종)
+- [x] 코드 리팩토링 6 Phase (v4.25.1) - dead code, 버그 수정, 헬퍼 추출, 상수화, UI 패턴 정리
 - [x] 커스텀 아이콘 시스템 + 이모지 일괄 교체 (v4.25.0)
 - [x] 설정 팝업 + 회원탈퇴 + 개인정보처리방침 (v4.24.0)
 - [x] 사운드 시스템 (v4.23.0)
