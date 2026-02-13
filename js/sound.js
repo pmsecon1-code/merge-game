@@ -32,6 +32,19 @@ function createSynthSound(id) {
     const now = audioContext.currentTime;
 
     switch (id) {
+        case 'click': {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(600, now + 0.06);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+            osc.connect(gain).connect(audioContext.destination);
+            osc.start(now);
+            osc.stop(now + 0.06);
+            break;
+        }
         case 'spawn': {
             const osc = audioContext.createOscillator();
             const gain = audioContext.createGain();

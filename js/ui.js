@@ -336,6 +336,7 @@ function closeOverlay(id) {
 
 // --- 설정 팝업 ---
 function openSettings() {
+    playSound('click');
     const soundBtn = document.getElementById('setting-sound-btn');
     const musicBtn = document.getElementById('setting-music-btn');
     if (soundBtn) {
@@ -484,6 +485,7 @@ function openGuideForItem(itemType, level) {
 
 // --- 도감/모달 ---
 function openGuide(type) {
+    playSound('click');
     currentGuideType = type;
     const isToy = type === 'toy';
     document.getElementById('tab-animal').style.display = isToy ? 'none' : '';
@@ -503,6 +505,7 @@ function closeModal() {
 }
 
 function switchGuideTab(tab) {
+    playSound('click');
     currentGuideTab = tab;
     document.querySelectorAll('.tab-btn').forEach((btn) => btn.classList.remove('active'));
     document.getElementById(`tab-${tab}`).classList.add('active');
@@ -605,6 +608,7 @@ function upgradeGenerator() {
 
 // --- 하단 배지 탭 ---
 function toggleBottomTab(tabId) {
+    playSound('click');
     const mapping = {
         race: 'race-bar',
         album: 'album-bar',

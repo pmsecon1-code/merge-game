@@ -206,6 +206,7 @@ async function findActiveOrPendingRace(uid) {
 
 // --- 클립보드 복사 ---
 async function copyRaceCode(code) {
+    playSound('click');
     try {
         await navigator.clipboard.writeText(code);
         showToast('코드 복사됨!');
@@ -660,6 +661,7 @@ function updateRaceUIFromData(data) {
 
 // --- 팝업: 코드 입력 ---
 function openRaceJoinPopup() {
+    playSound('click');
     const popup = document.getElementById('race-join-popup');
     if (!popup) return;
 

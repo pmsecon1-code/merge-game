@@ -104,6 +104,7 @@ function checkAlbumReset() {
 
 // --- 앨범 뷰 ---
 function openAlbum() {
+    playSound('click');
     checkAlbumReset();
     document.getElementById('album-modal').classList.add('show');
     renderAlbumTabs();
@@ -126,6 +127,7 @@ function renderAlbumTabs() {
 }
 
 function switchAlbumTheme(idx) {
+    playSound('click');
     currentAlbumTheme = idx;
     renderAlbumTabs();
     renderAlbumGrid(idx);
