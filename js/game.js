@@ -131,7 +131,7 @@ function completeQuest(i) {
         const piggyIdx = boardState.findIndex((x, i) => x === null && i < 30);
         if (piggyIdx !== -1) {
             boardState[piggyIdx] = { type: 'piggy_bank', coins: piggyCoins, openAt: Date.now() + PIGGY_BANK_TIMER_MS };
-            showToast('🐷 저금통 획득!');
+            showToast(`${ICON.piggy} 저금통 획득!`);
         } else {
             coins += piggyCoins;
             cumulativeCoins += piggyCoins;
@@ -162,7 +162,7 @@ function completeQuest(i) {
             const piggyIdx = boardState.findIndex((x, i) => x === null && i < 30);
             if (piggyIdx !== -1) {
                 boardState[piggyIdx] = { type: 'piggy_bank', coins: piggyCoins, openAt: Date.now() + PIGGY_BANK_TIMER_MS };
-                showToast('완료! 🐷 저금통 획득!');
+                showToast(`완료! ${ICON.piggy} 저금통 획득!`);
             } else {
                 coins += piggyCoins;
                 cumulativeCoins += piggyCoins;
@@ -434,14 +434,14 @@ function handleCellClick(zone, idx) {
             addDailyProgress('coins', it.coins);
             s[idx] = null;
             playSound('piggy_open');
-            showMilestonePopup('🐷 저금통 개봉!', `+${it.coins}${ICON.coin}`);
+            showMilestonePopup(`${ICON.piggy} 저금통 개봉!`, `+${it.coins}${ICON.coin}`);
             updateAll();
         } else {
             const rem = it.openAt - Date.now();
             const m = Math.floor(rem / 60000);
             const sec = Math.floor((rem % 60000) / 1000);
             playSound('error');
-            showToast(`🔒 ${m}분 ${sec}초 후 개봉 가능`);
+            showToast(`${ICON.lock} ${m}분 ${sec}초 후 개봉 가능`);
         }
     } else if (it.type.includes('generator')) triggerGen(idx, it);
 }
@@ -515,7 +515,7 @@ function checkEnergyAfterUse() {
             energy = MAX_ENERGY;
             recoveryCountdown = RECOVERY_SEC;
             playSound('milestone');
-            showToast(`🎁 첫 에너지 소진 보상! +100${ICON.energy}`);
+            showToast(`${ICON.gift} 첫 에너지 소진 보상! +100${ICON.energy}`);
             updateUI();
             updateTimerUI();
             saveGame();
@@ -715,7 +715,7 @@ function claimDailyBonus() {
     diamonds += DAILY_COMPLETE_REWARD.diamonds;
     cards += DAILY_COMPLETE_REWARD.cards;
     playSound('milestone');
-    showMilestonePopup('🎁 일일 미션 완료!', `${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} + ${DAILY_COMPLETE_REWARD.cards}${ICON.card}`);
+    showMilestonePopup(`${ICON.gift} 일일 미션 완료!`, `${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} + ${DAILY_COMPLETE_REWARD.cards}${ICON.card}`);
     updateDailyMissionUI();
     updateAll();
 }
@@ -789,7 +789,7 @@ function confirmAd() {
         addDailyProgress('coins', reward);
         s[idx] = null;
         playSound('purchase');
-        showMilestonePopup('🐷 저금통 개봉! (×2)', `+${reward}${ICON.coin}`);
+        showMilestonePopup(`${ICON.piggy} 저금통 개봉! (×2)`, `+${reward}${ICON.coin}`);
         updateAll();
     }
 }
@@ -838,6 +838,6 @@ function checkDailyBonus() {
     }
 
     playSound('daily_bonus');
-    showMilestonePopup(`🎁 ${reward.day}일차 출석!`, rewardText);
+    showMilestonePopup(`${ICON.gift} ${reward.day}일차 출석!`, rewardText);
     saveGame();
 }

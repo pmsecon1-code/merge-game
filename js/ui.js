@@ -13,10 +13,10 @@ function renderGrid(zone, state, cont) {
         if (item) {
             if (item.type === 'locked_board') {
                 c.classList.add('locked');
-                c.innerHTML = `<div class="text-xl opacity-50">🔒</div><div class="text-[8px] font-bold text-gray-500">${UNLOCK_COST_BOARD}${ICON.coin}</div>`;
+                c.innerHTML = `<div class="opacity-50"><img src="images/icons/lock.png" class="icon icon-md"></div><div class="text-[8px] font-bold text-gray-500">${UNLOCK_COST_BOARD}${ICON.coin}</div>`;
             } else if (item.type === 'locked_storage') {
                 c.classList.add('storage-locked');
-                c.innerHTML = `<div class="text-xl">🔒</div><div class="text-[9px] font-bold mt-1">📺</div>`;
+                c.innerHTML = `<div><img src="images/icons/lock.png" class="icon icon-md"></div><div class="mt-1"><img src="images/icons/tv.png" class="icon icon-sm"></div>`;
             } else if (item.type === 'upgrade_mission') {
                 const done = genLevels[item.target] >= item.reqLevel;
                 const name = item.target === 'cat' ? '캣타워' : '개집';
@@ -98,7 +98,7 @@ function createItem(item, zone, index) {
         if (!ready && tutorialStep <= 0) {
             const adBtn = document.createElement('div');
             adBtn.className = 'sell-btn ad-btn';
-            adBtn.innerText = '📺';
+            adBtn.innerHTML = '<img src="images/icons/tv.png" class="icon icon-sm">';
             adBtn.onclick = (e) => { e.stopPropagation(); openAdPopup(zone, index); };
             d.appendChild(adBtn);
         }
@@ -230,11 +230,11 @@ function updateQuestUI(scrollToFront = false) {
         let timerText, rewardText;
         if (q.isSpecial) {
             timerText = '⭐스페셜';
-            rewardText = `${ICON.coin}🐷`;
+            rewardText = `${ICON.coin}${ICON.piggy}`;
         } else {
             const remaining = q.expiresAt ? q.expiresAt - Date.now() : 0;
             timerText = remaining > 0 ? `⏱${formatQuestTimer(remaining)}` : '만료';
-            rewardText = q.piggyReward ? `${ICON.coin}🐷` : q.cardReward > 0 ? `${q.cardReward}${ICON.card}` : `${q.reward}${ICON.coin}`;
+            rewardText = q.piggyReward ? `${ICON.coin}${ICON.piggy}` : q.cardReward > 0 ? `${q.cardReward}${ICON.card}` : `${q.reward}${ICON.coin}`;
         }
         h += `</div></div><div class="text-[9px] mb-1 text-center"><div class="text-yellow-600">보상: ${rewardText}</div><div class="${q.isSpecial ? 'text-purple-500' : 'text-red-500'}">${timerText}</div></div><div class="quest-btn ${ok ? 'complete' : 'incomplete'}" onclick="${ok ? `completeQuest(${i})` : ''}">${ok ? '완료!' : '구해줘'}</div>`;
         d.innerHTML = h;
@@ -322,14 +322,14 @@ function showFloatText(c, t, col) {
 // --- 팝업/토스트 ---
 function showToast(m) {
     const t = document.getElementById('toast');
-    t.innerText = m;
+    t.innerHTML = m;
     t.style.opacity = '1';
     setTimeout(() => (t.style.opacity = '0'), TOAST_DURATION_MS);
 }
 
 function showMilestonePopup(t, r) {
-    document.getElementById('milestone-text').innerText = t;
-    document.getElementById('milestone-reward').innerText = r;
+    document.getElementById('milestone-text').innerHTML = t;
+    document.getElementById('milestone-reward').innerHTML = r;
     document.getElementById('milestone-overlay').style.display = 'flex';
     setTimeout(() => {
         document.getElementById('milestone-overlay').style.display = 'none';

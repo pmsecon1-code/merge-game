@@ -116,7 +116,7 @@ function renderShop() {
                     isS = item.type.includes('snack'),
                     isT = item.type.includes('toy');
                 const priceTag = item.isAd
-                    ? '<div class="shop-price-tag" style="color:#fbbf24">📺</div>'
+                    ? `<div class="shop-price-tag">${ICON.tv}</div>`
                     : `<div class="shop-price-tag">${item.level * 2}${ICON.diamond}</div>`;
                 const shopVisual = data.img
                     ? `<img src="${data.img}" style="width:1.2rem;height:1.2rem;object-fit:contain">`

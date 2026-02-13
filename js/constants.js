@@ -8,6 +8,13 @@ const ICON = {
     diamond: '<img src="images/icons/diamond.png" class="icon icon-sm">',
     energy: '<img src="images/icons/energy.png" class="icon icon-sm">',
     card: '<img src="images/icons/card.png" class="icon icon-sm">',
+    piggy: '<img src="images/icons/piggybank.png" class="icon icon-sm">',
+    settings: '<img src="images/icons/settings.png" class="icon icon-sm">',
+    lock: '<img src="images/icons/lock.png" class="icon icon-sm">',
+    tv: '<img src="images/icons/tv.png" class="icon icon-sm">',
+    save: '<img src="images/icons/save.png" class="icon icon-sm">',
+    gift: '<img src="images/icons/gift.png" class="icon icon-sm">',
+    sound: '<img src="images/icons/sound.png" class="icon icon-sm">',
 };
 
 // --- 그리드 설정 ---

@@ -37,7 +37,7 @@ function init() {
         const img = new Image();
         img.src = `images/spawners/spawner_${t}.png`;
     });
-    ['energy', 'coin', 'diamond', 'card'].forEach(t => {
+    ['energy', 'coin', 'diamond', 'card', 'piggybank', 'settings', 'lock', 'tv', 'save', 'gift', 'sound'].forEach(t => {
         const img = new Image();
         img.src = `images/icons/${t}.png`;
     });
@@ -50,7 +50,7 @@ function init() {
     document.getElementById('race-hint').innerHTML = `친구 코드를 입력해서 경쟁하세요! (승리 시 +${RACE_REWARDS.win.coins}${ICON.coin} +${RACE_REWARDS.win.diamonds}${ICON.diamond})`;
     document.getElementById('album-reward-hint').innerHTML = `(완성 시 +${ALBUM_ALL_COMPLETE_DIAMONDS}${ICON.diamond})`;
     document.getElementById('dice-reward-hint').innerHTML = `(완주 시 +${DICE_TRIP_COMPLETE_REWARD.coins}${ICON.coin} +${DICE_TRIP_COMPLETE_REWARD.diamonds}${ICON.diamond})`;
-    document.getElementById('ad-energy-btn-text').innerHTML = `📺 광고 시청 → +${AD_ENERGY_AMOUNT}${ICON.energy}`;
+    document.getElementById('ad-energy-btn-text').innerHTML = `${ICON.tv} 광고 시청 → +${AD_ENERGY_AMOUNT}${ICON.energy}`;
 
     startEnergyRecovery();
     startShopTimer();

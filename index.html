@@ -87,8 +87,8 @@
                 <div class="status-item border-purple-400">
                     <span id="level-val" class="text-xs font-bold text-purple-600">Lv.1</span>
                 </div>
-                <button onclick="openSettings()" class="sound-toggle-btn" title="설정">⚙️</button>
-                <div id="save-status" class="text-[10px] text-gray-400 hidden">💾</div>
+                <button onclick="openSettings()" class="sound-toggle-btn" title="설정"><img src="images/icons/settings.png" class="icon icon-md"></button>
+                <div id="save-status" class="text-[10px] text-gray-400 hidden"><img src="images/icons/save.png" class="icon icon-xs"></div>
             </div>
 
             <!-- 1. 레벨업 진행도 -->
@@ -356,7 +356,7 @@
                     class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-2 rounded-lg font-bold shadow-md mb-2"
                     style="border:2px solid #10b981; box-shadow:0 0 8px rgba(16,185,129,0.5)"
                 >
-                    <span id="ad-energy-btn-text">📺 광고 시청 → +30<img src="images/icons/energy.png" class="icon icon-sm"></span>
+                    <span id="ad-energy-btn-text"><img src="images/icons/tv.png" class="icon icon-sm"> 광고 시청 → +30<img src="images/icons/energy.png" class="icon icon-sm"></span>
                 </button>
                 <div class="flex gap-2 justify-center">
                     <button
@@ -380,7 +380,7 @@
             <input type="hidden" id="ad-piggy-idx" />
             <input type="hidden" id="ad-piggy-mode" value="piggy" />
             <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-yellow-400">
-                <div class="text-5xl mb-3">📺</div>
+                <div class="mb-3"><img src="images/icons/tv.png" class="icon icon-xl"></div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">광고 시청</h2>
                 <p id="ad-popup-desc" class="text-sm text-gray-500 mb-4">광고를 시청하면 저금통을<br>즉시 열고 <b class="text-yellow-600">보상 2배</b>!</p>
                 <div class="flex gap-2 justify-center">
@@ -392,9 +392,9 @@
 
         <div id="settings-popup" class="overlay-bg" style="display:none">
             <div class="overlay-content bg-white p-5 rounded-2xl shadow-xl border-4 border-gray-300">
-                <div class="text-lg font-bold mb-3">⚙️ 설정</div>
+                <div class="text-lg font-bold mb-3"><img src="images/icons/settings.png" class="icon icon-md"> 설정</div>
                 <div class="settings-row">
-                    <span class="text-sm">🔊 효과음</span>
+                    <span class="text-sm"><img src="images/icons/sound.png" class="icon icon-sm"> 효과음</span>
                     <button id="setting-sound-btn" onclick="toggleSound()" class="settings-toggle">ON</button>
                 </div>
                 <div class="settings-row">

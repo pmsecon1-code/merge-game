@@ -327,16 +327,16 @@ function updateSaveStatus(status) {
     if (!el) return;
     el.classList.remove('hidden');
     if (status === 'saving') {
-        el.innerText = '💾⏳';
+        el.innerHTML = `${ICON.save}⏳`;
         el.className = 'text-[10px] text-yellow-500';
     } else if (status === 'saved') {
-        el.innerText = '💾✓';
+        el.innerHTML = `${ICON.save}✓`;
         el.className = 'text-[10px] text-green-500';
         setTimeout(() => {
             el.className = 'text-[10px] text-gray-400';
         }, 2000);
     } else if (status === 'error') {
-        el.innerText = '💾✗';
+        el.innerHTML = `${ICON.save}✗`;
         el.className = 'text-[10px] text-red-500';
     } else if (status === 'offline') {
         el.innerText = '📴';
