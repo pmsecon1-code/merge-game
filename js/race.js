@@ -673,7 +673,7 @@ function openRaceJoinPopup() {
                     (o) => `
                 <div class="flex items-center justify-between bg-cyan-50 px-3 py-2 rounded-lg border border-cyan-200">
                     <div class="flex items-center gap-2">
-                        <span class="text-sm font-bold text-cyan-700">${o.name}</span>
+                        <span class="text-sm font-bold text-cyan-700 name-ellipsis" style="max-width:80px">${o.name}</span>
                         <span class="text-xs text-cyan-400 font-mono">${o.code}</span>
                     </div>
                     <button onclick="quickJoinRace('${o.code}')"
