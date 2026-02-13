@@ -254,7 +254,7 @@ function spawnItemEffect(cell, isLucky) {
     if (isLucky) ring.classList.add('lucky');
     document.body.appendChild(ring);
     setTimeout(() => ring.remove(), 500);
-    const sparkles = isLucky ? ['✦', '·', '•', '✦', '·'] : ['✨', '·', '•'];
+    const sparkles = isLucky ? ['✦', '·', '•', '✦', '·'] : ['✦', '·', '•'];
     const particleCount = isLucky ? 12 : 4;
     for (let i = 0; i < particleCount; i++) {
         const s = document.createElement('div');
