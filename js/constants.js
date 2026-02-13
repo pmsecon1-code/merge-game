@@ -176,13 +176,13 @@ const BIRDS = [
 ];
 
 const FISH = [
-    { level: 1, emoji: '🐟', name: '송사리', color: '#bae6fd' },
-    { level: 2, emoji: '🐠', name: '열대어', color: '#fde047' },
-    { level: 3, emoji: '🐡', name: '복어', color: '#fbbf24' },
-    { level: 4, emoji: '🦑', name: '오징어', color: '#f87171' },
-    { level: 5, emoji: '🐙', name: '문어', color: '#ef4444' },
-    { level: 6, emoji: '🦈', name: '상어', color: '#94a3b8' },
-    { level: 7, emoji: '🐳', name: '고래', color: '#3b82f6' },
+    { level: 1, emoji: '🐟', img: 'images/fish/fish1.png', name: '금붕어', color: '#fbbf24' },
+    { level: 2, emoji: '🐠', img: 'images/fish/fish2.png', name: '열대어', color: '#fde047' },
+    { level: 3, emoji: '🐡', img: 'images/fish/fish3.png', name: '복어', color: '#fbbf24' },
+    { level: 4, emoji: '🦑', img: 'images/fish/fish4.png', name: '거북이', color: '#86efac' },
+    { level: 5, emoji: '🐙', img: 'images/fish/fish5.png', name: '돌고래', color: '#60a5fa' },
+    { level: 6, emoji: '🦈', img: 'images/fish/fish6.png', name: '상어', color: '#94a3b8' },
+    { level: 7, emoji: '🐳', img: 'images/fish/fish7.png', name: '고래', color: '#3b82f6' },
 ];
 
 const REPTILES = [
