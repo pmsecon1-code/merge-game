@@ -33,6 +33,10 @@ function init() {
             }
         });
     });
+    ['cat', 'dog', 'bird', 'fish', 'reptile', 'toy', 'piggybank'].forEach(t => {
+        const img = new Image();
+        img.src = `images/spawners/spawner_${t}.png`;
+    });
 
     // 보상 힌트 텍스트 (상수 기반)
     document.getElementById('race-hint').textContent = `친구 코드를 입력해서 경쟁하세요! (승리 시 +${RACE_REWARDS.win.coins}🪙 +${RACE_REWARDS.win.diamonds}💎)`;

@@ -51,6 +51,7 @@ function createItem(item, zone, index) {
         let emoji = '📦',
             label = '케이지',
             type = item.type.replace('_generator', '');
+        const spawnerImg = `images/spawners/spawner_${type}.png`;
         let specialUI = '';
         if (['bird', 'fish', 'reptile', 'toy'].includes(type)) {
             const rem = GENERATOR_MAX_CLICKS - (item.clicks || 0);
@@ -59,26 +60,21 @@ function createItem(item, zone, index) {
             else specialUI = `<div class="usage-badge">${rem}/6</div>`;
         }
         if (type === 'cat') {
-            emoji = '🐱';
             label = `캣타워 (Lv.${genLevels.cat})`;
         } else if (type === 'dog') {
-            emoji = '🐶';
             label = `개집 (Lv.${genLevels.dog})`;
         } else if (type === 'bird') {
-            emoji = '🐦';
             label = '새장';
         } else if (type === 'fish') {
-            emoji = '🐠';
             label = '어항';
         } else if (type === 'reptile') {
-            emoji = '🦎';
             label = '사육장';
         } else if (type === 'toy') {
-            emoji = '🧸';
             label = '장난감 생성기';
         }
+        const visual = `<img src="${spawnerImg}" style="width:80%;height:80%;object-fit:contain">`;
         const helpDisplay = tutorialStep > 0 ? ' style="display:none"' : '';
-        d.innerHTML = `${specialUI}<div class="animal-inside">${emoji}</div><div class="cage-label">${label}</div><div class="help-btn"${helpDisplay} data-gen-type="${type}">?</div>`;
+        d.innerHTML = `${specialUI}<div class="animal-inside">${visual}</div><div class="cage-label">${label}</div><div class="help-btn"${helpDisplay} data-gen-type="${type}">?</div>`;
         return d;
     }
     if (item.type === 'piggy_bank') {
@@ -91,7 +87,7 @@ function createItem(item, zone, index) {
         const cooldown = ready ? '' : `<div class="cooldown-overlay"><span>${m}:${s.toString().padStart(2, '0')}</span></div>`;
         d.innerHTML = `
             <div class="bg-circle" style="background-color:#fbbf24"></div>
-            <div style="font-size:2rem">🐷</div>
+            <img src="images/spawners/spawner_piggybank.png" style="width:80%;height:80%;object-fit:contain;position:relative;z-index:1">
             ${cooldown}
         `;
         if (!ready && tutorialStep <= 0) {
