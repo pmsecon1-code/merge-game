@@ -9,6 +9,7 @@
 .icon-md { width:24px; height:24px; }
 .icon-lg { width:48px; height:48px; }
 .icon-xl { width:80px; height:80px; }
+#daily-mission-bar .icon { width:12px; height:12px; }
 
 /* --- 기본 스타일 --- */
 body {
