@@ -680,7 +680,7 @@ function updateDailyMissionUI() {
     const tierInfo = document.getElementById('daily-tier-info');
     if (tierInfo) {
         if (allDone) {
-            tierInfo.innerHTML = `<span class="text-green-600 font-bold">✅ 완료!</span> +${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} +${DAILY_COMPLETE_REWARD.cards}${ICON.card}`;
+            tierInfo.innerHTML = `<span class="text-green-600">✅ 완료!</span> +${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} +${DAILY_COMPLETE_REWARD.cards}${ICON.card}`;
         } else {
             tierInfo.textContent = `${'★'.repeat(tier + 1)} ${tier + 1}단계`;
         }
