@@ -59,7 +59,7 @@ function createItem(item, zone, index) {
                 specialUI = `<div class="cooldown-overlay"><span>💤</span><span>${Math.ceil((item.cooldown - Date.now()) / 1000)}s</span></div>`;
             else specialUI = `<div class="usage-badge">${rem}/6</div>`;
         }
-        const genColors = { cat: ['#fff1f2','#f472b6'], dog: ['#fef3c7','#d97706'], bird: ['#e0f2fe','#0284c7'], fish: ['#ccfbf1','#0d9488'], reptile: ['#dcfce7','#16a34a'], toy: ['#f3e8ff','#9333ea'] };
+        const genColors = { cat: ['#fff1f2','#f472b6'], dog: ['#fef3c7','#fbbf24'], bird: ['#e0f2fe','#38bdf8'], fish: ['#ccfbf1','#2dd4bf'], reptile: ['#dcfce7','#4ade80'], toy: ['#f3e8ff','#a78bfa'] };
         const [bg, accent] = genColors[type] || ['#f1f5f9','#64748b'];
         if (type === 'cat') {
             label = `캣타워 (Lv.${genLevels.cat})`;
