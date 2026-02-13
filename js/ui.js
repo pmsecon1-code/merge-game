@@ -223,6 +223,10 @@ function updateQuestUI(scrollToFront = false) {
         questContainer.appendChild(d);
     });
     questContainer.scrollLeft = savedScroll;
+    if (scrollToFront) {
+        void questContainer.offsetWidth;
+        questContainer.scrollLeft = 0;
+    }
 }
 
 // --- 이펙트 ---

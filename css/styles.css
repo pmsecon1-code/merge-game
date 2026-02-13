@@ -1567,7 +1567,6 @@ body.tutorial-active {
     overflow-x: auto;
     padding: 8px 4px;
     align-items: center;
-    -webkit-overflow-scrolling: touch;
 }
 
 .dice-step {

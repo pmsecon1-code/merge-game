@@ -82,7 +82,6 @@ function generateNewQuest(forceEasy = false) {
     } else {
         quests.push(questObj);
     }
-    updateQuestUI();
 }
 
 // --- 스페셜 퀘스트 ---

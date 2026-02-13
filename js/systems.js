@@ -405,9 +405,8 @@ function renderDiceTripBoard() {
     // 현재 위치로 자동 스크롤
     const currentStep = diceTripBoard.querySelector('.dice-step.current');
     if (currentStep) {
-        const boardRect = diceTripBoard.getBoundingClientRect();
-        const stepRect = currentStep.getBoundingClientRect();
-        const scrollLeft = currentStep.offsetLeft - (boardRect.width / 2) + (stepRect.width / 2);
+        void diceTripBoard.offsetWidth;
+        const scrollLeft = currentStep.offsetLeft - (diceTripBoard.clientWidth / 2) + (currentStep.offsetWidth / 2);
         diceTripBoard.scrollLeft = Math.max(0, scrollLeft);
     }
 }
