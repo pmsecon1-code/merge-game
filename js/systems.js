@@ -361,7 +361,7 @@ function completeTrip() {
     addDailyProgress('coins', DICE_TRIP_COMPLETE_REWARD.coins);
 
     playSound('milestone');
-    showMilestonePopup('🎉 주사위 여행 완주!', `${DICE_TRIP_COMPLETE_REWARD.coins}${ICON.coin} + ${DICE_TRIP_COMPLETE_REWARD.diamonds}${ICON.diamond}`);
+    showMilestonePopup(`${ICON.party} 주사위 여행 완주!`, `${DICE_TRIP_COMPLETE_REWARD.coins}${ICON.coin} + ${DICE_TRIP_COMPLETE_REWARD.diamonds}${ICON.diamond}`);
 
     // 즉시 리셋
     diceTripPosition = 0;

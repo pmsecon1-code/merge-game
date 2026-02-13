@@ -680,7 +680,7 @@ function updateDailyMissionUI() {
     const tierInfo = document.getElementById('daily-tier-info');
     if (tierInfo) {
         if (allDone) {
-            tierInfo.innerHTML = `✅ 완료! +${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} +${DAILY_COMPLETE_REWARD.cards}${ICON.card}`;
+            tierInfo.innerHTML = `<span class="text-green-600 font-bold">✅ 완료!</span> +${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} +${DAILY_COMPLETE_REWARD.cards}${ICON.card}`;
         } else {
             tierInfo.textContent = `${'★'.repeat(tier + 1)} ${tier + 1}단계`;
         }
@@ -696,14 +696,14 @@ function updateDailyMissionUI() {
 
         html += `
             <div class="flex items-center gap-2">
-                <span class="text-[10px] w-20">${mission.icon} ${mission.label}</span>
-                <div class="flex-1 h-3 bg-amber-200 rounded-full overflow-hidden">
+                <span class="text-[10px] font-bold w-20 text-amber-700">${mission.icon} ${mission.label}</span>
+                <div class="flex-1 h-3 bg-amber-100 rounded-full overflow-hidden">
                     <div class="h-full ${done ? 'bg-green-400' : 'bg-amber-400'} transition-all" style="width:${pct}%"></div>
                 </div>
                 <span class="text-[9px] w-14 text-right ${done ? 'text-green-600' : 'text-amber-600'} font-bold">
                     ${Math.min(progress, target)}/${target} ${done ? '✓' : ''}
                 </span>
-                <span class="text-[8px] text-gray-400">(${mission.reward}<img src="images/icons/coin.png" class="icon" style="width:10px;height:10px">)</span>
+                <span class="text-[8px] text-amber-400">(${mission.reward}<img src="images/icons/coin.png" class="icon" style="width:10px;height:10px">)</span>
             </div>
         `;
     });

@@ -25,6 +25,9 @@ const ICON = {
     pointer: '<img src="images/icons/pointer.png" class="icon icon-sm">',
     music: '<img src="images/icons/music.png" class="icon icon-sm">',
     key: '<img src="images/icons/key.png" class="icon icon-sm">',
+    party: '<img src="images/effects/party.png" class="icon icon-sm">',
+    confetti: '<img src="images/effects/confetti.png" class="icon icon-sm">',
+    sparkle: '<img src="images/effects/sparkle.png" class="icon icon-sm">',
 };
 
 // --- 그리드 설정 ---
