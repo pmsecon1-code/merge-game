@@ -1492,9 +1492,13 @@ body.tutorial-active {
     font-size: 0.6rem;
     font-weight: bold;
     color: #475569;
-    width: 28px;
+    max-width: 40px;
+    min-width: 16px;
     text-align: right;
     flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .race-road {
