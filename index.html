@@ -402,10 +402,12 @@
                     <button id="setting-music-btn" onclick="toggleMusic()" class="settings-toggle">ON</button>
                 </div>
                 <hr class="my-3 border-gray-200">
-                <div class="flex flex-col gap-2">
-                    <button onclick="handleGoogleLogin()" class="settings-btn"><img src="images/icons/key.png" class="icon icon-sm"> 로그아웃</button>
-                    <button onclick="deleteAccount()" class="settings-btn settings-btn-danger"><img src="images/icons/trash.png" class="icon icon-sm"> 회원탈퇴</button>
-                    <button onclick="closeOverlay('settings-popup');openOverlay('privacy-popup')" class="settings-btn settings-btn-link"><img src="images/icons/clipboard.png" class="icon icon-sm"> 개인정보처리방침</button>
+                <div id="settings-username" class="text-sm text-gray-600 mb-2"></div>
+                <button onclick="handleGoogleLogin()" class="settings-btn"><img src="images/icons/key.png" class="icon icon-sm"> 로그아웃</button>
+                <div class="flex justify-center gap-3 mt-3">
+                    <span onclick="closeOverlay('settings-popup');openOverlay('privacy-popup')" class="text-[10px] text-gray-400 cursor-pointer">개인정보처리방침</span>
+                    <span class="text-[10px] text-gray-300">|</span>
+                    <span onclick="deleteAccount()" class="text-[10px] text-gray-400 cursor-pointer">회원탈퇴</span>
                 </div>
                 <hr class="my-3 border-gray-200">
                 <button onclick="closeOverlay('settings-popup')" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-bold text-sm">닫기</button>

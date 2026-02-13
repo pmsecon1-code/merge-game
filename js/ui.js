@@ -347,6 +347,8 @@ function openSettings() {
         musicBtn.textContent = musicEnabled ? 'ON' : 'OFF';
         musicBtn.classList.toggle('active', musicEnabled);
     }
+    const nameEl = document.getElementById('settings-username');
+    if (nameEl && currentUser) nameEl.textContent = currentUser.displayName || currentUser.email || '';
     openOverlay('settings-popup');
 }
 
