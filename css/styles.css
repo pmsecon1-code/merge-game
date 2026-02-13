@@ -1311,6 +1311,11 @@ body.tutorial-active {
     border: 1px solid #e2e8f0;
 }
 
+.guide-item.guide-highlight {
+    border: 2px solid #f59e0b;
+    background: #fffbeb;
+}
+
 .guide-item.locked {
     opacity: 0.4;
     filter: grayscale(1);

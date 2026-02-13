@@ -348,6 +348,7 @@ export default [
                 handleDragMove: 'readonly',
                 handleDragEnd: 'readonly',
                 openGuide: 'readonly',
+                openGuideForItem: 'readonly',
                 closeModal: 'readonly',
                 switchGuideTab: 'readonly',
                 renderGuideList: 'readonly',

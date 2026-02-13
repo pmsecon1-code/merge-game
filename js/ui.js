@@ -207,7 +207,7 @@ function updateQuestUI(scrollToFront = false) {
             const reqVisual = reqData.img
                 ? `<img src="${reqData.img}" style="width:22px;height:22px;object-fit:contain;vertical-align:middle">`
                 : `<span class="text-lg">${reqData.emoji}</span>`;
-            h += `<div class="req-item" title="Lv.${r.level}">${reqVisual}</div>`;
+            h += `<div class="req-item" title="Lv.${r.level}" onclick="openGuideForItem('${r.type}',${r.level})">${reqVisual}</div>`;
         });
         let timerText, rewardText;
         if (q.isSpecial) {
@@ -457,6 +457,27 @@ function handleDragEnd(e) {
     }
     dragData = null;
     updateAll();
+}
+
+function openGuideForItem(itemType, level) {
+    let guideType, tab;
+    if (itemType === 'cat_toy' || itemType === 'dog_toy') {
+        guideType = 'toy';
+        tab = itemType;
+    } else if (itemType.endsWith('_snack')) {
+        guideType = itemType.replace('_snack', '');
+        tab = 'snack';
+    } else {
+        guideType = itemType;
+        tab = 'animal';
+    }
+    openGuide(guideType);
+    switchGuideTab(tab);
+    const items = document.querySelectorAll('.guide-item');
+    if (items[level - 1]) {
+        items[level - 1].classList.add('guide-highlight');
+        items[level - 1].scrollIntoView({ block: 'nearest' });
+    }
 }
 
 // --- 도감/모달 ---
