@@ -497,6 +497,7 @@ function openGuide(type) {
 
 function closeModal() {
     document.getElementById('guide-modal').classList.remove('show');
+    document.querySelectorAll('.guide-highlight').forEach(el => el.classList.remove('guide-highlight'));
 }
 
 function switchGuideTab(tab) {
