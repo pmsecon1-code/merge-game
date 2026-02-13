@@ -166,13 +166,13 @@ const DOGS = [
 ];
 
 const BIRDS = [
-    { level: 1, emoji: '🐣', name: '아기새', color: '#bae6fd' },
-    { level: 2, emoji: '🐤', name: '병아리', color: '#fde047' },
-    { level: 3, emoji: '🐦', name: '파랑새', color: '#60a5fa' },
-    { level: 4, emoji: '🕊️', name: '비둘기', color: '#e2e8f0' },
-    { level: 5, emoji: '🦢', name: '백조', color: '#f8fafc' },
-    { level: 6, emoji: '🦅', name: '독수리', color: '#78350f' },
-    { level: 7, emoji: '🦚', name: '공작', color: '#10b981' },
+    { level: 1, emoji: '🐣', img: 'images/birds/bird1.png', name: '병아리', color: '#fde047' },
+    { level: 2, emoji: '🐤', img: 'images/birds/bird2.png', name: '참새', color: '#a78bfa' },
+    { level: 3, emoji: '🐦', img: 'images/birds/bird3.png', name: '앵무새', color: '#60a5fa' },
+    { level: 4, emoji: '🕊️', img: 'images/birds/bird4.png', name: '비둘기', color: '#e2e8f0' },
+    { level: 5, emoji: '🦢', img: 'images/birds/bird5.png', name: '백조', color: '#f8fafc' },
+    { level: 6, emoji: '🦅', img: 'images/birds/bird6.png', name: '독수리', color: '#78350f' },
+    { level: 7, emoji: '🦚', img: 'images/birds/bird7.png', name: '봉황', color: '#ef4444' },
 ];
 
 const FISH = [
