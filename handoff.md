@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.25.1)
+# 멍냥 머지 게임 - Architecture (v4.25.3)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.25.1
+- **버전**: 4.25.3
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -753,6 +753,27 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## 변경 이력
 
+### v4.25.3 (2026-02-13) - 스크롤/클릭 버그 수정
+- 🐛 **퀘스트 완료 시 스크롤 맨 앞 이동 — Chrome scroll anchoring 근본 수정**
+  - 근본 원인: Chrome의 scroll anchoring이 `innerHTML` 재빌드 후 이전 스크롤 위치를 자동 복원
+  - `#quest-container`에 `overflow-anchor: none` CSS 추가
+  - `-webkit-overflow-scrolling: touch` 제거 (iOS 프로그래밍 스크롤 간섭)
+  - `generateNewQuest()`에서 중복 `updateQuestUI()` 호출 제거
+- 🐛 **주사위 여행 탭 열 때 현재 위치 자동 스크롤**
+  - 원인: `display:none` 상태에서 `renderDiceTripBoard()` → `offsetLeft=0` → 스크롤 계산 무효
+  - `toggleBottomTab('dice')` 시 `renderDiceTripBoard()` 재호출 (visible 전환 후)
+  - `.dice-trip-board`에서 `-webkit-overflow-scrolling: touch` 제거
+  - 주사위 보드 스크롤 시 `void offsetWidth` reflow 강제
+- 🐛 **잠긴 창고/보드 셀 클릭 불가 버그 수정**
+  - 원인: `handleDragStart`에서 `.item` 없으면 리턴 → 잠긴 셀(`.item` 래퍼 없음)은 `handleCellClick` 미도달
+  - `.locked`/`.storage-locked` 셀 감지 시 바로 `handleCellClick()` 호출
+- 🎨 **최근 상대 목록 이름 말줄임 적용**
+  - `openRaceJoinPopup` 최근 상대 `o.name`에 `name-ellipsis` 80px 추가
+  - 이름 표시 전체 5곳 보호 완료
+- 수정 파일: css/styles.css, js/ui.js, js/game.js, js/systems.js, js/race.js
+- 수정 함수: `updateQuestUI()` (ui.js - savedScroll 복원), `handleDragStart()` (ui.js - 잠긴 셀 처리), `toggleBottomTab()` (ui.js - 주사위 재렌더), `renderDiceTripBoard()` (systems.js - reflow 강제), `generateNewQuest()` (game.js - 중복 UI 호출 제거), `openRaceJoinPopup()` (race.js - 이름 ellipsis)
+- 신규 CSS: `overflow-anchor: none` (#quest-container)
+
 ### v4.25.2 (2026-02-13) - 버그 수정 + UI 개선
 - 🐛 **퀘스트 완료 시 스크롤 앞으로 이동 안 되는 버그 수정**
   - `updateAll()` + `updateQuestUI(true)` 이중 호출 → `updateAll({ scrollQuestToFront: true })` 단일 호출로 통합
@@ -1372,6 +1393,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - [ ] 이모지 → 아이콘 교체 잔여: 카테고리 B(timer, check, sleep, offline) + C(star) + 추가(arrow_down, question)
 - [ ] NPC 아바타 이미지 교체 (10종)
 - [ ] 앨범 테마 아이콘 이미지 교체 (9종)
+- [x] 스크롤/클릭 버그 수정 + 이름 보호 완료 (v4.25.3)
 - [x] 코드 리팩토링 6 Phase (v4.25.1) - dead code, 버그 수정, 헬퍼 추출, 상수화, UI 패턴 정리
 - [x] 커스텀 아이콘 시스템 + 이모지 일괄 교체 (v4.25.0)
 - [x] 설정 팝업 + 회원탈퇴 + 개인정보처리방침 (v4.24.0)
