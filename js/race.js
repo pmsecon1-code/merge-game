@@ -163,43 +163,40 @@ async function joinRaceByCode(code) {
 
 // --- 상대방의 active 또는 pending 레이스 찾기 ---
 async function findActiveOrPendingRace(uid) {
-    try {
-        // player1로 참가 중인 active/pending 레이스
-        const q1Active = await db
-            .collection('races')
-            .where('player1Uid', '==', uid)
-            .where('status', '==', 'active')
-            .limit(1)
-            .get();
-        if (!q1Active.empty) return q1Active.docs[0];
+    // player1로 참가 중인 active/pending 레이스
+    const q1Active = await db
+        .collection('races')
+        .where('player1Uid', '==', uid)
+        .where('status', '==', 'active')
+        .limit(1)
+        .get();
+    if (!q1Active.empty) return q1Active.docs[0];
 
-        const q1Pending = await db
-            .collection('races')
-            .where('player1Uid', '==', uid)
-            .where('status', '==', 'pending')
-            .limit(1)
-            .get();
-        if (!q1Pending.empty) return q1Pending.docs[0];
+    const q1Pending = await db
+        .collection('races')
+        .where('player1Uid', '==', uid)
+        .where('status', '==', 'pending')
+        .limit(1)
+        .get();
+    if (!q1Pending.empty) return q1Pending.docs[0];
 
-        // player2로 참가 중인 active/pending 레이스
-        const q2Active = await db
-            .collection('races')
-            .where('player2Uid', '==', uid)
-            .where('status', '==', 'active')
-            .limit(1)
-            .get();
-        if (!q2Active.empty) return q2Active.docs[0];
+    // player2로 참가 중인 active/pending 레이스
+    const q2Active = await db
+        .collection('races')
+        .where('player2Uid', '==', uid)
+        .where('status', '==', 'active')
+        .limit(1)
+        .get();
+    if (!q2Active.empty) return q2Active.docs[0];
 
-        const q2Pending = await db
-            .collection('races')
-            .where('player2Uid', '==', uid)
-            .where('status', '==', 'pending')
-            .limit(1)
-            .get();
-        if (!q2Pending.empty) return q2Pending.docs[0];
-    } catch (e) {
-        console.error('[Race] findActiveOrPendingRace failed:', e);
-    }
+    const q2Pending = await db
+        .collection('races')
+        .where('player2Uid', '==', uid)
+        .where('status', '==', 'pending')
+        .limit(1)
+        .get();
+    if (!q2Pending.empty) return q2Pending.docs[0];
+
     return null;
 }
 
@@ -796,9 +793,9 @@ function startPlayer2Listener() {
                         const data = change.doc.data();
                         // 이미 같은 초대면 무시
                         if (pendingInviteId === raceId) return;
-                        // 이미 레이스 중이면 무시
-                        if (currentRaceId) {
-                            console.log('[Race] Already in race, ignoring invite');
+                        // 이미 레이스 중이거나 다른 초대 확인 중이면 무시
+                        if (currentRaceId || pendingInviteId) {
+                            console.log('[Race] Already in race or pending invite, ignoring');
                             return;
                         }
                         console.log('[Race] Received invite:', raceId);
