@@ -402,7 +402,7 @@
                     <button id="setting-music-btn" onclick="toggleMusic()" class="settings-toggle">ON</button>
                 </div>
                 <hr class="my-3 border-gray-200">
-                <div id="settings-username" class="text-sm text-gray-600 mb-2"></div>
+                <div id="settings-username" class="text-sm text-gray-600 mb-2 name-ellipsis" style="max-width:150px;margin:0 auto 8px"></div>
                 <button onclick="handleGoogleLogin()" class="settings-btn"><img src="images/icons/key.png" class="icon icon-sm"> 로그아웃</button>
                 <div class="flex items-center justify-center gap-3 mt-3">
                     <span onclick="closeOverlay('settings-popup');openOverlay('privacy-popup')" class="text-[10px] text-gray-400 cursor-pointer">개인정보처리방침</span>
@@ -575,7 +575,7 @@
                 <div class="mb-3"><img src="images/icons/finish.png" class="icon icon-xl mx-auto"></div>
                 <h2 class="text-2xl font-bold text-cyan-600 mb-2">레이스 초대</h2>
                 <p class="text-sm text-gray-600 mb-2">
-                    <span id="invite-from-name" class="font-bold text-cyan-700">???</span>님이
+                    <span id="invite-from-name" class="font-bold text-cyan-700 name-ellipsis" style="max-width:80px">???</span>님이
                     레이스에 초대했습니다!
                 </p>
                 <p class="text-lg text-orange-500 font-bold mb-4">

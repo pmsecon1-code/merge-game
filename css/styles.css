@@ -1488,17 +1488,22 @@ body.tutorial-active {
     gap: 6px;
 }
 
+.name-ellipsis {
+    max-width: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+}
+
 .race-label {
     font-size: 0.6rem;
     font-weight: bold;
     color: #475569;
-    max-width: 40px;
     min-width: 16px;
     text-align: right;
     flex-shrink: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .race-road {

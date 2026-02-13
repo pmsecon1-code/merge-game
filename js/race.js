@@ -644,7 +644,7 @@ function updateRaceUIFromData(data) {
             <span class="race-progress">${myProgress}/${RACE_GOAL}</span>
         </div>
         <div class="race-lane">
-            <span class="race-label">${oppName || '상대'}</span>
+            <span class="race-label name-ellipsis">${oppName || '상대'}</span>
             <div class="race-road">
                 <div class="race-car" style="left: ${oppPercent}%"><img src="images/race/rival.png" class="icon icon-md"></div>
                 <div class="race-finish"><img src="images/icons/finish.png" class="icon icon-sm"></div>
@@ -1042,7 +1042,7 @@ function updatePendingInviteUI(data) {
     if (trackEl) {
         trackEl.innerHTML = `
             <div class="text-center py-2">
-                <div class="text-orange-500 text-sm font-bold mb-1">${ICON.mail} ${data.player2Name || '상대방'}에게 초대 전송됨</div>
+                <div class="text-orange-500 text-sm font-bold mb-1">${ICON.mail} <span class="name-ellipsis" style="max-width:80px">${data.player2Name || '상대방'}</span>에게 초대 전송됨</div>
                 <div class="text-gray-400 text-[10px]">상대방의 응답을 기다리는 중...</div>
             </div>
         `;
