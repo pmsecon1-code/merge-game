@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.28.0)
+# 멍냥 머지 게임 - Architecture (v4.29.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.28.0
+- **버전**: 4.29.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -14,30 +14,31 @@
 
 ```
 merge2/
-├── index.html          # 메인 HTML (~608줄)
+├── index.html          # 메인 HTML (~649줄)
 ├── css/
-│   └── styles.css      # 모든 CSS (~1866줄)
+│   └── styles.css      # 모든 CSS (~2021줄)
 ├── js/
-│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~770줄)
-│   ├── state.js        # 전역 변수 + DOM 참조 (~130줄)
+│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~632줄)
+│   ├── state.js        # 전역 변수 + DOM 참조 (~133줄)
 │   ├── auth.js         # 인증 + 세션 + 회원탈퇴 (~177줄)
-│   ├── save.js         # 저장/로드/검증 (~590줄)
-│   ├── game.js         # 코어 게임 메커닉 (~840줄)
-│   ├── systems.js      # 7행미션/주사위 여행/상점 (~439줄)
-│   ├── album.js        # 앨범 (사진 수집) 시스템 (~241줄)
-│   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1066줄)
-│   ├── sound.js        # 사운드 시스템 (효과음+BGM) (~406줄)
-│   ├── story.js        # 스토리 미션 시스템 (~230줄)
+│   ├── save.js         # 저장/로드/검증/클램핑/진단 (~713줄)
+│   ├── game.js         # 코어 게임 메커닉 (~891줄)
+│   ├── systems.js      # 7행미션/주사위 여행/상점 (~438줄)
+│   ├── album.js        # 앨범 (사진 수집) 시스템 (~243줄)
+│   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1069줄)
+│   ├── sound.js        # 사운드 시스템 (효과음+BGM) (~419줄)
+│   ├── story.js        # 스토리 이미지 갤러리 시스템 (~319줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~194줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~720줄)
-│   └── main.js         # 초기화 + 타이머 (~305줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~754줄)
+│   └── main.js         # 초기화 + 타이머 (~299줄)
 ├── images/
 │   ├── icons/          # UI 아이콘 27종 (128×128 PNG)
 │   ├── effects/        # 이펙트 아이콘 3종
 │   ├── race/           # 레이스 아이콘 5종
 │   ├── spawners/       # 생성기 이미지 7종
 │   ├── badges/         # 배지 바 아이콘
-│   ├── story/          # 보스 이미지 8종 (128×128 PNG)
+│   ├── story/          # 보스 이미지 7종 + scenes/ 24장
+│   │   └── scenes/     # 스토리 씬 이미지 24장 (EP.1~7)
 │   ├── cats/           # 고양이 동물 이미지 11종
 │   ├── dogs/           # 강아지 동물 이미지 11종
 │   ├── birds/          # 새 동물 이미지 7종
@@ -56,7 +57,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → sound → **story** → ui → tutorial → main
 
-**총 JS**: ~6150줄, **함수**: ~159개
+**총 JS**: ~6281줄, **함수**: ~162개
 
 ---
 
@@ -134,7 +135,7 @@ merge2/
 ### 저장 데이터 구조
 ```javascript
 {
-  // 보드 (아이템: {type, level} | 생성기: {type, clicks, cooldown} | 저금통: {type:'piggy_bank', coins, openAt})
+  // 보드 (아이템: {type, level} | 생성기: {type, clicks, cooldown} | 저금통: {type:'piggy_bank', coins, openAt} | 보스: {type:'boss', bossId})
   boardState: [{type, level}, ...],      // 35칸
   storageState: [{type, level}, ...],    // 5칸
 
@@ -188,15 +189,12 @@ merge2/
   // 튜토리얼 (v4.15.0+)
   tutorialStep,             // 0=완료, 1~4=진행 중 스텝
 
-  // 스토리 미션 (v4.28.0+)
+  // 스토리 갤러리 (v4.29.0+)
   storyProgress: {
-    currentChapter,         // 현재 챕터 인덱스 (0~)
-    currentEpisode,         // 현재 에피소드 인덱스 (0~)
-    completed,              // ["0_0", "0_1", ...] 완료된 에피소드
-    chaptersCompleted,      // [0, 1, ...] 완료된 챕터
-    phase,                  // 'idle' | 'quest' | 'battle'
-    bossHp,                 // 현재 보스 HP
-    bossMaxHp,              // 보스 최대 HP
+    unlockedImages,         // [0, 1, 2, ...] 해제된 이미지 ID (최대 24)
+    activeQuestId,          // 현재 활성 퀘스트의 이미지 ID (null이면 없음)
+    bosses,                 // [{bossId, hp, maxHp, boardIdx}, ...] 보드 위 보스들 (최대 7)
+    pendingBoss,            // 보드 가득 시 대기 중인 EP번호 (null이면 없음)
   },
 
   // 기타
@@ -205,8 +203,8 @@ merge2/
 }
 ```
 
-### 관련 함수 (save.js, 12개)
-`getGameData`, `applyGameData`, `migrateRow7Missions`, `saveGame`, `saveGameNow`, `updateSaveStatus`, `sanitizeForFirestore`, `isValidSaveData`, `saveToCloud`, `loadFromCloud`, `validateGameData`, `initNewGame`
+### 관련 함수 (save.js, 14개)
+`getGameData`, `applyGameData`, `migrateRow7Missions`, `saveGame`, `saveGameNow`, `updateSaveStatus`, `sanitizeForFirestore`, `clampSaveData`, `isValidSaveData`, `diagnoseSaveData`, `saveToCloud`, `loadFromCloud`, `validateGameData`, `initNewGame`
 
 ---
 
@@ -553,64 +551,79 @@ Web Audio API 기반 합성음 효과음 + BGM. 외부 파일 없이 코드로 �
 
 ---
 
-## 스토리 미션 시스템 (v4.28.0)
+## 스토리 이미지 갤러리 시스템 (v4.29.0)
 
 ### 개요
-모모타로 설화를 차용한 스토리 미션. 동물 마을에 도깨비(거대 들쥐)가 나타나 동물들을 잡아먹고, 아기 고양이가 동료를 모아 도깨비섬으로 원정하는 어두운 톤의 이야기.
+모모타로 설화를 차용한 스토리 시스템. 24장의 이미지를 레벨 기반으로 개별 해제하며, 보스는 보드 위 아이템으로 존재. 동물 마을에 도깨비(거대 들쥐)가 나타나 동물들을 잡아먹고, 아기 고양이가 동료를 모아 도깨비섬으로 원정하는 어두운 톤의 이야기.
 
 ### 해제 조건
-- `userLevel >= 3` (STORY_UNLOCK_LEVEL)
-- 해제 시 마일스톤 팝업 → 첫 에피소드 인트로 자동 시작
+- `userLevel >= 5` (STORY_UNLOCK_LEVEL)
+- 레벨 도달 시 자동으로 퀘스트 활성
 
-### 에피소드 2단계 구조
+### 핵심 흐름
 ```
-[인트로 팝업] → [1단계: 퀘스트] 아이템 모아 제출
-    → [아웃트로 팝업] → [2단계: 보스전] 합성하면 데미지
-    → [보스 HP 0] → 승리 연출 → [보상] → 다음 에피소드
+[레벨 도달] → 이미지 퀘스트 자동 활성 (퀘스트바 맨 앞)
+    → [아이템 제출] → 이미지 해제 + 슬라이드쇼
+    → [EP 마지막 이미지] → 보스 보드 스폰
+    → [합성 = 데미지] → 보스 HP 0 → 격파 보상
+    → [다음 이미지 퀘스트]
 ```
 
-### 챕터 1: "도깨비섬으로" (8화)
+### 이미지 갤러리 (24장, EP.1~7)
 
-| 화 | 제목 | 퀘스트 요구 | 보스 (HP) | 보상 |
-|---|------|-----------|-----------|------|
-| 1 | 텅 빈 마을 | cat Lv.2 ×1 | 도깨비 그림자 (30) | 50🪙 |
-| 2 | 떠나는 발걸음 | cat_snack ×1, dog_snack ×1 | 정찰병 (50) | 30🪙+1💎 |
-| 3 | 첫 번째 동료 | dog Lv.3 ×1 | 포수 (70) | 80🪙 |
-| 4 | 하늘의 눈 | bird Lv.2 ×1, cat_snack Lv.2 ×1 | 궁수 (90) | 80🪙+2🃏 |
-| 5 | 검은 바다 | reptile Lv.3 ×1, fish Lv.2 ×1 | 바다 도깨비 (120) | 100🪙+2💎 |
-| 6 | 도깨비섬 | cat Lv.5 ×1, dog Lv.4 ×1 | 문지기 (160) | 120🪙+3🃏 |
-| 7 | 도깨비 | cat Lv.6 ×1, dog Lv.5 ×1, bird Lv.3 ×1 | 두목 (200) | 200🪙+5💎 |
-| 8 | 귀환 | cat Lv.3 ×1, dog Lv.3 ×1 | 잔당 (100) | 300🪙+5💎 |
+| EP | 제목 | 이미지 수 | 레벨 구간 | 보스 (HP) | 보스 보상 |
+|----|------|----------|----------|-----------|----------|
+| 1 | 텅 빈 마을 | 3 | Lv.5/10/15 | 도깨비 그림자 (500) | 50🪙 |
+| 2 | 떠나는 발걸음 | 3 | Lv.20/25/30 | 도깨비 정찰병 (1,000) | 100🪙 |
+| 3 | 첫 번째 동료 | 3 | Lv.35/40/45 | 도깨비 포수 (1,500) | 150🪙 |
+| 4 | 하늘의 눈 | 3 | Lv.50/55/60 | 도깨비 궁수 (2,000) | 200🪙 |
+| 5 | 검은 바다 | 3 | Lv.65/70/75 | 바다 도깨비 (2,500) | 250🪙 |
+| 6 | 도깨비섬 | 4 | Lv.80/85/90/95 | 도깨비 문지기 (3,000) | 300🪙 |
+| 7 | 도깨비 | 5 | Lv.100/105/110/115/120 | 도깨비 두목 (3,500) | 350🪙 |
 
-### 보스전 메커닉
-- **데미지**: 합성 결과 레벨 × 3 (STORY_DMG_MULTIPLIER)
-- **기존 게임 유지**: 보스전 중에도 생성기/에너지/퀘스트 정상 작동
-- **패배 없음**: 시간 제한 없이 HP 깎으면 됨 (캐주얼 친화)
+### 보스 메커닉
+- **보스 = 보드 아이템**: `{type: 'boss', bossId: N}` (N = EP번호)
+- **보스 HP**: `STORY_BOSS_HP_BASE(500) × EP번호`
+- **데미지**: 합성 결과 레벨 = 데미지 (mergeLevel이 곧 dmg)
+- **동시 다수 보스**: 보드에 여러 보스가 동시 존재 가능
+- **합성 시 모든 보스에 데미지**: 합성마다 살아있는 모든 보스에 동일 데미지
+- **보스 클릭 → 정보 팝업**: 이름, 이미지, HP바, 공략 안내
+- **보스 미니 HP**: 보드 셀에 n/max 형식 표시 + 미니 HP바
+- **교환 가능**: 저금통처럼 보드 내 위치 교환 허용
+- **이동 제한**: 합성 불가, 판매 불가, 창고 이동 불가
+- **보드 가득**: pendingBoss에 저장 → 빈 칸 생기면 자동 스폰 (updateAll에서 trySpawnPendingBoss 호출)
 - **HP바 색상**: 초록(>50%) → 노랑(25~50%) → 빨강(<25%)
 - **합성 시 빨간 floatText로 데미지 표시**
+- **격파 보상**: EP번호 × 50🪙
+- **기존 게임 유지**: 보스가 있어도 생성기/에너지/퀘스트 정상 작동
 
-### 보스전 UI (보드 위 오버레이)
+### 보스 UI (보드 셀 아이템)
 ```
-┌─────────────────────────────┐
-│  🐀 도깨비 두목              │ ← 보스 이름+이미지
-│  [████████░░░░] 132/200 HP  │ ← HP바
-│  -15! 💥                     │ ← 데미지 팝업
-├─────────────────────────────┤
-│         보드 (5×7)           │ ← 기존 보드
-└─────────────────────────────┘
+┌─────────┐
+│  [보스]  │ ← 보스 이미지 (80%)
+│  ████░░  │ ← 미니 HP바
+│ 132/200  │ ← HP 숫자
+└─────────┘
 ```
 
-### 게임 메커닉
-- **한 번에 1개** 에피소드만 활성
+### 퀘스트 메커닉
+- **한 번에 1개** 이미지 퀘스트만 활성 (storyProgress.activeQuestId)
+- **레벨 기반 자동 활성**: checkStoryQuests()에서 레벨 체크 → 자동 퀘스트 생성
 - **퀘스트바 맨 앞** 고정, 인디고 테두리
-- **레벨업/일일미션 카운트에 미포함**
-- **퀘스트 헤더에 📖 버튼** → 챕터 목록 모달
+- **퀘스트 완료 시** 이미지 해제 + 슬라이드쇼 + 보상 지급
+- **레벨업/일일미션 카운트에 포함** (v4.29.0 변경)
+- **퀘스트 헤더에 📖 버튼** → 스토리 갤러리 모달
+
+### 갤러리 모달
+- EP별 그룹핑 (EP.1 "텅 빈 마을" 3/3 등)
+- 해제된 이미지: 클릭 → 슬라이드쇼로 다시 보기
+- 미해제 이미지: 자물쇠 아이콘 + 흐림 처리
 
 ### 이미지 리소스
-`images/story/` 폴더에 보스 PNG 8종 (128×128)
 
-| 파일명 | 에피소드 |
-|--------|---------|
+**보스 이미지** (`images/story/`, 7종)
+| 파일명 | EP |
+|--------|-----|
 | `boss_shadow.png` | EP.1 |
 | `boss_scout.png` | EP.2 |
 | `boss_trapper.png` | EP.3 |
@@ -618,36 +631,41 @@ Web Audio API 기반 합성음 효과음 + BGM. 외부 파일 없이 코드로 �
 | `boss_pirate.png` | EP.5 |
 | `boss_guard.png` | EP.6 |
 | `boss_king.png` | EP.7 |
-| `boss_remnants.png` | EP.8 |
 
-NPC 이미지: 기존 동물 이미지 재활용 (cat1, dog1, bird2, reptile4)
+**씬 이미지** (`images/story/scenes/`, 24종)
+`ep1_intro_1.png`, `ep1_intro_2.png`, `ep1_outro_1.png`, `ep2_intro_1.png`, `ep2_intro_2.png`, `ep2_outro_1.png`, `ep3_intro_1.png`, `ep3_intro_2.png`, `ep3_outro_1.png`, `ep4_intro_1.png`, `ep4_intro_2.png`, `ep4_outro_1.png`, `ep5_intro_1.png`, `ep5_intro_2.png`, `ep5_outro_1.png`, `ep6_intro_1.png`, `ep6_intro_2.png`, `ep6_intro_3.png`, `ep6_outro_1.png`, `ep7_intro_1.png`, `ep7_intro_2.png`, `ep7_intro_3.png`, `ep7_outro_1.png`, `ep7_outro_2.png`
+
+NPC 이미지: 기존 동물 이미지 재활용 (cat1)
 
 ### 상수
 ```javascript
-STORY_UNLOCK_LEVEL = 3           // 해제 레벨
-STORY_DMG_MULTIPLIER = 3         // 데미지 = mergeLevel × 3
-STORY_CHAPTERS = [{ id, title, desc, episodes: [...] }]
+STORY_UNLOCK_LEVEL = 5              // 해제 레벨
+STORY_BOSS_HP_BASE = 500            // 보스 HP = 500 × EP번호
+STORY_IMAGES = [{ id, ep, title, img, text, reqLevel, reqs, reward, isLastInEp, bossName, bossImg }, ...]  // 24항목
 ```
 
-### 관련 함수 (story.js, 16개)
+### 관련 함수 (story.js, 19개)
 | 함수 | 역할 |
 |------|------|
-| `checkStoryUnlock()` | 레벨 조건 → 해제 팝업 |
-| `getCurrentStoryEpisode()` | 현재 에피소드 데이터 반환 |
-| `startStoryEpisode()` | 인트로 팝업 → phase='quest' |
-| `activateStoryQuest()` | 퀘스트바에 스토리 퀘스트 추가 |
-| `completeStoryQuest()` | 퀘스트 완료 → 아웃트로 → 보스전 시작 |
-| `startBossBattle()` | phase='battle', HP바 표시 |
-| `dealBossDamage(mergeLevel)` | 데미지 계산 + HP 감소 + 팝업 |
-| `updateBossUI()` | HP바 갱신 (색상 변화) |
-| `defeatBoss()` | HP 0 → 승리 연출 → 보상 |
-| `giveStoryReward(episode)` | 보상 지급 |
-| `completeStoryChapter()` | 챕터 완료 보상 |
-| `showStoryPopup(texts, npcImg, title, onClose)` | 스토리 텍스트 모달 |
-| `closeStoryPopup()` | 모달 닫기 |
-| `openStoryChapterList()` | 챕터 목록 모달 |
-| `renderStoryChapterList()` | 에피소드 목록 렌더링 |
-| `updateStoryUI()` | 퀘스트 헤더 진행도 + 보스 오버레이 |
+| `getNextStoryImage()` | 다음 해제 가능 이미지 조회 |
+| `checkStoryQuests()` | 레벨 체크 → 퀘스트 자동 활성 |
+| `activateImageQuest(img)` | 이미지 퀘스트 생성 → 퀘스트바 맨 앞 |
+| `completeImageQuest(imageId)` | 이미지 해제 + 슬라이드쇼 + 보스 스폰 |
+| `spawnBossOnBoard(epNumber)` | 보스를 보드 빈 칸에 배치 |
+| `trySpawnPendingBoss()` | 대기 중 보스 재시도 (빈 칸 생기면) |
+| `dealBoardBossDamage(mergeLevel)` | 합성 시 모든 보스에 데미지 |
+| `defeatBoardBoss(boss)` | 보스 HP 0 → 보드 제거 + 보상 |
+| `createBossItem(item, bossData, imgData)` | 보스 셀 DOM 렌더링 |
+| `showBossInfoPopup(bossData, imgData)` | 보스 클릭 → 정보 팝업 |
+| `closeBossInfoPopup()` | 정보 팝업 닫기 |
+| `showStoryPopup(slides, npcImg, title, onClose)` | 슬라이드쇼 모달 |
+| `showStorySlide(idx)` | 슬라이드 렌더링 (이미지+텍스트+도트) |
+| `advanceStorySlide()` | 다음 슬라이드 |
+| `closeStoryPopup()` | 슬라이드쇼 닫기 |
+| `openStoryGallery()` | 갤러리 모달 열기 |
+| `renderStoryGallery()` | EP별 이미지 그리드 렌더링 |
+| `viewStoryImage(imageId)` | 해제된 이미지 다시 보기 |
+| `updateStoryUI()` | 퀘스트 헤더 진행도 (n/24) |
 
 ---
 
@@ -802,8 +820,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### sound.js (9개)
 `initSound`, `unlockAudio`, `createSynthSound`, `playSound`, `playBGM`, `stopBGM`, `toggleSound`, `toggleMusic`, `updateSoundUI`
 
-### story.js (16개)
-`checkStoryUnlock`, `getCurrentStoryEpisode`, `startStoryEpisode`, `activateStoryQuest`, `completeStoryQuest`, `startBossBattle`, `dealBossDamage`, `updateBossUI`, `defeatBoss`, `giveStoryReward`, `completeStoryChapter`, `showStoryPopup`, `closeStoryPopup`, `openStoryChapterList`, `renderStoryChapterList`, `updateStoryUI`
+### story.js (19개)
+`getNextStoryImage`, `checkStoryQuests`, `activateImageQuest`, `completeImageQuest`, `spawnBossOnBoard`, `trySpawnPendingBoss`, `dealBoardBossDamage`, `defeatBoardBoss`, `createBossItem`, `showBossInfoPopup`, `closeBossInfoPopup`, `showStoryPopup`, `showStorySlide`, `advanceStorySlide`, `closeStoryPopup`, `openStoryGallery`, `renderStoryGallery`, `viewStoryImage`, `updateStoryUI`
 
 ### tutorial.js (10개)
 `startTutorial`, `showTutorialStep`, `positionSpotlight`, `positionBubble`, `advanceTutorial`, `completeTutorial`, `isTutorialClickAllowed`, `findSameLevelPair`, `findReadyQuestBtn`, `repositionTutorial`
@@ -840,8 +858,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 유저 이름 (v4.25.2)
 `MAX_NAME_LENGTH=6`, `getDisplayName(user)` → 첫 단어 기준 최대 6자
 
-### 스토리 미션 (v4.28.0)
-`STORY_UNLOCK_LEVEL=3`, `STORY_DMG_MULTIPLIER=3`, `STORY_CHAPTERS`(1챕터×8화)
+### 스토리 갤러리 (v4.29.0)
+`STORY_UNLOCK_LEVEL=5`, `STORY_BOSS_HP_BASE=500`, `STORY_IMAGES`(24항목, EP.1~7)
 
 ### 헬퍼 함수 (7개)
 `getItemList`, `getMaxLevel`, `getItemData`, `getGeneratorName`, `getSpecialTypeName`, `formatMinSec`, `getDisplayName`
@@ -875,6 +893,64 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.29.0 (2026-02-19) - 스토리 시스템 전면 리디자인
+- 📖 **스토리 시스템 전면 리디자인** (v4.28.0 챕터/에피소드 구조 폐기)
+  - 기존: 챕터 1개 × 에피소드 8개 → 퀘스트 → 보스전 (오버레이 HP바)
+  - 신규: 24장 이미지 (EP.1~7) → 레벨 기반 개별 해제 → 보스는 보드 아이템
+  - `STORY_CHAPTERS` 삭제 → `STORY_IMAGES` (24항목) + `STORY_BOSS_HP_BASE = 500`
+  - `STORY_UNLOCK_LEVEL` 3 → 5
+  - `STORY_DMG_MULTIPLIER` 삭제 → 합성 레벨 = 데미지 (mergeLevel이 곧 dmg)
+  - 해제 조건: userLevel >= next.reqLevel (이미지별 개별 레벨)
+- 🎮 **보스 보드 아이템화**
+  - 보스가 보드 위 아이템으로 존재 (`{type: 'boss', bossId: N}`)
+  - 보스 HP = 500 × EP번호 (EP.1=500, EP.7=3,500)
+  - 합성마다 모든 살아있는 보스에 데미지 (합성 결과 레벨 = 데미지)
+  - 다수 보스 동시 존재 가능
+  - 보스 클릭 → 정보 팝업 (이름, 이미지, HP바, 공략 안내)
+  - 보스 미니 HP 표시: n/max 형식 + 미니 HP바
+  - 보스 교환 가능 (저금통처럼), 합성/판매/창고 이동 불가
+  - 보드 가득 → pendingBoss → 빈 칸 생기면 trySpawnPendingBoss 자동 재시도
+  - 격파 보상: EP번호 × 50🪙
+- 🖼️ **이미지 갤러리 시스템**
+  - 퀘스트 헤더 📖 버튼 → 스토리 갤러리 모달
+  - EP별 그룹핑 + 진행도 표시 (n/n)
+  - 해제된 이미지 클릭 → 슬라이드쇼로 다시 보기
+  - 미해제 이미지: 자물쇠 아이콘 + 흐림 처리
+- 📋 **스토리 퀘스트 변경**
+  - 레벨 도달 시 자동 퀘스트 활성 (checkStoryQuests)
+  - 퀘스트 완료 → 이미지 해제 + 슬라이드쇼
+  - 레벨업/일일미션 카운트에 포함 (v4.28.0에서는 미포함이었음)
+- 💾 **save.js 강화**
+  - `clampSaveData()` 추가: 숫자 범위 + 배열 크기 클램핑 (Firestore 저장 전)
+  - `diagnoseSaveData()` 추가: Firestore 규칙 23개 항목 개별 진단 로깅
+  - 저장 실패 시 clampSaveData → 재시도 → diagnoseSaveData 순서
+  - storyProgress 마이그레이션: v4.28.0 구조(currentChapter 등) → v4.29.0 구조(unlockedImages 등)
+  - 보드 위 보스 아이템 자동 복원 (applyGameData에서 bosses.boardIdx 기반)
+- storyProgress 구조 변경:
+  ```
+  기존: { currentChapter, currentEpisode, completed, chaptersCompleted, phase, bossHp, bossMaxHp }
+  신규: { unlockedImages, activeQuestId, bosses, pendingBoss }
+  ```
+- story.js 전면 재작성 (~230줄 → ~319줄)
+  - 삭제 함수 (14개): checkStoryUnlock, getCurrentStoryEpisode, startStoryEpisode, activateStoryQuest(기존), completeStoryQuest, startBossBattle, dealBossDamage, updateBossUI, defeatBoss, giveStoryReward, completeStoryChapter, renderStoryChapterList, openStoryChapterList, updateStoryUI(기존)
+  - 신규 함수 (19개): getNextStoryImage, checkStoryQuests, activateImageQuest, completeImageQuest, spawnBossOnBoard, trySpawnPendingBoss, dealBoardBossDamage, defeatBoardBoss, createBossItem, showBossInfoPopup, closeBossInfoPopup, showStoryPopup, showStorySlide, advanceStorySlide, closeStoryPopup, openStoryGallery, renderStoryGallery, viewStoryImage, updateStoryUI(새)
+- 수정 파일: js/story.js (전면 재작성), js/constants.js, js/state.js, js/save.js, js/game.js, index.html, css/styles.css, eslint.config.js, firestore.rules
+- 신규 상수 (2개): `STORY_BOSS_HP_BASE`, `STORY_IMAGES`
+- 삭제 상수 (2개): `STORY_DMG_MULTIPLIER`, `STORY_CHAPTERS`
+- 변경 상수: `STORY_UNLOCK_LEVEL` 3 → 5
+- 신규 변수 (state.js): `storySlides`, `storySlideIdx`, `storySlideOnClose`
+- storyProgress 구조 변경: `unlockedImages`, `activeQuestId`, `bosses`, `pendingBoss`
+- 신규 HTML: `#boss-info-popup` (보스 정보 팝업), `#story-gallery-modal` (갤러리 모달), `#story-slide-area`, `#story-slide-img`, `#story-slide-text`, `#story-slide-dots`
+- 삭제 HTML: `#boss-overlay` (HP바 오버레이), `#story-chapter-modal` (챕터 목록)
+- 신규 CSS: `.boss-board-item`, `.boss-mini-hp`, `.boss-mini-hp-fill`, `.gallery-image`, `.gallery-image.locked`, `.story-gallery-grid`, `.story-ep-header`, `.story-npc-img`, `.story-slide-img`, `.story-slide-text`, `.story-slide-dots`, `.story-dot`
+- 삭제 CSS: `.boss-overlay`, `.boss-hp-track`, `.boss-hp-fill`, `.boss-dmg-text`, `@keyframes bossDmg`
+- 신규 이미지 (24개): `images/story/scenes/` 폴더에 ep1_intro_1.png ~ ep7_outro_2.png
+- save.js 신규 함수 (2개): `clampSaveData()`, `diagnoseSaveData()`
+- firestore.rules: storyProgress 검증 변경 (unlockedImages 최대 30, bosses 최대 10)
+- eslint.config.js: story.js 전역 전면 교체 (STORY_IMAGES, STORY_BOSS_HP_BASE, 19개 함수, 슬라이드 변수 3개)
+- 캐시 버스팅: `?v=4.28.0` → `?v=4.29.0` (전체 JS/CSS)
+- 수정 함수: `completeQuest()` (game.js - 스토리 퀘스트 레벨업/진행도 포함), `moveItem()` (game.js - 보스 교환/이동 제한/boardIdx 갱신), `handleCellClick()` (game.js - 보스 클릭 → 정보 팝업), `applyGameData()` (save.js - v4.29.0 storyProgress 로드/마이그레이션 + 보스 보드 복원), `createItem()` (ui.js - 보스 셀 렌더링 분기)
 
 ### v4.28.0 (2026-02-19) - 스토리 미션 시스템 추가
 - 📖 **스토리 미션 시스템** 추가
@@ -1625,9 +1701,10 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## To-do
 
-- [x] 스토리 미션 시스템 - 챕터 1 (v4.28.0)
-- [ ] 스토리 보스 이미지 8종 추가 (images/story/)
-- [ ] 스토리 챕터 2 추가
+- [x] 스토리 시스템 v4.29.0 리디자인 - 보스 보드 아이템화 + 이미지 갤러리
+- [x] 스토리 보스 이미지 7종 (images/story/)
+- [x] 스토리 씬 이미지 24장 추가 (images/story/scenes/)
+- [ ] 스토리 EP.8+ 추가 (향후)
 - [x] 이모지 → 아이콘 교체 카테고리 B/C + 잔여 이모지 (v4.27.0)
 - [ ] NPC 아바타 이미지 교체 (10종)
 - [ ] 앨범 테마 아이콘 이미지 교체 (9종)
