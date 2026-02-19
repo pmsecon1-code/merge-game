@@ -88,11 +88,11 @@ function generateNewQuest(forceEasy = false) {
 function generateSpecialQuest() {
     if (userLevel < 2) return null;
     const types = ['bird', 'fish', 'reptile'];
-    const npcs = ['🐦', '🐠', '🦎'];
+    const npcImgs = ['images/birds/bird1.png', 'images/fish/fish1.png', 'images/reptiles/reptile1.png'];
     const idx = currentSpecialIndex;
     return {
         id: questIdCounter++,
-        npc: npcs[idx],
+        npc: npcImgs[idx],
         reqs: [{ type: types[idx], level: 7 }],
         reward: SPECIAL_QUEST_REWARD,
         cardReward: 0,

@@ -39,6 +39,10 @@ function init() {
         const img = new Image();
         img.src = `images/icons/${t}.png`;
     });
+    NPC_AVATARS.forEach(src => {
+        const img = new Image();
+        img.src = src;
+    });
     ['badge_race', 'badge_album', 'badge_dice', 'badge_shop', 'badge_storage'].forEach(t => {
         const img = new Image();
         img.src = `images/badges/${t}.png`;

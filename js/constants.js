@@ -184,7 +184,13 @@ const DICE_TRIP_REWARDS = [
 ];
 
 // --- NPC 아바타 ---
-const NPC_AVATARS = ['👩‍🌾', '👨‍🍳', '👮‍♀️', '🧙‍♂️', '👸', '🕵️‍♂️', '🎅', '🧑‍🚀', '👨‍🎨', '🦸‍♀️'];
+const NPC_AVATARS = [
+    'images/npcs/npc_farmer.png',
+    'images/npcs/npc_chef.png',
+    'images/npcs/npc_wizard.png',
+    'images/npcs/npc_princess.png',
+    'images/npcs/npc_detective.png',
+];
 
 // --- 일일 미션 설정 ---
 const DAILY_MISSIONS = [
