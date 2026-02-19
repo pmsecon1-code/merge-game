@@ -210,8 +210,8 @@ function updateQuestUI(scrollToFront = false) {
         const ok = canComplete(q);
         if (ok) d.classList.add('ready');
         const npcVisual = q.isStory
-            ? `<img src="${getCurrentStoryEpisode()?.npc || 'images/cats/cat1.png'}" style="width:28px;height:28px;object-fit:contain;border-radius:50%">`
-            : `<img src="${q.npc}" style="width:28px;height:28px;object-fit:contain;border-radius:50%">`;
+            ? `<img src="${getCurrentStoryEpisode()?.npc || 'images/cats/cat1.png'}">`
+            : `<img src="${q.npc}">`;
         let h = `<div class="quest-top"><div class="quest-npc">${npcVisual}</div><div class="quest-reqs">`;
         q.reqs.forEach((r) => {
             const l = getItemList(r.type);
