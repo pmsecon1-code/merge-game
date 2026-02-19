@@ -47,6 +47,8 @@ function getGameData() {
         // 사운드 설정
         soundEnabled,
         musicEnabled,
+        // 스토리 미션
+        storyProgress: { ...storyProgress, completed: [...storyProgress.completed], chaptersCompleted: [...storyProgress.chaptersCompleted] },
         savedAt: Date.now(),
     };
 }
@@ -109,7 +111,7 @@ function applyGameData(d) {
                 boardState[i] = null;
         }
         for (let i = 0; i < STORAGE_SIZE; i++) {
-            if (storageState[i] && storageState[i].type === rType)
+            if (storageState[i] && (storageState[i].type === rType || storageState[i].type === `${rType}_generator`))
                 storageState[i] = null;
         }
         for (let i = 0; i < SHOP_SIZE; i++) {
@@ -197,6 +199,19 @@ function applyGameData(d) {
     if (d.musicEnabled !== undefined) musicEnabled = d.musicEnabled;
     updateSoundUI();
     if (!musicEnabled) stopBGM();
+
+    // 스토리 미션 로드
+    if (d.storyProgress) {
+        storyProgress = {
+            currentChapter: d.storyProgress.currentChapter ?? 0,
+            currentEpisode: d.storyProgress.currentEpisode ?? 0,
+            completed: d.storyProgress.completed || [],
+            chaptersCompleted: d.storyProgress.chaptersCompleted || [],
+            phase: d.storyProgress.phase || 'idle',
+            bossHp: d.storyProgress.bossHp ?? 0,
+            bossMaxHp: d.storyProgress.bossMaxHp ?? 0,
+        };
+    }
 
     // 전설 퀘스트 아이템 정리 (v4.17.0 삭제 마이그레이션)
     for (let i = 0; i < BOARD_SIZE; i++) {
@@ -462,6 +477,15 @@ function validateGameData(data) {
         }
         if (key !== 'quests' && key !== 'shopItems' && data[key].every((x) => x === null || x === undefined)) {
             errors.push(`${key}: 모든 요소가 null - 데이터 손상 의심`);
+        }
+    }
+
+    // 스토리 미션 검증
+    if (data.storyProgress) {
+        const sp = data.storyProgress;
+        if (sp.completed && Array.isArray(sp.completed) && sp.completed.length > 100) {
+            errors.push('storyProgress.completed: 길이 초과');
+            sp.completed = sp.completed.slice(0, 100);
         }
     }
 

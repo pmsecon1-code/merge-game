@@ -106,6 +106,17 @@ let sessionUnsubscribe = null;
 // --- 하단 배지 탭 ---
 let currentBottomTab = null; // null | 'race' | 'album' | 'dice' | 'shop' | 'storage'
 
+// --- 스토리 미션 ---
+let storyProgress = {
+    currentChapter: 0,
+    currentEpisode: 0,
+    completed: [],           // ["0_0", "0_1", ...]
+    chaptersCompleted: [],   // [0, 1, ...]
+    phase: 'idle',           // 'idle' | 'quest' | 'battle'
+    bossHp: 0,
+    bossMaxHp: 0,
+};
+
 // --- 사운드 ---
 let audioContext = null;
 let soundEnabled = true;

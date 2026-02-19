@@ -139,6 +139,7 @@ function updateAll(opts) {
     updateAlbumBarUI();
     updateDiceTripUI();
     updateBottomBadges();
+    updateStoryUI();
     saveGame();
     // 튜토리얼 중이면 스포트라이트 재배치
     if (tutorialStep > 0) repositionTutorial();
@@ -184,6 +185,13 @@ function updateQuestUI(scrollToFront = false) {
         return true;
     };
 
+    // 스토리 퀘스트는 맨 앞 고정 (정렬에서 제외)
+    const storyIdx = quests.findIndex((q) => q.isStory);
+    let storyQuest = null;
+    if (storyIdx !== -1) {
+        [storyQuest] = quests.splice(storyIdx, 1);
+    }
+
     quests.sort((a, b) => canComplete(b) - canComplete(a));
     // 스페셜 퀘스트: 완료 불가능할 때만 마지막 위치
     const spSortIdx = quests.findIndex((q) => q.isSpecial);
@@ -192,12 +200,19 @@ function updateQuestUI(scrollToFront = false) {
         quests.push(sp);
     }
 
+    // 스토리 퀘스트 맨 앞 복원
+    if (storyQuest) quests.unshift(storyQuest);
+
     quests.forEach((q, i) => {
         const d = document.createElement('div');
         d.className = 'quest-card';
+        if (q.isStory) d.classList.add('story-quest-card');
         const ok = canComplete(q);
         if (ok) d.classList.add('ready');
-        let h = `<div class="quest-top"><div class="quest-npc">${q.npc}</div><div class="quest-reqs">`;
+        const npcVisual = q.isStory
+            ? `<img src="${getCurrentStoryEpisode()?.npc || 'images/cats/cat1.png'}" style="width:28px;height:28px;object-fit:contain;border-radius:50%">`
+            : q.npc;
+        let h = `<div class="quest-top"><div class="quest-npc">${npcVisual}</div><div class="quest-reqs">`;
         q.reqs.forEach((r) => {
             const l = getItemList(r.type);
             const reqData = l[r.level - 1];
@@ -207,7 +222,16 @@ function updateQuestUI(scrollToFront = false) {
             h += `<div class="req-item" title="Lv.${r.level}" onclick="openGuideForItem('${r.type}',${r.level})">${reqVisual}</div>`;
         });
         let timerText, rewardText;
-        if (q.isSpecial) {
+        if (q.isStory) {
+            const ep = getCurrentStoryEpisode();
+            timerText = `📖 EP.${ep ? ep.id + 1 : '?'}`;
+            const r = ep?.reward || {};
+            rewardText = '';
+            if (r.coins) rewardText += `${r.coins}${ICON.coin} `;
+            if (r.diamonds) rewardText += `${r.diamonds}${ICON.diamond} `;
+            if (r.cards) rewardText += `${r.cards}${ICON.card}`;
+            if (!rewardText) rewardText = '-';
+        } else if (q.isSpecial) {
             timerText = `${ICON.star}스페셜`;
             rewardText = `${ICON.coin}${ICON.piggy}`;
         } else {
@@ -215,7 +239,7 @@ function updateQuestUI(scrollToFront = false) {
             timerText = remaining > 0 ? `${ICON.timer}${formatQuestTimer(remaining)}` : '만료';
             rewardText = q.piggyReward ? `${ICON.coin}${ICON.piggy}` : q.cardReward > 0 ? `${q.cardReward}${ICON.card}` : `${q.reward}${ICON.coin}`;
         }
-        h += `</div></div><div class="text-[9px] mb-1 text-center"><div class="text-yellow-600">보상: ${rewardText}</div><div class="${q.isSpecial ? 'text-purple-500' : 'text-red-500'}">${timerText}</div></div><div class="quest-btn ${ok ? 'complete' : 'incomplete'}" onclick="${ok ? `completeQuest(${i})` : ''}">${ok ? '완료!' : '구해줘'}</div>`;
+        h += `</div></div><div class="text-[9px] mb-1 text-center"><div class="text-yellow-600">보상: ${rewardText}</div><div class="${q.isStory ? 'text-indigo-500' : q.isSpecial ? 'text-purple-500' : 'text-red-500'}">${timerText}</div></div><div class="quest-btn ${ok ? 'complete' : 'incomplete'}" onclick="${ok ? `completeQuest(${i})` : ''}">${ok ? '완료!' : '구해줘'}</div>`;
         d.innerHTML = h;
         questContainer.appendChild(d);
     });

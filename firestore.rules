@@ -65,6 +65,8 @@ service cloud.firestore {
           // 사운드 설정 검증 (선택적 필드)
           && (!data.keys().hasAny(['soundEnabled']) || data.soundEnabled is bool)
           && (!data.keys().hasAny(['musicEnabled']) || data.musicEnabled is bool)
+          // 스토리 미션 검증 (선택적 필드)
+          && (!data.keys().hasAny(['storyProgress']) || data.storyProgress is map)
           // 타임스탬프 검증 (미래 시간 방지)
           && data.savedAt <= request.time.toMillis() + 60000; // 1분 여유
       }

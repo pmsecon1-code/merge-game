@@ -120,6 +120,33 @@ function trySpawnSpecialGenerator() {
 function completeQuest(i) {
     const q = quests[i];
 
+    if (q.isStory) {
+        // --- 스토리 퀘스트 완료 ---
+        const rem = [...q.reqs];
+        const delArr = (arr) => {
+            for (let j = 0; j < arr.length; j++) {
+                if (rem.length === 0) break;
+                const it = arr[j];
+                if (it && !it.type.includes('locked') && !it.type.includes('generator')) {
+                    const idx = rem.findIndex((r) => r.type === it.type && r.level === it.level);
+                    if (idx !== -1) {
+                        arr[j] = null;
+                        rem.splice(idx, 1);
+                    }
+                }
+            }
+        };
+        delArr(boardState);
+        if (rem.length > 0) delArr(storageState);
+        playSound('quest_complete');
+        // 퀘스트 제거
+        quests.splice(i, 1);
+        // 스토리 퀘스트 완료 → 아웃트로 + 보스전 (레벨업/일일미션 카운트 미포함)
+        completeStoryQuest();
+        updateAll();
+        return;
+    }
+
     if (q.isSpecial) {
         // --- 스페셜 퀘스트 완료 ---
         const type = q.reqs[0].type;
@@ -128,9 +155,9 @@ function completeQuest(i) {
             if (boardState[j] && (boardState[j].type === type || boardState[j].type === `${type}_generator`))
                 boardState[j] = null;
         }
-        // 창고에서 동물 제거
+        // 창고에서 동물 + 생성기 제거
         for (let j = 0; j < STORAGE_SIZE; j++) {
-            if (storageState[j] && storageState[j].type === type)
+            if (storageState[j] && (storageState[j].type === type || storageState[j].type === `${type}_generator`))
                 storageState[j] = null;
         }
         // 상점에서 해당 타입 교체
@@ -244,13 +271,13 @@ function spawnItem(baseType, inputLevel = 1, isFree = false) {
     });
     if (empties.length === 0) {
         showError('공간 부족!');
-        return;
+        return false;
     }
     // 에너지 소비
     if (!isFree) {
         if (energy <= 0) {
             openEnergyPopup();
-            return;
+            return false;
         }
         energy--;
         updateUI();
@@ -308,6 +335,7 @@ function spawnItem(baseType, inputLevel = 1, isFree = false) {
     if (isLucky) {
         showLuckyEffect(cell);
     }
+    return true;
 }
 
 function spawnToy() {
@@ -318,12 +346,12 @@ function spawnToy() {
     });
     if (empties.length === 0) {
         showError('공간 부족!');
-        return;
+        return false;
     }
     // 에너지 소비
     if (energy <= 0) {
         openEnergyPopup();
-        return;
+        return false;
     }
     energy--;
     updateUI();
@@ -355,6 +383,7 @@ function spawnToy() {
     setTimeout(() => {
         spawnItemEffect(cell, false);
     }, 50);
+    return true;
 }
 
 // --- 셀 클릭 ---
@@ -430,51 +459,44 @@ function handleCellClick(zone, idx) {
 function triggerGen(idx, item) {
     const cell = boardEl.children[idx],
         cage = cell.querySelector('.cage-generator');
-    if (cage) {
-        cage.classList.add('cage-shake');
-        setTimeout(() => cage.classList.remove('cage-shake'), 300);
-        spawnParticles(cell);
-    }
     const baseType = item.type.replace('_generator', '');
     if (['bird', 'fish', 'reptile'].includes(baseType)) {
         if (item.cooldown > Date.now()) {
             showError('과열!');
             return;
         }
-        if (energy <= 0) {
-            openEnergyPopup();
-            return;
-        }
+        if (!spawnItem(baseType, 1, false)) return;
         item.clicks = (item.clicks || 0) + 1;
         if (item.clicks >= GENERATOR_MAX_CLICKS) {
             item.cooldown = Date.now() + GENERATOR_COOLDOWN_MS;
             item.clicks = 0;
             showToast('과열! 1분 휴식');
         }
-        spawnItem(baseType, 1, false);
     } else if (baseType === 'toy') {
         if (item.cooldown > Date.now()) {
             showError('과열!');
             return;
         }
-        if (energy <= 0) {
-            openEnergyPopup();
-            return;
-        }
+        if (!spawnToy()) return;
         item.clicks = (item.clicks || 0) + 1;
         if (item.clicks >= GENERATOR_MAX_CLICKS) {
             item.cooldown = Date.now() + GENERATOR_COOLDOWN_MS;
             item.clicks = 0;
             showToast('과열! 1분 휴식');
         }
-        spawnToy();
     } else {
         const prevEmpty = boardState.filter((x) => x === null).length;
-        spawnItem(baseType, 1, false);
+        if (!spawnItem(baseType, 1, false)) return;
         // 튜토리얼: 실제 생성된 경우만 진행
         if ((tutorialStep === 1 || tutorialStep === 2) && boardState.filter((x) => x === null).length < prevEmpty) {
             setTimeout(() => advanceTutorial(), 200);
         }
+    }
+    // 성공 시에만 파티클/흔들림 재생
+    if (cage) {
+        cage.classList.add('cage-shake');
+        setTimeout(() => cage.classList.remove('cage-shake'), 300);
+        spawnParticles(cell);
     }
 }
 
@@ -604,6 +626,10 @@ function moveItem(fz, fi, tz, ti) {
             }, 50);
             // 주사위 드랍 (합성 성공 시, 튜토리얼 중 스킵)
             if (tutorialStep <= 0) tryDropDice();
+            // 보스전 데미지
+            if (storyProgress.phase === 'battle') {
+                dealBossDamage(newLv);
+            }
             // 튜토리얼 Step 3 합성 완료 훅
             if (tutorialStep === 3) {
                 setTimeout(() => advanceTutorial(), 200);

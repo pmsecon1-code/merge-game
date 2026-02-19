@@ -14,9 +14,9 @@
         <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet" />
         <!-- 분리된 CSS -->
-        <link rel="stylesheet" href="css/styles.css?v=4.25.0" />
+        <link rel="stylesheet" href="css/styles.css?v=4.28.0" />
         <!-- 분리된 상수/데이터 -->
-        <script src="js/constants.js?v=4.25.0"></script>
+        <script src="js/constants.js?v=4.28.0"></script>
         <style>
             /* 인라인 스타일은 css/styles.css로 이동됨 */
         </style>
@@ -94,8 +94,29 @@
 
             <!-- 1. 일반 퀘스트 -->
             <div id="quest-area" class="event-bar">
-                <span class="text-[10px] font-bold text-purple-600"><img src="images/icons/clipboard.png" class="icon icon-xs"> 퀘스트</span>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-bold text-purple-600"><img src="images/icons/clipboard.png" class="icon icon-xs"> 퀘스트</span>
+                    <span id="story-header" style="display:none" class="flex items-center gap-1">
+                        <span id="story-header-info" class="text-[9px] text-indigo-400 font-bold"></span>
+                        <button onclick="openStoryChapterList()" class="text-[9px] bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded font-bold">📖</button>
+                    </span>
+                </div>
                 <div id="quest-container"></div>
+            </div>
+
+            <!-- 보스전 HP바 오버레이 -->
+            <div id="boss-overlay" class="boss-overlay" style="display:none">
+                <div class="boss-info">
+                    <img id="boss-img" src="" class="boss-portrait" alt="boss">
+                    <div class="boss-details">
+                        <div id="boss-name" class="text-[10px] font-bold text-red-700">도깨비</div>
+                        <div class="boss-hp-track">
+                            <div id="boss-hp-fill" class="boss-hp-fill" style="width:100%"></div>
+                        </div>
+                        <div id="boss-hp-text" class="text-[8px] text-gray-500 font-mono">0/0 HP</div>
+                    </div>
+                    <div id="boss-dmg-text" class="boss-dmg-text"></div>
+                </div>
             </div>
 
             <!-- 3. 맵 -->
@@ -552,6 +573,27 @@
             </div>
         </div>
 
+        <!-- 스토리 팝업 -->
+        <div id="story-popup" class="overlay-bg" style="display:none">
+            <div class="overlay-content story-popup-content">
+                <div class="flex items-center gap-2 mb-3">
+                    <img id="story-popup-npc" src="" class="story-npc-img" alt="npc">
+                    <div id="story-popup-title" class="text-sm font-bold text-indigo-700"></div>
+                </div>
+                <div id="story-popup-text" class="story-text"></div>
+                <button id="story-popup-close" class="w-full mt-4 bg-indigo-500 text-white py-2 rounded-lg font-bold">계속</button>
+            </div>
+        </div>
+
+        <!-- 챕터 목록 모달 -->
+        <div id="story-chapter-modal" class="modal" onclick="if (event.target === this) document.getElementById('story-chapter-modal').classList.remove('show');">
+            <div class="modal-content">
+                <h2 class="text-center text-lg text-indigo-700 font-bold mb-3">📖 시나리오 미션</h2>
+                <div id="story-chapter-list" class="flex-1 overflow-y-auto space-y-1 min-h-[200px]"></div>
+                <button onclick="document.getElementById('story-chapter-modal').classList.remove('show')" class="w-full mt-4 bg-gray-200 py-2 rounded-lg text-gray-600 font-bold">닫기</button>
+            </div>
+        </div>
+
         <!-- 레이스 초대 팝업 (player2) -->
         <div id="race-invite-popup" class="overlay-bg" style="display: none">
             <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-cyan-400">
@@ -578,16 +620,17 @@
         </div>
 
         <!-- 분리된 JS 모듈 -->
-        <script src="js/state.js?v=4.25.0"></script>
-        <script src="js/auth.js?v=4.25.0"></script>
-        <script src="js/save.js?v=4.25.0"></script>
-        <script src="js/game.js?v=4.25.0"></script>
-        <script src="js/systems.js?v=4.25.0"></script>
-        <script src="js/album.js?v=4.25.0"></script>
-        <script src="js/race.js?v=4.25.0"></script>
-        <script src="js/sound.js?v=4.25.0"></script>
-        <script src="js/ui.js?v=4.25.0"></script>
-        <script src="js/tutorial.js?v=4.25.0"></script>
-        <script src="js/main.js?v=4.25.0"></script>
+        <script src="js/state.js?v=4.28.0"></script>
+        <script src="js/auth.js?v=4.28.0"></script>
+        <script src="js/save.js?v=4.28.0"></script>
+        <script src="js/game.js?v=4.28.0"></script>
+        <script src="js/systems.js?v=4.28.0"></script>
+        <script src="js/album.js?v=4.28.0"></script>
+        <script src="js/race.js?v=4.28.0"></script>
+        <script src="js/sound.js?v=4.28.0"></script>
+        <script src="js/story.js?v=4.28.0"></script>
+        <script src="js/ui.js?v=4.28.0"></script>
+        <script src="js/tutorial.js?v=4.28.0"></script>
+        <script src="js/main.js?v=4.28.0"></script>
     </body>
 </html>

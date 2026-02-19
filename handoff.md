@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.27.0)
+# 멍냥 머지 게임 - Architecture (v4.28.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.27.0
+- **버전**: 4.28.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -18,24 +18,26 @@ merge2/
 ├── css/
 │   └── styles.css      # 모든 CSS (~1866줄)
 ├── js/
-│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~570줄)
-│   ├── state.js        # 전역 변수 + DOM 참조 (~120줄)
+│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~770줄)
+│   ├── state.js        # 전역 변수 + DOM 참조 (~130줄)
 │   ├── auth.js         # 인증 + 세션 + 회원탈퇴 (~177줄)
-│   ├── save.js         # 저장/로드/검증 (~575줄)
-│   ├── game.js         # 코어 게임 메커닉 (~821줄)
+│   ├── save.js         # 저장/로드/검증 (~590줄)
+│   ├── game.js         # 코어 게임 메커닉 (~840줄)
 │   ├── systems.js      # 7행미션/주사위 여행/상점 (~439줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~241줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1066줄)
 │   ├── sound.js        # 사운드 시스템 (효과음+BGM) (~406줄)
+│   ├── story.js        # 스토리 미션 시스템 (~230줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~194줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~700줄)
-│   └── main.js         # 초기화 + 타이머 (~295줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~720줄)
+│   └── main.js         # 초기화 + 타이머 (~305줄)
 ├── images/
 │   ├── icons/          # UI 아이콘 27종 (128×128 PNG)
 │   ├── effects/        # 이펙트 아이콘 3종
 │   ├── race/           # 레이스 아이콘 5종
 │   ├── spawners/       # 생성기 이미지 7종
 │   ├── badges/         # 배지 바 아이콘
+│   ├── story/          # 보스 이미지 8종 (128×128 PNG)
 │   ├── cats/           # 고양이 동물 이미지 11종
 │   ├── dogs/           # 강아지 동물 이미지 11종
 │   ├── birds/          # 새 동물 이미지 7종
@@ -52,9 +54,9 @@ merge2/
 └── handoff.md          # 이 문서
 ```
 
-**script 로드 순서**: constants → state → auth → save → game → systems → album → race → sound → ui → tutorial → main
+**script 로드 순서**: constants → state → auth → save → game → systems → album → race → sound → **story** → ui → tutorial → main
 
-**총 JS**: ~5600줄, **함수**: ~143개
+**총 JS**: ~6150줄, **함수**: ~159개
 
 ---
 
@@ -185,6 +187,17 @@ merge2/
 
   // 튜토리얼 (v4.15.0+)
   tutorialStep,             // 0=완료, 1~4=진행 중 스텝
+
+  // 스토리 미션 (v4.28.0+)
+  storyProgress: {
+    currentChapter,         // 현재 챕터 인덱스 (0~)
+    currentEpisode,         // 현재 에피소드 인덱스 (0~)
+    completed,              // ["0_0", "0_1", ...] 완료된 에피소드
+    chaptersCompleted,      // [0, 1, ...] 완료된 챕터
+    phase,                  // 'idle' | 'quest' | 'battle'
+    bossHp,                 // 현재 보스 HP
+    bossMaxHp,              // 보스 최대 HP
+  },
 
   // 기타
   discoveredItems, currentSpecialIndex,
@@ -540,6 +553,104 @@ Web Audio API 기반 합성음 효과음 + BGM. 외부 파일 없이 코드로 �
 
 ---
 
+## 스토리 미션 시스템 (v4.28.0)
+
+### 개요
+모모타로 설화를 차용한 스토리 미션. 동물 마을에 도깨비(거대 들쥐)가 나타나 동물들을 잡아먹고, 아기 고양이가 동료를 모아 도깨비섬으로 원정하는 어두운 톤의 이야기.
+
+### 해제 조건
+- `userLevel >= 3` (STORY_UNLOCK_LEVEL)
+- 해제 시 마일스톤 팝업 → 첫 에피소드 인트로 자동 시작
+
+### 에피소드 2단계 구조
+```
+[인트로 팝업] → [1단계: 퀘스트] 아이템 모아 제출
+    → [아웃트로 팝업] → [2단계: 보스전] 합성하면 데미지
+    → [보스 HP 0] → 승리 연출 → [보상] → 다음 에피소드
+```
+
+### 챕터 1: "도깨비섬으로" (8화)
+
+| 화 | 제목 | 퀘스트 요구 | 보스 (HP) | 보상 |
+|---|------|-----------|-----------|------|
+| 1 | 텅 빈 마을 | cat Lv.2 ×1 | 도깨비 그림자 (30) | 50🪙 |
+| 2 | 떠나는 발걸음 | cat_snack ×1, dog_snack ×1 | 정찰병 (50) | 30🪙+1💎 |
+| 3 | 첫 번째 동료 | dog Lv.3 ×1 | 포수 (70) | 80🪙 |
+| 4 | 하늘의 눈 | bird Lv.2 ×1, cat_snack Lv.2 ×1 | 궁수 (90) | 80🪙+2🃏 |
+| 5 | 검은 바다 | reptile Lv.3 ×1, fish Lv.2 ×1 | 바다 도깨비 (120) | 100🪙+2💎 |
+| 6 | 도깨비섬 | cat Lv.5 ×1, dog Lv.4 ×1 | 문지기 (160) | 120🪙+3🃏 |
+| 7 | 도깨비 | cat Lv.6 ×1, dog Lv.5 ×1, bird Lv.3 ×1 | 두목 (200) | 200🪙+5💎 |
+| 8 | 귀환 | cat Lv.3 ×1, dog Lv.3 ×1 | 잔당 (100) | 300🪙+5💎 |
+
+### 보스전 메커닉
+- **데미지**: 합성 결과 레벨 × 3 (STORY_DMG_MULTIPLIER)
+- **기존 게임 유지**: 보스전 중에도 생성기/에너지/퀘스트 정상 작동
+- **패배 없음**: 시간 제한 없이 HP 깎으면 됨 (캐주얼 친화)
+- **HP바 색상**: 초록(>50%) → 노랑(25~50%) → 빨강(<25%)
+- **합성 시 빨간 floatText로 데미지 표시**
+
+### 보스전 UI (보드 위 오버레이)
+```
+┌─────────────────────────────┐
+│  🐀 도깨비 두목              │ ← 보스 이름+이미지
+│  [████████░░░░] 132/200 HP  │ ← HP바
+│  -15! 💥                     │ ← 데미지 팝업
+├─────────────────────────────┤
+│         보드 (5×7)           │ ← 기존 보드
+└─────────────────────────────┘
+```
+
+### 게임 메커닉
+- **한 번에 1개** 에피소드만 활성
+- **퀘스트바 맨 앞** 고정, 인디고 테두리
+- **레벨업/일일미션 카운트에 미포함**
+- **퀘스트 헤더에 📖 버튼** → 챕터 목록 모달
+
+### 이미지 리소스
+`images/story/` 폴더에 보스 PNG 8종 (128×128)
+
+| 파일명 | 에피소드 |
+|--------|---------|
+| `boss_shadow.png` | EP.1 |
+| `boss_scout.png` | EP.2 |
+| `boss_trapper.png` | EP.3 |
+| `boss_archer.png` | EP.4 |
+| `boss_pirate.png` | EP.5 |
+| `boss_guard.png` | EP.6 |
+| `boss_king.png` | EP.7 |
+| `boss_remnants.png` | EP.8 |
+
+NPC 이미지: 기존 동물 이미지 재활용 (cat1, dog1, bird2, reptile4)
+
+### 상수
+```javascript
+STORY_UNLOCK_LEVEL = 3           // 해제 레벨
+STORY_DMG_MULTIPLIER = 3         // 데미지 = mergeLevel × 3
+STORY_CHAPTERS = [{ id, title, desc, episodes: [...] }]
+```
+
+### 관련 함수 (story.js, 16개)
+| 함수 | 역할 |
+|------|------|
+| `checkStoryUnlock()` | 레벨 조건 → 해제 팝업 |
+| `getCurrentStoryEpisode()` | 현재 에피소드 데이터 반환 |
+| `startStoryEpisode()` | 인트로 팝업 → phase='quest' |
+| `activateStoryQuest()` | 퀘스트바에 스토리 퀘스트 추가 |
+| `completeStoryQuest()` | 퀘스트 완료 → 아웃트로 → 보스전 시작 |
+| `startBossBattle()` | phase='battle', HP바 표시 |
+| `dealBossDamage(mergeLevel)` | 데미지 계산 + HP 감소 + 팝업 |
+| `updateBossUI()` | HP바 갱신 (색상 변화) |
+| `defeatBoss()` | HP 0 → 승리 연출 → 보상 |
+| `giveStoryReward(episode)` | 보상 지급 |
+| `completeStoryChapter()` | 챕터 완료 보상 |
+| `showStoryPopup(texts, npcImg, title, onClose)` | 스토리 텍스트 모달 |
+| `closeStoryPopup()` | 모달 닫기 |
+| `openStoryChapterList()` | 챕터 목록 모달 |
+| `renderStoryChapterList()` | 에피소드 목록 렌더링 |
+| `updateStoryUI()` | 퀘스트 헤더 진행도 + 보스 오버레이 |
+
+---
+
 ## 레이스 시스템 (v4.8.0)
 
 ### 개요
@@ -691,6 +802,9 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### sound.js (9개)
 `initSound`, `unlockAudio`, `createSynthSound`, `playSound`, `playBGM`, `stopBGM`, `toggleSound`, `toggleMusic`, `updateSoundUI`
 
+### story.js (16개)
+`checkStoryUnlock`, `getCurrentStoryEpisode`, `startStoryEpisode`, `activateStoryQuest`, `completeStoryQuest`, `startBossBattle`, `dealBossDamage`, `updateBossUI`, `defeatBoss`, `giveStoryReward`, `completeStoryChapter`, `showStoryPopup`, `closeStoryPopup`, `openStoryChapterList`, `renderStoryChapterList`, `updateStoryUI`
+
 ### tutorial.js (10개)
 `startTutorial`, `showTutorialStep`, `positionSpotlight`, `positionBubble`, `advanceTutorial`, `completeTutorial`, `isTutorialClickAllowed`, `findSameLevelPair`, `findReadyQuestBtn`, `repositionTutorial`
 
@@ -726,6 +840,9 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 유저 이름 (v4.25.2)
 `MAX_NAME_LENGTH=6`, `getDisplayName(user)` → 첫 단어 기준 최대 6자
 
+### 스토리 미션 (v4.28.0)
+`STORY_UNLOCK_LEVEL=3`, `STORY_DMG_MULTIPLIER=3`, `STORY_CHAPTERS`(1챕터×8화)
+
 ### 헬퍼 함수 (7개)
 `getItemList`, `getMaxLevel`, `getItemData`, `getGeneratorName`, `getSpecialTypeName`, `formatMinSec`, `getDisplayName`
 
@@ -758,6 +875,44 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.28.0 (2026-02-19) - 스토리 미션 시스템 추가
+- 📖 **스토리 미션 시스템** 추가
+  - 모모타로 설화 차용, 어두운 톤의 스토리 (도깨비=거대 들쥐)
+  - 챕터 1 "도깨비섬으로" 8화 구현
+  - 에피소드 2단계 구조: 퀘스트(아이템 제출) → 보스전(합성=데미지)
+  - 해제 조건: userLevel >= 3
+  - 한 번에 1개 에피소드만 활성, 타이머 없음
+- ⚔️ **보스전 메커닉**
+  - 합성 시 보스에게 데미지 (합성 결과 레벨 × 3)
+  - 보스 HP바 오버레이 (보드 위, 색상 변화: 초록→노랑→빨강)
+  - 합성 시 빨간 floatText로 데미지 팝업
+  - 패배 없음 (시간 제한 없이 HP 깎으면 됨, 캐주얼 친화)
+  - 보스전 중 기존 게임 정상 작동 (생성기, 에너지, 일반 퀘스트)
+- 📋 **스토리 퀘스트 UI**
+  - 퀘스트바 맨 앞 고정, 인디고 테두리/그라데이션
+  - 레벨업/일일미션 카운트에 미포함
+  - NPC 이미지 표시 (기존 동물 이미지 재활용)
+- 📖 **챕터 목록 모달**
+  - 퀘스트 헤더 📖 버튼으로 접근
+  - 에피소드별 상태 표시 (완료✓/진행중→/잠금🔒)
+- 🔄 **보스전 복원**
+  - 페이지 새로고침 후 보스전 상태 자동 복원 (main.js onAuthStateChanged)
+  - 퀘스트 진행 중이면 스토리 퀘스트 자동 재활성
+- 신규 파일: `js/story.js` (~230줄, 16개 함수)
+- 수정 파일: js/constants.js, js/state.js, js/save.js, js/game.js, js/ui.js, js/main.js, index.html, css/styles.css, firestore.rules, eslint.config.js
+- 신규 상수 (3개): `STORY_UNLOCK_LEVEL`, `STORY_DMG_MULTIPLIER`, `STORY_CHAPTERS`
+- 신규 변수: `storyProgress` (state.js)
+- 신규 함수 (16개): `checkStoryUnlock`, `getCurrentStoryEpisode`, `startStoryEpisode`, `activateStoryQuest`, `completeStoryQuest`, `startBossBattle`, `dealBossDamage`, `updateBossUI`, `defeatBoss`, `giveStoryReward`, `completeStoryChapter`, `showStoryPopup`, `closeStoryPopup`, `openStoryChapterList`, `renderStoryChapterList`, `updateStoryUI`
+- 신규 저장 필드: `storyProgress` (currentChapter, currentEpisode, completed, chaptersCompleted, phase, bossHp, bossMaxHp)
+- 신규 HTML: `#boss-overlay` (HP바), `#story-popup` (인트로/아웃트로), `#story-chapter-modal` (챕터 목록), `#story-chapter-btn` (📖 버튼), `#story-progress-info`
+- 신규 CSS: `.story-quest-card`, `.boss-overlay`, `.boss-hp-track`, `.boss-hp-fill`, `.boss-dmg-text`, `@keyframes bossDmg`, `.story-popup-content`, `.story-episode-item`
+- 신규 이미지 (8개 필요): `images/story/boss_shadow.png`, `boss_scout.png`, `boss_trapper.png`, `boss_archer.png`, `boss_pirate.png`, `boss_guard.png`, `boss_king.png`, `boss_remnants.png`
+- firestore.rules: `storyProgress` map 검증 추가
+- eslint.config.js: 19개 전역 추가 (상수 3 + 변수 1 + 함수 16 - 1 writable)
+- script 로드 순서 변경: sound → **story** → ui → tutorial → main
+- 캐시 버스팅: `?v=4.25.0` → `?v=4.28.0` (전체 JS/CSS)
+- 수정 함수: `completeQuest()` (game.js - isStory 분기), `moveItem()` (game.js - 보스 데미지 호출), `updateQuestUI()` (ui.js - 스토리 카드 렌더링+정렬), `updateAll()` (ui.js - updateStoryUI 호출), `onAuthStateChanged` (main.js - 보스전 복원)
 
 ### v4.27.0 (2026-02-13) - 에너지 리팩토링 + 이모지 교체 완료 + Firestore 수정
 - ⚙️ **에너지 회복 절대 시간 방식 전환**
@@ -1470,6 +1625,9 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## To-do
 
+- [x] 스토리 미션 시스템 - 챕터 1 (v4.28.0)
+- [ ] 스토리 보스 이미지 8종 추가 (images/story/)
+- [ ] 스토리 챕터 2 추가
 - [x] 이모지 → 아이콘 교체 카테고리 B/C + 잔여 이모지 (v4.27.0)
 - [ ] NPC 아바타 이미지 교체 (10종)
 - [ ] 앨범 테마 아이콘 이미지 교체 (9종)
