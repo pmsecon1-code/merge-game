@@ -81,9 +81,12 @@ function applyGameData(d) {
     }
     userLevel = d.userLevel ?? 1;
     questProgress = d.questProgress ?? 0;
+    const specialNpcImgs = ['images/birds/bird1.png', 'images/fish/fish1.png', 'images/reptiles/reptile1.png'];
     quests = (d.quests || []).map((q) => ({
         ...q,
-        npc: q.npc && q.npc.startsWith('images/') ? q.npc : NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)],
+        npc: q.npc && q.npc.startsWith('images/') ? q.npc
+            : q.isSpecial ? specialNpcImgs[q.specialIndex ?? 0]
+            : NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)],
         expiresAt: q.isSpecial ? null : (q.expiresAt || Date.now() + 10 * 60 * 1000),
     }));
     questIdCounter = d.questIdCounter ?? 0;
