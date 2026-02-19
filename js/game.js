@@ -145,6 +145,19 @@ function completeQuest(i) {
         questProgress++;
         totalQuestsCompleted++;
         checkAutoCompleteMissions();
+        // 레벨업 체크
+        if (questProgress >= getLevelUpGoal(userLevel)) {
+            const reward = getLevelUpReward(userLevel);
+            userLevel++;
+            questProgress = 0;
+            diamonds += reward;
+            document.getElementById('levelup-num').innerText = userLevel;
+            document.getElementById('levelup-reward').innerText = reward;
+            openOverlay('levelup-overlay');
+            playSound('levelup');
+            setTimeout(() => closeOverlay('levelup-overlay'), 2000);
+            checkToyGeneratorUnlock();
+        }
         // 이미지 해제 + 슬라이드쇼 + 보스 스폰
         completeImageQuest(q.storyImageId);
         updateAll();
@@ -222,8 +235,8 @@ function completeQuest(i) {
             closeOverlay('levelup-overlay');
         }, 2000);
         checkToyGeneratorUnlock();
-        // 레벨업 후 스페셜 퀘스트 추가 체크
-        if (!quests.some((qq) => qq.isSpecial)) {
+        // 레벨업 후 스페셜 퀘스트 추가 체크 (10개 상한)
+        if (!quests.some((qq) => qq.isSpecial) && quests.length < 10) {
             const sp = generateSpecialQuest();
             if (sp) quests.push(sp);
         }
@@ -607,16 +620,31 @@ function moveItem(fz, fi, tz, ti) {
         ts = tz === 'board' ? boardState : storageState;
     const fIt = ss[fi],
         tIt = ts[ti];
+    // 보스는 보드에서만 존재 (창고 이동 차단)
+    if (fIt.type === 'boss' && tz === 'storage') {
+        showError('보스는 보드에서만 이동할 수 있어요!');
+        return;
+    }
     if (!tIt) {
         ts[ti] = fIt;
         ss[fi] = null;
+        // 보스 boardIdx 갱신 (보드 내 빈 칸 이동)
+        if (fIt.type === 'boss' && tz === 'board') {
+            const boss = storyProgress.bosses.find(b => b.bossId === fIt.bossId);
+            if (boss) boss.boardIdx = ti;
+        }
+        return;
+    }
+    // 보스가 교환 대상이면 창고 이동 차단
+    if (tIt.type === 'boss' && fz === 'storage') {
+        showError('보스는 보드에서만 이동할 수 있어요!');
         return;
     }
     // 저금통/보스는 합성 불가 → 위치 교환만
     if (fIt.type === 'piggy_bank' || tIt.type === 'piggy_bank' || fIt.type === 'boss' || tIt.type === 'boss') {
         ts[ti] = fIt;
         ss[fi] = tIt;
-        // 보스 boardIdx 갱신
+        // 보스 boardIdx 갱신 (보드 내 교환)
         if (fIt.type === 'boss' && tz === 'board') {
             const boss = storyProgress.bosses.find(b => b.bossId === fIt.bossId);
             if (boss) boss.boardIdx = ti;

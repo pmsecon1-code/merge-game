@@ -135,8 +135,8 @@ function applyGameData(d) {
                 shopItems[i] = generateRandomShopItem(getActiveTypes());
         }
     }
-    // 스페셜 퀘스트 없으면 추가
-    if (!quests.some((q) => q.isSpecial)) {
+    // 스페셜 퀘스트 없으면 추가 (10개 상한 준수)
+    if (!quests.some((q) => q.isSpecial) && quests.length < 10) {
         const sp = generateSpecialQuest();
         if (sp) quests.push(sp);
     }
@@ -602,7 +602,7 @@ function validateGameData(data) {
             errors.push(`${key}: 길이 부족 (${data[key].length}/${maxLen}) - null 패딩`);
             while (data[key].length < maxLen) data[key].push(null);
         }
-        if (key !== 'quests' && key !== 'shopItems' && data[key].every((x) => x === null || x === undefined)) {
+        if (key !== 'quests' && key !== 'shopItems' && key !== 'storageState' && data[key].every((x) => x === null || x === undefined)) {
             errors.push(`${key}: 모든 요소가 null - 데이터 손상 의심`);
         }
     }

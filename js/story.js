@@ -22,6 +22,12 @@ function checkStoryQuests() {
 
 // --- 이미지 퀘스트 생성 ---
 function activateImageQuest(img) {
+    // 퀘스트 10개 상한 → 가장 오래된 일반 퀘스트 제거
+    while (quests.length >= 10) {
+        const oldIdx = quests.findIndex(q => !q.isSpecial && !q.isStory);
+        if (oldIdx === -1) break;
+        quests.splice(oldIdx, 1);
+    }
     storyProgress.activeQuestId = img.id;
     const storyQuest = {
         id: questIdCounter++,
