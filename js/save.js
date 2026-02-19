@@ -89,6 +89,14 @@ function applyGameData(d) {
             : NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)],
         expiresAt: q.isSpecial ? null : (q.expiresAt || Date.now() + 10 * 60 * 1000),
     }));
+    // 스토리 퀘스트 요구조건을 최신 에피소드 데이터로 갱신
+    quests.forEach((q) => {
+        if (q.isStory) {
+            const ch = STORY_CHAPTERS[q.storyChapter];
+            const ep = ch && ch.episodes[q.storyEpisode];
+            if (ep) q.reqs = ep.reqs.map(r => ({ ...r }));
+        }
+    });
     questIdCounter = d.questIdCounter ?? 0;
     genLevels = d.genLevels || { cat: 1, dog: 1 };
     shopItems = d.shopItems || shopItems;
