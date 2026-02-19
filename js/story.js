@@ -117,17 +117,18 @@ function trySpawnPendingBoss() {
     }
 }
 
-// --- 모든 보스 -1 HP (합성 시 호출) ---
-function dealBoardBossDamage() {
+// --- 보스 데미지 (합성 레벨 비례) ---
+function dealBoardBossDamage(mergeLevel) {
     const aliveBosses = storyProgress.bosses.filter(b => b.hp > 0 && b.boardIdx >= 0);
     if (aliveBosses.length === 0) return;
 
+    const dmg = Math.max(1, mergeLevel || 1);
     for (const boss of aliveBosses) {
-        boss.hp = Math.max(0, boss.hp - 1);
+        boss.hp = Math.max(0, boss.hp - dmg);
         // 데미지 이펙트
         if (boss.boardIdx >= 0) {
             const cell = boardEl.children[boss.boardIdx];
-            if (cell) showFloatText(cell, '-1', '#ef4444');
+            if (cell) showFloatText(cell, `-${dmg}`, '#ef4444');
         }
         if (boss.hp <= 0) {
             setTimeout(() => defeatBoardBoss(boss), 300);
@@ -175,9 +176,34 @@ function createBossItem(item, bossData, imgData) {
         <div class="boss-mini-hp">
             <div class="boss-mini-hp-fill" style="width:${pct}%;background:${hpColor}"></div>
         </div>
-        <div class="text-[6px] text-red-600 font-bold" style="position:absolute;bottom:1px;width:100%;text-align:center;z-index:2">${bossData ? bossData.hp : '?'}HP</div>
+        <div class="text-[6px] text-red-600 font-bold" style="position:absolute;bottom:1px;width:100%;text-align:center;z-index:2">${bossData ? `${bossData.hp}/${bossData.maxHp}` : '?'}</div>
     `;
     return d;
+}
+
+// --- 보스 정보 팝업 ---
+function showBossInfoPopup(bossData, imgData) {
+    playSound('click');
+    const name = imgData?.bossName || '보스';
+    const bossImg = imgData?.bossImg || 'images/story/boss_shadow.png';
+    const pct = Math.round((bossData.hp / bossData.maxHp) * 100);
+    let hpColor = '#22c55e';
+    if (pct <= 25) hpColor = '#ef4444';
+    else if (pct <= 50) hpColor = '#eab308';
+
+    const popup = document.getElementById('boss-info-popup');
+    if (!popup) return;
+    popup.querySelector('.boss-info-name').textContent = name;
+    popup.querySelector('.boss-info-img').src = bossImg;
+    popup.querySelector('.boss-info-hp-text').textContent = `${bossData.hp} / ${bossData.maxHp}`;
+    const fill = popup.querySelector('.boss-info-hp-fill');
+    fill.style.width = `${pct}%`;
+    fill.style.background = hpColor;
+    openOverlay('boss-info-popup');
+}
+
+function closeBossInfoPopup() {
+    closeOverlay('boss-info-popup');
 }
 
 // --- 스토리 팝업 (슬라이드쇼) ---

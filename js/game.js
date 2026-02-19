@@ -459,8 +459,9 @@ function handleCellClick(zone, idx) {
         }
     } else if (it.type === 'boss') {
         const bossData = storyProgress.bosses.find(b => b.bossId === it.bossId);
+        const imgData = STORY_IMAGES.find(i => i.ep === it.bossId && i.isLastInEp);
         if (bossData) {
-            showToast(`HP: ${bossData.hp}/${bossData.maxHp}`);
+            showBossInfoPopup(bossData, imgData);
         }
         return;
     } else if (it.type === 'piggy_bank') {
@@ -673,8 +674,8 @@ function moveItem(fz, fi, tz, ti) {
             }, 50);
             // 주사위 드랍 (합성 성공 시, 튜토리얼 중 스킵)
             if (tutorialStep <= 0) tryDropDice();
-            // 보스 데미지 (합성마다 모든 보스 -1)
-            dealBoardBossDamage();
+            // 보스 데미지 (합성 레벨 비례)
+            dealBoardBossDamage(newLv);
             // 튜토리얼 Step 3 합성 완료 훅
             if (tutorialStep === 3) {
                 setTimeout(() => advanceTutorial(), 200);

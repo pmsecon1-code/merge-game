@@ -333,6 +333,8 @@ export default [
                 dealBoardBossDamage: 'readonly',
                 defeatBoardBoss: 'readonly',
                 createBossItem: 'readonly',
+                showBossInfoPopup: 'readonly',
+                closeBossInfoPopup: 'readonly',
                 showStoryPopup: 'readonly',
                 showStorySlide: 'readonly',
                 advanceStorySlide: 'readonly',

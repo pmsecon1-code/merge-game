@@ -558,6 +558,30 @@
             </div>
         </div>
 
+        <!-- 보스 정보 팝업 -->
+        <div id="boss-info-popup" class="overlay-bg" style="display:none" onclick="if(event.target===this)closeBossInfoPopup()">
+            <div class="overlay-content bg-white p-5 rounded-2xl shadow-xl border-4 border-red-400" style="max-width:280px">
+                <div class="text-center mb-3">
+                    <img class="boss-info-img" src="" style="width:80px;height:80px;object-fit:contain;margin:0 auto">
+                    <div class="boss-info-name text-base font-bold text-red-600 mt-1"></div>
+                </div>
+                <div style="background:#fee2e2;border-radius:8px;padding:6px 10px;margin-bottom:12px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                        <span class="text-xs font-bold text-red-500">HP</span>
+                        <span class="boss-info-hp-text text-xs font-bold text-red-600"></span>
+                    </div>
+                    <div style="background:#fecaca;border-radius:4px;height:10px;overflow:hidden">
+                        <div class="boss-info-hp-fill" style="height:100%;border-radius:4px;transition:width 0.3s"></div>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-600 text-center leading-relaxed mb-3">
+                    동물을 <b class="text-red-500">합성</b>하면 보스에게 데미지!<br>
+                    높은 레벨 합성 = 더 큰 데미지
+                </div>
+                <button onclick="closeBossInfoPopup()" class="w-full bg-red-400 text-white py-2 rounded-lg font-bold text-sm">확인</button>
+            </div>
+        </div>
+
         <!-- 스토리 팝업 -->
         <div id="story-popup" class="overlay-bg" style="display:none">
             <div class="overlay-content story-popup-content">
