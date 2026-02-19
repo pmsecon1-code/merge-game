@@ -149,20 +149,8 @@ function defeatBoss() {
 // --- 보상 지급 ---
 function giveStoryReward(ep) {
     const r = ep.reward;
-    let rewardText = '';
-    if (r.coins) {
-        addCoins(r.coins);
-        rewardText += `${r.coins}${ICON.coin} `;
-    }
-    if (r.diamonds) {
-        diamonds += r.diamonds;
-        rewardText += `${r.diamonds}${ICON.diamond} `;
-    }
-    if (r.cards) {
-        cards += r.cards;
-        rewardText += `${r.cards}${ICON.card} `;
-    }
-    showMilestonePopup(`EP.${ep.id + 1} "${ep.title}" 클리어!`, rewardText.trim());
+    if (r.coins) addCoins(r.coins);
+    showMilestonePopup(`EP.${ep.id + 1} "${ep.title}" 클리어!`, `${r.coins || 0}${ICON.coin}`);
     updateUI();
 }
 

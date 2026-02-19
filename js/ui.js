@@ -225,12 +225,7 @@ function updateQuestUI(scrollToFront = false) {
         if (q.isStory) {
             const ep = getCurrentStoryEpisode();
             timerText = `📖 EP.${ep ? ep.id + 1 : '?'}`;
-            const r = ep?.reward || {};
-            rewardText = '';
-            if (r.coins) rewardText += `${r.coins}${ICON.coin} `;
-            if (r.diamonds) rewardText += `${r.diamonds}${ICON.diamond} `;
-            if (r.cards) rewardText += `${r.cards}${ICON.card}`;
-            if (!rewardText) rewardText = '-';
+            rewardText = `${ep?.reward?.coins || 0}${ICON.coin}`;
         } else if (q.isSpecial) {
             timerText = `${ICON.star}스페셜`;
             rewardText = `${ICON.coin}${ICON.piggy}`;

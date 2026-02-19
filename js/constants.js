@@ -654,7 +654,7 @@ const STORY_CHAPTERS = [
                 bossName: '도깨비 정찰병',
                 bossImg: 'images/story/boss_scout.png',
                 bossHp: 50,
-                reward: { coins: 30, diamonds: 1 },
+                reward: { coins: 30 },
             },
             {
                 id: 2,
@@ -709,7 +709,7 @@ const STORY_CHAPTERS = [
                 bossName: '도깨비 궁수',
                 bossImg: 'images/story/boss_archer.png',
                 bossHp: 90,
-                reward: { coins: 80, cards: 2 },
+                reward: { coins: 80 },
             },
             {
                 id: 4,
@@ -737,7 +737,7 @@ const STORY_CHAPTERS = [
                 bossName: '바다 도깨비',
                 bossImg: 'images/story/boss_pirate.png',
                 bossHp: 120,
-                reward: { coins: 100, diamonds: 2 },
+                reward: { coins: 100 },
             },
             {
                 id: 5,
@@ -771,7 +771,7 @@ const STORY_CHAPTERS = [
                 bossName: '도깨비 문지기',
                 bossImg: 'images/story/boss_guard.png',
                 bossHp: 160,
-                reward: { coins: 120, cards: 3 },
+                reward: { coins: 120 },
             },
             {
                 id: 6,
@@ -810,7 +810,7 @@ const STORY_CHAPTERS = [
                 bossName: '도깨비 두목',
                 bossImg: 'images/story/boss_king.png',
                 bossHp: 200,
-                reward: { coins: 200, diamonds: 5 },
+                reward: { coins: 200 },
             },
             {
                 id: 7,
@@ -846,7 +846,7 @@ const STORY_CHAPTERS = [
                 bossName: '도깨비 잔당',
                 bossImg: 'images/story/boss_remnants.png',
                 bossHp: 100,
-                reward: { coins: 300, diamonds: 5 },
+                reward: { coins: 300 },
             },
         ],
     },

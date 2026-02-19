@@ -218,7 +218,6 @@ body {
     border: 2px solid #e2e8f0;
     flex: 0 0 auto;
     width: 90px;
-    aspect-ratio: 1.4;
     display: flex;
     flex-direction: column;
     align-items: center;
