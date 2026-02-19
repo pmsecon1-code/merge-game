@@ -733,7 +733,7 @@ const STORY_CHAPTERS = [
                     '"...무서워."',
                     '"나도."',
                 ],
-                reqs: [{ type: 'reptile', level: 3 }, { type: 'fish', level: 2 }],
+                reqs: [{ type: 'reptile', level: 3 }, { type: 'dog_snack', level: 2 }],
                 bossName: '바다 도깨비',
                 bossImg: 'images/story/boss_pirate.png',
                 bossHp: 120,
