@@ -188,6 +188,7 @@ export default [
                 updateSaveStatus: 'readonly',
                 sanitizeForFirestore: 'readonly',
                 clampSaveData: 'readonly',
+                diagnoseSaveData: 'readonly',
                 isValidSaveData: 'readonly',
                 saveToCloud: 'readonly',
                 loadFromCloud: 'readonly',

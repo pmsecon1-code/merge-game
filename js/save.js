@@ -383,6 +383,7 @@ function sanitizeForFirestore(data) {
 
 // --- 저장 전 범위 클램핑 (Firestore rules 거부 방지) ---
 function clampSaveData(data) {
+    // 숫자 범위 클램핑
     const numClamps = [
         ['coins', 0, 9999999],
         ['diamonds', 0, 99999],
@@ -407,6 +408,34 @@ function clampSaveData(data) {
             }
         }
     }
+    // 배열 크기 클램핑 (Firestore rules 제한)
+    const arrClamps = [
+        ['boardState', 35],
+        ['storageState', 10],
+        ['quests', 10],
+        ['shopItems', 10],
+        ['discoveredItems', 100],
+        ['album', 100],
+        ['visitedSteps', 50],
+    ];
+    for (const [key, max] of arrClamps) {
+        if (Array.isArray(data[key]) && data[key].length > max) {
+            console.warn(`[clampSaveData] ${key}.length = ${data[key].length} → ${max}로 잘림`);
+            data[key] = data[key].slice(0, max);
+        }
+    }
+    // storyProgress 하위 배열 클램핑
+    if (data.storyProgress && typeof data.storyProgress === 'object') {
+        const sp = data.storyProgress;
+        if (Array.isArray(sp.unlockedImages) && sp.unlockedImages.length > 30) {
+            console.warn(`[clampSaveData] storyProgress.unlockedImages.length = ${sp.unlockedImages.length} → 30`);
+            sp.unlockedImages = sp.unlockedImages.slice(0, 30);
+        }
+        if (Array.isArray(sp.bosses) && sp.bosses.length > 10) {
+            console.warn(`[clampSaveData] storyProgress.bosses.length = ${sp.bosses.length} → 10`);
+            sp.bosses = sp.bosses.slice(0, 10);
+        }
+    }
     return data;
 }
 
@@ -419,6 +448,44 @@ function isValidSaveData(data) {
         return false;
     }
     return true;
+}
+
+// --- Firestore rules 미러 진단 (save 실패 시 원인 특정) ---
+function diagnoseSaveData(data) {
+    const checks = [
+        ['hasAll keys', ['coins','diamonds','energy','userLevel','savedAt'].every(k => k in data)],
+        ['coins (num 0~9999999)', typeof data.coins === 'number' && data.coins >= 0 && data.coins <= 9999999],
+        ['diamonds (num 0~99999)', typeof data.diamonds === 'number' && data.diamonds >= 0 && data.diamonds <= 99999],
+        ['energy (num 0~999)', typeof data.energy === 'number' && data.energy >= 0 && data.energy <= 999],
+        ['userLevel (num 1~999)', typeof data.userLevel === 'number' && data.userLevel >= 1 && data.userLevel <= 999],
+        ['cumulativeCoins (num)', typeof data.cumulativeCoins === 'number' && data.cumulativeCoins >= 0 && data.cumulativeCoins <= 9999999],
+        ['questProgress (num 0~100)', typeof data.questProgress === 'number' && data.questProgress >= 0 && data.questProgress <= 100],
+        ['boardState (arr ≤35)', Array.isArray(data.boardState) && data.boardState.length <= 35],
+        ['storageState (arr ≤10)', Array.isArray(data.storageState) && data.storageState.length <= 10],
+        ['quests (arr ≤10)', Array.isArray(data.quests) && data.quests.length <= 10],
+        ['shopItems (arr ≤10)', Array.isArray(data.shopItems) && data.shopItems.length <= 10],
+        ['discoveredItems (arr ≤100)', Array.isArray(data.discoveredItems) && data.discoveredItems.length <= 100],
+        ['cards (num 0~9999)', typeof data.cards === 'number' && data.cards >= 0 && data.cards <= 9999],
+        ['album (arr ≤100)', Array.isArray(data.album) && data.album.length <= 100],
+        ['diceTripPosition (num 0~50)', typeof data.diceTripPosition === 'number' && data.diceTripPosition >= 0 && data.diceTripPosition <= 50],
+        ['diceCount (num 0~999)', typeof data.diceCount === 'number' && data.diceCount >= 0 && data.diceCount <= 999],
+        ['visitedSteps (arr ≤50)', Array.isArray(data.visitedSteps) && data.visitedSteps.length <= 50],
+        ['currentSpecialIndex', !('currentSpecialIndex' in data) || (typeof data.currentSpecialIndex === 'number' && data.currentSpecialIndex >= 0 && data.currentSpecialIndex <= 2)],
+        ['tutorialStep (num 0~4)', typeof data.tutorialStep === 'number' && data.tutorialStep >= 0 && data.tutorialStep <= 4],
+        ['soundEnabled (bool?)', !('soundEnabled' in data) || typeof data.soundEnabled === 'boolean'],
+        ['musicEnabled (bool?)', !('musicEnabled' in data) || typeof data.musicEnabled === 'boolean'],
+        ['storyProgress (map?)', !('storyProgress' in data) || (typeof data.storyProgress === 'object' && data.storyProgress !== null && !Array.isArray(data.storyProgress))],
+        ['savedAt (≤ now+60s)', typeof data.savedAt === 'number' && data.savedAt <= Date.now() + 120000],
+    ];
+    const failures = checks.filter(([, ok]) => !ok).map(([name]) => name);
+    if (failures.length > 0) {
+        console.error('[diagnoseSaveData] 실패 항목:', failures);
+        for (const f of failures) {
+            const key = f.split(' ')[0];
+            if (key in data) console.error(`  ${key}:`, typeof data[key], Array.isArray(data[key]) ? `len=${data[key].length}` : data[key]);
+        }
+    }
+    return failures;
 }
 
 async function saveToCloud(data) {
@@ -444,6 +511,7 @@ async function saveToCloud(data) {
             updateSaveStatus('saved');
         } catch (e) {
             console.error('Cloud save failed:', e);
+            diagnoseSaveData(sanitizedData);
             try {
                 await db.collection('saves').doc(currentUser.uid).set(sanitizedData);
                 updateSaveStatus('saved');
