@@ -267,6 +267,8 @@ function renderStoryGallery() {
 function viewStoryImage(imageId) {
     const img = STORY_IMAGES.find(i => i.id === imageId);
     if (!img) return;
+    // 갤러리 모달 닫기 (z-index 2500 > story-popup 2000)
+    document.getElementById('story-gallery-modal').classList.remove('show');
     showStoryPopup(
         [{ img: img.img, text: img.text }],
         'images/cats/cat1.png',
