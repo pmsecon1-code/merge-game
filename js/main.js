@@ -232,19 +232,9 @@ auth.onAuthStateChanged(async (user) => {
                 checkDailyBonus();
                 initRace();
                 showToast(`환영합니다, ${getDisplayName(user)}!`);
-                // 스토리 해제 체크 + 보스전 복원 + idle에서 다음 에피소드 시작
+                // 스토리 퀘스트 체크 (레벨 기반 자동 활성)
                 setTimeout(() => {
-                    if (storyProgress.phase === 'battle' && storyProgress.bossHp > 0) {
-                        updateBossUI();
-                        document.getElementById('boss-overlay').style.display = 'flex';
-                    } else if (storyProgress.phase === 'quest') {
-                        // 퀘스트 진행 중이면 퀘스트 복원 확인
-                        if (!quests.some(q => q.isStory)) {
-                            activateStoryQuest();
-                        }
-                    } else if (storyProgress.phase === 'idle') {
-                        checkStoryUnlock();
-                    }
+                    checkStoryQuests();
                 }, 1000);
             }
         } catch (e) {

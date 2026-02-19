@@ -141,8 +141,12 @@ function completeQuest(i) {
         playSound('quest_complete');
         // 퀘스트 제거
         quests.splice(i, 1);
-        // 스토리 퀘스트 완료 → 아웃트로 + 보스전 (레벨업/일일미션 카운트 미포함)
-        completeStoryQuest();
+        // 진행도 증가 (레벨업/일일미션 카운트에 포함)
+        questProgress++;
+        totalQuestsCompleted++;
+        checkAutoCompleteMissions();
+        // 이미지 해제 + 슬라이드쇼 + 보스 스폰
+        completeImageQuest(q.storyImageId);
         updateAll();
         return;
     }
@@ -440,6 +444,12 @@ function handleCellClick(zone, idx) {
         } else {
             showToast(`퀘스트 ${totalQuestsCompleted}/${it.reqCount} 완료`);
         }
+    } else if (it.type === 'boss') {
+        const bossData = storyProgress.bosses.find(b => b.bossId === it.bossId);
+        if (bossData) {
+            showToast(`HP: ${bossData.hp}/${bossData.maxHp}`);
+        }
+        return;
     } else if (it.type === 'piggy_bank') {
         if (Date.now() >= it.openAt) {
             addCoins(it.coins);
@@ -602,10 +612,19 @@ function moveItem(fz, fi, tz, ti) {
         ss[fi] = null;
         return;
     }
-    // 저금통은 합성 불가 → 위치 교환만
-    if (fIt.type === 'piggy_bank' || tIt.type === 'piggy_bank') {
+    // 저금통/보스는 합성 불가 → 위치 교환만
+    if (fIt.type === 'piggy_bank' || tIt.type === 'piggy_bank' || fIt.type === 'boss' || tIt.type === 'boss') {
         ts[ti] = fIt;
         ss[fi] = tIt;
+        // 보스 boardIdx 갱신
+        if (fIt.type === 'boss' && tz === 'board') {
+            const boss = storyProgress.bosses.find(b => b.bossId === fIt.bossId);
+            if (boss) boss.boardIdx = ti;
+        }
+        if (tIt.type === 'boss' && fz === 'board') {
+            const boss = storyProgress.bosses.find(b => b.bossId === tIt.bossId);
+            if (boss) boss.boardIdx = fi;
+        }
         return;
     }
     if (fIt.type === tIt.type && fIt.level === tIt.level) {
@@ -626,10 +645,8 @@ function moveItem(fz, fi, tz, ti) {
             }, 50);
             // 주사위 드랍 (합성 성공 시, 튜토리얼 중 스킵)
             if (tutorialStep <= 0) tryDropDice();
-            // 보스전 데미지
-            if (storyProgress.phase === 'battle') {
-                dealBossDamage(newLv);
-            }
+            // 보스 데미지 (합성마다 모든 보스 -1)
+            dealBoardBossDamage();
             // 튜토리얼 Step 3 합성 완료 훅
             if (tutorialStep === 3) {
                 setTimeout(() => advanceTutorial(), 200);

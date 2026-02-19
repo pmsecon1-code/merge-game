@@ -47,8 +47,13 @@ function getGameData() {
         // 사운드 설정
         soundEnabled,
         musicEnabled,
-        // 스토리 미션
-        storyProgress: { ...storyProgress, completed: [...storyProgress.completed], chaptersCompleted: [...storyProgress.chaptersCompleted] },
+        // 스토리 갤러리
+        storyProgress: {
+            unlockedImages: [...storyProgress.unlockedImages],
+            activeQuestId: storyProgress.activeQuestId,
+            bosses: storyProgress.bosses.map(b => ({ ...b })),
+            pendingBoss: storyProgress.pendingBoss,
+        },
         savedAt: Date.now(),
     };
 }
@@ -89,12 +94,11 @@ function applyGameData(d) {
             : NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)],
         expiresAt: q.isSpecial ? null : (q.expiresAt || Date.now() + 10 * 60 * 1000),
     }));
-    // 스토리 퀘스트 요구조건을 최신 에피소드 데이터로 갱신
+    // 스토리 퀘스트 요구조건을 최신 이미지 데이터로 갱신
     quests.forEach((q) => {
-        if (q.isStory) {
-            const ch = STORY_CHAPTERS[q.storyChapter];
-            const ep = ch && ch.episodes[q.storyEpisode];
-            if (ep) q.reqs = ep.reqs.map(r => ({ ...r }));
+        if (q.isStory && q.storyImageId !== undefined) {
+            const img = STORY_IMAGES.find(si => si.id === q.storyImageId);
+            if (img) q.reqs = img.reqs.map(r => ({ ...r }));
         }
     });
     questIdCounter = d.questIdCounter ?? 0;
@@ -212,17 +216,28 @@ function applyGameData(d) {
     updateSoundUI();
     if (!musicEnabled) stopBGM();
 
-    // 스토리 미션 로드
-    if (d.storyProgress) {
+    // 스토리 갤러리 로드
+    if (d.storyProgress && d.storyProgress.unlockedImages) {
+        const sp = d.storyProgress;
         storyProgress = {
-            currentChapter: d.storyProgress.currentChapter ?? 0,
-            currentEpisode: d.storyProgress.currentEpisode ?? 0,
-            completed: d.storyProgress.completed || [],
-            chaptersCompleted: d.storyProgress.chaptersCompleted || [],
-            phase: d.storyProgress.phase || 'idle',
-            bossHp: d.storyProgress.bossHp ?? 0,
-            bossMaxHp: d.storyProgress.bossMaxHp ?? 0,
+            unlockedImages: sp.unlockedImages || [],
+            activeQuestId: sp.activeQuestId ?? null,
+            bosses: (sp.bosses || []).map(b => ({ ...b })),
+            pendingBoss: sp.pendingBoss ?? null,
         };
+        // 보드에 보스 아이템 복원 확인
+        for (const boss of storyProgress.bosses) {
+            if (boss.boardIdx >= 0 && boss.hp > 0) {
+                if (!boardState[boss.boardIdx] || boardState[boss.boardIdx].type !== 'boss') {
+                    boardState[boss.boardIdx] = { type: 'boss', bossId: boss.bossId };
+                }
+            }
+        }
+    } else {
+        // 구버전 또는 데이터 없음 → 빈 초기값
+        storyProgress = { unlockedImages: [], activeQuestId: null, bosses: [], pendingBoss: null };
+        // 구버전 스토리 퀘스트 제거
+        quests = quests.filter(q => !q.isStory);
     }
 
     // 전설 퀘스트 아이템 정리 (v4.17.0 삭제 마이그레이션)
@@ -361,6 +376,37 @@ function sanitizeForFirestore(data) {
         }
         return result;
     }
+    // NaN → 0 (Firestore rules에서 NaN >= 0 = false → 저장 실패 방지)
+    if (typeof data === 'number' && isNaN(data)) return 0;
+    return data;
+}
+
+// --- 저장 전 범위 클램핑 (Firestore rules 거부 방지) ---
+function clampSaveData(data) {
+    const numClamps = [
+        ['coins', 0, 9999999],
+        ['diamonds', 0, 99999],
+        ['energy', 0, 999],
+        ['userLevel', 1, 999],
+        ['cumulativeCoins', 0, 9999999],
+        ['questProgress', 0, 100],
+        ['cards', 0, 9999],
+        ['diceTripPosition', 0, 50],
+        ['diceCount', 0, 999],
+        ['tutorialStep', 0, 4],
+    ];
+    for (const [key, min, max] of numClamps) {
+        if (data[key] !== undefined) {
+            const v = data[key];
+            if (typeof v !== 'number' || isNaN(v)) {
+                console.warn(`[clampSaveData] ${key} = ${v} (NaN/비숫자) → ${min}`);
+                data[key] = min;
+            } else if (v < min || v > max) {
+                console.warn(`[clampSaveData] ${key} = ${v} (범위 초과 ${min}~${max})`);
+                data[key] = Math.max(min, Math.min(max, v));
+            }
+        }
+    }
     return data;
 }
 
@@ -389,6 +435,7 @@ async function saveToCloud(data) {
     if (cloudSavePromise) {
         await cloudSavePromise;
     }
+    clampSaveData(data);
     const sanitizedData = sanitizeForFirestore(data);
     updateSaveStatus('saving');
     cloudSavePromise = (async () => {
@@ -492,12 +539,16 @@ function validateGameData(data) {
         }
     }
 
-    // 스토리 미션 검증
+    // 스토리 갤러리 검증
     if (data.storyProgress) {
         const sp = data.storyProgress;
-        if (sp.completed && Array.isArray(sp.completed) && sp.completed.length > 100) {
-            errors.push('storyProgress.completed: 길이 초과');
-            sp.completed = sp.completed.slice(0, 100);
+        if (sp.unlockedImages && Array.isArray(sp.unlockedImages) && sp.unlockedImages.length > 30) {
+            errors.push('storyProgress.unlockedImages: 길이 초과');
+            sp.unlockedImages = sp.unlockedImages.slice(0, 30);
+        }
+        if (sp.bosses && Array.isArray(sp.bosses) && sp.bosses.length > 10) {
+            errors.push('storyProgress.bosses: 길이 초과');
+            sp.bosses = sp.bosses.slice(0, 10);
         }
     }
 
@@ -555,6 +606,9 @@ function initNewGame() {
     diceTripPosition = 0;
     diceCount = 0;
     visitedSteps = [0];
+
+    // 스토리 갤러리 초기화
+    storyProgress = { unlockedImages: [], activeQuestId: null, bosses: [], pendingBoss: null };
 
     boardState[0] = { type: 'cat_generator' };
     boardState[4] = { type: 'dog_generator' };

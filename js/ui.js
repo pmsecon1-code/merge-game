@@ -39,6 +39,10 @@ function renderGrid(zone, state, cont) {
                 c.classList.add('upgrade-mission-cell');
                 if (done) c.classList.add('done');
                 c.innerHTML = `<div>${done ? '<img src="images/icons/check.png" class="icon icon-md">' : '<img src="images/icons/clipboard.png" class="icon icon-md">'}</div><div class="text-[8px] font-bold text-center">퀘스트<br>${totalQuestsCompleted}/${item.reqCount}</div>`;
+            } else if (item.type === 'boss') {
+                const bossData = storyProgress.bosses.find(b => b.bossId === item.bossId);
+                const imgData = STORY_IMAGES.find(si => si.ep === item.bossId && si.isLastInEp);
+                c.appendChild(createBossItem(item, bossData, imgData));
             } else c.appendChild(createItem(item, zone, i));
         }
     });
@@ -135,6 +139,7 @@ function updateAll(opts) {
     updateTimerUI();
     updateQuestUI(opts && opts.scrollQuestToFront);
     trySpawnSpecialGenerator();
+    trySpawnPendingBoss();
     updateDailyMissionUI();
     updateAlbumBarUI();
     updateDiceTripUI();
@@ -210,7 +215,7 @@ function updateQuestUI(scrollToFront = false) {
         const ok = canComplete(q);
         if (ok) d.classList.add('ready');
         const npcVisual = q.isStory
-            ? `<img src="${getCurrentStoryEpisode()?.npc || 'images/cats/cat1.png'}">`
+            ? '<img src="images/cats/cat1.png">'
             : `<img src="${q.npc}">`;
         let h = `<div class="quest-top"><div class="quest-npc">${npcVisual}</div><div class="quest-reqs">`;
         q.reqs.forEach((r) => {
@@ -223,9 +228,9 @@ function updateQuestUI(scrollToFront = false) {
         });
         let timerText, rewardText;
         if (q.isStory) {
-            const ep = getCurrentStoryEpisode();
-            timerText = `📖 EP.${ep ? ep.id + 1 : '?'}`;
-            rewardText = `${ep?.reward?.coins || 0}${ICON.coin}`;
+            const img = STORY_IMAGES.find(si => si.id === q.storyImageId);
+            timerText = `📖 EP.${img ? img.ep : '?'}`;
+            rewardText = `${img?.reward?.coins || 0}${ICON.coin}`;
         } else if (q.isSpecial) {
             timerText = `${ICON.star}스페셜`;
             rewardText = `${ICON.coin}${ICON.piggy}`;

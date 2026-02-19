@@ -1,254 +1,285 @@
 // ============================================
-// story.js - 시나리오 미션 시스템
+// story.js - 스토리 이미지 갤러리 시스템
 // ============================================
 
-// --- 해제 체크 ---
-function checkStoryUnlock() {
-    if (userLevel < STORY_UNLOCK_LEVEL) return;
-    if (storyProgress.phase !== 'idle') return;
-    // 이미 진행/완료한 적 있으면 스킵
-    if (storyProgress.completed.length > 0 || storyProgress.currentEpisode > 0 || storyProgress.currentChapter > 0) return;
-    // 첫 해제 → EP.1 시작
-    startStoryEpisode();
+// --- 다음 해제 가능 이미지 조회 ---
+function getNextStoryImage() {
+    return STORY_IMAGES.find(img =>
+        !storyProgress.unlockedImages.includes(img.id) &&
+        storyProgress.activeQuestId !== img.id
+    ) || null;
 }
 
-// --- 현재 에피소드 데이터 ---
-function getCurrentStoryEpisode() {
-    const ch = STORY_CHAPTERS[storyProgress.currentChapter];
-    if (!ch) return null;
-    const ep = ch.episodes[storyProgress.currentEpisode];
-    return ep || null;
+// --- 레벨 체크 → 퀘스트 자동 활성 ---
+function checkStoryQuests() {
+    if (storyProgress.activeQuestId !== null) return; // 이미 활성 퀘스트 있음
+    if (quests.some(q => q.isStory)) return; // 퀘스트 배열에 이미 있음
+    const next = getNextStoryImage();
+    if (!next) return; // 모든 이미지 해제됨
+    if (userLevel < next.reqLevel) return; // 레벨 부족
+    activateImageQuest(next);
 }
 
-// --- 에피소드 시작 (인트로 팝업) ---
-function startStoryEpisode() {
-    const ep = getCurrentStoryEpisode();
-    if (!ep) return;
-    const chTitle = STORY_CHAPTERS[storyProgress.currentChapter].title;
-    const title = `EP.${ep.id + 1} "${ep.title}"`;
-    showStoryPopup(ep.intro, ep.npc, `${chTitle} - ${title}`, () => {
-        activateStoryQuest();
-    });
-}
-
-// --- 퀘스트 활성화 ---
-function activateStoryQuest() {
-    const ep = getCurrentStoryEpisode();
-    if (!ep) return;
-    storyProgress.phase = 'quest';
-    // 퀘스트 배열에 스토리 퀘스트 추가 (맨 앞)
+// --- 이미지 퀘스트 생성 ---
+function activateImageQuest(img) {
+    storyProgress.activeQuestId = img.id;
     const storyQuest = {
         id: questIdCounter++,
         npc: '📖',
-        reqs: ep.reqs.map(r => ({ ...r })),
+        reqs: img.reqs.map(r => ({ ...r })),
         reward: 0,
         cardReward: 0,
         expiresAt: null,
         isStory: true,
-        storyChapter: storyProgress.currentChapter,
-        storyEpisode: storyProgress.currentEpisode,
+        storyImageId: img.id,
     };
     quests.unshift(storyQuest);
     updateQuestUI();
     saveGame();
 }
 
-// --- 스토리 퀘스트 완료 ---
-function completeStoryQuest() {
-    const ep = getCurrentStoryEpisode();
-    if (!ep) return;
-    // 아웃트로 → 보스전
-    const chTitle = STORY_CHAPTERS[storyProgress.currentChapter].title;
-    const title = `EP.${ep.id + 1} "${ep.title}"`;
-    showStoryPopup(ep.outro, ep.npc, `${chTitle} - ${title}`, () => {
-        startBossBattle();
-    });
-}
+// --- 이미지 퀘스트 완료 ---
+function completeImageQuest(imageId) {
+    const img = STORY_IMAGES.find(i => i.id === imageId);
+    if (!img) return;
 
-// --- 보스전 시작 ---
-function startBossBattle() {
-    const ep = getCurrentStoryEpisode();
-    if (!ep) return;
-    storyProgress.phase = 'battle';
-    storyProgress.bossHp = ep.bossHp;
-    storyProgress.bossMaxHp = ep.bossHp;
-    updateBossUI();
-    document.getElementById('boss-overlay').style.display = 'flex';
-    playSound('race_start');
+    // 이미지 해제
+    if (!storyProgress.unlockedImages.includes(imageId)) {
+        storyProgress.unlockedImages.push(imageId);
+    }
+    storyProgress.activeQuestId = null;
+
+    // 보상
+    if (img.reward.coins) addCoins(img.reward.coins);
+    playSound('quest_complete');
+
+    // 슬라이드쇼 (이미지 1장)
+    showStoryPopup(
+        [{ img: img.img, text: img.text }],
+        'images/cats/cat1.png',
+        `EP.${img.ep} "${img.title}"`,
+        () => {
+            // EP 마지막 이미지면 보스 스폰
+            if (img.isLastInEp) {
+                spawnBossOnBoard(img.ep);
+            }
+            showToast(`${img.reward.coins || 0}${ICON.coin} 획득!`);
+            // 다음 퀘스트 체크
+            checkStoryQuests();
+        }
+    );
     saveGame();
 }
 
-// --- 보스 데미지 ---
-function dealBossDamage(mergeLevel) {
-    if (storyProgress.phase !== 'battle') return;
-    const dmg = mergeLevel * STORY_DMG_MULTIPLIER;
-    storyProgress.bossHp = Math.max(0, storyProgress.bossHp - dmg);
-    // 데미지 팝업
-    const bossEl = document.getElementById('boss-overlay');
-    if (bossEl) {
-        const dmgEl = document.getElementById('boss-dmg-text');
-        if (dmgEl) {
-            dmgEl.textContent = `-${dmg}!`;
-            dmgEl.classList.remove('boss-dmg-anim');
-            void dmgEl.offsetWidth; // reflow
-            dmgEl.classList.add('boss-dmg-anim');
+// --- 보스 보드 스폰 ---
+function spawnBossOnBoard(epNumber) {
+    const hp = STORY_BOSS_HP_BASE * epNumber;
+    const bossData = { bossId: epNumber, hp: hp, maxHp: hp, boardIdx: -1 };
+
+    // 빈 칸 찾기 (7행 미션 제외, i < 30)
+    const emptyIdx = boardState.findIndex((x, i) => x === null && i < 30);
+    if (emptyIdx !== -1) {
+        boardState[emptyIdx] = { type: 'boss', bossId: epNumber };
+        bossData.boardIdx = emptyIdx;
+        storyProgress.bosses.push(bossData);
+        const imgData = STORY_IMAGES.find(i => i.ep === epNumber && i.isLastInEp);
+        playSound('race_start');
+        showToast(`${imgData?.bossName || '보스'} 출현!`);
+    } else {
+        // 보드 가득 → 대기
+        storyProgress.pendingBoss = epNumber;
+        storyProgress.bosses.push(bossData);
+        showToast('보드 가득! 빈 칸이 생기면 보스 출현');
+    }
+    saveGame();
+}
+
+// --- 보드 가득 시 재시도 ---
+function trySpawnPendingBoss() {
+    if (storyProgress.pendingBoss === null) return;
+    const ep = storyProgress.pendingBoss;
+    const emptyIdx = boardState.findIndex((x, i) => x === null && i < 30);
+    if (emptyIdx !== -1) {
+        boardState[emptyIdx] = { type: 'boss', bossId: ep };
+        // bosses에서 해당 보스 boardIdx 갱신
+        const boss = storyProgress.bosses.find(b => b.bossId === ep && b.boardIdx === -1);
+        if (boss) boss.boardIdx = emptyIdx;
+        storyProgress.pendingBoss = null;
+        const imgData = STORY_IMAGES.find(i => i.ep === ep && i.isLastInEp);
+        playSound('race_start');
+        showToast(`${imgData?.bossName || '보스'} 출현!`);
+    }
+}
+
+// --- 모든 보스 -1 HP (합성 시 호출) ---
+function dealBoardBossDamage() {
+    const aliveBosses = storyProgress.bosses.filter(b => b.hp > 0 && b.boardIdx >= 0);
+    if (aliveBosses.length === 0) return;
+
+    for (const boss of aliveBosses) {
+        boss.hp = Math.max(0, boss.hp - 1);
+        // 데미지 이펙트
+        if (boss.boardIdx >= 0) {
+            const cell = boardEl.children[boss.boardIdx];
+            if (cell) showFloatText(cell, '-1', '#ef4444');
+        }
+        if (boss.hp <= 0) {
+            setTimeout(() => defeatBoardBoss(boss), 300);
         }
     }
-    updateBossUI();
-    if (storyProgress.bossHp <= 0) {
-        setTimeout(() => defeatBoss(), 500);
-    }
     saveGame();
-}
-
-// --- 보스 UI 갱신 ---
-function updateBossUI() {
-    const hpBar = document.getElementById('boss-hp-fill');
-    const hpText = document.getElementById('boss-hp-text');
-    const nameEl = document.getElementById('boss-name');
-    const imgEl = document.getElementById('boss-img');
-    if (!hpBar) return;
-    const ep = getCurrentStoryEpisode();
-    if (!ep) return;
-    const pct = storyProgress.bossMaxHp > 0 ? (storyProgress.bossHp / storyProgress.bossMaxHp) * 100 : 0;
-    hpBar.style.width = `${pct}%`;
-    if (pct > 50) hpBar.style.background = '#22c55e';
-    else if (pct > 25) hpBar.style.background = '#eab308';
-    else hpBar.style.background = '#ef4444';
-    if (hpText) hpText.textContent = `${storyProgress.bossHp}/${storyProgress.bossMaxHp} HP`;
-    if (nameEl) nameEl.textContent = ep.bossName;
-    if (imgEl) imgEl.src = ep.bossImg;
 }
 
 // --- 보스 격파 ---
-function defeatBoss() {
-    const ep = getCurrentStoryEpisode();
-    if (!ep) return;
-    document.getElementById('boss-overlay').style.display = 'none';
-    storyProgress.phase = 'idle';
-    const key = `${storyProgress.currentChapter}_${storyProgress.currentEpisode}`;
-    if (!storyProgress.completed.includes(key)) {
-        storyProgress.completed.push(key);
+function defeatBoardBoss(boss) {
+    const ep = boss.bossId;
+    const imgData = STORY_IMAGES.find(i => i.ep === ep && i.isLastInEp);
+
+    // 보드에서 제거
+    if (boss.boardIdx >= 0 && boardState[boss.boardIdx]?.type === 'boss') {
+        boardState[boss.boardIdx] = null;
     }
-    // 보상
-    giveStoryReward(ep);
+    // bosses 배열에서 제거
+    const idx = storyProgress.bosses.indexOf(boss);
+    if (idx !== -1) storyProgress.bosses.splice(idx, 1);
+
+    // 보상: EP번호 × 50코인
+    const reward = ep * 50;
+    addCoins(reward);
     playSound('milestone');
-    // 다음 에피소드 체크
-    const ch = STORY_CHAPTERS[storyProgress.currentChapter];
-    if (storyProgress.currentEpisode < ch.episodes.length - 1) {
-        storyProgress.currentEpisode++;
-        saveGame();
-        // 다음 에피소드 자동 시작
-        setTimeout(() => startStoryEpisode(), 1500);
-    } else {
-        // 챕터 완료
-        completeStoryChapter();
-    }
-}
-
-// --- 보상 지급 ---
-function giveStoryReward(ep) {
-    const r = ep.reward;
-    if (r.coins) addCoins(r.coins);
-    showMilestonePopup(`EP.${ep.id + 1} "${ep.title}" 클리어!`, `${r.coins || 0}${ICON.coin}`);
-    updateUI();
-}
-
-// --- 챕터 완료 ---
-function completeStoryChapter() {
-    const chIdx = storyProgress.currentChapter;
-    if (!storyProgress.chaptersCompleted.includes(chIdx)) {
-        storyProgress.chaptersCompleted.push(chIdx);
-    }
-    // 다음 챕터가 있으면 이동 (현재 Ch.1만)
-    if (storyProgress.currentChapter < STORY_CHAPTERS.length - 1) {
-        storyProgress.currentChapter++;
-        storyProgress.currentEpisode = 0;
-    }
-    saveGame();
     showMilestonePopup(
-        `${STORY_CHAPTERS[chIdx].title} 완주!`,
-        'Chapter 완료!'
+        `${imgData?.bossName || '보스'} 격파!`,
+        `+${reward}${ICON.coin}`
     );
+    renderGrid('board', boardState, boardEl);
+    saveGame();
 }
 
-// --- 스토리 팝업 ---
-function showStoryPopup(texts, npcImg, title, onClose) {
+// --- 보스 셀 렌더링 ---
+function createBossItem(item, bossData, imgData) {
+    const d = document.createElement('div');
+    d.className = 'item boss-board-item';
+    const pct = bossData ? (bossData.hp / bossData.maxHp) * 100 : 100;
+    let hpColor = '#22c55e';
+    if (pct <= 25) hpColor = '#ef4444';
+    else if (pct <= 50) hpColor = '#eab308';
+    d.innerHTML = `
+        <div class="bg-circle" style="background-color:#fee2e2"></div>
+        <img src="${imgData?.bossImg || 'images/story/boss_shadow.png'}" style="width:80%;height:80%;object-fit:contain;position:relative;z-index:1">
+        <div class="boss-mini-hp">
+            <div class="boss-mini-hp-fill" style="width:${pct}%;background:${hpColor}"></div>
+        </div>
+        <div class="text-[6px] text-red-600 font-bold" style="position:absolute;bottom:1px;width:100%;text-align:center;z-index:2">${bossData ? bossData.hp : '?'}HP</div>
+    `;
+    return d;
+}
+
+// --- 스토리 팝업 (슬라이드쇼) ---
+function showStoryPopup(slides, npcImg, title, onClose) {
     const popup = document.getElementById('story-popup');
-    const titleEl = document.getElementById('story-popup-title');
-    const textEl = document.getElementById('story-popup-text');
-    const npcEl = document.getElementById('story-popup-npc');
-    const closeBtn = document.getElementById('story-popup-close');
     if (!popup) return;
-    titleEl.textContent = title;
-    textEl.innerHTML = texts.map(line => line === '' ? '<br>' : `<p>${line}</p>`).join('');
-    npcEl.src = npcImg;
+    storySlides = slides;
+    storySlideIdx = 0;
+    storySlideOnClose = onClose;
+    document.getElementById('story-popup-title').textContent = title;
+    document.getElementById('story-popup-npc').src = npcImg;
     popup.style.display = 'flex';
-    closeBtn.onclick = () => {
-        popup.style.display = 'none';
-        if (onClose) onClose();
-    };
+    document.getElementById('story-popup-close').style.display = 'none';
+    showStorySlide(0);
+}
+
+function showStorySlide(idx) {
+    const slide = storySlides[idx];
+    if (!slide) return;
+    const imgEl = document.getElementById('story-slide-img');
+    const textEl = document.getElementById('story-slide-text');
+    const dotsEl = document.getElementById('story-slide-dots');
+    const closeBtn = document.getElementById('story-popup-close');
+    imgEl.src = slide.img;
+    textEl.textContent = slide.text;
+    let dots = '';
+    for (let i = 0; i < storySlides.length; i++) {
+        dots += `<span class="story-dot${i === idx ? ' active' : ''}"></span>`;
+    }
+    dotsEl.innerHTML = dots;
+    if (idx >= storySlides.length - 1) {
+        closeBtn.style.display = '';
+        closeBtn.onclick = () => {
+            document.getElementById('story-popup').style.display = 'none';
+            if (storySlideOnClose) storySlideOnClose();
+        };
+    } else {
+        closeBtn.style.display = 'none';
+    }
+}
+
+function advanceStorySlide() {
+    if (storySlideIdx < storySlides.length - 1) {
+        storySlideIdx++;
+        showStorySlide(storySlideIdx);
+    }
 }
 
 function closeStoryPopup() {
     document.getElementById('story-popup').style.display = 'none';
 }
 
-// --- 챕터 목록 모달 ---
-function openStoryChapterList() {
+// --- 갤러리 모달 ---
+function openStoryGallery() {
     playSound('click');
-    renderStoryChapterList();
-    document.getElementById('story-chapter-modal').classList.add('show');
+    renderStoryGallery();
+    document.getElementById('story-gallery-modal').classList.add('show');
 }
 
-function renderStoryChapterList() {
-    const container = document.getElementById('story-chapter-list');
+function renderStoryGallery() {
+    const container = document.getElementById('story-gallery-list');
     if (!container) return;
     let html = '';
-    STORY_CHAPTERS.forEach((ch, ci) => {
-        const chDone = storyProgress.chaptersCompleted.includes(ci);
-        html += `<div class="story-chapter-header">${chDone ? ICON.check : '📖'} Ch.${ci + 1}: ${ch.title}</div>`;
-        ch.episodes.forEach((ep, ei) => {
-            const key = `${ci}_${ei}`;
-            const done = storyProgress.completed.includes(key);
-            const current = storyProgress.currentChapter === ci && storyProgress.currentEpisode === ei && !done;
-            const locked = !done && !current;
-            html += `<div class="story-episode-item ${done ? 'done' : current ? 'current' : 'locked'}">
-                <span class="text-[10px] font-bold">${done ? ICON.check : current ? '▶' : ICON.lock} EP.${ei + 1}</span>
-                <span class="text-[10px] ${locked ? 'text-gray-400' : ''}">${locked ? '???' : ep.title}</span>
+    // EP별 그룹핑
+    const eps = {};
+    STORY_IMAGES.forEach(img => {
+        if (!eps[img.ep]) eps[img.ep] = { title: img.title, images: [] };
+        eps[img.ep].images.push(img);
+    });
+    for (const [ep, data] of Object.entries(eps)) {
+        const epImages = data.images;
+        const unlockedCount = epImages.filter(i => storyProgress.unlockedImages.includes(i.id)).length;
+        html += `<div class="story-ep-header">EP.${ep} "${data.title}" (${unlockedCount}/${epImages.length})</div>`;
+        html += '<div class="story-gallery-grid">';
+        epImages.forEach(img => {
+            const unlocked = storyProgress.unlockedImages.includes(img.id);
+            html += `<div class="gallery-image ${unlocked ? '' : 'locked'}" onclick="${unlocked ? `viewStoryImage(${img.id})` : ''}">
+                <img src="${unlocked ? img.img : 'images/icons/lock.png'}" style="width:100%;height:100%;object-fit:${unlocked ? 'cover' : 'contain'};${unlocked ? '' : 'opacity:0.3;padding:8px'}">
             </div>`;
         });
-    });
+        html += '</div>';
+    }
     container.innerHTML = html;
+}
+
+// --- 해제된 이미지 보기 ---
+function viewStoryImage(imageId) {
+    const img = STORY_IMAGES.find(i => i.id === imageId);
+    if (!img) return;
+    showStoryPopup(
+        [{ img: img.img, text: img.text }],
+        'images/cats/cat1.png',
+        `EP.${img.ep} "${img.title}"`,
+        null
+    );
 }
 
 // --- 스토리 UI 업데이트 ---
 function updateStoryUI() {
-    // 퀘스트 헤더 진행도
     const headerEl = document.getElementById('story-header-info');
     if (headerEl) {
         if (userLevel >= STORY_UNLOCK_LEVEL) {
-            const ch = STORY_CHAPTERS[storyProgress.currentChapter];
-            const allDone = storyProgress.chaptersCompleted.includes(storyProgress.currentChapter)
-                && storyProgress.currentChapter >= STORY_CHAPTERS.length - 1;
-            if (allDone) {
-                headerEl.textContent = '완료!';
-            } else if (ch) {
-                headerEl.textContent = `EP.${storyProgress.currentEpisode + 1}/${ch.episodes.length}`;
-            }
+            const total = STORY_IMAGES.length;
+            const unlocked = storyProgress.unlockedImages.length;
+            headerEl.textContent = `${unlocked}/${total}`;
             headerEl.parentElement.style.display = '';
         } else {
             headerEl.parentElement.style.display = 'none';
-        }
-    }
-    // 보스 오버레이
-    const bossOverlay = document.getElementById('boss-overlay');
-    if (bossOverlay) {
-        if (storyProgress.phase === 'battle') {
-            bossOverlay.style.display = 'flex';
-            updateBossUI();
-        } else {
-            bossOverlay.style.display = 'none';
         }
     }
 }

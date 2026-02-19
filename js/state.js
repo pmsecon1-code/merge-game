@@ -106,15 +106,17 @@ let sessionUnsubscribe = null;
 // --- 하단 배지 탭 ---
 let currentBottomTab = null; // null | 'race' | 'album' | 'dice' | 'shop' | 'storage'
 
-// --- 스토리 미션 ---
+// --- 스토리 슬라이드 (UI 임시 상태) ---
+let storySlides = [];
+let storySlideIdx = 0;
+let storySlideOnClose = null;
+
+// --- 스토리 갤러리 ---
 let storyProgress = {
-    currentChapter: 0,
-    currentEpisode: 0,
-    completed: [],           // ["0_0", "0_1", ...]
-    chaptersCompleted: [],   // [0, 1, ...]
-    phase: 'idle',           // 'idle' | 'quest' | 'battle'
-    bossHp: 0,
-    bossMaxHp: 0,
+    unlockedImages: [],     // [0, 1, 2, ...] 해제된 이미지 ID
+    activeQuestId: null,    // 현재 활성 퀘스트의 이미지 ID
+    bosses: [],             // [{bossId, hp, maxHp, boardIdx}, ...] 보드 위 보스들
+    pendingBoss: null,      // 보드 가득 시 대기 중인 EP번호
 };
 
 // --- 사운드 ---
