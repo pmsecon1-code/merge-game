@@ -83,6 +83,7 @@ function applyGameData(d) {
     questProgress = d.questProgress ?? 0;
     quests = (d.quests || []).map((q) => ({
         ...q,
+        npc: q.npc && q.npc.startsWith('images/') ? q.npc : NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)],
         expiresAt: q.isSpecial ? null : (q.expiresAt || Date.now() + 10 * 60 * 1000),
     }));
     questIdCounter = d.questIdCounter ?? 0;
