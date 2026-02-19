@@ -1966,6 +1966,7 @@ body.tutorial-active {
     max-width: 340px;
     max-height: 70vh;
     overflow-y: auto;
+    font-family: 'Jua', sans-serif;
 }
 .story-popup-content .text-sm { color: #e0e7ff; }
 .story-npc-img {
