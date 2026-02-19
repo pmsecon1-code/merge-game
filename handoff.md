@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.26.0)
+# 멍냥 머지 게임 - Architecture (v4.27.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.26.0
+- **버전**: 4.27.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -18,7 +18,7 @@ merge2/
 ├── css/
 │   └── styles.css      # 모든 CSS (~1866줄)
 ├── js/
-│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~566줄)
+│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~570줄)
 │   ├── state.js        # 전역 변수 + DOM 참조 (~120줄)
 │   ├── auth.js         # 인증 + 세션 + 회원탈퇴 (~177줄)
 │   ├── save.js         # 저장/로드/검증 (~575줄)
@@ -63,7 +63,7 @@ merge2/
 | 순서 | 요소 | 스타일 |
 |------|------|--------|
 | 0 | 로그인 화면 (비로그인 시) | 전체 화면 |
-| 1 | 상단바 (⚡에너지, 🪙코인, 💎다이아, 🃏카드, Lv.n n/n, ⚙️설정) | status-bar |
+| 1 | 상단바 (⚡에너지, 🪙코인, 💎다이아, 🃏카드, Lv.n + n/n, ⚙️설정) | status-bar |
 | 2 | 📋 퀘스트 (7개, 3개씩 페이지) | event-bar 보라 |
 | 4 | 맵 (5×7 = 35칸) | board-wrapper 분홍 |
 | 5 | 📋 일일 미션 (합성/생성/코인) | event-bar 황색 |
@@ -138,6 +138,7 @@ merge2/
 
   // 재화
   coins, cumulativeCoins, diamonds, energy,
+  energyRecoverAt,          // 에너지 회복 절대 시간 (ms timestamp, v4.27.0+)
 
   // 진행도
   userLevel, questProgress,
@@ -207,10 +208,11 @@ merge2/
 
 ### 보안 규칙 (firestore.rules)
 - 본인 문서만 접근
+- saves/sessions: `allow create, update` (검증) + `allow delete` (본인만, 회원탈퇴용) 분리 (v4.27.0)
 - saves: `isValidSaveData()` 검증 (숫자 범위, 배열 크기, 타임스탬프)
 - 앨범: `cards 0~9999`, `album 최대 100`
 - races: 참가자만 읽기/쓰기, 진행도 0~15 검증
-- raceCodes: 로그인 사용자만 생성/삭제
+- raceCodes: 로그인 사용자만 생성/삭제 (`allow delete` 분리)
 
 ---
 
@@ -421,7 +423,7 @@ Web Audio API 기반 합성음 효과음 + BGM. 외부 파일 없이 코드로 �
 
 ### 효과음 목록 (17종, 카테고리별)
 
-**A. Action (게임 액션)**
+**A. UI (기본 인터랙션)**
 | ID | 용도 | 사용처 |
 |----|------|--------|
 | `click` | 기본 UI 탭 (800→600Hz, 60ms) | 탭전환, 설정, 도감, 앨범, 레이스팝업, 코드복사 |
@@ -433,12 +435,12 @@ Web Audio API 기반 합성음 효과음 + BGM. 외부 파일 없이 코드로 �
 | `merge` | 합성 성공 (330→660Hz) | moveItem |
 | `dice_roll` | 주사위 굴리기 (triangle 랜덤) | rollDice |
 
-**B. Purchase (구매/거래/충전)**
+**C. Purchase (구매/거래/충전)**
 | ID | 용도 | 사용처 |
 |----|------|--------|
 | `purchase` | 재화 소비/획득 거래 (2음 화음) | 상점구매, 에너지충전, 광고보상, 업그레이드, 보드해제, 카드팩, 다이아팩 |
 
-**C. Reward (보상/달성)**
+**D. Reward (보상/달성)**
 | ID | 용도 | 사용처 |
 |----|------|--------|
 | `quest_complete` | 개별 완료 (G4-C5 차임) | 퀘스트완료, 일일미션 개별완료 |
@@ -449,19 +451,19 @@ Web Audio API 기반 합성음 효과음 + BGM. 외부 파일 없이 코드로 �
 | `lucky` | 럭키 드랍 (고음 반짝임) | 럭키 아이템 생성 |
 | `dice_drop` | 주사위 획득 (1200→1800Hz) | 합성 시 주사위 드랍 |
 
-**D. Album (앨범 전용)**
+**E. Album (앨범 전용)**
 | ID | 용도 | 사용처 |
 |----|------|--------|
 | `album_draw` | 카드 뽑기 (스윕+딩) | drawPhotos |
 | `theme_complete` | 테마/앨범 완성 (5음 팡파레) | 테마완성, 앨범전체완성 |
 
-**E. Race (레이스 전용)**
+**F. Race (레이스 전용)**
 | ID | 용도 | 사용처 |
 |----|------|--------|
 | `race_start` | 출발 신호 (square wave) | 초대 수락 |
 | `race_win` / `race_lose` | 승리·무승부 / 패배 | 레이스 결과 |
 
-**F. Error (실패/제한/부족)**
+**G. Error (실패/제한/부족)**
 | ID | 용도 | 사용처 |
 |----|------|--------|
 | `error` | 거부/실패 (sawtooth 110Hz) | 재화부족, 공간부족, 과열, 판매불가, 최대레벨, 잠금 터치 |
@@ -757,6 +759,36 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## 변경 이력
 
+### v4.27.0 (2026-02-13) - 에너지 리팩토링 + 이모지 교체 완료 + Firestore 수정
+- ⚙️ **에너지 회복 절대 시간 방식 전환**
+  - `recoveryCountdown` (카운트다운 초) → `energyRecoverAt` (절대 ms timestamp) 변경
+  - 오프라인/탭 전환 시 별도 보정 불필요 (모든 타이머가 절대 시간 기반)
+  - `recoverOfflineEnergy()` 함수 삭제
+  - `startEnergyRecovery()`: while 루프로 밀린 에너지 일괄 회복
+  - 기존 `recoveryCountdown` 데이터 자동 마이그레이션 (save.js)
+- 🎨 **레벨 진행도 표시 분리**
+  - `#level-val` (Lv.N, bold purple-600) + `#level-progress` (n/n, 9px purple-400) 2개 span
+- 🎨 **이모지 → 커스텀 아이콘 교체 카테고리 B/C + 잔여**
+  - 신규 ICON 6종: timer, check, sleep, offline, star, merge
+  - 카테고리 B/C 5개 이미지 rembg+128×128 정규화 (이전 세션 누락분)
+  - 일일 미션: 🔨→ICON.merge, ✨→ICON.sparkle, 👑→ICON.coin, ★→ICON.star, ✓→ICON.check
+  - 주사위 여행: ✓→ICON.check
+  - 저장 상태: ⏳→ICON.timer, ✓→ICON.check
+  - `#daily-mission-bar .icon { width:12px; height:12px }` 아이콘 크기 제한
+- 🐛 **회원탈퇴 Firestore 삭제 권한 수정**
+  - 원인: `allow write` + 데이터 검증 → `delete()`는 `request.resource.data` 없음 → 검증 실패
+  - 수정: `allow write` → `allow create, update` (검증) + `allow delete` (본인만) 분리
+  - 적용: saves, sessions, raceCodes 3개 컬렉션
+- 🐛 **주사위 여행 리셋 후 스크롤 수정**
+  - `renderDiceTripBoard()` 호출을 `requestAnimationFrame`으로 감싸서 레이아웃 계산 보장
+- 수정 파일: js/constants.js, js/state.js, js/save.js, js/main.js, js/game.js, js/ui.js, js/systems.js, js/album.js, js/race.js, css/styles.css, firestore.rules, eslint.config.js, index.html
+- 신규 이미지 (6개): icons/timer, check, sleep, offline, merge + effects/star
+- 신규 ICON 항목 (6종): timer, check, sleep, offline, star, merge (총 37종)
+- 삭제 함수: `recoverOfflineEnergy()` (save.js)
+- 저장 필드 변경: `recoveryCountdown` → `energyRecoverAt`
+- 신규 HTML: `#level-progress` span
+- 수정 함수: `startEnergyRecovery()` (main.js), `updateTimerUI()` (ui.js), `updateUI()` (ui.js), `updateLevelupProgressUI()` (ui.js), `updateDailyMissionUI()` (ui.js), `renderDiceTripBoard()` (systems.js), `updateSaveStatus()` (save.js)
+
 ### v4.26.0 (2026-02-13) - 레벨업 진행도 바 제거 + UI 정리
 - 🗑️ **레벨업 진행도 바 제거**
   - `#levelup-progress-bar` HTML 전체 삭제 (event-bar 파랑)
@@ -903,7 +935,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 🐛 **판매 팝업 innerHTML 버그 수정**
   - `systems.js` `askSellItem()`: `innerText` → `innerHTML` (ICON 이미지 태그 렌더링)
 - 수정 파일: constants.js, index.html, ui.js, systems.js, race.js, album.js, game.js, main.js
-- 신규 ICON 항목 (31종): coin, diamond, energy, card, piggy, settings, lock, tv, save, gift, sound, mycar, rival, trophy, lose, draw, target, paw, pointer, music, key, party, confetti, sparkle, clipboard, finish, camera, dice, cart, box, moneybag, ticket, mail, trash
+- 신규 ICON 항목 (37종): coin, diamond, energy, card, piggy, settings, lock, tv, save, gift, sound, mycar, rival, trophy, lose, draw, target, paw, pointer, music, key, party, confetti, sparkle, clipboard, finish, camera, dice, cart, box, moneybag, ticket, mail, trash, timer, check, sleep, offline, star, merge
 - 신규 이미지 폴더: `images/` (icons 27 + effects 3 + race 5 + spawners 7 + 동물 78 = **120종**)
 - 수정 함수: `spawnParticles()` (텍스트 문자), `showLuckyEffect()` (ICON.sparkle), `askSellItem()` (innerHTML), `updateDailyMissionUI()` (디자인 개선), `renderDiceTripBoard()` (ICON.dice/finish)
 
@@ -1438,7 +1470,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## To-do
 
-- [ ] 이모지 → 아이콘 교체 잔여: 카테고리 B(timer, check, sleep, offline) + C(star) + 추가(arrow_down, question)
+- [x] 이모지 → 아이콘 교체 카테고리 B/C + 잔여 이모지 (v4.27.0)
 - [ ] NPC 아바타 이미지 교체 (10종)
 - [ ] 앨범 테마 아이콘 이미지 교체 (9종)
 - [x] 스크롤/클릭 버그 수정 + 이름 보호 완료 (v4.25.3)
