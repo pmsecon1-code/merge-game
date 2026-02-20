@@ -527,6 +527,8 @@ function openGuide(type) {
     playSound('click');
     currentGuideType = type;
     const isToy = type === 'toy';
+    const names = { cat: '캣타워', dog: '개집', bird: '새장', fish: '어항', reptile: '사육장', toy: '장난감 상자' };
+    document.getElementById('modal-title').textContent = (names[type] || '도감') + ' 도감';
     document.getElementById('tab-animal').style.display = isToy ? 'none' : '';
     document.getElementById('tab-snack').style.display = isToy || !['cat', 'dog'].includes(type) ? 'none' : '';
     document.getElementById('tab-cat_toy').style.display = isToy ? '' : 'none';

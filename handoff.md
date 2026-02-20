@@ -1,4 +1,4 @@
-# 멍냥 머지 게임 - Architecture (v4.29.0)
+# 멍냥 머지 게임 - Architecture (v4.31.0)
 
 ## 개요
 
@@ -154,7 +154,7 @@ merge2/
   visitedSteps,           // 밟았던 칸 인덱스 배열 (v4.12.0+)
 
   // 생성기
-  genLevels: {cat, dog},
+  genLevels: {cat, dog, bird, fish, reptile},
 
   // 상점
   shopItems: [...],  shopNextRefresh,
@@ -255,9 +255,9 @@ merge2/
 | cat | 캣타워 | 5 | 고양이(11) + 간식 | 기본 |
 | dog | 개집 | 5 | 강아지(11) + 간식 | 기본 |
 | toy | 장난감 | - | 장난감(5) | Lv.5 |
-| bird | 새장 | - | 새(7) | 스페셜 |
-| fish | 어항 | - | 물고기(7) | 스페셜 |
-| reptile | 사육장 | - | 파충류(7) | 스페셜 |
+| bird | 새장 | 5 | 새(7) | 스페셜 |
+| fish | 어항 | 5 | 물고기(7) | 스페셜 |
+| reptile | 사육장 | 5 | 파충류(7) | 스페셜 |
 
 ### 퀘스트 (game.js)
 - 6개 동시, 3개씩 페이지 (좌우 네비)
@@ -861,8 +861,11 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 스토리 갤러리 (v4.29.0)
 `STORY_UNLOCK_LEVEL=5`, `STORY_BOSS_HP_BASE=500`, `STORY_IMAGES`(24항목, EP.1~7)
 
-### 헬퍼 함수 (7개)
-`getItemList`, `getMaxLevel`, `getItemData`, `getGeneratorName`, `getSpecialTypeName`, `formatMinSec`, `getDisplayName`
+### 스페셜 생성기 업그레이드 (v4.31.0)
+`SPECIAL_UPGRADE_COST=1500`, `SPECIAL_COOLDOWNS=[300000,240000,180000,120000,60000]` (Lv.1~5: 5분→1분), `getSpecialCooldown(type)`
+
+### 헬퍼 함수 (6개)
+`getItemList`, `getMaxLevel`, `getItemData`, `formatMinSec`, `getDisplayName`, `getSpecialCooldown`
 
 ---
 
@@ -893,6 +896,23 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.31.0 (2026-02-20) - 스페셜 생성기 업그레이드 시스템
+- ⬆️ **스페셜 생성기(새장/어항/사육장) Lv.1~5 업그레이드** 추가
+  - 핵심 효과: 과열 쿨다운 감소 (Lv.1=5분 → Lv.5=1분)
+  - 업그레이드 비용: 1,500🪙 (cat/dog는 기존 1,000🪙 유지)
+  - 럭키 보너스 없음 (쿨다운 감소만)
+  - 도감 업그레이드 탭: cat/dog 섹션(행운%, 생성 미리보기)과 스페셜 섹션(쿨다운 비교) 분리
+  - 쿨다운 오버레이: 초(s) → 분:초(m:ss) 포맷으로 변경
+  - 생성기 라벨에 레벨 표시: `새장 (Lv.n)`
+- 💾 **하위 호환**: 기존 유저 genLevels `{cat, dog}` → `{cat, dog, bird:1, fish:1, reptile:1}` 자동 확장
+- 수정 파일: js/constants.js, js/state.js, js/game.js, js/ui.js, js/save.js, index.html, eslint.config.js (7개)
+- 신규 상수 (2개): `SPECIAL_UPGRADE_COST`, `SPECIAL_COOLDOWNS`
+- 신규 헬퍼 (1개): `getSpecialCooldown(type)` (constants.js)
+- genLevels 확장: `{cat, dog}` → `{cat, dog, bird, fish, reptile}`
+- 신규 HTML: `#upg-catdog-section`, `#upg-special-section` (업그레이드 UI 분리), `#upg-cost` (동적 비용)
+- 수정 함수: `triggerGen()` (game.js - 동적 쿨다운), `createItem()` (ui.js - 레벨 라벨+mm:ss 포맷), `updateUpgradeUI()` (ui.js - 섹션 분기), `upgradeGenerator()` (ui.js - 스페셜 비용), `applyGameData()` (save.js - 5타입 호환), `initNewGame()` (save.js - 5타입 초기화)
+- 캐시 버스팅: `?v=4.30.0` → `?v=4.31.0`
 
 ### v4.29.0 (2026-02-19) - 스토리 시스템 전면 리디자인
 - 📖 **스토리 시스템 전면 리디자인** (v4.28.0 챕터/에피소드 구조 폐기)
@@ -1701,6 +1721,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## To-do
 
+- [x] 스페셜 생성기 업그레이드 시스템 (v4.31.0) - 새장/어항/사육장 Lv.1~5 쿨다운 감소
 - [x] 스토리 시스템 v4.29.0 리디자인 - 보스 보드 아이템화 + 이미지 갤러리
 - [x] 스토리 보스 이미지 7종 (images/story/)
 - [x] 스토리 씬 이미지 24장 추가 (images/story/scenes/)
