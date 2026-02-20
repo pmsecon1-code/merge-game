@@ -1985,6 +1985,18 @@ body.tutorial-active {
     border-color: #d1d5db;
     cursor: default;
     background: #f3f4f6;
+    position: relative;
+}
+.gallery-lock-level {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 9px;
+    font-weight: bold;
+    color: #6b7280;
+    background: rgba(255,255,255,0.8);
+    padding: 1px 4px;
+    border-radius: 4px;
 }
 .story-ep-header {
     font-size: 12px;

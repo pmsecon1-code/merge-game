@@ -282,6 +282,7 @@ function renderStoryGallery() {
             const unlocked = storyProgress.unlockedImages.includes(img.id);
             html += `<div class="gallery-image ${unlocked ? '' : 'locked'}" onclick="${unlocked ? `viewStoryImage(${img.id})` : ''}">
                 <img src="${unlocked ? img.img : 'images/icons/lock.png'}" style="width:100%;height:100%;object-fit:${unlocked ? 'cover' : 'contain'};${unlocked ? '' : 'opacity:0.3;padding:8px'}">
+                ${unlocked ? '' : `<span class="gallery-lock-level">Lv.${img.reqLevel}</span>`}
             </div>`;
         });
         html += '</div>';
