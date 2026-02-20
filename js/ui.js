@@ -686,6 +686,16 @@ function upgradeGenerator() {
     }
     coins -= cost;
     genLevels[type]++;
+    // 스페셜: 과열 중이면 쿨다운을 새 최대값으로 클램핑
+    if (isSpecial) {
+        const maxCd = getSpecialCooldown(type);
+        boardState.forEach(item => {
+            if (item && item.type === type && item.cooldown) {
+                const remaining = item.cooldown - Date.now();
+                if (remaining > maxCd) item.cooldown = Date.now() + maxCd;
+            }
+        });
+    }
     playSound('purchase');
     const names = { cat: '캣타워', dog: '개집', bird: '새장', fish: '어항', reptile: '사육장' };
     showToast(`${names[type]} Lv.${genLevels[type]}!`);
