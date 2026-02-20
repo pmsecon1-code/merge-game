@@ -380,15 +380,9 @@ function spawnToy() {
     return true;
 }
 
-// --- 셀 클릭 ---
-function handleCellClick(zone, idx) {
-    // 튜토리얼 중 허용된 셀만 클릭 가능
-    if (tutorialStep > 0) {
-        if (!isTutorialClickAllowed(zone, idx)) return;
-    }
-    const s = zone === 'board' ? boardState : storageState,
-        it = s[idx];
-    if (!it) return;
+// --- 셀 클릭 헬퍼: 잠긴 셀 ---
+function handleLockedCell(zone, idx, it) {
+    const s = zone === 'board' ? boardState : storageState;
     if (it.type === 'locked_board') {
         if (coins >= UNLOCK_COST_BOARD) {
             coins -= UNLOCK_COST_BOARD;
@@ -397,9 +391,15 @@ function handleCellClick(zone, idx) {
             showToast('해제!');
             updateAll();
         } else { showError('코인 부족!'); }
-    } else if (it.type === 'locked_storage') {
+    } else {
         openAdPopup('storage', idx);
-    } else if (it.type === 'upgrade_mission') {
+    }
+}
+
+// --- 셀 클릭 헬퍼: 미션 셀 ---
+function handleMissionCell(zone, idx, it) {
+    const s = zone === 'board' ? boardState : storageState;
+    if (it.type === 'upgrade_mission') {
         const done = genLevels[it.target] >= it.reqLevel;
         if (done) {
             s[idx] = null;
@@ -434,7 +434,13 @@ function handleCellClick(zone, idx) {
         } else {
             showToast(`퀘스트 ${totalQuestsCompleted}/${it.reqCount} 완료`);
         }
-    } else if (it.type === 'bubble') {
+    }
+}
+
+// --- 셀 클릭 헬퍼: 특수 아이템 ---
+function handleSpecialItem(zone, idx, it) {
+    const s = zone === 'board' ? boardState : storageState;
+    if (it.type === 'bubble') {
         if (Date.now() >= it.expiresAt) {
             s[idx] = null;
             const cell = zone === 'board' ? boardEl.children[idx] : storageEl.children[idx];
@@ -449,10 +455,7 @@ function handleCellClick(zone, idx) {
     } else if (it.type === 'boss') {
         const bossData = storyProgress.bosses.find(b => b.bossId === it.bossId);
         const imgData = STORY_IMAGES.find(i => i.ep === it.bossId && i.isLastInEp);
-        if (bossData) {
-            showBossInfoPopup(bossData, imgData);
-        }
-        return;
+        if (bossData) showBossInfoPopup(bossData, imgData);
     } else if (it.type === 'piggy_bank') {
         if (Date.now() >= it.openAt) {
             addCoins(it.coins);
@@ -466,7 +469,24 @@ function handleCellClick(zone, idx) {
             const sec = Math.floor((rem % 60000) / 1000);
             showError(`${ICON.lock} ${m}분 ${sec}초 후 개봉 가능`);
         }
-    } else if (it.type.includes('generator')) triggerGen(idx, it);
+    }
+}
+
+// --- 셀 클릭 ---
+function handleCellClick(zone, idx) {
+    if (tutorialStep > 0 && !isTutorialClickAllowed(zone, idx)) return;
+    const s = zone === 'board' ? boardState : storageState,
+        it = s[idx];
+    if (!it) return;
+    if (it.type === 'locked_board' || it.type === 'locked_storage') {
+        handleLockedCell(zone, idx, it);
+    } else if (it.type.includes('mission')) {
+        handleMissionCell(zone, idx, it);
+    } else if (it.type === 'bubble' || it.type === 'boss' || it.type === 'piggy_bank') {
+        handleSpecialItem(zone, idx, it);
+    } else if (it.type.includes('generator')) {
+        triggerGen(idx, it);
+    }
 }
 
 function triggerGen(idx, item) {
@@ -605,6 +625,42 @@ function checkToyGeneratorUnlock() {
     }
 }
 
+// --- 합성 헬퍼 ---
+function tryMergeItems(ss, fi, fIt, ts, ti, tIt, tz) {
+    const max = getMaxLevel(fIt.type);
+    if (fIt.level >= max) {
+        playSound('error');
+        ts[ti] = fIt;
+        ss[fi] = tIt;
+        return;
+    }
+    const newLv = fIt.level + 1;
+    ts[ti] = { type: fIt.type, level: newLv };
+    ss[fi] = null;
+    discoverItem(fIt.type, newLv);
+    addDailyProgress('merge');
+    playSound('merge');
+    checkAutoCompleteMissions();
+    const cell = (tz === 'board' ? boardEl : storageEl).children[ti];
+    if (tz === 'board') lastMergedIndex = ti;
+    setTimeout(() => { showFloatText(cell, 'UP!', '#f43f5e'); }, 50);
+    if (tutorialStep <= 0) tryDropDice();
+    dealBoardBossDamage(newLv);
+    const isSpecialType = ['bird', 'fish', 'reptile'].includes(fIt.type);
+    if (newLv >= BUBBLE_MIN_LEVEL && tutorialStep <= 0 && !isSpecialType && Math.random() < BUBBLE_CHANCE) {
+        spawnBubble(fIt.type, newLv);
+    }
+    if (tutorialStep === 3) setTimeout(() => advanceTutorial(), 200);
+}
+
+// --- 보스 boardIdx 갱신 헬퍼 ---
+function updateBossIdx(item, zone, newIdx) {
+    if (item.type === 'boss' && zone === 'board') {
+        const boss = storyProgress.bosses.find(b => b.bossId === item.bossId);
+        if (boss) boss.boardIdx = newIdx;
+    }
+}
+
 // --- 아이템 이동/합성 ---
 function moveItem(fz, fi, tz, ti) {
     if (fz === tz && fi === ti) return;
@@ -612,88 +668,31 @@ function moveItem(fz, fi, tz, ti) {
         ts = tz === 'board' ? boardState : storageState;
     const fIt = ss[fi],
         tIt = ts[ti];
-    // 보스는 보드에서만 존재 (창고 이동 차단)
-    if (fIt.type === 'boss' && tz === 'storage') {
-        showError('보스는 보드에서만 이동할 수 있어요!');
-        return;
-    }
-    // 버블은 창고 이동 차단
-    if (fIt.type === 'bubble' && tz === 'storage') {
-        showError('버블은 이동할 수 없어요!');
-        return;
-    }
+    // 보드 전용 아이템: 창고 이동 차단
+    if (fIt.type === 'boss' && tz === 'storage') { showError('보스는 보드에서만 이동할 수 있어요!'); return; }
+    if (fIt.type === 'bubble' && tz === 'storage') { showError('버블은 이동할 수 없어요!'); return; }
+    // 빈 칸 이동
     if (!tIt) {
-        ts[ti] = fIt;
-        ss[fi] = null;
-        // 보스 boardIdx 갱신 (보드 내 빈 칸 이동)
-        if (fIt.type === 'boss' && tz === 'board') {
-            const boss = storyProgress.bosses.find(b => b.bossId === fIt.bossId);
-            if (boss) boss.boardIdx = ti;
-        }
+        ts[ti] = fIt; ss[fi] = null;
+        updateBossIdx(fIt, tz, ti);
         return;
     }
-    // 보스가 교환 대상이면 창고 이동 차단
-    if (tIt.type === 'boss' && fz === 'storage') {
-        showError('보스는 보드에서만 이동할 수 있어요!');
-        return;
-    }
-    // 버블이 교환 대상이면 창고 이동 차단
-    if (tIt.type === 'bubble' && fz === 'storage') {
-        showError('버블은 이동할 수 없어요!');
-        return;
-    }
-    // 저금통/보스/버블은 합성 불가 → 위치 교환만
+    // 대상 보드 전용 아이템: 창고 이동 차단
+    if (tIt.type === 'boss' && fz === 'storage') { showError('보스는 보드에서만 이동할 수 있어요!'); return; }
+    if (tIt.type === 'bubble' && fz === 'storage') { showError('버블은 이동할 수 없어요!'); return; }
+    // 합성 불가 아이템 → 위치 교환
     if (fIt.type === 'piggy_bank' || tIt.type === 'piggy_bank' || fIt.type === 'boss' || tIt.type === 'boss' || fIt.type === 'bubble' || tIt.type === 'bubble') {
-        ts[ti] = fIt;
-        ss[fi] = tIt;
-        // 보스 boardIdx 갱신 (보드 내 교환)
-        if (fIt.type === 'boss' && tz === 'board') {
-            const boss = storyProgress.bosses.find(b => b.bossId === fIt.bossId);
-            if (boss) boss.boardIdx = ti;
-        }
-        if (tIt.type === 'boss' && fz === 'board') {
-            const boss = storyProgress.bosses.find(b => b.bossId === tIt.bossId);
-            if (boss) boss.boardIdx = fi;
-        }
+        ts[ti] = fIt; ss[fi] = tIt;
+        updateBossIdx(fIt, tz, ti);
+        updateBossIdx(tIt, fz, fi);
         return;
     }
+    // 같은 타입+레벨 → 합성 시도
     if (fIt.type === tIt.type && fIt.level === tIt.level) {
-        const max = getMaxLevel(fIt.type);
-        if (fIt.level < max) {
-            const newLv = fIt.level + 1;
-            ts[ti] = { type: fIt.type, level: newLv };
-            ss[fi] = null;
-            discoverItem(fIt.type, newLv);
-            addDailyProgress('merge');
-            playSound('merge');
-            checkAutoCompleteMissions();
-            const cell = (tz === 'board' ? boardEl : storageEl).children[ti];
-            // 합성 위치 추적 (튜토리얼용)
-            if (tz === 'board') lastMergedIndex = ti;
-            setTimeout(() => {
-                showFloatText(cell, 'UP!', '#f43f5e');
-            }, 50);
-            // 주사위 드랍 (합성 성공 시, 튜토리얼 중 스킵)
-            if (tutorialStep <= 0) tryDropDice();
-            // 보스 데미지 (합성 레벨 비례)
-            dealBoardBossDamage(newLv);
-            // 버블 스폰 (Lv.4+ 합성, 5%, 튜토리얼/스페셜 타입 스킵)
-            const isSpecialType = ['bird', 'fish', 'reptile'].includes(fIt.type);
-            if (newLv >= BUBBLE_MIN_LEVEL && tutorialStep <= 0 && !isSpecialType && Math.random() < BUBBLE_CHANCE) {
-                spawnBubble(fIt.type, newLv);
-            }
-            // 튜토리얼 Step 3 합성 완료 훅
-            if (tutorialStep === 3) {
-                setTimeout(() => advanceTutorial(), 200);
-            }
-        } else {
-            playSound('error');
-            ts[ti] = fIt;
-            ss[fi] = tIt;
-        }
+        tryMergeItems(ss, fi, fIt, ts, ti, tIt, tz);
     } else {
-        ts[ti] = fIt;
-        ss[fi] = tIt;
+        // 다른 아이템 → 위치 교환
+        ts[ti] = fIt; ss[fi] = tIt;
     }
 }
 

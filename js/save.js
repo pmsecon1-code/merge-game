@@ -58,90 +58,19 @@ function getGameData() {
     };
 }
 
-function applyGameData(d) {
-    // 배열 데이터 검증 후 적용 (손상된 경우 기존 값 유지)
-    if (d.boardState && Array.isArray(d.boardState) && d.boardState.length === BOARD_SIZE) {
-        boardState = d.boardState;
-    } else if (d.boardState) {
-        console.warn('[applyGameData] boardState 손상 감지, 기존 값 유지');
-    }
-    if (d.storageState && Array.isArray(d.storageState) && d.storageState.length === STORAGE_SIZE) {
-        storageState = d.storageState;
-    } else if (d.storageState) {
-        console.warn('[applyGameData] storageState 손상 감지, 기존 값 유지');
-    }
-    coins = d.coins ?? 0;
-    cumulativeCoins = d.cumulativeCoins ?? 0;
-    totalQuestsCompleted = d.totalQuestsCompleted ?? 0;
-    diamonds = d.diamonds ?? 0;
-
+// --- applyGameData 헬퍼: 에너지 마이그레이션 ---
+function migrateEnergyRecovery(d) {
     energy = d.energy ?? MAX_ENERGY;
-    // 마이그레이션: recoveryCountdown → energyRecoverAt
     if (d.energyRecoverAt) {
         energyRecoverAt = d.energyRecoverAt;
     } else {
-        // 구버전: savedAt + 남은 카운트다운으로 절대 시간 복원
         const cd = d.recoveryCountdown ?? RECOVERY_SEC;
         energyRecoverAt = (d.savedAt || Date.now()) + cd * 1000;
     }
-    userLevel = d.userLevel ?? 1;
-    questProgress = d.questProgress ?? 0;
-    const specialNpcImgs = ['images/birds/bird1.png', 'images/fish/fish1.png', 'images/reptiles/reptile1.png'];
-    quests = (d.quests || []).map((q) => ({
-        ...q,
-        npc: q.npc && q.npc.startsWith('images/') ? q.npc
-            : q.isSpecial ? specialNpcImgs[q.specialIndex ?? 0]
-            : NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)],
-        expiresAt: q.isSpecial ? null : (q.expiresAt || Date.now() + 10 * 60 * 1000),
-    }));
-    // 스토리 퀘스트 요구조건을 최신 이미지 데이터로 갱신
-    quests.forEach((q) => {
-        if (q.isStory && q.storyImageId !== undefined) {
-            const img = STORY_IMAGES.find(si => si.id === q.storyImageId);
-            if (img) q.reqs = img.reqs.map(r => ({ ...r }));
-        }
-    });
-    questIdCounter = d.questIdCounter ?? 0;
-    const gl = d.genLevels || {};
-    genLevels = { cat: gl.cat || 1, dog: gl.dog || 1, bird: gl.bird || 1, fish: gl.fish || 1, reptile: gl.reptile || 1 };
-    shopItems = d.shopItems || shopItems;
-    const savedShopRemaining = d.shopNextRefresh ?? SHOP_REFRESH_MS;
-    shopNextRefresh = Date.now() + savedShopRemaining;
-    if (savedShopRemaining <= 0) refreshShop();
-    discoveredItems = new Set(d.discoveredItems || []);
-    // 스페셜 퀘스트 순환 인덱스 (마이그레이션)
-    if (d.currentSpecialIndex !== undefined) {
-        currentSpecialIndex = d.currentSpecialIndex;
-    } else if (d.specialMissionCycles) {
-        const total = d.specialMissionCycles.reduce((a, b) => a + b, 0);
-        currentSpecialIndex = total % 3;
-    } else {
-        currentSpecialIndex = 0;
-    }
-    // 현재 퀘스트와 무관한 스페셜 타입 정리 (항상 실행)
-    const spTypes = ['bird', 'fish', 'reptile'];
-    const activeType = spTypes[currentSpecialIndex];
-    for (const rType of spTypes) {
-        if (rType === activeType) continue;
-        for (let i = 0; i < BOARD_SIZE; i++) {
-            if (boardState[i] && (boardState[i].type === rType || boardState[i].type === `${rType}_generator`))
-                boardState[i] = null;
-        }
-        for (let i = 0; i < STORAGE_SIZE; i++) {
-            if (storageState[i] && (storageState[i].type === rType || storageState[i].type === `${rType}_generator`))
-                storageState[i] = null;
-        }
-        for (let i = 0; i < SHOP_SIZE; i++) {
-            if (shopItems[i] && shopItems[i].type && shopItems[i].type.includes(rType))
-                shopItems[i] = generateRandomShopItem(getActiveTypes());
-        }
-    }
-    // 스페셜 퀘스트 없으면 추가 (10개 상한 준수)
-    if (!quests.some((q) => q.isSpecial) && quests.length < 10) {
-        const sp = generateSpecialQuest();
-        if (sp) quests.push(sp);
-    }
-    // 일일 미션 로드 (마이그레이션 포함)
+}
+
+// --- applyGameData 헬퍼: 일일미션 로드 ---
+function loadDailyMissions(d) {
     if (d.dailyMissions) {
         dailyMissions = {
             tier: d.dailyMissions.tier ?? 0,
@@ -167,57 +96,15 @@ function applyGameData(d) {
             }
         }
     } else {
-        // 기존 데이터 마이그레이션: pmProgress, cumulativeCoins 무시하고 새로 시작
         dailyMissions = {
-            tier: 0,
-            merge: 0,
-            spawn: 0,
-            coins: 0,
-            claimed: [false, false, false],
-            bonusClaimed: false,
-            lastResetDate: '',
+            tier: 0, merge: 0, spawn: 0, coins: 0,
+            claimed: [false, false, false], bonusClaimed: false, lastResetDate: '',
         };
     }
-    energyPurchaseCount = d.energyPurchaseCount ?? 0;
-    // 에너지 구매 가격 리셋: 항상 다음 KST 자정 기준
-    energyPurchaseResetTime = Date.now() + getMsUntilKSTMidnight();
-    // 저장→로드 사이 자정이 지났으면 구매 횟수 초기화
-    const savedEnergyResetMs = d.energyPurchaseResetTime ?? 0;
-    if (d.savedAt && d.savedAt + savedEnergyResetMs <= Date.now()) {
-        energyPurchaseCount = 0;
-    }
-    // 튜토리얼 마이그레이션 (isTutorialActive → tutorialStep)
-    if (d.tutorialStep !== undefined) {
-        tutorialStep = d.tutorialStep;
-    } else if (d.isTutorialActive === false) {
-        tutorialStep = 0; // 기존 유저: 튜토리얼 완료
-    } else {
-        tutorialStep = 1; // 새 유저: 튜토리얼 시작
-    }
-    firstEnergyRewardGiven = d.firstEnergyRewardGiven ?? false;
-    cards = d.cards ?? 0;
-    album = d.album || [];
-    albumResetTime = Date.now() + (d.albumResetTime ?? ALBUM_CYCLE_MS);
-    lastDailyBonusDate = d.lastDailyBonusDate || '';
-    loginStreak = d.loginStreak ?? 0;
-    currentRaceId = d.currentRaceId || null;
-    myRaceCode = d.myRaceCode || null;
-    raceWins = d.raceWins ?? 0;
-    raceLosses = d.raceLosses ?? 0;
-    recentRaceOpponents = d.recentRaceOpponents || [];
+}
 
-    // 주사위 여행
-    diceTripPosition = d.diceTripPosition ?? 0;
-    diceCount = d.diceCount ?? 0;
-    visitedSteps = d.visitedSteps && Array.isArray(d.visitedSteps) ? d.visitedSteps : [0];
-
-    // 사운드 설정 로드
-    if (d.soundEnabled !== undefined) soundEnabled = d.soundEnabled;
-    if (d.musicEnabled !== undefined) musicEnabled = d.musicEnabled;
-    updateSoundUI();
-    if (!musicEnabled) stopBGM();
-
-    // 스토리 갤러리 로드
+// --- applyGameData 헬퍼: 스토리 갤러리 로드 ---
+function loadStoryProgress(d) {
     if (d.storyProgress && d.storyProgress.unlockedImages) {
         const sp = d.storyProgress;
         storyProgress = {
@@ -226,7 +113,6 @@ function applyGameData(d) {
             bosses: (sp.bosses || []).map(b => ({ ...b })),
             pendingBoss: sp.pendingBoss ?? null,
         };
-        // 보드에 보스 아이템 복원 확인
         for (const boss of storyProgress.bosses) {
             if (boss.boardIdx >= 0 && boss.hp > 0) {
                 if (!boardState[boss.boardIdx] || boardState[boss.boardIdx].type !== 'boss') {
@@ -235,12 +121,13 @@ function applyGameData(d) {
             }
         }
     } else {
-        // 구버전 또는 데이터 없음 → 빈 초기값
         storyProgress = { unlockedImages: [], activeQuestId: null, bosses: [], pendingBoss: null };
-        // 구버전 스토리 퀘스트 제거
         quests = quests.filter(q => !q.isStory);
     }
+}
 
+// --- applyGameData 헬퍼: 레거시 아이템 정리 ---
+function cleanupLegacyItems() {
     // 전설 퀘스트 아이템 정리 (v4.17.0 삭제 마이그레이션)
     for (let i = 0; i < BOARD_SIZE; i++) {
         if (boardState[i] && (boardState[i].type === 'legendary' || boardState[i].type === 'legendary_generator')) {
@@ -258,8 +145,124 @@ function applyGameData(d) {
         visitedSteps = [0];
         diceCount = 0;
     }
+}
 
-    // 앨범 주기 초기화 (21일)
+function applyGameData(d) {
+    // 배열 데이터 검증 후 적용 (손상된 경우 기존 값 유지)
+    if (d.boardState && Array.isArray(d.boardState) && d.boardState.length === BOARD_SIZE) {
+        boardState = d.boardState;
+    } else if (d.boardState) {
+        console.warn('[applyGameData] boardState 손상 감지, 기존 값 유지');
+    }
+    if (d.storageState && Array.isArray(d.storageState) && d.storageState.length === STORAGE_SIZE) {
+        storageState = d.storageState;
+    } else if (d.storageState) {
+        console.warn('[applyGameData] storageState 손상 감지, 기존 값 유지');
+    }
+    coins = d.coins ?? 0;
+    cumulativeCoins = d.cumulativeCoins ?? 0;
+    totalQuestsCompleted = d.totalQuestsCompleted ?? 0;
+    diamonds = d.diamonds ?? 0;
+
+    migrateEnergyRecovery(d);
+
+    userLevel = d.userLevel ?? 1;
+    questProgress = d.questProgress ?? 0;
+    const specialNpcImgs = ['images/birds/bird1.png', 'images/fish/fish1.png', 'images/reptiles/reptile1.png'];
+    quests = (d.quests || []).map((q) => ({
+        ...q,
+        npc: q.npc && q.npc.startsWith('images/') ? q.npc
+            : q.isSpecial ? specialNpcImgs[q.specialIndex ?? 0]
+            : NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)],
+        expiresAt: (q.isSpecial || q.isStory) ? null : (q.expiresAt || Date.now() + 10 * 60 * 1000),
+    }));
+    quests.forEach((q) => {
+        if (q.isStory && q.storyImageId !== undefined) {
+            const img = STORY_IMAGES.find(si => si.id === q.storyImageId);
+            if (img) q.reqs = img.reqs.map(r => ({ ...r }));
+        }
+    });
+    questIdCounter = d.questIdCounter ?? 0;
+    const gl = d.genLevels || {};
+    genLevels = { cat: gl.cat || 1, dog: gl.dog || 1, bird: gl.bird || 1, fish: gl.fish || 1, reptile: gl.reptile || 1 };
+    shopItems = d.shopItems || shopItems;
+    const savedShopRemaining = d.shopNextRefresh ?? SHOP_REFRESH_MS;
+    shopNextRefresh = Date.now() + savedShopRemaining;
+    if (savedShopRemaining <= 0) refreshShop();
+    discoveredItems = new Set(d.discoveredItems || []);
+    // 스페셜 퀘스트 순환 인덱스 (마이그레이션)
+    if (d.currentSpecialIndex !== undefined) {
+        currentSpecialIndex = d.currentSpecialIndex;
+    } else if (d.specialMissionCycles) {
+        const total = d.specialMissionCycles.reduce((a, b) => a + b, 0);
+        currentSpecialIndex = total % 3;
+    } else {
+        currentSpecialIndex = 0;
+    }
+    // 비활성 스페셜 타입 정리
+    const spTypes = ['bird', 'fish', 'reptile'];
+    const activeType = spTypes[currentSpecialIndex];
+    for (const rType of spTypes) {
+        if (rType === activeType) continue;
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            if (boardState[i] && (boardState[i].type === rType || boardState[i].type === `${rType}_generator`))
+                boardState[i] = null;
+        }
+        for (let i = 0; i < STORAGE_SIZE; i++) {
+            if (storageState[i] && (storageState[i].type === rType || storageState[i].type === `${rType}_generator`))
+                storageState[i] = null;
+        }
+        for (let i = 0; i < SHOP_SIZE; i++) {
+            if (shopItems[i] && shopItems[i].type && shopItems[i].type.includes(rType))
+                shopItems[i] = generateRandomShopItem(getActiveTypes());
+        }
+    }
+    if (!quests.some((q) => q.isSpecial) && quests.length < 10) {
+        const sp = generateSpecialQuest();
+        if (sp) quests.push(sp);
+    }
+
+    loadDailyMissions(d);
+
+    energyPurchaseCount = d.energyPurchaseCount ?? 0;
+    energyPurchaseResetTime = Date.now() + getMsUntilKSTMidnight();
+    const savedEnergyResetMs = d.energyPurchaseResetTime ?? 0;
+    if (d.savedAt && d.savedAt + savedEnergyResetMs <= Date.now()) {
+        energyPurchaseCount = 0;
+    }
+    // 튜토리얼 마이그레이션
+    if (d.tutorialStep !== undefined) {
+        tutorialStep = d.tutorialStep;
+    } else if (d.isTutorialActive === false) {
+        tutorialStep = 0;
+    } else {
+        tutorialStep = 1;
+    }
+    firstEnergyRewardGiven = d.firstEnergyRewardGiven ?? false;
+    cards = d.cards ?? 0;
+    album = d.album || [];
+    albumResetTime = Date.now() + (d.albumResetTime ?? ALBUM_CYCLE_MS);
+    lastDailyBonusDate = d.lastDailyBonusDate || '';
+    loginStreak = d.loginStreak ?? 0;
+    currentRaceId = d.currentRaceId || null;
+    myRaceCode = d.myRaceCode || null;
+    raceWins = d.raceWins ?? 0;
+    raceLosses = d.raceLosses ?? 0;
+    recentRaceOpponents = d.recentRaceOpponents || [];
+
+    diceTripPosition = d.diceTripPosition ?? 0;
+    diceCount = d.diceCount ?? 0;
+    visitedSteps = d.visitedSteps && Array.isArray(d.visitedSteps) ? d.visitedSteps : [0];
+
+    if (d.soundEnabled !== undefined) soundEnabled = d.soundEnabled;
+    if (d.musicEnabled !== undefined) musicEnabled = d.musicEnabled;
+    updateSoundUI();
+    if (!musicEnabled) stopBGM();
+
+    loadStoryProgress(d);
+    cleanupLegacyItems();
+
+    // 앨범 주기 초기화
     if (Date.now() >= albumResetTime) {
         console.log('[Album] 주기 초기화!');
         cards = 0;
@@ -267,9 +270,7 @@ function applyGameData(d) {
         albumResetTime = Date.now() + ALBUM_CYCLE_MS;
     }
 
-    // 7행 미션 복구 (v4.1.6 마이그레이션)
     migrateRow7Missions();
-    // 장난감 생성기 마이그레이션 (v4.2.6)
     if (userLevel >= 5 && !boardState.some((x) => x && x.type === 'toy_generator')) {
         const e = boardState.findIndex((x) => x === null);
         if (e !== -1) boardState[e] = { type: 'toy_generator', clicks: 0, cooldown: 0 };

@@ -19,7 +19,7 @@ function renderGrid(zone, state, cont) {
                 c.innerHTML = `<div><img src="images/icons/lock.png" class="icon icon-md"></div><div class="mt-1"><img src="images/icons/tv.png" class="icon icon-sm"></div>`;
             } else if (item.type === 'upgrade_mission') {
                 const done = genLevels[item.target] >= item.reqLevel;
-                const name = item.target === 'cat' ? '캣타워' : '개집';
+                const name = getGeneratorName(item.target);
                 c.classList.add('upgrade-mission-cell');
                 if (done) c.classList.add('done');
                 c.innerHTML = `<div>${done ? '<img src="images/icons/check.png" class="icon icon-md">' : '<img src="images/icons/target.png" class="icon icon-md">'}</div><div class="text-[8px] font-bold text-center">${name}<br>Lv.${item.reqLevel}</div>`;
@@ -65,18 +65,10 @@ function createItem(item, zone, index) {
         }
         const genColors = { cat: ['#fff1f2','#f472b6'], dog: ['#fef3c7','#fbbf24'], bird: ['#e0f2fe','#38bdf8'], fish: ['#ccfbf1','#2dd4bf'], reptile: ['#dcfce7','#4ade80'], toy: ['#f3e8ff','#a78bfa'] };
         const [bg, accent] = genColors[type] || ['#f1f5f9','#64748b'];
-        if (type === 'cat') {
-            label = `캣타워 (Lv.${genLevels.cat})`;
-        } else if (type === 'dog') {
-            label = `개집 (Lv.${genLevels.dog})`;
-        } else if (type === 'bird') {
-            label = `새장 (Lv.${genLevels.bird})`;
-        } else if (type === 'fish') {
-            label = `어항 (Lv.${genLevels.fish})`;
-        } else if (type === 'reptile') {
-            label = `사육장 (Lv.${genLevels.reptile})`;
-        } else if (type === 'toy') {
+        if (type === 'toy') {
             label = '장난감 생성기';
+        } else {
+            label = `${getGeneratorName(type)} (Lv.${genLevels[type]})`;
         }
         d.style.background = bg;
         d.style.borderColor = accent;
@@ -161,6 +153,7 @@ function updateAll(opts) {
     updateDiceTripUI();
     updateBottomBadges();
     updateStoryUI();
+    checkStoryQuests();
     saveGame();
     // 튜토리얼 중이면 스포트라이트 재배치
     if (tutorialStep > 0) repositionTutorial();
@@ -527,8 +520,7 @@ function openGuide(type) {
     playSound('click');
     currentGuideType = type;
     const isToy = type === 'toy';
-    const names = { cat: '캣타워', dog: '개집', bird: '새장', fish: '어항', reptile: '사육장', toy: '장난감 상자' };
-    document.getElementById('modal-title').textContent = (names[type] || '도감') + ' 도감';
+    document.getElementById('modal-title').textContent = (getGeneratorName(type) !== type ? getGeneratorName(type) : '도감') + ' 도감';
     document.getElementById('tab-animal').style.display = isToy ? 'none' : '';
     document.getElementById('tab-snack').style.display = isToy || !['cat', 'dog'].includes(type) ? 'none' : '';
     document.getElementById('tab-cat_toy').style.display = isToy ? '' : 'none';
@@ -697,8 +689,7 @@ function upgradeGenerator() {
         });
     }
     playSound('purchase');
-    const names = { cat: '캣타워', dog: '개집', bird: '새장', fish: '어항', reptile: '사육장' };
-    showToast(`${names[type]} Lv.${genLevels[type]}!`);
+    showToast(`${getGeneratorName(type)} Lv.${genLevels[type]}!`);
     boardState.forEach((item, idx) => {
         if (item && item.type === 'upgrade_mission' && item.target === type && genLevels[type] >= item.reqLevel) {
             boardState[idx] = null;

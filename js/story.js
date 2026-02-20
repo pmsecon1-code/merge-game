@@ -19,6 +19,16 @@ function getNextStoryImage() {
 
 // --- 레벨 체크 → 퀘스트 자동 활성 ---
 function checkStoryQuests() {
+    // desync 복구: activeQuestId 있지만 퀘스트 배열에 없으면 재활성
+    if (storyProgress.activeQuestId !== null && !quests.some(q => q.isStory)) {
+        const img = STORY_IMAGES.find(i => i.id === storyProgress.activeQuestId);
+        if (img) {
+            activateImageQuest(img);
+            return;
+        }
+        // 이미지 못 찾으면 activeQuestId 초기화
+        storyProgress.activeQuestId = null;
+    }
     if (storyProgress.activeQuestId !== null) return; // 이미 활성 퀘스트 있음
     if (quests.some(q => q.isStory)) return; // 퀘스트 배열에 이미 있음
     const next = getNextStoryImage();

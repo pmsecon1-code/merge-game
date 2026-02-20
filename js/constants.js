@@ -46,6 +46,15 @@ const ICON = {
     merge: '<img src="images/icons/merge.png" class="icon icon-sm">',
 };
 
+// --- 생성기 이름 매핑 ---
+const GENERATOR_NAMES = {
+    cat: '캣타워', dog: '개집', bird: '새장',
+    fish: '어항', reptile: '사육장', toy: '장난감 상자',
+};
+function getGeneratorName(type) {
+    return GENERATOR_NAMES[type] || type;
+}
+
 // --- 유저 이름 ---
 const MAX_NAME_LENGTH = 6;
 function getDisplayName(user) {

@@ -1,0 +1,16 @@
+#!/bin/sh
+# Pre-commit hook: lint + test
+
+npm run lint 2>&1 | head -20
+LINT_EXIT=${PIPESTATUS[0]}
+if [ $LINT_EXIT -ne 0 ]; then
+  echo "❌ ESLint 실패 - 커밋 중단"
+  exit 1
+fi
+
+npm test 2>&1 | tail -5
+TEST_EXIT=${PIPESTATUS[0]}
+if [ $TEST_EXIT -ne 0 ]; then
+  echo "❌ 테스트 실패 - 커밋 중단"
+  exit 1
+fi
