@@ -105,7 +105,7 @@ const QUEST_COUNT_MISSION_GOAL = 100;
 const CLOUD_SAVE_DEBOUNCE_MS = 500;
 
 // --- 레벨업 공식 (중앙화) ---
-function getLevelUpGoal(lv) { return Math.min(lv * 2, 20); }
+function getLevelUpGoal(lv) { return lv <= 5 ? lv + 1 : Math.min(lv * 2, 15); }
 function getLevelUpReward(lv) { return Math.ceil(lv / 10) * 3; }
 
 // --- 시간 포맷 헬퍼 (mm:ss) ---
