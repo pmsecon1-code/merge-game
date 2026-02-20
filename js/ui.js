@@ -105,6 +105,22 @@ function createItem(item, zone, index) {
         }
         return d;
     }
+    if (item.type === 'bubble') {
+        const d = document.createElement('div');
+        d.className = 'item bubble-item';
+        const itemData = getItemData(item.itemType, item.itemLevel);
+        const rem = Math.max(0, item.expiresAt - Date.now());
+        const imgHtml = itemData?.img
+            ? `<img src="${itemData.img}" style="width:80%;height:80%;object-fit:contain;position:relative;z-index:1">`
+            : '';
+        d.innerHTML = `
+            <div class="bg-circle" style="background-color:${itemData?.color || '#e0f2fe'}"></div>
+            ${imgHtml}
+            <div class="bubble-overlay"></div>
+            <div class="cooldown-overlay"><span>${formatMinSec(rem)}</span></div>
+        `;
+        return d;
+    }
     const d = document.createElement('div');
     d.className = 'item';
     const isSnack = item.type.includes('snack'),

@@ -457,6 +457,16 @@ function handleCellClick(zone, idx) {
         } else {
             showToast(`퀘스트 ${totalQuestsCompleted}/${it.reqCount} 완료`);
         }
+    } else if (it.type === 'bubble') {
+        if (Date.now() >= it.expiresAt) {
+            s[idx] = null;
+            const cell = zone === 'board' ? boardEl.children[idx] : storageEl.children[idx];
+            if (cell) spawnParticles(cell);
+            showToast('버블이 사라졌어요!');
+            updateAll();
+        } else {
+            showBubblePopup(zone, idx);
+        }
     } else if (it.type === 'boss') {
         const bossData = storyProgress.bosses.find(b => b.bossId === it.bossId);
         const imgData = STORY_IMAGES.find(i => i.ep === it.bossId && i.isLastInEp);
@@ -627,6 +637,11 @@ function moveItem(fz, fi, tz, ti) {
         showError('보스는 보드에서만 이동할 수 있어요!');
         return;
     }
+    // 버블은 창고 이동 차단
+    if (fIt.type === 'bubble' && tz === 'storage') {
+        showError('버블은 이동할 수 없어요!');
+        return;
+    }
     if (!tIt) {
         ts[ti] = fIt;
         ss[fi] = null;
@@ -642,8 +657,13 @@ function moveItem(fz, fi, tz, ti) {
         showError('보스는 보드에서만 이동할 수 있어요!');
         return;
     }
-    // 저금통/보스는 합성 불가 → 위치 교환만
-    if (fIt.type === 'piggy_bank' || tIt.type === 'piggy_bank' || fIt.type === 'boss' || tIt.type === 'boss') {
+    // 버블이 교환 대상이면 창고 이동 차단
+    if (tIt.type === 'bubble' && fz === 'storage') {
+        showError('버블은 이동할 수 없어요!');
+        return;
+    }
+    // 저금통/보스/버블은 합성 불가 → 위치 교환만
+    if (fIt.type === 'piggy_bank' || tIt.type === 'piggy_bank' || fIt.type === 'boss' || tIt.type === 'boss' || fIt.type === 'bubble' || tIt.type === 'bubble') {
         ts[ti] = fIt;
         ss[fi] = tIt;
         // 보스 boardIdx 갱신 (보드 내 교환)
@@ -677,6 +697,10 @@ function moveItem(fz, fi, tz, ti) {
             if (tutorialStep <= 0) tryDropDice();
             // 보스 데미지 (합성 레벨 비례)
             dealBoardBossDamage(newLv);
+            // 버블 스폰 (Lv.4+ 합성, 5%, 튜토리얼 중 스킵)
+            if (newLv >= BUBBLE_MIN_LEVEL && tutorialStep <= 0 && Math.random() < BUBBLE_CHANCE) {
+                spawnBubble(fIt.type, newLv);
+            }
             // 튜토리얼 Step 3 합성 완료 훅
             if (tutorialStep === 3) {
                 setTimeout(() => advanceTutorial(), 200);
@@ -769,6 +793,68 @@ function claimDailyBonus() {
     playSound('milestone');
     showMilestonePopup(`${ICON.gift} 일일 미션 완료!`, `${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} + ${DAILY_COMPLETE_REWARD.cards}${ICON.card}`);
     updateDailyMissionUI();
+    updateAll();
+}
+
+// --- 버블 스폰 ---
+function spawnBubble(type, level) {
+    const emptyIdx = boardState.findIndex((x, i) => x === null && i < 30);
+    if (emptyIdx === -1) return;
+    boardState[emptyIdx] = { type: 'bubble', itemType: type, itemLevel: level, expiresAt: Date.now() + BUBBLE_EXPIRE_MS };
+    showToast('🫧 버블 발견!');
+}
+
+// --- 버블 팝업 ---
+function showBubblePopup(zone, idx) {
+    const s = zone === 'board' ? boardState : storageState;
+    const it = s[idx];
+    if (!it || it.type !== 'bubble') return;
+    document.getElementById('bubble-zone').value = zone;
+    document.getElementById('bubble-idx').value = idx;
+    const itemData = getItemData(it.itemType, it.itemLevel);
+    const cost = it.itemLevel * BUBBLE_DIAMOND_PER_LEVEL;
+    document.getElementById('bubble-item-preview').innerHTML = itemData
+        ? `<img src="${itemData.img}" style="width:64px;height:64px;object-fit:contain"><div class="text-sm font-bold mt-1">${itemData.name} Lv.${it.itemLevel}</div>`
+        : '<div class="text-2xl">?</div>';
+    const rem = Math.max(0, it.expiresAt - Date.now());
+    document.getElementById('bubble-timer-text').innerText = `${formatMinSec(rem)} 후 사라집니다`;
+    document.getElementById('bubble-diamond-btn').innerHTML = `${cost}${ICON.diamond}`;
+    openOverlay('bubble-popup');
+}
+
+// --- 버블 해제 (광고) ---
+function openBubbleByAd() {
+    const zone = document.getElementById('bubble-zone').value;
+    const idx = parseInt(document.getElementById('bubble-idx').value);
+    closeOverlay('bubble-popup');
+    const s = zone === 'board' ? boardState : storageState;
+    const it = s[idx];
+    if (!it || it.type !== 'bubble') return;
+    s[idx] = { type: it.itemType, level: it.itemLevel };
+    discoverItem(it.itemType, it.itemLevel);
+    playSound('purchase');
+    showToast('버블 해제!');
+    updateAll();
+}
+
+// --- 버블 해제 (다이아) ---
+function openBubbleByDiamond() {
+    const zone = document.getElementById('bubble-zone').value;
+    const idx = parseInt(document.getElementById('bubble-idx').value);
+    const s = zone === 'board' ? boardState : storageState;
+    const it = s[idx];
+    if (!it || it.type !== 'bubble') return;
+    const cost = it.itemLevel * BUBBLE_DIAMOND_PER_LEVEL;
+    if (diamonds < cost) {
+        showError('다이아 부족!');
+        return;
+    }
+    closeOverlay('bubble-popup');
+    diamonds -= cost;
+    s[idx] = { type: it.itemType, level: it.itemLevel };
+    discoverItem(it.itemType, it.itemLevel);
+    playSound('purchase');
+    showToast('버블 해제!');
     updateAll();
 }
 

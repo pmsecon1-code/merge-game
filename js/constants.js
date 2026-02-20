@@ -120,6 +120,12 @@ const PIGGY_BANK_TIMER_MS = 60 * 60 * 1000; // 1시간
 const PIGGY_BANK_MIN_COINS = 100;
 const PIGGY_BANK_MAX_COINS = 200;
 
+// --- 버블 설정 ---
+const BUBBLE_MIN_LEVEL = 4;           // 버블 발동 최소 합성 결과 레벨
+const BUBBLE_CHANCE = 0.05;           // 5% 확률
+const BUBBLE_EXPIRE_MS = 180000;      // 3분
+const BUBBLE_DIAMOND_PER_LEVEL = 10;  // 다이아 = 레벨 × 10
+
 // --- 주사위 여행 설정 ---
 const DICE_TRIP_SIZE = 50;
 const DICE_DROP_CHANCE = 0.03;

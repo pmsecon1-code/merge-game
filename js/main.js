@@ -141,12 +141,27 @@ function startCooldownTimer() {
                 needsUpdate = true;
             }
         });
-        // 과열 중인 생성기나 미개봉 저금통이 있으면 매초 렌더링
+        // 버블 만료 체크
+        let bubbleExpired = false;
+        boardState.forEach((item, idx) => {
+            if (item && item.type === 'bubble' && Date.now() >= item.expiresAt) {
+                const cell = boardEl.children[idx];
+                if (cell) spawnParticles(cell);
+                boardState[idx] = null;
+                bubbleExpired = true;
+            }
+        });
+        if (bubbleExpired) {
+            showToast('버블이 사라졌어요!');
+            saveGame();
+        }
+        // 과열 중인 생성기나 미개봉 저금통/버블이 있으면 매초 렌더링
         const hasActiveTimer = [...boardState, ...storageState].some((i) =>
             i && ((i.type.endsWith('_generator') && i.cooldown > Date.now()) ||
-                  (i.type === 'piggy_bank' && Date.now() < i.openAt))
+                  (i.type === 'piggy_bank' && Date.now() < i.openAt) ||
+                  (i.type === 'bubble' && Date.now() < i.expiresAt))
         );
-        if (needsUpdate || hasActiveTimer) {
+        if (needsUpdate || hasActiveTimer || bubbleExpired) {
             renderGrid('board', boardState, boardEl);
             renderGrid('storage', storageState, storageEl);
         }

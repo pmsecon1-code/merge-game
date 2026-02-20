@@ -1840,6 +1840,21 @@ body.tutorial-active {
 .piggy-bank-item { position: relative; }
 .ad-btn { background: #f59e0b !important; color: white !important; }
 
+/* --- 버블 아이템 --- */
+.bubble-item { position: relative; }
+.bubble-overlay {
+    position: absolute; inset: 0; z-index: 15;
+    background: radial-gradient(circle, rgba(100,200,255,0.3), rgba(100,200,255,0.15));
+    border: 2px solid rgba(100,200,255,0.6);
+    border-radius: 50%;
+    animation: bubble-pulse 2s ease-in-out infinite;
+    pointer-events: none;
+}
+@keyframes bubble-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+}
+
 /* ============================================
    사운드 토글
    ============================================ */

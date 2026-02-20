@@ -429,6 +429,12 @@ function askSellItem(z, i, e) {
         return;
     }
 
+    // 버블은 판매 불가
+    if (it.type === 'bubble') {
+        showError('버블은 판매할 수 없어요!');
+        return;
+    }
+
     sellTarget = { zone: z, index: i, item: it };
     const p = it.level;
     const list = getItemList(it.type);

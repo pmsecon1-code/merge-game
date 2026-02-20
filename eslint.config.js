@@ -36,6 +36,11 @@ export default [
                 PIGGY_BANK_TIMER_MS: 'readonly',
                 PIGGY_BANK_MIN_COINS: 'readonly',
                 PIGGY_BANK_MAX_COINS: 'readonly',
+                // 버블 상수
+                BUBBLE_MIN_LEVEL: 'readonly',
+                BUBBLE_CHANCE: 'readonly',
+                BUBBLE_EXPIRE_MS: 'readonly',
+                BUBBLE_DIAMOND_PER_LEVEL: 'readonly',
                 GENERATOR_COOLDOWN_MS: 'readonly',
                 GENERATOR_MAX_CLICKS: 'readonly',
                 AD_ENERGY_AMOUNT: 'readonly',
@@ -226,6 +231,10 @@ export default [
                 openAdPopup: 'readonly',
                 adEnergy: 'readonly',
                 confirmAd: 'readonly',
+                spawnBubble: 'readonly',
+                showBubblePopup: 'readonly',
+                openBubbleByAd: 'readonly',
+                openBubbleByDiamond: 'readonly',
                 // systems.js globals - 헬퍼 함수
                 hasItemOfType: 'readonly',
                 hasItemOfTypeAndLevel: 'readonly',
