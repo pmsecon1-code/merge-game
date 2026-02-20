@@ -269,27 +269,12 @@ body {
     gap: 4px;
 }
 
-.quest-npc {
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.quest-npc img {
-    width: 20px;
-    height: 20px;
-    object-fit: contain;
-}
-
 .quest-reqs {
     display: flex;
     gap: 2px;
     flex-wrap: nowrap;
     min-width: 50px;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 .req-item {

@@ -214,10 +214,7 @@ function updateQuestUI(scrollToFront = false) {
         if (q.isStory) d.classList.add('story-quest-card');
         const ok = canComplete(q);
         if (ok) d.classList.add('ready');
-        const npcVisual = q.isStory
-            ? '<img src="images/cats/cat1.png">'
-            : `<img src="${q.npc}">`;
-        let h = `<div class="quest-top"><div class="quest-npc">${npcVisual}</div><div class="quest-reqs">`;
+        let h = `<div class="quest-top"><div class="quest-reqs">`;
         q.reqs.forEach((r) => {
             const l = getItemList(r.type);
             const reqData = l[r.level - 1];
