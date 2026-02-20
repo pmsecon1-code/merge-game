@@ -380,6 +380,8 @@ export default [
                 closeModal: 'readonly',
                 switchGuideTab: 'readonly',
                 renderGuideList: 'readonly',
+                getGenSpawnLevels: 'readonly',
+                renderSpawnPreview: 'readonly',
                 updateUpgradeUI: 'readonly',
                 upgradeGenerator: 'readonly',
                 updateDailyMissionUI: 'readonly',

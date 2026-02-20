@@ -618,6 +618,42 @@ body {
     border: 2px solid #10b981;
 }
 
+/* --- 업그레이드 생성 미리보기 --- */
+.upg-spawn-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+.upg-spawn-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+.upg-spawn-item img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    border-radius: 4px;
+    background: #f3f4f6;
+    padding: 2px;
+}
+.upg-spawn-item .upg-spawn-label {
+    font-size: 7px;
+    font-weight: bold;
+    color: #6b7280;
+}
+.upg-spawn-item.new-item img {
+    border: 2px solid #22c55e;
+    background: #dcfce7;
+}
+.upg-spawn-item.new-item .upg-spawn-label {
+    color: #16a34a;
+}
+
 /* ============================================
    10. 아이템
    ============================================ */

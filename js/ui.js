@@ -582,6 +582,32 @@ function renderGuideList(tab) {
     container.innerHTML = html;
 }
 
+function getGenSpawnLevels(genLv) {
+    const luckyLv = genLv >= 3 ? 4 : genLv + 1;
+    // 기본 Lv.1 + 럭키 동물 레벨
+    const levels = [1];
+    if (luckyLv > 1) levels.push(luckyLv);
+    return levels;
+}
+
+function renderSpawnPreview(containerId, type, genLv, prevLevels) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const list = type === 'cat' ? CATS : DOGS;
+    const levels = getGenSpawnLevels(genLv);
+    let html = '';
+    for (const lv of levels) {
+        const data = list[lv - 1];
+        if (!data) continue;
+        const isNew = prevLevels && !prevLevels.includes(lv);
+        html += `<div class="upg-spawn-item${isNew ? ' new-item' : ''}">
+            <img src="${data.img}" alt="${data.name}">
+            <span class="upg-spawn-label">${lv === 1 ? '기본' : '럭키'}${isNew ? ' NEW' : ''}</span>
+        </div>`;
+    }
+    el.innerHTML = html;
+}
+
 function updateUpgradeUI() {
     const type = currentGuideType;
     const upgradeContent = document.getElementById('upgrade-content');
@@ -599,6 +625,10 @@ function updateUpgradeUI() {
     document.getElementById('upg-current-luck').innerText = 5 + (currentLv - 1);
     document.getElementById('upg-next-lv').innerText = nextLv;
     document.getElementById('upg-next-luck').innerText = 5 + (nextLv - 1);
+    // 생성 가능 아이템 미리보기
+    const currentLevels = getGenSpawnLevels(currentLv);
+    renderSpawnPreview('upg-current-spawn', type, currentLv, null);
+    renderSpawnPreview('upg-next-spawn', type, nextLv, currentLevels);
 }
 
 function upgradeGenerator() {
