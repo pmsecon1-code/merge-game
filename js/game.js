@@ -855,6 +855,7 @@ function openAdPopup(zone, idx) {
     const isShop = zone === 'shop';
     const mode = isEnergy ? 'energy' : isShop ? 'shop' : isStorage ? 'storage' : 'piggy';
     document.getElementById('ad-piggy-mode').value = mode;
+    document.getElementById('ad-confirm-btn').textContent = '시청하기';
     let adDesc;
     if (isEnergy) {
         adDesc = `광고를 시청하면<br>에너지 <b class="text-yellow-600">${AD_ENERGY_AMOUNT}${ICON.energy}</b>를 받을 수 있습니다!`;
@@ -865,7 +866,8 @@ function openAdPopup(zone, idx) {
     } else {
         const s = zone === 'board' ? boardState : storageState;
         const piggyCoins = s[idx]?.coins || 0;
-        adDesc = `광고를 시청하면 저금통을 즉시 열고<br><b class="text-yellow-600">+${piggyCoins * 2}${ICON.coin} (×2)</b> 획득!`;
+        adDesc = `광고를 시청하면 저금통을 즉시 열고<br><b class="text-yellow-600">${piggyCoins} × 2 = ${piggyCoins * 2}${ICON.coin}</b> 획득!`;
+        document.getElementById('ad-confirm-btn').innerHTML = `${piggyCoins * 2}${ICON.coin} 받기`;
     }
     document.getElementById('ad-popup-desc').innerHTML = adDesc;
     openOverlay('ad-popup');
