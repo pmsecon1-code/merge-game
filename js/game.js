@@ -39,7 +39,7 @@ function countEasyQuests() {
 }
 
 function generateNewQuest(forceEasy = false) {
-    const needEasy = forceEasy || countEasyQuests() < 2;
+    const needEasy = forceEasy || userLevel <= 5 || countEasyQuests() < 2;
     const npc = NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)];
     const twoItemChance = Math.min(QUEST_MULTI_BASE_CHANCE + userLevel * QUEST_MULTI_LEVEL_FACTOR, QUEST_MULTI_MAX_CHANCE);
     const cnt = Math.random() < twoItemChance ? 2 : 1;
@@ -445,7 +445,7 @@ function handleCellClick(zone, idx) {
             showToast(`${targetData.name} 미션 완료! 칸 해제!`);
             updateAll();
         } else {
-            showToast(`${targetData.name}를 만들어주세요!`);
+            openGuideForItem(it.target, it.reqLevel);
         }
     } else if (it.type === 'quest_count_mission') {
         const done = totalQuestsCompleted >= it.reqCount;
@@ -551,6 +551,7 @@ function checkEnergyAfterUse() {
 }
 
 function openEnergyPopup() {
+    playSound('click');
     const price = getEnergyPrice();
     document.getElementById('popup-coin-val').innerText = coins.toLocaleString();
     document.getElementById('energy-price').innerText = price;

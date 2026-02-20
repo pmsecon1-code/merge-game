@@ -38,7 +38,7 @@ function renderGrid(zone, state, cont) {
                 const done = totalQuestsCompleted >= item.reqCount;
                 c.classList.add('upgrade-mission-cell');
                 if (done) c.classList.add('done');
-                c.innerHTML = `<div>${done ? '<img src="images/icons/check.png" class="icon icon-md">' : '<img src="images/icons/clipboard.png" class="icon icon-md">'}</div><div class="text-[8px] font-bold text-center">퀘스트<br>${totalQuestsCompleted}/${item.reqCount}</div>`;
+                c.innerHTML = `<div>${done ? '<img src="images/icons/check.png" class="icon icon-md">' : '<img src="images/icons/clipboard.png" class="icon icon-md">'}</div><div class="text-[8px] font-bold text-center">퀘스트 완료<br>${totalQuestsCompleted}/${item.reqCount}</div>`;
             } else if (item.type === 'boss') {
                 const bossData = storyProgress.bosses.find(b => b.bossId === item.bossId);
                 const imgData = STORY_IMAGES.find(si => si.ep === item.bossId && si.isLastInEp);
