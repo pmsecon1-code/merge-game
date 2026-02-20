@@ -5,7 +5,7 @@
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.29.0
+- **버전**: 4.31.1
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -14,23 +14,23 @@
 
 ```
 merge2/
-├── index.html          # 메인 HTML (~649줄)
+├── index.html          # 메인 HTML (~684줄)
 ├── css/
-│   └── styles.css      # 모든 CSS (~2021줄)
+│   └── styles.css      # 모든 CSS (~1821줄)
 ├── js/
-│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~632줄)
-│   ├── state.js        # 전역 변수 + DOM 참조 (~133줄)
-│   ├── auth.js         # 인증 + 세션 + 회원탈퇴 (~177줄)
-│   ├── save.js         # 저장/로드/검증/클램핑/진단 (~713줄)
-│   ├── game.js         # 코어 게임 메커닉 (~891줄)
-│   ├── systems.js      # 7행미션/주사위 여행/상점 (~438줄)
+│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~621줄)
+│   ├── state.js        # 전역 변수 + DOM 참조 (~132줄)
+│   ├── auth.js         # 인증 + 세션 + 회원탈퇴 (~180줄)
+│   ├── save.js         # 저장/로드/검증/클램핑/진단 (~714줄)
+│   ├── game.js         # 코어 게임 메커닉 (~968줄)
+│   ├── systems.js      # 7행미션/주사위 여행/상점 (~444줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~243줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1069줄)
 │   ├── sound.js        # 사운드 시스템 (효과음+BGM) (~419줄)
-│   ├── story.js        # 스토리 이미지 갤러리 시스템 (~319줄)
+│   ├── story.js        # 스토리 이미지 갤러리 시스템 (~325줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~194줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~754줄)
-│   └── main.js         # 초기화 + 타이머 (~299줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~833줄)
+│   └── main.js         # 초기화 + 타이머 (~315줄)
 ├── images/
 │   ├── icons/          # UI 아이콘 27종 (128×128 PNG)
 │   ├── effects/        # 이펙트 아이콘 3종
@@ -57,7 +57,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → sound → **story** → ui → tutorial → main
 
-**총 JS**: ~6281줄, **함수**: ~162개
+**총 JS**: ~6457줄, **함수**: ~186개
 
 ---
 
@@ -107,15 +107,16 @@ merge2/
 [즉시 로그아웃] → 로그인 화면
 ```
 
-### 관련 함수 (auth.js)
+### 관련 함수 (auth.js, 9개)
 | 함수 | 역할 |
 |------|------|
-| `startGoogleLogin()` | Google 팝업 로그인 |
-| `handleGoogleLogin()` | 로그아웃 버튼 |
-| `deleteAccount()` | 회원탈퇴 (Firestore+Auth 삭제) |
+| `generateSessionId()` | 세션 ID 생성 |
 | `registerSession()` | Firestore 세션 등록 |
 | `startSessionListener()` | onSnapshot 실시간 감시 |
 | `stopSessionListener()` | 리스너 해제 |
+| `startGoogleLogin()` | Google 팝업 로그인 |
+| `handleGoogleLogin()` | 로그아웃 버튼 |
+| `deleteAccount()` | 회원탈퇴 (Firestore+Auth 삭제) |
 | `showLoginScreen()` / `showGameScreen()` | 화면 전환 |
 
 ---
@@ -135,7 +136,7 @@ merge2/
 ### 저장 데이터 구조
 ```javascript
 {
-  // 보드 (아이템: {type, level} | 생성기: {type, clicks, cooldown} | 저금통: {type:'piggy_bank', coins, openAt} | 보스: {type:'boss', bossId})
+  // 보드 (아이템: {type, level} | 생성기: {type, clicks, cooldown} | 저금통: {type:'piggy_bank', coins, openAt} | 보스: {type:'boss', bossId} | 버블: {type:'bubble', itemType, itemLevel, expiresAt})
   boardState: [{type, level}, ...],      // 35칸
   storageState: [{type, level}, ...],    // 5칸
 
@@ -355,22 +356,23 @@ ALBUM_CYCLE_MS = 42일        // 초기화 주기
 - **미발견 사진**: opacity 0.5, 등급 테두리색 유지 (grayscale 없음)
 - **테마 미니칩**: 1행 9열 그리드, 완성 테마 금색 배경, 클릭 시 해당 테마 앨범 모달 오픈
 
-### 관련 함수 (album.js, 14개)
+### 관련 함수 (album.js, 17개)
 | 함수 | 역할 |
 |------|------|
+| `getThemeCollectedCount(themeIdx)` | 테마별 수집 수 계산 |
 | `getRandomPhoto()` | 등급 확률로 랜덤 사진 선택 |
 | `processDrawResult()` | 신규/중복 처리 |
 | `drawPhotos()` | 15카드 소비 → 3장 뽑기 |
 | `openPhotoDraw()` / `closePhotoDraw()` | 뽑기 팝업 |
-| `checkAlbumReset()` | 21일 주기 초기화 |
+| `checkAlbumReset()` | 42일 주기 초기화 |
 | `openAlbum()` / `closeAlbum()` | 앨범 모달 |
 | `renderAlbumTabs()` | 테마 탭 (진행도) |
 | `switchAlbumTheme()` | 테마 전환 |
 | `renderAlbumGrid()` | 3×3 사진 그리드 |
 | `checkThemeComplete()` | 테마 완성 → 500🪙 |
-| `checkAlbumAllComplete()` | 전체 완성 → 100💎 + 리셋 |
+| `checkAlbumAllComplete()` | 전체 완성 → 500💎 + 리셋 |
 | `getAlbumProgress()` | 수집 수 계산 |
-| `getThemeCollectedCount(themeIdx)` | 테마별 수집 수 계산 |
+| `formatAlbumTimer()` | 앨범 리셋 타이머 포맷 |
 | `updateAlbumBarUI()` | 앨범바 + 상단바 카드 업데이트 |
 
 ---
@@ -805,23 +807,23 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 
 ## 주요 함수 목록 (파일별)
 
-### game.js (30개)
-`discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `addCoins`, `spawnPiggyBank`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `adEnergy`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
+### game.js (36개)
+`addCoins`, `spawnPiggyBank`, `discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `removeQuestItems`, `handleLevelUp`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `spawnBubble`, `showBubblePopup`, `openBubbleByAd`, `openBubbleByDiamond`, `adEnergy`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
 
 ### systems.js (19개)
 `hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`
 
-### ui.js (33개)
-`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `showError`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuideForItem`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `updateUpgradeUI`, `upgradeGenerator`, `updateDailyMissionUI`, `toggleBottomTab`, `updateBottomBadges`
+### ui.js (35개)
+`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showError`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuideForItem`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `getGenSpawnLevels`, `renderSpawnPreview`, `updateUpgradeUI`, `upgradeGenerator`, `toggleBottomTab`, `updateBottomBadges`, `updateDailyMissionUI`
 
-### race.js (30개)
-`generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `findActiveOrPendingRace`, `joinRaceByCode`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `quickJoinRace`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `submitRaceCode`, `validateCurrentRace`, `initRace`
+### race.js (32개)
+`generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `joinRaceByCode`, `findActiveOrPendingRace`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `quickJoinRace`, `submitRaceCode`, `validateCurrentRace`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `initRace`
 
 ### sound.js (9개)
 `initSound`, `unlockAudio`, `createSynthSound`, `playSound`, `playBGM`, `stopBGM`, `toggleSound`, `toggleMusic`, `updateSoundUI`
 
-### story.js (19개)
-`getNextStoryImage`, `checkStoryQuests`, `activateImageQuest`, `completeImageQuest`, `spawnBossOnBoard`, `trySpawnPendingBoss`, `dealBoardBossDamage`, `defeatBoardBoss`, `createBossItem`, `showBossInfoPopup`, `closeBossInfoPopup`, `showStoryPopup`, `showStorySlide`, `advanceStorySlide`, `closeStoryPopup`, `openStoryGallery`, `renderStoryGallery`, `viewStoryImage`, `updateStoryUI`
+### story.js (20개)
+`getBossHpColor`, `getNextStoryImage`, `checkStoryQuests`, `activateImageQuest`, `completeImageQuest`, `spawnBossOnBoard`, `trySpawnPendingBoss`, `dealBoardBossDamage`, `defeatBoardBoss`, `createBossItem`, `showBossInfoPopup`, `closeBossInfoPopup`, `showStoryPopup`, `showStorySlide`, `advanceStorySlide`, `closeStoryPopup`, `openStoryGallery`, `renderStoryGallery`, `viewStoryImage`, `updateStoryUI`
 
 ### tutorial.js (10개)
 `startTutorial`, `showTutorialStep`, `positionSpotlight`, `positionBubble`, `advanceTutorial`, `completeTutorial`, `isTutorialClickAllowed`, `findSameLevelPair`, `findReadyQuestBtn`, `repositionTutorial`
@@ -837,7 +839,7 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 `GRID_COLS=5`, `GRID_ROWS=7`, `BOARD_SIZE=35`, `STORAGE_SIZE=5`, `SHOP_SIZE=5`
 
 ### 밸런스
-`MAX_ENERGY=100`, `RECOVERY_SEC=30`, `SHOP_REFRESH_MS=300000`, `UNLOCK_COST_BOARD=100`, `SNACK_CHANCE=0.08`
+`MAX_ENERGY=100`, `RECOVERY_SEC=30`, `SHOP_REFRESH_MS=300000`, `UNLOCK_COST_BOARD=100`, `SNACK_CHANCE=0.08`, `AD_ENERGY_AMOUNT=30`
 
 ### 저금통
 `PIGGY_BANK_TIMER_MS=3600000`, `PIGGY_BANK_MIN_COINS=100`, `PIGGY_BANK_MAX_COINS=200`
@@ -858,14 +860,20 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 유저 이름 (v4.25.2)
 `MAX_NAME_LENGTH=6`, `getDisplayName(user)` → 첫 단어 기준 최대 6자
 
+### 생성기
+`CAGE_UPGRADE_COST=1000`, `CAGE_MAX_LEVEL=5`, `GENERATOR_MAX_CLICKS=6`, `GENERATOR_COOLDOWN_MS=60000`
+
+### 버블 아이템 (v4.30.0)
+`BUBBLE_MIN_LEVEL=4`, `BUBBLE_CHANCE=0.05`, `BUBBLE_EXPIRE_MS=180000`, `BUBBLE_DIAMOND_PER_LEVEL=10`
+
 ### 스토리 갤러리 (v4.29.0)
 `STORY_UNLOCK_LEVEL=5`, `STORY_BOSS_HP_BASE=500`, `STORY_IMAGES`(24항목, EP.1~7)
 
 ### 스페셜 생성기 업그레이드 (v4.31.0)
 `SPECIAL_UPGRADE_COST=1500`, `SPECIAL_COOLDOWNS=[300000,240000,180000,120000,60000]` (Lv.1~5: 5분→1분), `getSpecialCooldown(type)`
 
-### 헬퍼 함수 (6개)
-`getItemList`, `getMaxLevel`, `getItemData`, `formatMinSec`, `getDisplayName`, `getSpecialCooldown`
+### 헬퍼 함수 (10개)
+`getItemList`, `getMaxLevel`, `getItemData`, `getDisplayName`, `formatMinSec`, `getSpecialCooldown`, `getLevelUpGoal`, `getLevelUpReward`, `getKSTDateString`, `getMsUntilKSTMidnight`
 
 ---
 
@@ -913,6 +921,24 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 신규 HTML: `#upg-catdog-section`, `#upg-special-section` (업그레이드 UI 분리), `#upg-cost` (동적 비용)
 - 수정 함수: `triggerGen()` (game.js - 동적 쿨다운), `createItem()` (ui.js - 레벨 라벨+mm:ss 포맷), `updateUpgradeUI()` (ui.js - 섹션 분기), `upgradeGenerator()` (ui.js - 스페셜 비용), `applyGameData()` (save.js - 5타입 호환), `initNewGame()` (save.js - 5타입 초기화)
 - 캐시 버스팅: `?v=4.30.0` → `?v=4.31.0`
+
+### v4.30.0 (2026-02-19) - 버블 아이템 시스템 + 코드 리팩토링
+- 🫧 **버블 아이템 시스템** 추가
+  - 합성 결과 Lv.4+ 시 5% 확률로 버블 아이템 스폰 (스페셜 타입 제외)
+  - 버블 = 합성 결과와 같은 타입/레벨 아이템이 담긴 캡슐
+  - 3분 제한 시간 (만료 시 자동 소멸)
+  - 획득 방법: 광고 시청(무료) 또는 다이아(레벨×10💎) 구매
+  - 합성/판매/이동 불가, 보드 위에서만 존재
+- 🔧 **코드 리팩토링** (v4.30.0)
+  - `removeQuestItems()` 헬퍼 추출 (completeQuest에서 분리)
+  - `handleLevelUp()` 헬퍼 추출 (completeQuest에서 분리)
+  - `getGenSpawnLevels()`, `renderSpawnPreview()` 헬퍼 추출 (ui.js)
+- 🐛 **스페셜 타입 버블 생성 차단** (bird/fish/reptile)
+- 수정 파일: js/game.js, js/ui.js, js/constants.js, js/save.js, index.html, css/styles.css, eslint.config.js
+- 신규 상수 (4개): `BUBBLE_MIN_LEVEL`, `BUBBLE_CHANCE`, `BUBBLE_EXPIRE_MS`, `BUBBLE_DIAMOND_PER_LEVEL`
+- 신규 함수 (6개): `spawnBubble`, `showBubblePopup`, `openBubbleByAd`, `openBubbleByDiamond`, `removeQuestItems`, `handleLevelUp` (game.js)
+- 신규 함수 (2개): `getGenSpawnLevels`, `renderSpawnPreview` (ui.js)
+- 캐시 버스팅: `?v=4.29.1` → `?v=4.30.0`
 
 ### v4.29.0 (2026-02-19) - 스토리 시스템 전면 리디자인
 - 📖 **스토리 시스템 전면 리디자인** (v4.28.0 챕터/에피소드 구조 폐기)
