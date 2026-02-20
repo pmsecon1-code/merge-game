@@ -135,6 +135,7 @@ export default [
                 cloudSavePromise: 'writable',
                 pendingCloudData: 'writable',
                 energyPopupTimer: 'writable',
+                isDeletingAccount: 'writable',
                 currentUser: 'writable',
                 currentSessionId: 'writable',
                 sessionUnsubscribe: 'writable',

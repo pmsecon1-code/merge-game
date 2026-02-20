@@ -99,6 +99,7 @@ let pendingCloudData = null;
 let energyPopupTimer = null;
 
 // --- 세션 ---
+let isDeletingAccount = false;
 let currentUser = null;
 let currentSessionId = null;
 let sessionUnsubscribe = null;

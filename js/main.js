@@ -184,6 +184,7 @@ auth.getRedirectResult()
 // --- 로그인 상태 변경 감지 ---
 auth.onAuthStateChanged(async (user) => {
     console.log('[Auth] State changed:', user ? user.email : 'logged out');
+    if (isDeletingAccount) return;
 
     if (user) {
         try {
