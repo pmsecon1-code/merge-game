@@ -672,8 +672,9 @@ function moveItem(fz, fi, tz, ti) {
             if (tutorialStep <= 0) tryDropDice();
             // 보스 데미지 (합성 레벨 비례)
             dealBoardBossDamage(newLv);
-            // 버블 스폰 (Lv.4+ 합성, 5%, 튜토리얼 중 스킵)
-            if (newLv >= BUBBLE_MIN_LEVEL && tutorialStep <= 0 && Math.random() < BUBBLE_CHANCE) {
+            // 버블 스폰 (Lv.4+ 합성, 5%, 튜토리얼/스페셜 타입 스킵)
+            const isSpecialType = ['bird', 'fish', 'reptile'].includes(fIt.type);
+            if (newLv >= BUBBLE_MIN_LEVEL && tutorialStep <= 0 && !isSpecialType && Math.random() < BUBBLE_CHANCE) {
                 spawnBubble(fIt.type, newLv);
             }
             // 튜토리얼 Step 3 합성 완료 훅
