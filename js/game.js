@@ -12,7 +12,7 @@ function addCoins(amount) {
 // --- 저금통 스폰 헬퍼 ---
 function spawnPiggyBank(toastPrefix) {
     const piggyCoins = PIGGY_BANK_MIN_COINS + Math.floor(Math.random() * (PIGGY_BANK_MAX_COINS - PIGGY_BANK_MIN_COINS + 1));
-    const piggyIdx = boardState.findIndex((x, i) => x === null && i < 30);
+    const piggyIdx = boardState.findIndex((x, i) => x === null && i < BOARD_MISSION_START);
     if (piggyIdx !== -1) {
         boardState[piggyIdx] = { type: 'piggy_bank', coins: piggyCoins, openAt: Date.now() + PIGGY_BANK_TIMER_MS };
         showToast(`${toastPrefix}${ICON.piggy} 저금통 획득!`);
@@ -117,48 +117,60 @@ function trySpawnSpecialGenerator() {
     }
 }
 
+// --- 퀘스트 아이템 제거 헬퍼 ---
+function removeQuestItems(reqs) {
+    const rem = [...reqs];
+    const del = (arr) => {
+        for (let j = 0; j < arr.length; j++) {
+            if (rem.length === 0) break;
+            const it = arr[j];
+            if (it && !it.type.includes('locked') && !it.type.includes('generator')) {
+                const idx = rem.findIndex((r) => r.type === it.type && r.level === it.level);
+                if (idx !== -1) {
+                    arr[j] = null;
+                    rem.splice(idx, 1);
+                }
+            }
+        }
+    };
+    del(boardState);
+    if (rem.length > 0) del(storageState);
+}
+
+// --- 레벨업 처리 ---
+function handleLevelUp() {
+    if (questProgress < getLevelUpGoal(userLevel)) return;
+    const reward = getLevelUpReward(userLevel);
+    userLevel++;
+    questProgress = 0;
+    diamonds += reward;
+    document.getElementById('levelup-num').innerText = userLevel;
+    document.getElementById('levelup-reward').innerText = reward;
+    openOverlay('levelup-overlay');
+    playSound('levelup');
+    setTimeout(() => closeOverlay('levelup-overlay'), 2000);
+    checkToyGeneratorUnlock();
+    // 레벨업 후 스페셜 퀘스트 추가 체크 (10개 상한)
+    if (!quests.some((qq) => qq.isSpecial) && quests.length < 10) {
+        const sp = generateSpecialQuest();
+        if (sp) quests.push(sp);
+    }
+    // 레벨업 후 스토리 퀘스트 체크
+    checkStoryQuests();
+}
+
 function completeQuest(i) {
     const q = quests[i];
 
     if (q.isStory) {
         // --- 스토리 퀘스트 완료 ---
-        const rem = [...q.reqs];
-        const delArr = (arr) => {
-            for (let j = 0; j < arr.length; j++) {
-                if (rem.length === 0) break;
-                const it = arr[j];
-                if (it && !it.type.includes('locked') && !it.type.includes('generator')) {
-                    const idx = rem.findIndex((r) => r.type === it.type && r.level === it.level);
-                    if (idx !== -1) {
-                        arr[j] = null;
-                        rem.splice(idx, 1);
-                    }
-                }
-            }
-        };
-        delArr(boardState);
-        if (rem.length > 0) delArr(storageState);
+        removeQuestItems(q.reqs);
         playSound('quest_complete');
-        // 퀘스트 제거
         quests.splice(i, 1);
-        // 진행도 증가 (레벨업/일일미션 카운트에 포함)
         questProgress++;
         totalQuestsCompleted++;
         checkAutoCompleteMissions();
-        // 레벨업 체크
-        if (questProgress >= getLevelUpGoal(userLevel)) {
-            const reward = getLevelUpReward(userLevel);
-            userLevel++;
-            questProgress = 0;
-            diamonds += reward;
-            document.getElementById('levelup-num').innerText = userLevel;
-            document.getElementById('levelup-reward').innerText = reward;
-            openOverlay('levelup-overlay');
-            playSound('levelup');
-            setTimeout(() => closeOverlay('levelup-overlay'), 2000);
-            checkToyGeneratorUnlock();
-        }
-        // 이미지 해제 + 슬라이드쇼 + 보스 스폰
+        handleLevelUp();
         completeImageQuest(q.storyImageId);
         updateAll();
         return;
@@ -167,43 +179,24 @@ function completeQuest(i) {
     if (q.isSpecial) {
         // --- 스페셜 퀘스트 완료 ---
         const type = q.reqs[0].type;
-        // 보드에서 동물 + 생성기 제거
         for (let j = 0; j < BOARD_SIZE; j++) {
             if (boardState[j] && (boardState[j].type === type || boardState[j].type === `${type}_generator`))
                 boardState[j] = null;
         }
-        // 창고에서 동물 + 생성기 제거
         for (let j = 0; j < STORAGE_SIZE; j++) {
             if (storageState[j] && (storageState[j].type === type || storageState[j].type === `${type}_generator`))
                 storageState[j] = null;
         }
-        // 상점에서 해당 타입 교체
         for (let j = 0; j < SHOP_SIZE; j++) {
             if (shopItems[j] && shopItems[j].type && shopItems[j].type.includes(type))
                 shopItems[j] = generateRandomShopItem(getActiveTypes());
         }
         renderShop();
-        // 스페셜 퀘스트 완료 시 저금통 스폰 (코인 직접 지급 없음)
         spawnPiggyBank('');
         playSound('quest_complete');
     } else {
         // --- 일반 퀘스트 완료 ---
-        const rem = [...q.reqs];
-        const delArr = (arr) => {
-            for (let j = 0; j < arr.length; j++) {
-                if (rem.length === 0) break;
-                const it = arr[j];
-                if (it && !it.type.includes('locked') && !it.type.includes('generator')) {
-                    const idx = rem.findIndex((r) => r.type === it.type && r.level === it.level);
-                    if (idx !== -1) {
-                        arr[j] = null;
-                        rem.splice(idx, 1);
-                    }
-                }
-            }
-        };
-        delArr(boardState);
-        if (rem.length > 0) delArr(storageState);
+        removeQuestItems(q.reqs);
         if (q.piggyReward) {
             spawnPiggyBank('완료! ');
         } else if (q.cardReward > 0) {
@@ -220,27 +213,7 @@ function completeQuest(i) {
     questProgress++;
     totalQuestsCompleted++;
     checkAutoCompleteMissions();
-
-    // 레벨업 체크
-    if (questProgress >= getLevelUpGoal(userLevel)) {
-        const reward = getLevelUpReward(userLevel);
-        userLevel++;
-        questProgress = 0;
-        diamonds += reward;
-        document.getElementById('levelup-num').innerText = userLevel;
-        document.getElementById('levelup-reward').innerText = reward;
-        openOverlay('levelup-overlay');
-        playSound('levelup');
-        setTimeout(() => {
-            closeOverlay('levelup-overlay');
-        }, 2000);
-        checkToyGeneratorUnlock();
-        // 레벨업 후 스페셜 퀘스트 추가 체크 (10개 상한)
-        if (!quests.some((qq) => qq.isSpecial) && quests.length < 10) {
-            const sp = generateSpecialQuest();
-            if (sp) quests.push(sp);
-        }
-    }
+    handleLevelUp();
 
     // 퀘스트 제거 및 새 퀘스트 생성
     quests.splice(i, 1);
@@ -462,9 +435,11 @@ function handleCellClick(zone, idx) {
             s[idx] = null;
             const cell = zone === 'board' ? boardEl.children[idx] : storageEl.children[idx];
             if (cell) spawnParticles(cell);
+            playSound('error');
             showToast('버블이 사라졌어요!');
             updateAll();
         } else {
+            playSound('click');
             showBubblePopup(zone, idx);
         }
     } else if (it.type === 'boss') {
@@ -798,9 +773,10 @@ function claimDailyBonus() {
 
 // --- 버블 스폰 ---
 function spawnBubble(type, level) {
-    const emptyIdx = boardState.findIndex((x, i) => x === null && i < 30);
+    const emptyIdx = boardState.findIndex((x, i) => x === null && i < BOARD_MISSION_START);
     if (emptyIdx === -1) return;
     boardState[emptyIdx] = { type: 'bubble', itemType: type, itemLevel: level, expiresAt: Date.now() + BUBBLE_EXPIRE_MS };
+    playSound('dice_drop');
     showToast('🫧 버블 발견!');
 }
 
@@ -814,11 +790,11 @@ function showBubblePopup(zone, idx) {
     const itemData = getItemData(it.itemType, it.itemLevel);
     const cost = it.itemLevel * BUBBLE_DIAMOND_PER_LEVEL;
     document.getElementById('bubble-item-preview').innerHTML = itemData
-        ? `<img src="${itemData.img}" style="width:64px;height:64px;object-fit:contain"><div class="text-sm font-bold mt-1">${itemData.name} Lv.${it.itemLevel}</div>`
+        ? `<img src="${itemData.img}" style="width:80px;height:80px;object-fit:contain"><div class="text-sm font-bold mt-1">${itemData.name} Lv.${it.itemLevel}</div>`
         : '<div class="text-2xl">?</div>';
     const rem = Math.max(0, it.expiresAt - Date.now());
     document.getElementById('bubble-timer-text').innerText = `${formatMinSec(rem)} 후 사라집니다`;
-    document.getElementById('bubble-diamond-btn').innerHTML = `${cost}${ICON.diamond}`;
+    document.getElementById('bubble-diamond-btn').innerHTML = `구매 ${cost}${ICON.diamond}`;
     openOverlay('bubble-popup');
 }
 

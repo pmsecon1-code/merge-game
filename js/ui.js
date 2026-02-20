@@ -793,10 +793,6 @@ function updateDailyMissionUI() {
 
     // 리셋 타이머 (KST 자정 기준)
     if (dailyResetTimer) {
-        const remaining = getMsUntilKSTMidnight();
-        const h = Math.floor(remaining / 3600000);
-        const m = Math.floor((remaining % 3600000) / 60000);
-        const s = Math.floor((remaining % 60000) / 1000);
-        dailyResetTimer.innerText = `리셋 ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        dailyResetTimer.innerText = '리셋 ' + formatTime(getMsUntilKSTMidnight());
     }
 }

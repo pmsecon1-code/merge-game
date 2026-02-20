@@ -55,10 +55,10 @@ function getDisplayName(user) {
 
 // --- 그리드 설정 ---
 const GRID_COLS = 5;
-const GRID_ROWS = 7;
 const BOARD_SIZE = 35;
 const STORAGE_SIZE = 5;
 const SHOP_SIZE = 5;
+const BOARD_MISSION_START = BOARD_SIZE - GRID_COLS; // 7행 미션 시작 인덱스 (30)
 
 // --- 시간 설정 (밀리초) ---
 const SHOP_REFRESH_MS = 300000; // 5분
@@ -562,32 +562,6 @@ function getItemData(type, level) {
     const list = getItemList(type);
     if (!list) return null;
     return list.find((item) => item.level === level) || null;
-}
-
-/**
- * 생성기 이름 반환
- */
-function getGeneratorName(type) {
-    const names = {
-        cat: '캣타워',
-        dog: '개집',
-        bird: '새장',
-        fish: '어항',
-        reptile: '사육장',
-    };
-    return names[type] || type;
-}
-
-/**
- * 스페셜 타입 한글 이름
- */
-function getSpecialTypeName(type) {
-    const names = {
-        bird: '새',
-        fish: '물고기',
-        reptile: '파충류',
-    };
-    return names[type] || type;
 }
 
 // ============================================

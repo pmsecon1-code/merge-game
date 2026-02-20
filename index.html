@@ -382,13 +382,20 @@
         <div id="bubble-popup" class="overlay-bg" style="display:none">
             <input type="hidden" id="bubble-zone" />
             <input type="hidden" id="bubble-idx" />
-            <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-cyan-400">
-                <div id="bubble-item-preview" class="mb-3"></div>
-                <h2 class="text-xl font-bold mb-1">🫧 버블 발견!</h2>
-                <p id="bubble-timer-text" class="text-sm text-gray-500 mb-3"></p>
+            <div class="overlay-content bg-white p-6 rounded-2xl shadow-xl border-4 border-cyan-400 text-center">
+                <div id="bubble-item-preview" class="mb-3 flex flex-col items-center"></div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">🫧 버블 발견!</h2>
+                <p id="bubble-timer-text" class="text-sm text-gray-500 mb-2"></p>
+                <p class="text-xs text-cyan-600 mb-4">광고 시청 또는 다이아로 해제할 수 있습니다</p>
+                <button
+                    onclick="openBubbleByAd()"
+                    class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-2 rounded-lg font-bold shadow-md mb-2"
+                    style="border:2px solid #10b981; box-shadow:0 0 8px rgba(16,185,129,0.5)"
+                >
+                    <img src="images/icons/tv.png" class="icon icon-sm"> 광고 시청 → 즉시 해제
+                </button>
                 <div class="flex gap-2 justify-center">
                     <button onclick="closeOverlay('bubble-popup')" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold">취소</button>
-                    <button onclick="openBubbleByAd()" class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold shadow-md">📺 광고</button>
                     <button id="bubble-diamond-btn" onclick="openBubbleByDiamond()" class="bg-purple-500 text-white px-4 py-2 rounded-lg font-bold shadow-md">40💎</button>
                 </div>
             </div>

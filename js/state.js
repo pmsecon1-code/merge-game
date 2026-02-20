@@ -32,8 +32,6 @@ let totalQuestsCompleted = 0;
 let genLevels = { cat: 1, dog: 1 },
     dragData = null;
 
-// --- (삭제됨: 룰렛) ---
-
 // --- 도감/상점/판매 ---
 let currentGuideType = 'cat',
     currentGuideTab = 'animal',

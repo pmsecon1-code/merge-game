@@ -311,7 +311,7 @@ function migrateRow7Missions() {
         boardState[33] = null;
     }
     if (totalQuestsCompleted < QUEST_COUNT_MISSION_GOAL && boardState[34] !== null && boardState[34]?.type !== 'quest_count_mission') {
-        boardState[34] = { type: 'quest_count_mission', reqCount: 100 };
+        boardState[34] = { type: 'quest_count_mission', reqCount: QUEST_COUNT_MISSION_GOAL };
     }
 }
 
@@ -411,7 +411,7 @@ function clampSaveData(data) {
     // 배열 크기 클램핑 (Firestore rules 제한)
     const arrClamps = [
         ['boardState', 35],
-        ['storageState', 10],
+        ['storageState', STORAGE_SIZE],
         ['quests', 10],
         ['shopItems', 10],
         ['discoveredItems', 100],
@@ -685,7 +685,7 @@ function initNewGame() {
     boardState[31] = { type: 'upgrade_mission', target: 'dog', reqLevel: 2 };
     boardState[32] = { type: 'animal_mission', target: 'cat', reqLevel: 11 };
     boardState[33] = { type: 'animal_mission', target: 'dog', reqLevel: 11 };
-    boardState[34] = { type: 'quest_count_mission', reqCount: 100 };
+    boardState[34] = { type: 'quest_count_mission', reqCount: QUEST_COUNT_MISSION_GOAL };
 
     refreshShop();
 

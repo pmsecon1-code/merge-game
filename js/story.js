@@ -2,6 +2,13 @@
 // story.js - 스토리 이미지 갤러리 시스템
 // ============================================
 
+// --- 보스 HP 색상 헬퍼 ---
+function getBossHpColor(pct) {
+    if (pct <= 25) return '#ef4444';
+    if (pct <= 50) return '#eab308';
+    return '#22c55e';
+}
+
 // --- 다음 해제 가능 이미지 조회 ---
 function getNextStoryImage() {
     return STORY_IMAGES.find(img =>
@@ -72,6 +79,8 @@ function completeImageQuest(imageId) {
             showToast(`${img.reward.coins || 0}${ICON.coin} 획득!`);
             // 다음 퀘스트 체크
             checkStoryQuests();
+            // 갤러리 열기
+            openStoryGallery();
         }
     );
     saveGame();
@@ -83,7 +92,7 @@ function spawnBossOnBoard(epNumber) {
     const bossData = { bossId: epNumber, hp: hp, maxHp: hp, boardIdx: -1 };
 
     // 빈 칸 찾기 (7행 미션 제외, i < 30)
-    const emptyIdx = boardState.findIndex((x, i) => x === null && i < 30);
+    const emptyIdx = boardState.findIndex((x, i) => x === null && i < BOARD_MISSION_START);
     if (emptyIdx !== -1) {
         boardState[emptyIdx] = { type: 'boss', bossId: epNumber };
         bossData.boardIdx = emptyIdx;
@@ -104,7 +113,7 @@ function spawnBossOnBoard(epNumber) {
 function trySpawnPendingBoss() {
     if (storyProgress.pendingBoss === null) return;
     const ep = storyProgress.pendingBoss;
-    const emptyIdx = boardState.findIndex((x, i) => x === null && i < 30);
+    const emptyIdx = boardState.findIndex((x, i) => x === null && i < BOARD_MISSION_START);
     if (emptyIdx !== -1) {
         boardState[emptyIdx] = { type: 'boss', bossId: ep };
         // bosses에서 해당 보스 boardIdx 갱신
@@ -167,9 +176,7 @@ function createBossItem(item, bossData, imgData) {
     const d = document.createElement('div');
     d.className = 'item boss-board-item';
     const pct = bossData ? (bossData.hp / bossData.maxHp) * 100 : 100;
-    let hpColor = '#22c55e';
-    if (pct <= 25) hpColor = '#ef4444';
-    else if (pct <= 50) hpColor = '#eab308';
+    const hpColor = getBossHpColor(pct);
     d.innerHTML = `
         <div class="bg-circle" style="background-color:#fee2e2"></div>
         <img src="${imgData?.bossImg || 'images/story/boss_shadow.png'}" style="width:80%;height:80%;object-fit:contain;position:relative;z-index:1">
@@ -187,9 +194,7 @@ function showBossInfoPopup(bossData, imgData) {
     const name = imgData?.bossName || '보스';
     const bossImg = imgData?.bossImg || 'images/story/boss_shadow.png';
     const pct = Math.round((bossData.hp / bossData.maxHp) * 100);
-    let hpColor = '#22c55e';
-    if (pct <= 25) hpColor = '#ef4444';
-    else if (pct <= 50) hpColor = '#eab308';
+    const hpColor = getBossHpColor(pct);
 
     const popup = document.getElementById('boss-info-popup');
     if (!popup) return;
@@ -300,7 +305,7 @@ function viewStoryImage(imageId) {
         [{ img: img.img, text: img.text }],
         'images/cats/cat1.png',
         `EP.${img.ep} "${img.title}"`,
-        null
+        () => openStoryGallery()
     );
 }
 
