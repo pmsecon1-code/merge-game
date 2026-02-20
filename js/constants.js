@@ -79,6 +79,15 @@ const RECOVERY_SEC = 30;
 // --- 비용 설정 ---
 const UNLOCK_COST_BOARD = 100;
 const CAGE_UPGRADE_COST = 1000;
+const SPECIAL_UPGRADE_COST = 1500;
+
+// --- 스페셜 생성기 쿨다운 (Lv.1~5) ---
+const SPECIAL_COOLDOWNS = [300000, 240000, 180000, 120000, 60000]; // 5분→1분
+
+function getSpecialCooldown(type) {
+    const lv = (genLevels && genLevels[type]) || 1;
+    return SPECIAL_COOLDOWNS[lv - 1] || SPECIAL_COOLDOWNS[0];
+}
 
 // --- 게임 밸런스 ---
 const CAGE_MAX_LEVEL = 5;

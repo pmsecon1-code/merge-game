@@ -10,8 +10,8 @@ function addCoins(amount) {
 }
 
 // --- 저금통 스폰 헬퍼 ---
-function spawnPiggyBank(toastPrefix) {
-    const piggyCoins = PIGGY_BANK_MIN_COINS + Math.floor(Math.random() * (PIGGY_BANK_MAX_COINS - PIGGY_BANK_MIN_COINS + 1));
+function spawnPiggyBank(toastPrefix, minCoins = PIGGY_BANK_MIN_COINS, maxCoins = PIGGY_BANK_MAX_COINS) {
+    const piggyCoins = minCoins + Math.floor(Math.random() * (maxCoins - minCoins + 1));
     const piggyIdx = boardState.findIndex((x, i) => x === null && i < BOARD_MISSION_START);
     if (piggyIdx !== -1) {
         boardState[piggyIdx] = { type: 'piggy_bank', coins: piggyCoins, openAt: Date.now() + PIGGY_BANK_TIMER_MS };
@@ -59,9 +59,9 @@ function generateNewQuest(forceEasy = false) {
         const max = isSnack || isToy ? maxLvSnack : maxLvAnimal;
         const lv = Math.floor(Math.random() * (max - min + 1)) + min;
         reqs.push({ type, level: lv });
-        sc += lv * (isSnack || isToy ? 7 : 5);
+        sc += Math.max(30, Math.pow(2, lv - 3));
     }
-    const isPiggyQuest = needEasy && Math.random() < QUEST_PIGGY_CHANCE;
+    const isPiggyQuest = sc >= 200 || (needEasy && Math.random() < QUEST_PIGGY_CHANCE);
     const isCardQuest = !isPiggyQuest && userLevel >= 3 && Math.random() < ALBUM_CARD_CHANCE;
     const cardReward = isCardQuest
         ? ALBUM_CARD_MIN + Math.floor(Math.random() * (ALBUM_CARD_MAX - ALBUM_CARD_MIN + 1))
@@ -70,7 +70,7 @@ function generateNewQuest(forceEasy = false) {
         id: questIdCounter++,
         npc,
         reqs,
-        reward: 10 + sc + Math.floor(Math.random() * 5),
+        reward: sc,
         cardReward,
         piggyReward: isPiggyQuest,
         expiresAt: Date.now() + QUEST_EXPIRE_MS,
@@ -198,7 +198,11 @@ function completeQuest(i) {
         // --- 일반 퀘스트 완료 ---
         removeQuestItems(q.reqs);
         if (q.piggyReward) {
-            spawnPiggyBank('완료! ');
+            if (q.reward >= 200) {
+                spawnPiggyBank('완료! ');
+            } else {
+                spawnPiggyBank('완료! ', 50, 100);
+            }
         } else if (q.cardReward > 0) {
             cards += q.cardReward;
             showToast(`완료! +${q.cardReward}${ICON.card}`);
@@ -477,9 +481,10 @@ function triggerGen(idx, item) {
         if (!spawnItem(baseType, 1, false)) return;
         item.clicks = (item.clicks || 0) + 1;
         if (item.clicks >= GENERATOR_MAX_CLICKS) {
-            item.cooldown = Date.now() + GENERATOR_COOLDOWN_MS;
+            const cd = getSpecialCooldown(baseType);
+            item.cooldown = Date.now() + cd;
             item.clicks = 0;
-            showToast('과열! 1분 휴식');
+            showToast(`과열! ${Math.ceil(cd / 60000)}분 휴식`);
         }
     } else if (baseType === 'toy') {
         if (item.cooldown > Date.now()) {
@@ -850,13 +855,19 @@ function openAdPopup(zone, idx) {
     const isShop = zone === 'shop';
     const mode = isEnergy ? 'energy' : isShop ? 'shop' : isStorage ? 'storage' : 'piggy';
     document.getElementById('ad-piggy-mode').value = mode;
-    document.getElementById('ad-popup-desc').innerHTML = isEnergy
-        ? `광고를 시청하면<br>에너지 <b class="text-yellow-600">${AD_ENERGY_AMOUNT}${ICON.energy}</b>를 받을 수 있습니다!`
-        : isShop
-            ? '광고를 시청하면<br>아이템을 받을 수 있습니다!'
-            : isStorage
-                ? '광고를 시청하면<br>창고 칸을 열 수 있습니다!'
-                : '광고를 시청하면 저금통을<br>즉시 열고 <b class="text-yellow-600">보상 2배</b>!';
+    let adDesc;
+    if (isEnergy) {
+        adDesc = `광고를 시청하면<br>에너지 <b class="text-yellow-600">${AD_ENERGY_AMOUNT}${ICON.energy}</b>를 받을 수 있습니다!`;
+    } else if (isShop) {
+        adDesc = '광고를 시청하면<br>아이템을 받을 수 있습니다!';
+    } else if (isStorage) {
+        adDesc = '광고를 시청하면<br>창고 칸을 열 수 있습니다!';
+    } else {
+        const s = zone === 'board' ? boardState : storageState;
+        const piggyCoins = s[idx]?.coins || 0;
+        adDesc = `광고를 시청하면 저금통을 즉시 열고<br><b class="text-yellow-600">+${piggyCoins * 2}${ICON.coin} (×2)</b> 획득!`;
+    }
+    document.getElementById('ad-popup-desc').innerHTML = adDesc;
     openOverlay('ad-popup');
 }
 

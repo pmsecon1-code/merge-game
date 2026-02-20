@@ -102,7 +102,8 @@ function applyGameData(d) {
         }
     });
     questIdCounter = d.questIdCounter ?? 0;
-    genLevels = d.genLevels || { cat: 1, dog: 1 };
+    const gl = d.genLevels || {};
+    genLevels = { cat: gl.cat || 1, dog: gl.dog || 1, bird: gl.bird || 1, fish: gl.fish || 1, reptile: gl.reptile || 1 };
     shopItems = d.shopItems || shopItems;
     const savedShopRemaining = d.shopNextRefresh ?? SHOP_REFRESH_MS;
     shopNextRefresh = Date.now() + savedShopRemaining;
@@ -647,7 +648,7 @@ function initNewGame() {
     userLevel = 1;
     questProgress = 0;
     quests = [];
-    genLevels = { cat: 1, dog: 1 };
+    genLevels = { cat: 1, dog: 1, bird: 1, fish: 1, reptile: 1 };
     discoveredItems = new Set();
     currentSpecialIndex = 0;
     dailyMissions = {

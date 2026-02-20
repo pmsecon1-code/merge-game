@@ -60,7 +60,7 @@ function createItem(item, zone, index) {
         if (['bird', 'fish', 'reptile', 'toy'].includes(type)) {
             const rem = GENERATOR_MAX_CLICKS - (item.clicks || 0);
             if (item.cooldown > Date.now())
-                specialUI = `<div class="cooldown-overlay"><span><img src="images/icons/sleep.png" class="icon icon-sm"></span><span>${Math.ceil((item.cooldown - Date.now()) / 1000)}s</span></div>`;
+                specialUI = `<div class="cooldown-overlay"><span><img src="images/icons/sleep.png" class="icon icon-sm"></span><span>${formatMinSec(item.cooldown - Date.now())}</span></div>`;
             else specialUI = `<div class="usage-badge">${rem}/6</div>`;
         }
         const genColors = { cat: ['#fff1f2','#f472b6'], dog: ['#fef3c7','#fbbf24'], bird: ['#e0f2fe','#38bdf8'], fish: ['#ccfbf1','#2dd4bf'], reptile: ['#dcfce7','#4ade80'], toy: ['#f3e8ff','#a78bfa'] };
@@ -70,11 +70,11 @@ function createItem(item, zone, index) {
         } else if (type === 'dog') {
             label = `개집 (Lv.${genLevels.dog})`;
         } else if (type === 'bird') {
-            label = '새장';
+            label = `새장 (Lv.${genLevels.bird})`;
         } else if (type === 'fish') {
-            label = '어항';
+            label = `어항 (Lv.${genLevels.fish})`;
         } else if (type === 'reptile') {
-            label = '사육장';
+            label = `사육장 (Lv.${genLevels.reptile})`;
         } else if (type === 'toy') {
             label = '장난감 생성기';
         }
@@ -630,40 +630,63 @@ function updateUpgradeUI() {
     const type = currentGuideType;
     const upgradeContent = document.getElementById('upgrade-content');
     const upgradeMsg = document.getElementById('upgrade-msg');
-    if (type !== 'cat' && type !== 'dog') {
+    const isSpecial = ['bird', 'fish', 'reptile'].includes(type);
+    const isCatDog = type === 'cat' || type === 'dog';
+
+    if (!isCatDog && !isSpecial) {
         if (upgradeContent) upgradeContent.style.display = 'none';
         if (upgradeMsg) upgradeMsg.style.display = 'block';
         return;
     }
     if (upgradeContent) upgradeContent.style.display = 'block';
     if (upgradeMsg) upgradeMsg.style.display = 'none';
+
+    const catdogSection = document.getElementById('upg-catdog-section');
+    const specialSection = document.getElementById('upg-special-section');
     const currentLv = genLevels[type];
     const nextLv = Math.min(currentLv + 1, CAGE_MAX_LEVEL);
-    document.getElementById('upg-current-lv').innerText = currentLv;
-    document.getElementById('upg-current-luck').innerText = 5 + (currentLv - 1);
-    document.getElementById('upg-next-lv').innerText = nextLv;
-    document.getElementById('upg-next-luck').innerText = 5 + (nextLv - 1);
-    // 생성 가능 아이템 미리보기
-    const currentLevels = getGenSpawnLevels(currentLv);
-    renderSpawnPreview('upg-current-spawn', type, currentLv, null);
-    renderSpawnPreview('upg-next-spawn', type, nextLv, currentLevels);
+    const cost = isSpecial ? SPECIAL_UPGRADE_COST : CAGE_UPGRADE_COST;
+
+    document.getElementById('upg-cost').innerText = cost.toLocaleString();
+
+    if (isCatDog) {
+        if (catdogSection) catdogSection.style.display = 'block';
+        if (specialSection) specialSection.style.display = 'none';
+        document.getElementById('upg-current-lv').innerText = currentLv;
+        document.getElementById('upg-current-luck').innerText = 5 + (currentLv - 1);
+        document.getElementById('upg-next-lv').innerText = nextLv;
+        document.getElementById('upg-next-luck').innerText = 5 + (nextLv - 1);
+        const currentLevels = getGenSpawnLevels(currentLv);
+        renderSpawnPreview('upg-current-spawn', type, currentLv, null);
+        renderSpawnPreview('upg-next-spawn', type, nextLv, currentLevels);
+    } else {
+        if (catdogSection) catdogSection.style.display = 'none';
+        if (specialSection) specialSection.style.display = 'block';
+        document.getElementById('upg-sp-current-lv').innerText = currentLv;
+        document.getElementById('upg-sp-next-lv').innerText = nextLv;
+        document.getElementById('upg-sp-current-cd').innerText = `${SPECIAL_COOLDOWNS[currentLv - 1] / 60000}분`;
+        document.getElementById('upg-sp-next-cd').innerText = `${SPECIAL_COOLDOWNS[nextLv - 1] / 60000}분`;
+    }
 }
 
 function upgradeGenerator() {
     const type = currentGuideType;
-    if (type !== 'cat' && type !== 'dog') return;
+    const isSpecial = ['bird', 'fish', 'reptile'].includes(type);
+    if (type !== 'cat' && type !== 'dog' && !isSpecial) return;
     if (genLevels[type] >= CAGE_MAX_LEVEL) {
         showError('최대 레벨!');
         return;
     }
-    if (coins < CAGE_UPGRADE_COST) {
+    const cost = isSpecial ? SPECIAL_UPGRADE_COST : CAGE_UPGRADE_COST;
+    if (coins < cost) {
         showError('코인 부족!');
         return;
     }
-    coins -= CAGE_UPGRADE_COST;
+    coins -= cost;
     genLevels[type]++;
     playSound('purchase');
-    showToast(`${type === 'cat' ? '캣타워' : '개집'} Lv.${genLevels[type]}!`);
+    const names = { cat: '캣타워', dog: '개집', bird: '새장', fish: '어항', reptile: '사육장' };
+    showToast(`${names[type]} Lv.${genLevels[type]}!`);
     boardState.forEach((item, idx) => {
         if (item && item.type === 'upgrade_mission' && item.target === type && genLevels[type] >= item.reqLevel) {
             boardState[idx] = null;

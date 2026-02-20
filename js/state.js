@@ -29,7 +29,7 @@ let userLevel = 1,
 let totalQuestsCompleted = 0;
 
 // --- 생성기/드래그 ---
-let genLevels = { cat: 1, dog: 1 },
+let genLevels = { cat: 1, dog: 1, bird: 1, fish: 1, reptile: 1 },
     dragData = null;
 
 // --- 도감/상점/판매 ---

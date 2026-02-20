@@ -483,28 +483,49 @@
                         업그레이드 불가
                     </div>
                     <div id="upgrade-content">
-                        <div class="text-center">
-                            <p class="text-gray-500 text-sm mb-1">현재 레벨</p>
-                            <div class="text-3xl font-bold text-rose-500">
-                                Lv.<span id="upg-current-lv">1</span>
+                        <!-- cat/dog 전용 -->
+                        <div id="upg-catdog-section">
+                            <div class="text-center">
+                                <p class="text-gray-500 text-sm mb-1">현재 레벨</p>
+                                <div class="text-3xl font-bold text-rose-500">
+                                    Lv.<span id="upg-current-lv">1</span>
+                                </div>
+                                <p class="text-xs text-gray-400">행운: <span id="upg-current-luck">5</span>%</p>
+                                <div id="upg-current-spawn" class="upg-spawn-preview"></div>
                             </div>
-                            <p class="text-xs text-gray-400">행운: <span id="upg-current-luck">5</span>%</p>
-                            <div id="upg-current-spawn" class="upg-spawn-preview"></div>
+                            <div class="text-2xl text-gray-300 text-center my-2">⬇️</div>
+                            <div class="text-center">
+                                <p class="text-gray-500 text-sm mb-1">다음 레벨</p>
+                                <div class="text-3xl font-bold text-green-500">
+                                    Lv.<span id="upg-next-lv">2</span>
+                                </div>
+                                <p class="text-xs text-gray-400">행운: <span id="upg-next-luck">6</span>%</p>
+                                <div id="upg-next-spawn" class="upg-spawn-preview"></div>
+                            </div>
                         </div>
-                        <div class="text-2xl text-gray-300 text-center my-2">⬇️</div>
-                        <div class="text-center">
-                            <p class="text-gray-500 text-sm mb-1">다음 레벨</p>
-                            <div class="text-3xl font-bold text-green-500">
-                                Lv.<span id="upg-next-lv">2</span>
+                        <!-- 스페셜 전용 (bird/fish/reptile) -->
+                        <div id="upg-special-section" style="display:none">
+                            <div class="text-center">
+                                <p class="text-gray-500 text-sm mb-1">현재 레벨</p>
+                                <div class="text-3xl font-bold text-rose-500">
+                                    Lv.<span id="upg-sp-current-lv">1</span>
+                                </div>
+                                <p class="text-xs text-gray-400">과열 쿨다운: <span id="upg-sp-current-cd">5분</span></p>
                             </div>
-                            <p class="text-xs text-gray-400">행운: <span id="upg-next-luck">6</span>%</p>
-                            <div id="upg-next-spawn" class="upg-spawn-preview"></div>
+                            <div class="text-2xl text-gray-300 text-center my-2">⬇️</div>
+                            <div class="text-center">
+                                <p class="text-gray-500 text-sm mb-1">다음 레벨</p>
+                                <div class="text-3xl font-bold text-green-500">
+                                    Lv.<span id="upg-sp-next-lv">2</span>
+                                </div>
+                                <p class="text-xs text-gray-400">과열 쿨다운: <span id="upg-sp-next-cd">4분</span></p>
+                            </div>
                         </div>
                         <button
                             onclick="upgradeGenerator()"
                             class="bg-blue-500 text-white w-full py-3 rounded-xl font-bold shadow-md mt-4 flex justify-center items-center gap-2"
                         >
-                            <span>1,000<img src="images/icons/coin.png" class="icon icon-sm"></span>
+                            <span><span id="upg-cost">1,000</span><img src="images/icons/coin.png" class="icon icon-sm"></span>
                             업그레이드
                         </button>
                     </div>
