@@ -44,6 +44,8 @@ function getGameData() {
         diceTripPosition,
         diceCount,
         visitedSteps: [...visitedSteps],
+        // 기부
+        donationTotal,
         // 사운드 설정
         soundEnabled,
         musicEnabled,
@@ -254,6 +256,8 @@ function applyGameData(d) {
     diceCount = d.diceCount ?? 0;
     visitedSteps = d.visitedSteps && Array.isArray(d.visitedSteps) ? d.visitedSteps : [0];
 
+    donationTotal = d.donationTotal ?? 0;
+
     if (d.soundEnabled !== undefined) soundEnabled = d.soundEnabled;
     if (d.musicEnabled !== undefined) musicEnabled = d.musicEnabled;
     updateSoundUI();
@@ -397,6 +401,7 @@ function clampSaveData(data) {
         ['diceTripPosition', 0, 50],
         ['diceCount', 0, 999],
         ['tutorialStep', 0, 4],
+        ['donationTotal', 0, 9999999],
     ];
     for (const [key, min, max] of numClamps) {
         if (data[key] !== undefined) {
@@ -676,6 +681,9 @@ function initNewGame() {
     diceTripPosition = 0;
     diceCount = 0;
     visitedSteps = [0];
+
+    // 기부 초기화
+    donationTotal = 0;
 
     // 스토리 갤러리 초기화
     storyProgress = { unlockedImages: [], activeQuestId: null, bosses: [], pendingBoss: null };

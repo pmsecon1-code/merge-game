@@ -43,7 +43,7 @@ function generateNewQuest(forceEasy = false) {
     const npc = NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)];
     const twoItemChance = Math.min(QUEST_MULTI_BASE_CHANCE + userLevel * QUEST_MULTI_LEVEL_FACTOR, QUEST_MULTI_MAX_CHANCE);
     const cnt = Math.random() < twoItemChance ? 2 : 1;
-    const minLv = needEasy ? 4 : 5;
+    const minLv = needEasy ? 4 : Math.min(5 + Math.floor(userLevel / 20), 9);
     const maxLvAnimal = needEasy ? 5 : Math.min(minLv + 3 + Math.floor(userLevel / 4), 11);
     const maxLvSnack = needEasy ? 3 : Math.min(Math.ceil(minLv / 2) + 2, 5);
     const reqs = [];
@@ -495,7 +495,7 @@ function triggerGen(idx, item) {
     const baseType = item.type.replace('_generator', '');
     if (['bird', 'fish', 'reptile'].includes(baseType)) {
         if (item.cooldown > Date.now()) {
-            showError('과열!');
+            openCooldownPopup(idx, item);
             return;
         }
         if (!spawnItem(baseType, 1, false)) return;
@@ -508,7 +508,7 @@ function triggerGen(idx, item) {
         }
     } else if (baseType === 'toy') {
         if (item.cooldown > Date.now()) {
-            showError('과열!');
+            openCooldownPopup(idx, item);
             return;
         }
         if (!spawnToy()) return;
@@ -534,13 +534,48 @@ function triggerGen(idx, item) {
     }
 }
 
+// --- 쿨다운 즉시 해제 ---
+function openCooldownPopup(idx, item) {
+    const remaining = Math.max(0, item.cooldown - Date.now());
+    const cost = Math.ceil(remaining / 1000) * COOLDOWN_COIN_PER_SEC;
+    document.getElementById('cooldown-cost-val').textContent = cost.toLocaleString();
+    document.getElementById('cooldown-remain-val').textContent = formatMinSec(remaining);
+    const popup = document.getElementById('cooldown-popup');
+    popup.dataset.idx = idx;
+    openOverlay('cooldown-popup');
+}
+
+function confirmCooldownReset() {
+    const popup = document.getElementById('cooldown-popup');
+    const idx = parseInt(popup.dataset.idx, 10);
+    const item = boardState[idx];
+    if (!item || !item.cooldown || item.cooldown <= Date.now()) {
+        closeOverlay('cooldown-popup');
+        return;
+    }
+    const remaining = Math.max(0, item.cooldown - Date.now());
+    const cost = Math.ceil(remaining / 1000) * COOLDOWN_COIN_PER_SEC;
+    if (coins < cost) {
+        showError('코인 부족!');
+        closeOverlay('cooldown-popup');
+        return;
+    }
+    coins -= cost;
+    item.cooldown = 0;
+    item.clicks = 0;
+    playSound('purchase');
+    showToast(`쿨다운 해제! -${cost.toLocaleString()}${ICON.coin}`);
+    closeOverlay('cooldown-popup');
+    updateAll();
+}
+
 // --- 에너지 ---
 function getEnergyPrice() {
     if (Date.now() >= energyPurchaseResetTime) {
         energyPurchaseCount = 0;
         energyPurchaseResetTime = Date.now() + getMsUntilKSTMidnight();
     }
-    return 500 + energyPurchaseCount * 50;
+    return 500 + energyPurchaseCount * 100;
 }
 
 function checkEnergyAfterUse() {

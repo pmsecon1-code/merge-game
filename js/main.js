@@ -268,7 +268,7 @@ auth.onAuthStateChanged(async (user) => {
 // --- 판매 확인 버튼 ---
 document.getElementById('confirm-sell-btn').onclick = () => {
     if (sellTarget) {
-        const p = sellTarget.item.level;
+        const p = Math.max(1, Math.floor(sellTarget.item.level / 2));
         addCoins(p);
         (sellTarget.zone === 'board' ? boardState : storageState)[sellTarget.index] = null;
         playSound('purchase');

@@ -376,6 +376,12 @@ function openSettings() {
     }
     const nameEl = document.getElementById('settings-username');
     if (nameEl && currentUser) nameEl.textContent = getDisplayName(currentUser);
+    const titleEl = document.getElementById('settings-title');
+    if (titleEl) {
+        const title = getDonationTitle();
+        titleEl.textContent = title ? `"${title}"` : '';
+        titleEl.style.display = title ? 'inline' : 'none';
+    }
     openOverlay('settings-popup');
 }
 
@@ -709,7 +715,8 @@ function toggleBottomTab(tabId) {
         album: 'album-bar',
         dice: 'dice-trip-wrapper',
         shop: 'shop-wrapper',
-        storage: 'storage-wrapper'
+        storage: 'storage-wrapper',
+        donate: 'donate-wrapper'
     };
     const dailyBar = document.getElementById('daily-mission-bar');
 
@@ -723,6 +730,7 @@ function toggleBottomTab(tabId) {
         document.getElementById(mapping[tabId]).style.display = 'flex';
         currentBottomTab = tabId;
         if (tabId === 'dice') requestAnimationFrame(() => renderDiceTripBoard());
+        if (tabId === 'donate') updateDonationUI();
     }
 
     document.querySelectorAll('.bottom-nav-badge').forEach(btn => {
@@ -771,6 +779,13 @@ function updateBottomBadges() {
         const unlocked = storageState.filter(s => !s || s.type !== 'locked_storage').length;
         const used = storageState.filter(s => s && s.type !== 'locked_storage').length;
         storageInfo.textContent = `${used}/${unlocked}`;
+    }
+
+    // 기부: 현재 칭호
+    const donateInfo = document.getElementById('badge-donate-info');
+    if (donateInfo) {
+        const title = getDonationTitle();
+        donateInfo.textContent = title || '기부하기';
     }
 }
 

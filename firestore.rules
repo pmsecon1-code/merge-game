@@ -63,6 +63,7 @@ service cloud.firestore {
           // 튜토리얼 검증
           && isValidNumber(data.tutorialStep, 0, 4)
           // 사운드 설정 검증 (선택적 필드)
+          && (!data.keys().hasAny(['donationTotal']) || isValidNumber(data.donationTotal, 0, 9999999))
           && (!data.keys().hasAny(['soundEnabled']) || data.soundEnabled is bool)
           && (!data.keys().hasAny(['musicEnabled']) || data.musicEnabled is bool)
           // 스토리 갤러리 검증 (선택적 필드)

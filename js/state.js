@@ -103,7 +103,10 @@ let currentSessionId = null;
 let sessionUnsubscribe = null;
 
 // --- 하단 배지 탭 ---
-let currentBottomTab = null; // null | 'race' | 'album' | 'dice' | 'shop' | 'storage'
+let currentBottomTab = null; // null | 'race' | 'album' | 'dice' | 'shop' | 'storage' | 'donate'
+
+// --- 기부 시스템 ---
+let donationTotal = 0;
 
 // --- 스토리 슬라이드 (UI 임시 상태) ---
 let storySlides = [];

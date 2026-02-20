@@ -1484,7 +1484,7 @@ body.tutorial-active {
    ============================================ */
 #bottom-nav {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 4px;
     width: 95%;
     margin: 4px auto;

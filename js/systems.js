@@ -114,7 +114,7 @@ function renderShop() {
                     isT = item.type.includes('toy');
                 const priceTag = item.isAd
                     ? `<div class="shop-price-tag"><img src="images/icons/tv.png" class="icon" style="width:10px;height:10px"></div>`
-                    : `<div class="shop-price-tag">${item.level * 2}<img src="images/icons/diamond.png" class="icon" style="width:8px;height:8px"></div>`;
+                    : `<div class="shop-price-tag">${item.level * 3}<img src="images/icons/diamond.png" class="icon" style="width:8px;height:8px"></div>`;
                 const shopVisual = data.img
                     ? `<img src="${data.img}" style="width:1.2rem;height:1.2rem;object-fit:contain">`
                     : `<div style="font-size:1.2rem">${data.emoji}</div>`;
@@ -156,7 +156,7 @@ function buyShopItem(idx) {
         updateAll();
         return;
     }
-    const p = item.level * 2;
+    const p = item.level * 3;
     if (diamonds < p) {
         showError('다이아 부족!');
         return;
@@ -436,9 +436,83 @@ function askSellItem(z, i, e) {
     }
 
     sellTarget = { zone: z, index: i, item: it };
-    const p = it.level;
+    const p = Math.max(1, Math.floor(it.level / 2));
     const list = getItemList(it.type);
     const n = (list[it.level - 1] || list[list.length - 1]).name;
     document.getElementById('sell-desc').innerHTML = `${n} (Lv.${it.level}) : ${p}${ICON.coin}`;
     openOverlay('sell-popup');
+}
+
+// ============================================
+// 기부 시스템
+// ============================================
+
+function getDonationTitle() {
+    let title = null;
+    for (const m of DONATION_MILESTONES) {
+        if (donationTotal >= m.threshold) title = m.title;
+    }
+    return title;
+}
+
+function getNextMilestone() {
+    for (const m of DONATION_MILESTONES) {
+        if (donationTotal < m.threshold) return m;
+    }
+    return null;
+}
+
+function donate(amount) {
+    if (coins < amount) {
+        showError('코인 부족!');
+        return;
+    }
+    const prevTitle = getDonationTitle();
+    coins -= amount;
+    donationTotal += amount;
+    playSound('purchase');
+    showToast(`기부 완료! -${amount.toLocaleString()}${ICON.coin}`);
+
+    const newTitle = getDonationTitle();
+    if (newTitle && newTitle !== prevTitle) {
+        const milestone = DONATION_MILESTONES.find(m => m.title === newTitle);
+        if (milestone) {
+            diamonds += milestone.diamonds;
+            playSound('milestone');
+            setTimeout(() => {
+                showMilestonePopup(`${ICON.gift} 칭호 획득: ${newTitle}!<br>+${milestone.diamonds}${ICON.diamond}`);
+            }, 500);
+        }
+    }
+    updateDonationUI();
+    updateAll();
+}
+
+function updateDonationUI() {
+    const titleEl = document.getElementById('donate-title');
+    const totalEl = document.getElementById('donate-total');
+    const nextEl = document.getElementById('donate-next');
+
+    const title = getDonationTitle();
+    if (titleEl) titleEl.textContent = title || '없음';
+    if (totalEl) totalEl.textContent = donationTotal.toLocaleString();
+
+    const next = getNextMilestone();
+    if (nextEl) {
+        if (next) {
+            const remain = next.threshold - donationTotal;
+            nextEl.innerHTML = `다음 칭호: <b>${next.title}</b> (${remain.toLocaleString()}${ICON.coin} 남음)`;
+        } else {
+            nextEl.innerHTML = `<span class="text-yellow-600 font-bold">모든 칭호 달성!</span>`;
+        }
+    }
+
+    // 버튼 disabled 갱신
+    for (const amt of DONATION_AMOUNTS) {
+        const btn = document.getElementById(`donate-btn-${amt}`);
+        if (btn) {
+            btn.disabled = coins < amt;
+            btn.classList.toggle('opacity-50', coins < amt);
+        }
+    }
 }

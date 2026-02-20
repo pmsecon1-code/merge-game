@@ -22,9 +22,21 @@ describe('constants.js 헬퍼 함수', () => {
             expect(ctx.getLevelUpGoal(6)).toBe(12);
         });
 
-        it('Lv.8 이상 상한 15', () => {
+        it('Lv.8 → 15 (Lv.6~10 구간)', () => {
             expect(ctx.getLevelUpGoal(8)).toBe(15);
-            expect(ctx.getLevelUpGoal(100)).toBe(15);
+        });
+
+        it('Lv.20 → 17 (Lv.11~30 구간)', () => {
+            expect(ctx.getLevelUpGoal(20)).toBe(17);
+        });
+
+        it('Lv.50 → 21 (Lv.31~60 구간)', () => {
+            expect(ctx.getLevelUpGoal(50)).toBe(21);
+        });
+
+        it('Lv.100 → 24, 상한 30', () => {
+            expect(ctx.getLevelUpGoal(100)).toBe(24);
+            expect(ctx.getLevelUpGoal(200)).toBe(30);
         });
     });
 

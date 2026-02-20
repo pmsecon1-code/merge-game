@@ -100,6 +100,7 @@ function getSpecialCooldown(type) {
 
 // --- 게임 밸런스 ---
 const CAGE_MAX_LEVEL = 5;
+const COOLDOWN_COIN_PER_SEC = 5; // 쿨다운 즉시 해제: 남은 초 × 5코인
 const SNACK_CHANCE = 0.08;
 const GENERATOR_MAX_CLICKS = 6; // 스페셜 생성기 과열 클릭 수
 const AD_ENERGY_AMOUNT = 30; // 광고 시청 에너지 충전량
@@ -111,7 +112,7 @@ const QUEST_SNACK_CHANCE = 0.3;
 const QUEST_PIGGY_CHANCE = 0.2;
 const QUEST_MULTI_BASE_CHANCE = 0.3;
 const QUEST_MULTI_LEVEL_FACTOR = 0.05;
-const QUEST_MULTI_MAX_CHANCE = 0.8;
+const QUEST_MULTI_MAX_CHANCE = 0.9;
 
 // --- 럭키 드랍 확률 ---
 const LUCKY_BASE_CHANCE = 0.05;
@@ -123,7 +124,13 @@ const QUEST_COUNT_MISSION_GOAL = 100;
 const CLOUD_SAVE_DEBOUNCE_MS = 500;
 
 // --- 레벨업 공식 (중앙화) ---
-function getLevelUpGoal(lv) { return lv <= 5 ? lv + 1 : Math.min(lv * 2, 15); }
+function getLevelUpGoal(lv) {
+    if (lv <= 5) return lv + 1;
+    if (lv <= 10) return Math.min(lv * 2, 15);
+    if (lv <= 30) return 15 + Math.floor((lv - 10) / 5);
+    if (lv <= 60) return 19 + Math.floor((lv - 30) / 10);
+    return Math.min(22 + Math.floor((lv - 60) / 15), 30);
+}
 function getLevelUpReward(lv) { return Math.ceil(lv / 10) * 3; }
 
 // --- 시간 포맷 헬퍼 (mm:ss) ---
@@ -354,6 +361,17 @@ const ALBUM_DUPE_REWARD = { N: 1, R: 3, SR: 8 };
 const ALBUM_COMPLETE_COINS = 500;
 const ALBUM_ALL_COMPLETE_DIAMONDS = 500;
 const ALBUM_CYCLE_MS = 42 * 24 * 60 * 60 * 1000; // 42일
+
+// --- 기부 시스템 ---
+const DONATION_AMOUNTS = [100, 500, 1000, 5000];
+const DONATION_MILESTONES = [
+    { threshold: 1000,   title: '작은 나눔',       diamonds: 2  },
+    { threshold: 5000,   title: '따뜻한 마음',      diamonds: 5  },
+    { threshold: 20000,  title: '마을의 은인',      diamonds: 10 },
+    { threshold: 50000,  title: '동물 수호자',      diamonds: 20 },
+    { threshold: 100000, title: '전설의 후원자',    diamonds: 30 },
+    { threshold: 500000, title: '동물 마을의 영웅', diamonds: 50 },
+];
 
 // --- 7일 출석 보상 ---
 const ATTENDANCE_REWARDS = [
