@@ -131,6 +131,7 @@ async function deleteAccount() {
         }
         // Firebase Auth 계정 삭제
         await currentUser.delete();
+        await auth.signOut();
         showToast('회원탈퇴가 완료되었습니다.');
         localStorage.clear();
         showLoginScreen();
@@ -148,6 +149,7 @@ async function deleteAccount() {
                         await db.collection('raceCodes').doc(myRaceCode).delete();
                     }
                     await user.delete();
+                    await auth.signOut();
                     showToast('회원탈퇴가 완료되었습니다.');
                     localStorage.clear();
                     showLoginScreen();
