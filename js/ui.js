@@ -416,6 +416,11 @@ function handleDragStart(e) {
         handleCellClick(lockedCell.dataset.zone, parseInt(lockedCell.dataset.index));
         return;
     }
+    const missionCell = e.target.closest('.upgrade-mission-cell');
+    if (missionCell) {
+        handleCellClick(missionCell.dataset.zone, parseInt(missionCell.dataset.index));
+        return;
+    }
     const t = e.target.closest('.item, .cage-generator');
     if (!t) return;
     e.preventDefault();
