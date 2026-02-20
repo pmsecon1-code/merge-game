@@ -621,7 +621,7 @@ const STORY_IMAGES = [
     // EP.5 "검은 바다" (3장, Lv.65/70/75)
     { id: 12, ep: 5, title: '검은 바다', img: 'images/story/scenes/ep5_intro_1.png', text: '바다가 검게 물들어 있었다.\n건널 수 없었다.', reqLevel: 65, reqs: [{type:'reptile', level:3}], reward: {coins:70}, isLastInEp: false, bossName: null, bossImg: null },
     { id: 13, ep: 5, title: '검은 바다', img: 'images/story/scenes/ep5_intro_2.png', text: '거북이가 수면 위로 올라왔다.\n"타."', reqLevel: 70, reqs: [{type:'reptile', level:3}, {type:'dog_snack', level:2}], reward: {coins:80}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 14, ep: 5, title: '검은 바다', img: 'images/story/scenes/ep5_outro_1.png', text: '섬이 점점 커졌다.\n냄새가 났다. 불길한 냄새.', reqLevel: 75, reqs: [{type:'fish', level:3}, {type:'reptile', level:4}], reward: {coins:100}, isLastInEp: true, bossName: '바다 도깨비', bossImg: 'images/story/boss_pirate.png' },
+    { id: 14, ep: 5, title: '검은 바다', img: 'images/story/scenes/ep5_outro_1.png', text: '섬이 점점 커졌다.\n냄새가 났다. 불길한 냄새.', reqLevel: 75, reqs: [{type:'reptile', level:4}, {type:'dog_snack', level:3}], reward: {coins:100}, isLastInEp: true, bossName: '바다 도깨비', bossImg: 'images/story/boss_pirate.png' },
 
     // EP.6 "도깨비섬" (4장, Lv.80/85/90/95)
     { id: 15, ep: 6, title: '도깨비섬', img: 'images/story/scenes/ep6_intro_1.png', text: '섬에 발을 디딘 순간, 냄새가 났다.', reqLevel: 80, reqs: [{type:'cat', level:5}], reward: {coins:80}, isLastInEp: false, bossName: null, bossImg: null },
