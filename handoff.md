@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.31.2)
+# 멍냥 머지 게임 - Architecture (v4.33.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.31.2
+- **버전**: 4.33.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -18,24 +18,24 @@ merge2/
 ├── css/
 │   └── styles.css      # 모든 CSS (~1821줄)
 ├── js/
-│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~630줄)
-│   ├── state.js        # 전역 변수 + DOM 참조 (~132줄)
+│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~648줄)
+│   ├── state.js        # 전역 변수 + DOM 참조 (~135줄)
 │   ├── auth.js         # 인증 + 세션 + 회원탈퇴 (~180줄)
-│   ├── save.js         # 저장/로드/검증/클램핑/진단 (~715줄)
-│   ├── game.js         # 코어 게임 메커닉 (~967줄)
-│   ├── systems.js      # 7행미션/주사위 여행/상점 (~444줄)
+│   ├── save.js         # 저장/로드/검증/클램핑/진단 (~723줄)
+│   ├── game.js         # 코어 게임 메커닉 (~1002줄)
+│   ├── systems.js      # 7행미션/주사위 여행/상점/기부 (~518줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~243줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1069줄)
 │   ├── sound.js        # 사운드 시스템 (효과음+BGM) (~419줄)
 │   ├── story.js        # 스토리 이미지 갤러리 시스템 (~335줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~194줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~824줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~839줄)
 │   └── main.js         # 초기화 + 타이머 (~315줄)
 ├── hooks/
 │   └── pre-commit      # Git pre-commit hook (lint+test)
 ├── tests/
 │   ├── helpers/        # 테스트 헬퍼 (loadConstants, loadSave)
-│   ├── constants.test.js  # constants.js 테스트 (51개)
+│   ├── constants.test.js  # constants.js 테스트 (54개)
 │   └── save.test.js    # save.js 테스트 (32개)
 ├── images/
 │   ├── icons/          # UI 아이콘 27종 (128×128 PNG)
@@ -63,7 +63,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → sound → **story** → ui → tutorial → main
 
-**총 JS**: ~6457줄, **함수**: ~186개
+**총 JS**: ~6620줄, **함수**: ~192개
 
 ---
 
@@ -77,19 +77,19 @@ merge2/
 | 4 | 맵 (5×7 = 35칸) | board-wrapper 분홍 |
 | 5 | 📋 일일 미션 (합성/생성/코인) | event-bar 황색 |
 | 6 | 콘텐츠 영역 (배지 탭 시 일일미션 대체) | #bottom-content |
-| 7 | 하단 배지 바 (🏁📸🎲🛒📦) | #bottom-nav 5열 그리드 |
+| 7 | 하단 배지 바 (🏁📸🎲🛒📦🎁) | #bottom-nav 6열 그리드 |
 
-### 하단 배지 바 (v4.18.0)
+### 하단 배지 바 (v4.33.0)
 ```
-┌─────┬──────┬──────┬─────┬─────┐
-│ 🏁  │  📸  │  🎲  │ 🛒  │ 📦  │
-│레이스│ 앨범 │주사위│ 상점│ 창고│
-│참가  │0/81  │1/50  │4:32 │0/0  │
-└─────┴──────┴──────┴─────┴─────┘
+┌─────┬──────┬──────┬─────┬─────┬─────┐
+│ 🏁  │  📸  │  🎲  │ 🛒  │ 📦  │ 🎁  │
+│레이스│ 앨범 │주사위│ 상점│ 창고│ 기부│
+│참가  │0/81  │1/50  │4:32 │0/0  │칭호  │
+└─────┴──────┴──────┴─────┴─────┴─────┘
 ```
 - 배지 탭 → 해당 콘텐츠 표시 (일일미션 자리 대체, CSS calc 동적 높이)
 - 같은 배지 재탭 → 닫힘 (일일미션 복원)
-- 배지 요약 정보: 레이스(상태별), 앨범(진행도), 주사위(위치), 상점(갱신타이머), 창고(보관/열린칸)
+- 배지 요약 정보: 레이스(상태별), 앨범(진행도), 주사위(위치), 상점(갱신타이머), 창고(보관/열린칸), 기부(현재칭호)
 - 각 콘텐츠는 기본 숨김 (`display:none`)
 
 | 배지 | data-tab | 콘텐츠 ID | 요약정보 |
@@ -99,6 +99,7 @@ merge2/
 | 🎲 주사위 여행 | dice | #dice-trip-wrapper | n/50 |
 | 🛒 상점 | shop | #shop-wrapper | m:ss (갱신 타이머) |
 | 📦 창고 | storage | #storage-wrapper | 보관중/열린칸 |
+| 🎁 기부 | donate | #donate-wrapper | 현재 칭호/기부하기 |
 
 ---
 
@@ -203,6 +204,9 @@ merge2/
     bosses,                 // [{bossId, hp, maxHp, boardIdx}, ...] 보드 위 보스들 (최대 7)
     pendingBoss,            // 보드 가득 시 대기 중인 EP번호 (null이면 없음)
   },
+
+  // 기부 (v4.33.0+)
+  donationTotal,              // 누적 기부 코인 (0~9999999)
 
   // 기타
   discoveredItems, currentSpecialIndex,
@@ -813,11 +817,11 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 
 ## 주요 함수 목록 (파일별)
 
-### game.js (41개)
-`addCoins`, `spawnPiggyBank`, `discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `removeQuestItems`, `handleLevelUp`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `handleLockedCell`, `handleMissionCell`, `handleSpecialItem`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `tryMergeItems`, `updateBossIdx`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `spawnBubble`, `showBubblePopup`, `openBubbleByAd`, `openBubbleByDiamond`, `adEnergy`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
+### game.js (43개)
+`addCoins`, `spawnPiggyBank`, `discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `removeQuestItems`, `handleLevelUp`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `handleLockedCell`, `handleMissionCell`, `handleSpecialItem`, `triggerGen`, `openCooldownPopup`, `confirmCooldownReset`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `tryMergeItems`, `updateBossIdx`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `spawnBubble`, `showBubblePopup`, `openBubbleByAd`, `openBubbleByDiamond`, `adEnergy`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
 
-### systems.js (19개)
-`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`
+### systems.js (23개)
+`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`, `getDonationTitle`, `getNextMilestone`, `donate`, `updateDonationUI`
 
 ### ui.js (35개)
 `renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showError`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuideForItem`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `getGenSpawnLevels`, `renderSpawnPreview`, `updateUpgradeUI`, `upgradeGenerator`, `toggleBottomTab`, `updateBottomBadges`, `updateDailyMissionUI`
@@ -878,6 +882,12 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 스페셜 생성기 업그레이드 (v4.31.0)
 `SPECIAL_UPGRADE_COST=1500`, `SPECIAL_COOLDOWNS=[300000,240000,180000,120000,60000]` (Lv.1~5: 5분→1분), `getSpecialCooldown(type)`
 
+### 쿨다운 즉시 해제 (v4.33.0)
+`COOLDOWN_COIN_PER_SEC=5` (남은 초 × 5코인)
+
+### 기부 시스템 (v4.33.0)
+`DONATION_AMOUNTS=[100, 500, 1000, 5000]`, `DONATION_MILESTONES` (6단계: 1K~500K, 칭호+다이아 보상)
+
 ### 생성기 이름 매핑 (v4.31.2)
 `GENERATOR_NAMES={cat:'캣타워', dog:'개집', bird:'새장', fish:'어항', reptile:'사육장', toy:'장난감 상자'}`, `getGeneratorName(type)`
 
@@ -891,7 +901,7 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 개발 명령어
 ```bash
 npm run lint          # ESLint 검사
-npm test              # Vitest 테스트 (83개)
+npm test              # Vitest 테스트 (86개)
 npm run format        # Prettier 포맷팅
 npm run setup-hooks   # pre-commit hook 설치
 ```
@@ -922,6 +932,30 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.33.0 (2026-02-20) - 쿨다운 즉시 해제 + 기부 시스템
+- 🔥 **쿨다운 즉시 해제** 추가
+  - 과열 중 생성기 클릭 → 팝업 → 코인으로 즉시 해제 (남은초 × `COOLDOWN_COIN_PER_SEC=5` 코인)
+  - bird/fish/reptile/toy 모든 생성기 적용 (기존 `showError('과열!')` → `openCooldownPopup()`)
+  - 팝업에 남은 시간 + 해제 비용 표시, 쿨다운 만료 시 자동 무료 해제 (cost=0)
+  - 코인 부족 시 에러 토스트, 보드 아이템 null 방어
+- 🎁 **기부 시스템** 추가
+  - 하단 배지 바 6번째 탭 "기부" (5열→6열 grid)
+  - NPC에게 코인 기부 (100/500/1000/5000 4단계 버튼)
+  - 6단계 칭호 마일스톤: 작은 나눔(1K)→따뜻한 마음(5K)→마을의 은인(20K)→동물 수호자(50K)→전설의 후원자(100K)→동물 마을의 영웅(500K)
+  - 마일스톤 달성 시 다이아 보상 (2/5/10/20/30/50💎) + 마일스톤 팝업
+  - 설정 팝업에 유저 이름 옆 칭호 표시
+  - 기부 탭 UI: NPC 이미지 + 칭호 + 누적액 + 다음 목표 + 버튼 disabled 상태
+  - 교환율이 갈수록 나빠짐 = 진정한 코인 싱크 (Lv.30+ 코인 잉여 해결)
+- 수정 파일: js/constants.js, js/state.js, js/game.js, js/systems.js, js/ui.js, js/save.js, index.html, css/styles.css, firestore.rules, eslint.config.js (10개)
+- 신규 상수 (3개): `COOLDOWN_COIN_PER_SEC`, `DONATION_AMOUNTS`, `DONATION_MILESTONES`
+- 신규 변수 (1개): `donationTotal` (state.js)
+- 신규 함수 (6개): `openCooldownPopup`, `confirmCooldownReset` (game.js), `getDonationTitle`, `getNextMilestone`, `donate`, `updateDonationUI` (systems.js)
+- 신규 저장 필드: `donationTotal`
+- 신규 HTML: `#cooldown-popup` (쿨다운 해제 팝업), `#donate-wrapper` (기부 콘텐츠), 6번째 배지 버튼, `#settings-title` (칭호 span)
+- CSS: `#bottom-nav` grid 5→6열
+- firestore.rules: `donationTotal` 검증 (0~9999999)
+- 수정 함수: `triggerGen()` (game.js - openCooldownPopup 호출), `toggleBottomTab()` (ui.js - donate 매핑), `updateBottomBadges()` (ui.js - 기부 배지), `openSettings()` (ui.js - 칭호 표시)
 
 ### v4.31.2 (2026-02-20) - 스토리 퀘스트 데드락 수정 + 코드 리팩토링
 - 🐛 **스토리 퀘스트 데드락 수정**
@@ -1791,6 +1825,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## To-do
 
+- [x] 쿨다운 즉시 해제 + 기부 시스템 (v4.33.0) - 코인 싱크 2종 추가
 - [x] 스토리 퀘스트 데드락 수정 (v4.31.2) - expiresAt desync + 자동 복구 + updateAll 강화
 - [x] 코드 리팩토링 (v4.31.2) - pre-commit hook, 중복 상수화, 함수 분리 (applyGameData/handleCellClick/moveItem)
 - [x] 테스트 인프라 (v4.31.2) - Vitest 83개 테스트 (constants 51 + save 32)
