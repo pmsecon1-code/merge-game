@@ -69,6 +69,7 @@ album 배열에 완성 마커 추가 → 검증 로직 미업데이트 → 데�
 - `getLevelUpGoal(lv)` - 레벨업 필요 퀘스트 수
 - `getLevelUpReward(lv)` - 레벨업 다이아 보상
 - `getMaxLevel(type)` - 타입별 합성 최대 레벨
+- `getGeneratorName(type)` - 생성기 한글 이름 (캣타워/개집/새장 등)
 - `getEnergyPrice()` - 에너지 구매 가격 (game.js)
 
 **예시 (레벨업 보상 버그 교훈):**

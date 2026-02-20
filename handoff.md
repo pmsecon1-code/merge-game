@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.31.0)
+# 멍냥 머지 게임 - Architecture (v4.31.2)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.31.1
+- **버전**: 4.31.2
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -18,19 +18,25 @@ merge2/
 ├── css/
 │   └── styles.css      # 모든 CSS (~1821줄)
 ├── js/
-│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~621줄)
+│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~630줄)
 │   ├── state.js        # 전역 변수 + DOM 참조 (~132줄)
 │   ├── auth.js         # 인증 + 세션 + 회원탈퇴 (~180줄)
-│   ├── save.js         # 저장/로드/검증/클램핑/진단 (~714줄)
-│   ├── game.js         # 코어 게임 메커닉 (~968줄)
+│   ├── save.js         # 저장/로드/검증/클램핑/진단 (~715줄)
+│   ├── game.js         # 코어 게임 메커닉 (~967줄)
 │   ├── systems.js      # 7행미션/주사위 여행/상점 (~444줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~243줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1069줄)
 │   ├── sound.js        # 사운드 시스템 (효과음+BGM) (~419줄)
-│   ├── story.js        # 스토리 이미지 갤러리 시스템 (~325줄)
+│   ├── story.js        # 스토리 이미지 갤러리 시스템 (~335줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~194줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~833줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~824줄)
 │   └── main.js         # 초기화 + 타이머 (~315줄)
+├── hooks/
+│   └── pre-commit      # Git pre-commit hook (lint+test)
+├── tests/
+│   ├── helpers/        # 테스트 헬퍼 (loadConstants, loadSave)
+│   ├── constants.test.js  # constants.js 테스트 (51개)
+│   └── save.test.js    # save.js 테스트 (32개)
 ├── images/
 │   ├── icons/          # UI 아이콘 27종 (128×128 PNG)
 │   ├── effects/        # 이펙트 아이콘 3종
@@ -204,8 +210,8 @@ merge2/
 }
 ```
 
-### 관련 함수 (save.js, 14개)
-`getGameData`, `applyGameData`, `migrateRow7Missions`, `saveGame`, `saveGameNow`, `updateSaveStatus`, `sanitizeForFirestore`, `clampSaveData`, `isValidSaveData`, `diagnoseSaveData`, `saveToCloud`, `loadFromCloud`, `validateGameData`, `initNewGame`
+### 관련 함수 (save.js, 18개)
+`getGameData`, `migrateEnergyRecovery`, `loadDailyMissions`, `loadStoryProgress`, `cleanupLegacyItems`, `applyGameData`, `migrateRow7Missions`, `saveGame`, `saveGameNow`, `updateSaveStatus`, `sanitizeForFirestore`, `clampSaveData`, `isValidSaveData`, `diagnoseSaveData`, `saveToCloud`, `loadFromCloud`, `validateGameData`, `initNewGame`
 
 ---
 
@@ -807,8 +813,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 
 ## 주요 함수 목록 (파일별)
 
-### game.js (36개)
-`addCoins`, `spawnPiggyBank`, `discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `removeQuestItems`, `handleLevelUp`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `spawnBubble`, `showBubblePopup`, `openBubbleByAd`, `openBubbleByDiamond`, `adEnergy`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
+### game.js (41개)
+`addCoins`, `spawnPiggyBank`, `discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `removeQuestItems`, `handleLevelUp`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `handleLockedCell`, `handleMissionCell`, `handleSpecialItem`, `triggerGen`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `tryMergeItems`, `updateBossIdx`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `spawnBubble`, `showBubblePopup`, `openBubbleByAd`, `openBubbleByDiamond`, `adEnergy`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
 
 ### systems.js (19개)
 `hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`
@@ -872,16 +878,27 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 스페셜 생성기 업그레이드 (v4.31.0)
 `SPECIAL_UPGRADE_COST=1500`, `SPECIAL_COOLDOWNS=[300000,240000,180000,120000,60000]` (Lv.1~5: 5분→1분), `getSpecialCooldown(type)`
 
-### 헬퍼 함수 (10개)
-`getItemList`, `getMaxLevel`, `getItemData`, `getDisplayName`, `formatMinSec`, `getSpecialCooldown`, `getLevelUpGoal`, `getLevelUpReward`, `getKSTDateString`, `getMsUntilKSTMidnight`
+### 생성기 이름 매핑 (v4.31.2)
+`GENERATOR_NAMES={cat:'캣타워', dog:'개집', bird:'새장', fish:'어항', reptile:'사육장', toy:'장난감 상자'}`, `getGeneratorName(type)`
+
+### 헬퍼 함수 (11개)
+`getItemList`, `getMaxLevel`, `getItemData`, `getDisplayName`, `formatMinSec`, `getSpecialCooldown`, `getLevelUpGoal`, `getLevelUpReward`, `getKSTDateString`, `getMsUntilKSTMidnight`, `getGeneratorName`
 
 ---
 
 ## 배포
 
+### 개발 명령어
+```bash
+npm run lint          # ESLint 검사
+npm test              # Vitest 테스트 (83개)
+npm run format        # Prettier 포맷팅
+npm run setup-hooks   # pre-commit hook 설치
+```
+
 ### GitHub Pages (게임)
 ```bash
-git push   # → 자동 배포 (1~2분)
+git push   # → 자동 배포 (1~2분), pre-commit hook이 lint+test 자동 실행
 ```
 
 ### Firebase (인증 + 규칙)
@@ -900,10 +917,37 @@ firebase deploy --only firestore:rules   # 보안 규칙
 | 로그인 버튼 무반응 | JS 에러 | F12 콘솔 확인 |
 | 다중 기기 로그아웃 안 됨 | onSnapshot 미시작 | `startSessionListener()` 확인 |
 | 데이터 손실 | 네트워크 오류 + 빈 데이터 저장 | v4.2.8 3중 방어 체계로 해결 |
+| 스토리 퀘스트 안 나옴 | expiresAt:null이 로드 시 10분 타이머로 덮어씌워짐 → 만료 후 데드락 | v4.31.2 isStory 체크 + desync 복구 |
 
 ---
 
 ## 변경 이력
+
+### v4.31.2 (2026-02-20) - 스토리 퀘스트 데드락 수정 + 코드 리팩토링
+- 🐛 **스토리 퀘스트 데드락 수정**
+  - 근본 원인: `save.js` 퀘스트 로딩 시 `expiresAt` 매핑이 `isSpecial`만 체크 → 스토리 퀘스트(`isStory`)의 `null`이 10분 타이머로 덮어씌워짐 → 만료 후 `activeQuestId` desync → 영구 데드락
+  - fix(save.js): `(q.isSpecial || q.isStory) ? null` 로 스토리 퀘스트 타이머 방지
+  - fix(story.js): `checkStoryQuests()`에 desync 복구 로직 추가 (activeQuestId 있으나 퀘스트 없으면 재활성)
+  - fix(ui.js): `updateAll()`에 `checkStoryQuests()` 추가 (모든 게임 액션 후 자동 활성화)
+- 🔧 **함수 크기 축소** (80줄+ 함수 3개 분리)
+  - `applyGameData` 217줄 → ~65줄 (4개 헬퍼: `migrateEnergyRecovery`, `loadDailyMissions`, `loadStoryProgress`, `cleanupLegacyItems`)
+  - `handleCellClick` 87줄 → ~15줄 (3개 핸들러: `handleLockedCell`, `handleMissionCell`, `handleSpecialItem`)
+  - `moveItem` 90줄 → ~30줄 (2개 헬퍼: `tryMergeItems`, `updateBossIdx`)
+- 🔧 **중복 매핑 상수화**
+  - `GENERATOR_NAMES` 객체 + `getGeneratorName(type)` 헬퍼 (constants.js)
+  - `ui.js` 4곳 하드코딩 제거 (createItem ×2, openGuide, upgradeGenerator)
+- 🔧 **Pre-commit Hook**
+  - `hooks/pre-commit`: commit 시 lint+test 자동 실행
+  - `package.json`: `setup-hooks` script 추가
+- 🧪 **테스트 인프라**
+  - Vitest 설정 + 테스트 83개 (constants 51개 + save 32개)
+  - `tests/helpers/loadConstants.js`, `tests/helpers/loadSave.js` (vm context 기반)
+- 수정 파일: js/save.js, js/story.js, js/ui.js, js/game.js, js/constants.js, eslint.config.js, package.json (7개)
+- 신규 파일: hooks/pre-commit, vitest.config.js, tests/ (4파일)
+- 신규 상수 (1개): `GENERATOR_NAMES`
+- 신규 헬퍼 (1개): `getGeneratorName(type)` (constants.js)
+- 신규 함수 (9개): `migrateEnergyRecovery`, `loadDailyMissions`, `loadStoryProgress`, `cleanupLegacyItems` (save.js), `handleLockedCell`, `handleMissionCell`, `handleSpecialItem`, `tryMergeItems`, `updateBossIdx` (game.js)
+- 수정 함수: `applyGameData()` (save.js - 헬퍼 추출 + expiresAt 수정), `checkStoryQuests()` (story.js - desync 복구), `updateAll()` (ui.js - checkStoryQuests 추가), `handleCellClick()` (game.js - 핸들러 분리), `moveItem()` (game.js - 헬퍼 분리), `createItem()` (ui.js - getGeneratorName), `openGuide()` (ui.js - getGeneratorName), `upgradeGenerator()` (ui.js - getGeneratorName)
 
 ### v4.31.0 (2026-02-20) - 스페셜 생성기 업그레이드 시스템
 - ⬆️ **스페셜 생성기(새장/어항/사육장) Lv.1~5 업그레이드** 추가
@@ -1747,6 +1791,9 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## To-do
 
+- [x] 스토리 퀘스트 데드락 수정 (v4.31.2) - expiresAt desync + 자동 복구 + updateAll 강화
+- [x] 코드 리팩토링 (v4.31.2) - pre-commit hook, 중복 상수화, 함수 분리 (applyGameData/handleCellClick/moveItem)
+- [x] 테스트 인프라 (v4.31.2) - Vitest 83개 테스트 (constants 51 + save 32)
 - [x] 스페셜 생성기 업그레이드 시스템 (v4.31.0) - 새장/어항/사육장 Lv.1~5 쿨다운 감소
 - [x] 스토리 시스템 v4.29.0 리디자인 - 보스 보드 아이템화 + 이미지 갤러리
 - [x] 스토리 보스 이미지 7종 (images/story/)
