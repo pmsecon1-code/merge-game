@@ -562,7 +562,7 @@ function updateExploreUI() {
     const allRevealed = revealed >= EXPLORE_TILE_COUNT;
 
     let html = `<div class="flex justify-between items-center mb-1">
-        <span class="text-[10px] font-bold text-amber-700">${ICON.fossil_bone} 화석 발굴 ${revealed}/${EXPLORE_TILE_COUNT}</span>
+        <span class="text-[10px] font-bold text-amber-700">${ICON.fossil_bone} 화석 발굴 ${fossils}/10</span>
         <button onclick="openExploreModal()" class="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold">발굴하기</button>
     </div>
     <div class="flex gap-2 items-start">
@@ -572,14 +572,6 @@ function updateExploreUI() {
     for (const f of EXPLORE_FOSSILS) {
         const collected = exploreProgress.collectedFossils.includes(f.id);
         html += `<div class="explore-fossil ${collected ? 'collected' : 'missing'}" title="${f.name}">${collected ? ICON[f.icon] : '?'}</div>`;
-    }
-    html += `</div>
-            <div class="flex gap-1 items-center mt-1 flex-wrap">`;
-    for (let i = 0; i < EXPLORE_MILESTONES.length; i++) {
-        const m = EXPLORE_MILESTONES[i];
-        const claimed = exploreProgress.claimedMilestones.includes(i);
-        const reached = fossils >= m.count;
-        html += `<span class="text-[8px] ${claimed ? 'text-green-500' : reached ? 'text-yellow-500' : 'text-gray-400'} font-bold">${m.count}개${claimed ? ICON.check : ''} ${m.dinoGen ? ICON.fossil_skeleton : ''}</span>`;
     }
     html += `</div>
         </div>
