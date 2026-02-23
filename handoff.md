@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.33.0)
+# 멍냥 머지 게임 - Architecture (v4.34.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.33.0
+- **버전**: 4.34.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -18,18 +18,18 @@ merge2/
 ├── css/
 │   └── styles.css      # 모든 CSS (~1821줄)
 ├── js/
-│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~648줄)
-│   ├── state.js        # 전역 변수 + DOM 참조 (~135줄)
+│   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~750줄)
+│   ├── state.js        # 전역 변수 + DOM 참조 (~141줄)
 │   ├── auth.js         # 인증 + 세션 + 회원탈퇴 (~180줄)
-│   ├── save.js         # 저장/로드/검증/클램핑/진단 (~723줄)
+│   ├── save.js         # 저장/로드/검증/클램핑/진단 (~740줄)
 │   ├── game.js         # 코어 게임 메커닉 (~1002줄)
-│   ├── systems.js      # 7행미션/주사위 여행/상점/기부 (~518줄)
+│   ├── systems.js      # 7행미션/주사위 여행/상점/탐험 (~590줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~243줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1069줄)
 │   ├── sound.js        # 사운드 시스템 (효과음+BGM) (~419줄)
 │   ├── story.js        # 스토리 이미지 갤러리 시스템 (~335줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~194줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~839줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~845줄)
 │   └── main.js         # 초기화 + 타이머 (~315줄)
 ├── hooks/
 │   └── pre-commit      # Git pre-commit hook (lint+test)
@@ -50,6 +50,7 @@ merge2/
 │   ├── birds/          # 새 동물 이미지 7종
 │   ├── fish/           # 물고기 동물 이미지 7종
 │   ├── reptiles/       # 파충류 동물 이미지 7종
+│   ├── dinosaurs/      # 공룡 동물 이미지 7종 (이미지 미제작)
 │   ├── cat_snacks/     # 고양이 간식 이미지 5종
 │   ├── dog_snacks/     # 강아지 간식 이미지 5종
 │   ├── cat_toys/       # 고양이 장난감 이미지 5종
@@ -63,7 +64,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → sound → **story** → ui → tutorial → main
 
-**총 JS**: ~6620줄, **함수**: ~192개
+**총 JS**: ~6900줄, **함수**: ~199개
 
 ---
 
@@ -79,17 +80,17 @@ merge2/
 | 6 | 콘텐츠 영역 (배지 탭 시 일일미션 대체) | #bottom-content |
 | 7 | 하단 배지 바 (🏁📸🎲🛒📦🎁) | #bottom-nav 6열 그리드 |
 
-### 하단 배지 바 (v4.33.0)
+### 하단 배지 바 (v4.34.0)
 ```
 ┌─────┬──────┬──────┬─────┬─────┬─────┐
-│ 🏁  │  📸  │  🎲  │ 🛒  │ 📦  │ 🎁  │
-│레이스│ 앨범 │주사위│ 상점│ 창고│ 기부│
-│참가  │0/81  │1/50  │4:32 │0/0  │칭호  │
+│ 🏁  │  📸  │  🎲  │ 🛒  │ 📦  │ 🦴  │
+│레이스│ 앨범 │주사위│ 상점│ 창고│ 탐험│
+│참가  │0/81  │1/50  │4:32 │0/0  │1/49 │
 └─────┴──────┴──────┴─────┴─────┴─────┘
 ```
 - 배지 탭 → 해당 콘텐츠 표시 (일일미션 자리 대체, CSS calc 동적 높이)
 - 같은 배지 재탭 → 닫힘 (일일미션 복원)
-- 배지 요약 정보: 레이스(상태별), 앨범(진행도), 주사위(위치), 상점(갱신타이머), 창고(보관/열린칸), 기부(현재칭호)
+- 배지 요약 정보: 레이스(상태별), 앨범(진행도), 주사위(위치), 상점(갱신타이머), 창고(보관/열린칸), 탐험(개방/49)
 - 각 콘텐츠는 기본 숨김 (`display:none`)
 
 | 배지 | data-tab | 콘텐츠 ID | 요약정보 |
@@ -99,7 +100,7 @@ merge2/
 | 🎲 주사위 여행 | dice | #dice-trip-wrapper | n/50 |
 | 🛒 상점 | shop | #shop-wrapper | m:ss (갱신 타이머) |
 | 📦 창고 | storage | #storage-wrapper | 보관중/열린칸 |
-| 🎁 기부 | donate | #donate-wrapper | 현재 칭호/기부하기 |
+| 🦴 탐험 | explore | #explore-wrapper | n/49 (개방 타일 수) |
 
 ---
 
@@ -162,7 +163,7 @@ merge2/
   visitedSteps,           // 밟았던 칸 인덱스 배열 (v4.12.0+)
 
   // 생성기
-  genLevels: {cat, dog, bird, fish, reptile},
+  genLevels: {cat, dog, bird, fish, reptile, dinosaur},
 
   // 상점
   shopItems: [...],  shopNextRefresh,
@@ -205,8 +206,13 @@ merge2/
     pendingBoss,            // 보드 가득 시 대기 중인 EP번호 (null이면 없음)
   },
 
-  // 기부 (v4.33.0+)
-  donationTotal,              // 누적 기부 코인 (0~9999999)
+  // 탐험 지도 (v4.34.0+)
+  exploreProgress: {
+    revealedTiles,              // [24, ...] 개방된 타일 인덱스 (최대 49)
+    collectedFossils,           // [0, 1, ...] 수집한 화석 ID (최대 10)
+    claimedMilestones,          // [0, 1, ...] 수령한 마일스톤 인덱스 (최대 4)
+  },
+  pendingDinoGen,               // true/false 보드 가득 시 공룡 생성기 대기
 
   // 기타
   discoveredItems, currentSpecialIndex,
@@ -269,6 +275,7 @@ merge2/
 | bird | 새장 | 5 | 새(7) | 스페셜 |
 | fish | 어항 | 5 | 물고기(7) | 스페셜 |
 | reptile | 사육장 | 5 | 파충류(7) | 스페셜 |
+| dinosaur | 공룡 둥지 | 5 | 공룡(7) | 화석 10개 수집 |
 
 ### 퀘스트 (game.js)
 - 6개 동시, 3개씩 페이지 (좌우 네비)
@@ -820,8 +827,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### game.js (43개)
 `addCoins`, `spawnPiggyBank`, `discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `removeQuestItems`, `handleLevelUp`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `handleLockedCell`, `handleMissionCell`, `handleSpecialItem`, `triggerGen`, `openCooldownPopup`, `confirmCooldownReset`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `tryMergeItems`, `updateBossIdx`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `spawnBubble`, `showBubblePopup`, `openBubbleByAd`, `openBubbleByDiamond`, `adEnergy`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
 
-### systems.js (23개)
-`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`, `getDonationTitle`, `getNextMilestone`, `donate`, `updateDonationUI`
+### systems.js (30개)
+`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`, `isExplorable`, `exploreTile`, `checkExploreMilestone`, `spawnDinoGenerator`, `trySpawnPendingDinoGen`, `getExploreTitle`, `updateExploreUI`, `renderExploreMinimap`, `openExploreModal`, `renderExploreModal`, `closeExploreModal`
 
 ### ui.js (35개)
 `renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showError`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuideForItem`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `getGenSpawnLevels`, `renderSpawnPreview`, `updateUpgradeUI`, `upgradeGenerator`, `toggleBottomTab`, `updateBottomBadges`, `updateDailyMissionUI`
@@ -861,8 +868,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 `getEnergyPrice()` → 500 + 구매횟수×50 (KST 자정 리셋)
 - 광고 시청 → +30⚡ (에너지 팝업 내 광고 버튼)
 
-### 데이터 배열 (11개)
-`CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `CAT_SNACKS`(5), `DOG_SNACKS`(5), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `DAILY_MISSIONS`(3단계×3개), `ATTENDANCE_REWARDS`(7일), `DICE_TRIP_REWARDS`(50칸)
+### 데이터 배열 (12개)
+`CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `DINOSAURS`(7), `CAT_SNACKS`(5), `DOG_SNACKS`(5), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `DAILY_MISSIONS`(3단계×3개), `ATTENDANCE_REWARDS`(7일), `DICE_TRIP_REWARDS`(50칸)
 
 ### 퀘스트/럭키 (v4.25.1)
 `SPECIAL_QUEST_REWARD=300`, `QUEST_EXPIRE_MS=600000`, `QUEST_SNACK_CHANCE=0.3`, `QUEST_PIGGY_CHANCE=0.2`, `QUEST_MULTI_BASE_CHANCE=0.3`, `QUEST_MULTI_LEVEL_FACTOR=0.05`, `QUEST_MULTI_MAX_CHANCE=0.8`, `LUCKY_BASE_CHANCE=0.05`, `LUCKY_LEVEL_BONUS=0.01`, `LUCKY_SNACK_CHANCE=0.5`, `QUEST_COUNT_MISSION_GOAL=100`, `CLOUD_SAVE_DEBOUNCE_MS=500`
@@ -885,14 +892,17 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 쿨다운 즉시 해제 (v4.33.0)
 `COOLDOWN_COIN_PER_SEC=5` (남은 초 × 5코인)
 
-### 기부 시스템 (v4.33.0)
-`DONATION_AMOUNTS=[100, 500, 1000, 5000]`, `DONATION_MILESTONES` (6단계: 1K~500K, 칭호+다이아 보상)
+### 탐험 지도 (v4.34.0)
+`EXPLORE_MAP_SIZE=7`, `EXPLORE_TILE_COUNT=49`, `EXPLORE_UNLOCK_LEVEL=15`, `EXPLORE_BASE_COST=200`, `EXPLORE_COST_INCREMENT=50`, `EXPLORE_FOSSILS`(10종), `EXPLORE_MILESTONES`(4단계: 3/5/7/10개), `EXPLORE_MAP`(49칸 고정 보상), `getExploreCost(n)`, `getExploreAdjacentTiles(idx)`
+
+### 공룡 (v4.34.0)
+`DINOSAURS`(7레벨: 아기 공룡→랩터→스테고→트리케라→안킬로→브라키오→티라노)
 
 ### 생성기 이름 매핑 (v4.31.2)
-`GENERATOR_NAMES={cat:'캣타워', dog:'개집', bird:'새장', fish:'어항', reptile:'사육장', toy:'장난감 상자'}`, `getGeneratorName(type)`
+`GENERATOR_NAMES={cat:'캣타워', dog:'개집', bird:'새장', fish:'어항', reptile:'사육장', toy:'장난감 상자', dinosaur:'공룡 둥지'}`, `getGeneratorName(type)`
 
-### 헬퍼 함수 (11개)
-`getItemList`, `getMaxLevel`, `getItemData`, `getDisplayName`, `formatMinSec`, `getSpecialCooldown`, `getLevelUpGoal`, `getLevelUpReward`, `getKSTDateString`, `getMsUntilKSTMidnight`, `getGeneratorName`
+### 헬퍼 함수 (13개)
+`getItemList`, `getMaxLevel`, `getItemData`, `getDisplayName`, `formatMinSec`, `getSpecialCooldown`, `getLevelUpGoal`, `getLevelUpReward`, `getKSTDateString`, `getMsUntilKSTMidnight`, `getGeneratorName`, `getExploreCost`, `getExploreAdjacentTiles`
 
 ---
 
@@ -932,6 +942,46 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.34.0 (2026-02-23) - 기부 제거 + 화석 발굴 탐험 지도 + 공룡 생성기
+- 🗺️ **기부 시스템 완전 제거** → **화석 발굴 탐험 지도**로 교체
+  - 하단 배지 6번째 탭: 기부 → 탐험 (🦴)
+  - 7×7 안개 맵에서 코인으로 타일 개방 → 보상 발견 + 화석 수집
+  - 비용: `200 + (개방수-1) × 50`🪙 (총 ~67K🪙 소비 = 코인 싱크)
+  - Lv.15 해제 (`EXPLORE_UNLOCK_LEVEL`)
+  - 49칸 고정 보상: 코인(17) + 다이아(7) + 에너지(7) + 카드(7) + 화석(10) + 시작(1)
+  - 인접 타일만 개방 가능 (상하좌우)
+  - 배지 탭 미니맵 (7×7, 9px 셀) + 모달 (큰 맵 + 화석 컬렉션 + 마일스톤)
+- 🦴 **화석 컬렉션** (10종)
+  - 공룡 발자국, 이빨 화석, 갈비뼈 화석, 꼬리뼈 화석, 발톱 화석, 등뼈 화석, 날개뼈 화석, 두개골 화석, 알 화석, 완전한 골격
+  - 마일스톤: 3개(100🪙+5💎) → 5개(200🪙+10💎) → 7개(300🪙+15💎) → **10개(500🪙+30💎+공룡 생성기)**
+- 🦕 **공룡 생성기 + 공룡 동물 타입** (7레벨)
+  - 아기 공룡 → 랩터 → 스테고 → 트리케라 → 안킬로 → 브라키오 → 티라노
+  - 화석 10개 수집 시 보드 빈 칸에 자동 스폰 (빈 칸 없으면 pendingDinoGen)
+  - bird/fish/reptile과 동일 패턴: 6회 클릭 과열, SPECIAL_COOLDOWNS 쿨다운, 업그레이드 1,500🪙
+  - 스페셜 순환(bird→fish→reptile)에 미참여 (독립 생성기)
+  - 버블 아이템 생성 제외 (스페셜 타입과 동일)
+- 🐢 **거북이 이름 중복 수정**: `FISH[3]` '거북이' → '바다거북'
+- 🗑️ **기부 시스템 삭제**: `DONATION_AMOUNTS`, `DONATION_MILESTONES`, `donationTotal`, `getDonationTitle`, `getNextMilestone`, `donate`, `updateDonationUI`
+  - 기존 유저 donationTotal 데이터: 무시 (다음 저장 시 자연 소멸)
+- 수정 파일: js/constants.js, js/state.js, js/game.js, js/systems.js, js/ui.js, js/save.js, index.html, css/styles.css, firestore.rules, eslint.config.js (10개)
+- 신규 상수 (9개): `EXPLORE_MAP_SIZE`, `EXPLORE_TILE_COUNT`, `EXPLORE_UNLOCK_LEVEL`, `EXPLORE_BASE_COST`, `EXPLORE_COST_INCREMENT`, `EXPLORE_FOSSILS`, `EXPLORE_MILESTONES`, `EXPLORE_MAP`, `DINOSAURS`
+- 삭제 상수 (2개): `DONATION_AMOUNTS`, `DONATION_MILESTONES`
+- 신규 헬퍼 (2개): `getExploreCost()`, `getExploreAdjacentTiles()` (constants.js)
+- 신규 변수 (2개): `exploreProgress`, `pendingDinoGen` (state.js)
+- 삭제 변수 (1개): `donationTotal` (state.js)
+- 신규 함수 (11개): `isExplorable`, `exploreTile`, `checkExploreMilestone`, `spawnDinoGenerator`, `trySpawnPendingDinoGen`, `getExploreTitle`, `updateExploreUI`, `renderExploreMinimap`, `openExploreModal`, `renderExploreModal`, `closeExploreModal` (systems.js)
+- 삭제 함수 (4개): `getDonationTitle`, `getNextMilestone`, `donate`, `updateDonationUI` (systems.js)
+- 신규 저장 필드: `exploreProgress` (revealedTiles, collectedFossils, claimedMilestones), `pendingDinoGen`
+- 삭제 저장 필드: `donationTotal`
+- genLevels 확장: `{cat, dog, bird, fish, reptile}` → `{..., dinosaur: 0}`
+- GENERATOR_NAMES 확장: `dinosaur: '공룡 둥지'`
+- 신규 HTML: `#explore-wrapper` (미니맵+비용+버튼), `#explore-modal` (큰 맵+화석+마일스톤), 탐험 배지 버튼
+- 삭제 HTML: `#donate-wrapper`, 기부 배지 버튼
+- 신규 CSS: `.explore-minimap`, `.explore-tile`, `.explore-modal-grid`, `.explore-modal-tile`, `.explore-fossil-item`
+- firestore.rules: `donationTotal` 검증 제거 + `exploreProgress` map 검증 추가
+- 수정 함수: `triggerGen()` (game.js - dinosaur 추가), `tryMergeItems()` (game.js - dinosaur 버블 제외), `toggleBottomTab()` (ui.js - explore 매핑), `updateBottomBadges()` (ui.js - 탐험 진행도), `openSettings()` (ui.js - getExploreTitle), `createItem()` (ui.js - dinosaur 색상), `openGuide()` (ui.js - dinosaur 탭 제한), `updateUpgradeUI()`/`upgradeGenerator()` (ui.js - dinosaur 스페셜), `updateAll()` (ui.js - trySpawnPendingDinoGen), `getGameData()`/`applyGameData()`/`clampSaveData()`/`initNewGame()` (save.js - exploreProgress)
+- 이미지 필요 (미제작): `images/dinosaurs/dino1~7.png`, `images/spawners/spawner_dinosaur.png`
 
 ### v4.33.0 (2026-02-20) - 쿨다운 즉시 해제 + 기부 시스템
 - 🔥 **쿨다운 즉시 해제** 추가
