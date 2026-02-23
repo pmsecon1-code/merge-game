@@ -349,7 +349,7 @@ function screenShake(intensity) {
 
 function flyRewardToStatusBar(fromEl, type) {
     if (!fromEl) return;
-    const iconMap = { coin: 'coin-val', diamond: 'diamond-val', card: 'card-val' };
+    const iconMap = { coin: 'coin-val', diamond: 'diamond-val', card: 'card-val', energy: 'energy-val' };
     const targetId = iconMap[type];
     if (!targetId) return;
     const targetEl = document.getElementById(targetId);
@@ -357,7 +357,7 @@ function flyRewardToStatusBar(fromEl, type) {
     const fromR = fromEl.getBoundingClientRect();
     const toR = targetEl.getBoundingClientRect();
     const count = 3 + Math.floor(Math.random() * 3);
-    const imgMap = { coin: 'images/icons/coin.png', diamond: 'images/icons/diamond.png', card: 'images/icons/card.png' };
+    const imgMap = { coin: 'images/icons/coin.png', diamond: 'images/icons/diamond.png', card: 'images/icons/card.png', energy: 'images/icons/energy.png' };
     for (let i = 0; i < count; i++) {
         const icon = document.createElement('img');
         icon.src = imgMap[type] || 'images/icons/coin.png';

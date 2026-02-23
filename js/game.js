@@ -639,9 +639,11 @@ function buyEnergy() {
         energy = MAX_ENERGY;
         energyRecoverAt = Date.now() + RECOVERY_SEC * 1000;
         energyPurchaseCount++;
+        const popup = document.getElementById('energy-popup');
         closeEnergyPopup();
         playSound('purchase');
         showToast('충전 완료!');
+        if (popup) flyRewardToStatusBar(popup, 'energy');
         updateUI();
         updateTimerUI();
         saveGame();
@@ -941,6 +943,7 @@ function confirmAd() {
         energy = Math.min(energy + AD_ENERGY_AMOUNT, 999);
         playSound('purchase');
         showToast(`+${AD_ENERGY_AMOUNT}${ICON.energy} 충전!`);
+        flyRewardToStatusBar(document.getElementById('ad-popup'), 'energy');
         updateUI();
         updateTimerUI();
         saveGame();
