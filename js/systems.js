@@ -636,7 +636,7 @@ function renderExploreModal() {
             cls += ' revealed';
             if (tile.type === 'fossil') {
                 const f = EXPLORE_FOSSILS[tile.fossilId];
-                content = `<span>${ICON[f.icon]}</span><span class="text-[7px]">${f.name}</span>`;
+                content = `<span>${ICON[f.icon]}</span><span class="text-[7px] text-green-700">${f.name}</span>`;
             } else if (tile.type === 'start') {
                 content = `<span>${ICON.paw}</span>`;
             } else {
@@ -645,11 +645,11 @@ function renderExploreModal() {
             }
         } else if (canExplore) {
             cls += ' explorable';
-            content = `<span class="text-[7px] font-bold text-amber-700">발굴</span><span class="text-[7px]">${cost}${ICON.coin}</span>`;
+            content = `<span class="text-[7px] font-bold text-amber-700">발굴</span><span class="text-[7px] text-amber-600">${cost}${ICON.coin}</span>`;
             onclick = `onclick="exploreTile(${i})"`;
         } else {
             cls += ' fog';
-            content = '?';
+            content = '<span class="text-gray-400">?</span>';
         }
         gridHtml += `<div class="${cls}" ${onclick}>${content}</div>`;
     }
