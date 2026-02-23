@@ -10,7 +10,8 @@
         "lint:fix": "eslint . --fix",
         "format": "prettier --write \"**/*.{html,css,js,json}\"",
         "format:check": "prettier --check \"**/*.{html,css,js,json}\"",
-        "setup-hooks": "cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit"
+        "setup-hooks": "cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit",
+        "convert-webp": "node scripts/convert-webp.js"
     },
     "devDependencies": {
         "eslint": "^9.0.0",
@@ -19,6 +20,7 @@
         "firebase-admin": "^13.6.1",
         "globals": "^15.0.0",
         "prettier": "^3.0.0",
+        "sharp": "^0.33.5",
         "vitest": "^4.0.18"
     }
 }

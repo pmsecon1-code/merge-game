@@ -22,35 +22,42 @@ function init() {
     createStorageCells();
     createShopCells();
 
-    // 이미지 프리로드 (합성 시 딜레이 방지)
-    [CATS, DOGS, BIRDS, FISH, REPTILES, CAT_SNACKS, DOG_SNACKS, CAT_TOYS, DOG_TOYS].forEach(list => {
-        list.forEach(item => {
-            if (item.img) {
-                const img = new Image();
-                img.src = item.img;
-            }
+    // 이미지 프리로드 (유휴 시간에 실행하여 초기 렌더 차단 방지)
+    const preloadImages = () => {
+        [CATS, DOGS, BIRDS, FISH, REPTILES, CAT_SNACKS, DOG_SNACKS, CAT_TOYS, DOG_TOYS].forEach(list => {
+            list.forEach(item => {
+                if (item.img) {
+                    const img = new Image();
+                    img.src = item.img;
+                }
+            });
         });
-    });
-    ['cat', 'dog', 'bird', 'fish', 'reptile', 'toy', 'piggybank'].forEach(t => {
-        const img = new Image();
-        img.src = `images/spawners/spawner_${t}.png`;
-    });
-    ['energy', 'coin', 'diamond', 'card', 'piggybank', 'settings', 'lock', 'tv', 'save', 'gift', 'sound'].forEach(t => {
-        const img = new Image();
-        img.src = `images/icons/${t}.png`;
-    });
-    NPC_AVATARS.forEach(src => {
-        const img = new Image();
-        img.src = src;
-    });
-    ['badge_race', 'badge_album', 'badge_dice', 'badge_shop', 'badge_storage'].forEach(t => {
-        const img = new Image();
-        img.src = `images/badges/${t}.png`;
-    });
-    ['mycar', 'rival', 'trophy', 'lose', 'draw'].forEach(t => {
-        const img = new Image();
-        img.src = `images/race/${t}.png`;
-    });
+        ['cat', 'dog', 'bird', 'fish', 'reptile', 'toy', 'piggybank'].forEach(t => {
+            const img = new Image();
+            img.src = `images/spawners/spawner_${t}.png`;
+        });
+        ['energy', 'coin', 'diamond', 'card', 'piggybank', 'settings', 'lock', 'tv', 'save', 'gift', 'sound'].forEach(t => {
+            const img = new Image();
+            img.src = `images/icons/${t}.png`;
+        });
+        NPC_AVATARS.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+        ['badge_race', 'badge_album', 'badge_dice', 'badge_shop', 'badge_storage'].forEach(t => {
+            const img = new Image();
+            img.src = `images/badges/${t}.png`;
+        });
+        ['mycar', 'rival', 'trophy', 'lose', 'draw'].forEach(t => {
+            const img = new Image();
+            img.src = `images/race/${t}.png`;
+        });
+    };
+    if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(preloadImages);
+    } else {
+        setTimeout(preloadImages, 2000);
+    }
 
     // 보상 힌트 텍스트 (상수 기반)
     document.getElementById('race-hint').innerHTML = `친구 코드를 입력해서 경쟁하세요! (승리 시 +${RACE_REWARDS.win.coins}${ICON.coin} +${RACE_REWARDS.win.diamonds}${ICON.diamond})`;

@@ -390,10 +390,10 @@ const EXPLORE_FOSSILS = [
 ];
 
 const EXPLORE_MILESTONES = [
-    { count: 3,  coins: 100, diamonds: 5  },
-    { count: 5,  coins: 200, diamonds: 10 },
-    { count: 7,  coins: 300, diamonds: 15 },
-    { count: 10, coins: 500, diamonds: 30, dinoGen: true },
+    { count: 3,  coins: 200,  diamonds: 10  },
+    { count: 5,  coins: 500,  diamonds: 30  },
+    { count: 7,  coins: 1000, diamonds: 80  },
+    { count: 10, coins: 2000, diamonds: 200, dinoGen: true },
 ];
 
 // 7×7 = 49칸 고정 배치 (행 우선)
@@ -401,59 +401,59 @@ const EXPLORE_MILESTONES = [
 const EXPLORE_MAP = [
     // row 0 (top edge)
     { type: 'fossil', fossilId: 0 },
-    { type: 'coins', min: 50, max: 100 },
-    { type: 'energy', min: 10, max: 15 },
-    { type: 'coins', min: 80, max: 150 },
-    { type: 'diamonds', min: 2, max: 4 },
-    { type: 'coins', min: 60, max: 120 },
+    { type: 'coins', min: 100, max: 200 },
+    { type: 'energy', min: 20, max: 30 },
+    { type: 'coins', min: 150, max: 300 },
+    { type: 'diamonds', min: 3, max: 8 },
+    { type: 'coins', min: 120, max: 240 },
     { type: 'fossil', fossilId: 1 },
     // row 1
+    { type: 'coins', min: 200, max: 400 },
+    { type: 'energy', min: 30, max: 50 },
+    { type: 'cards', min: 5, max: 10 },
     { type: 'coins', min: 100, max: 200 },
-    { type: 'energy', min: 15, max: 25 },
-    { type: 'cards', min: 3, max: 6 },
-    { type: 'coins', min: 50, max: 100 },
-    { type: 'diamonds', min: 1, max: 3 },
-    { type: 'coins', min: 70, max: 130 },
+    { type: 'diamonds', min: 2, max: 5 },
+    { type: 'coins', min: 140, max: 260 },
     { type: 'fossil', fossilId: 2 },
     // row 2
-    { type: 'diamonds', min: 3, max: 5 },
-    { type: 'coins', min: 100, max: 180 },
-    { type: 'energy', min: 10, max: 20 },
-    { type: 'cards', min: 4, max: 7 },
-    { type: 'coins', min: 60, max: 100 },
-    { type: 'diamonds', min: 2, max: 4 },
+    { type: 'diamonds', min: 5, max: 10 },
+    { type: 'coins', min: 200, max: 350 },
+    { type: 'energy', min: 20, max: 40 },
+    { type: 'cards', min: 8, max: 14 },
+    { type: 'coins', min: 120, max: 200 },
+    { type: 'diamonds', min: 4, max: 8 },
     { type: 'fossil', fossilId: 3 },
     // row 3 (center row)
     { type: 'fossil', fossilId: 4 },
-    { type: 'energy', min: 15, max: 30 },
-    { type: 'coins', min: 150, max: 250 },
+    { type: 'energy', min: 30, max: 50 },
+    { type: 'coins', min: 300, max: 500 },
     { type: 'start' },
-    { type: 'coins', min: 200, max: 300 },
-    { type: 'cards', min: 5, max: 10 },
+    { type: 'coins', min: 400, max: 600 },
+    { type: 'cards', min: 10, max: 18 },
     { type: 'fossil', fossilId: 5 },
     // row 4
     { type: 'fossil', fossilId: 6 },
-    { type: 'diamonds', min: 3, max: 6 },
-    { type: 'coins', min: 80, max: 150 },
-    { type: 'energy', min: 20, max: 30 },
-    { type: 'cards', min: 3, max: 6 },
-    { type: 'coins', min: 100, max: 200 },
-    { type: 'diamonds', min: 4, max: 8 },
+    { type: 'diamonds', min: 5, max: 12 },
+    { type: 'coins', min: 160, max: 300 },
+    { type: 'energy', min: 35, max: 50 },
+    { type: 'cards', min: 5, max: 10 },
+    { type: 'coins', min: 200, max: 400 },
+    { type: 'diamonds', min: 8, max: 15 },
     // row 5
-    { type: 'coins', min: 50, max: 100 },
-    { type: 'cards', min: 4, max: 8 },
-    { type: 'diamonds', min: 2, max: 5 },
-    { type: 'coins', min: 120, max: 200 },
-    { type: 'energy', min: 10, max: 20 },
-    { type: 'coins', min: 80, max: 150 },
+    { type: 'coins', min: 100, max: 200 },
+    { type: 'cards', min: 8, max: 15 },
+    { type: 'diamonds', min: 4, max: 10 },
+    { type: 'coins', min: 250, max: 400 },
+    { type: 'energy', min: 20, max: 40 },
+    { type: 'coins', min: 160, max: 300 },
     { type: 'fossil', fossilId: 7 },
     // row 6 (bottom edge)
     { type: 'fossil', fossilId: 8 },
-    { type: 'coins', min: 100, max: 180 },
-    { type: 'energy', min: 15, max: 25 },
-    { type: 'diamonds', min: 3, max: 6 },
-    { type: 'coins', min: 150, max: 250 },
-    { type: 'cards', min: 5, max: 8 },
+    { type: 'coins', min: 200, max: 350 },
+    { type: 'energy', min: 30, max: 50 },
+    { type: 'diamonds', min: 5, max: 12 },
+    { type: 'coins', min: 300, max: 500 },
+    { type: 'cards', min: 10, max: 15 },
     { type: 'fossil', fossilId: 9 },
 ];
 
@@ -720,40 +720,40 @@ const STORY_BOSS_HP_BASE = 500;   // 보스 HP = 500 × EP번호
 
 const STORY_IMAGES = [
     // EP.1 "텅 빈 마을" (3장, Lv.5/10/15)
-    { id: 0,  ep: 1, title: '텅 빈 마을', img: 'images/story/scenes/ep1_intro_1.png', text: '아침이 왔다.\n아무 소리도 들리지 않았다.', reqLevel: 5,  reqs: [{type:'cat', level:2}], reward: {coins:30}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 1,  ep: 1, title: '텅 빈 마을', img: 'images/story/scenes/ep1_intro_2.png', text: '땅에 거대한 발자국만 남아있었다.\n"...다들 어디 간 거야?"', reqLevel: 10, reqs: [{type:'cat', level:3}], reward: {coins:40}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 2,  ep: 1, title: '텅 빈 마을', img: 'images/story/scenes/ep1_outro_1.png', text: '수평선 너머, 검은 섬의 윤곽이 보였다.', reqLevel: 15, reqs: [{type:'cat', level:4}], reward: {coins:50}, isLastInEp: true, bossName: '도깨비 그림자', bossImg: 'images/story/boss_shadow.png' },
+    { id: 0,  ep: 1, title: '텅 빈 마을', img: 'images/story/scenes/ep1_intro_1.webp', text: '아침이 왔다.\n아무 소리도 들리지 않았다.', reqLevel: 5,  reqs: [{type:'cat', level:2}], reward: {coins:30}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 1,  ep: 1, title: '텅 빈 마을', img: 'images/story/scenes/ep1_intro_2.webp', text: '땅에 거대한 발자국만 남아있었다.\n"...다들 어디 간 거야?"', reqLevel: 10, reqs: [{type:'cat', level:3}], reward: {coins:40}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 2,  ep: 1, title: '텅 빈 마을', img: 'images/story/scenes/ep1_outro_1.webp', text: '수평선 너머, 검은 섬의 윤곽이 보였다.', reqLevel: 15, reqs: [{type:'cat', level:4}], reward: {coins:50}, isLastInEp: true, bossName: '도깨비 그림자', bossImg: 'images/story/boss_shadow.webp' },
 
     // EP.2 "떠나는 발걸음" (3장, Lv.20/25/30)
-    { id: 3,  ep: 2, title: '떠나는 발걸음', img: 'images/story/scenes/ep2_intro_1.png', text: '아기 고양이는 짐을 쌌다.\n간식 두 개. 그게 전부였다.', reqLevel: 20, reqs: [{type:'cat_snack', level:1}], reward: {coins:40}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 4,  ep: 2, title: '떠나는 발걸음', img: 'images/story/scenes/ep2_intro_2.png', text: '마을 어귀에서 뒤를 돌아봤다.\n아무도 배웅해주지 않았다.', reqLevel: 25, reqs: [{type:'dog_snack', level:1}], reward: {coins:50}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 5,  ep: 2, title: '떠나는 발걸음', img: 'images/story/scenes/ep2_outro_1.png', text: '해가 지기 시작했다.\n산 너머에서 이상한 소리가 들렸다.', reqLevel: 30, reqs: [{type:'cat_snack', level:2}, {type:'dog_snack', level:2}], reward: {coins:60}, isLastInEp: true, bossName: '도깨비 정찰병', bossImg: 'images/story/boss_scout.png' },
+    { id: 3,  ep: 2, title: '떠나는 발걸음', img: 'images/story/scenes/ep2_intro_1.webp', text: '아기 고양이는 짐을 쌌다.\n간식 두 개. 그게 전부였다.', reqLevel: 20, reqs: [{type:'cat_snack', level:1}], reward: {coins:40}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 4,  ep: 2, title: '떠나는 발걸음', img: 'images/story/scenes/ep2_intro_2.webp', text: '마을 어귀에서 뒤를 돌아봤다.\n아무도 배웅해주지 않았다.', reqLevel: 25, reqs: [{type:'dog_snack', level:1}], reward: {coins:50}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 5,  ep: 2, title: '떠나는 발걸음', img: 'images/story/scenes/ep2_outro_1.webp', text: '해가 지기 시작했다.\n산 너머에서 이상한 소리가 들렸다.', reqLevel: 30, reqs: [{type:'cat_snack', level:2}, {type:'dog_snack', level:2}], reward: {coins:60}, isLastInEp: true, bossName: '도깨비 정찰병', bossImg: 'images/story/boss_scout.webp' },
 
     // EP.3 "첫 번째 동료" (3장, Lv.35/40/45)
-    { id: 6,  ep: 3, title: '첫 번째 동료', img: 'images/story/scenes/ep3_intro_1.png', text: '길가에 강아지 한 마리가 쓰러져 있었다.\n굶주린 눈.', reqLevel: 35, reqs: [{type:'dog', level:3}], reward: {coins:50}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 7,  ep: 3, title: '첫 번째 동료', img: 'images/story/scenes/ep3_intro_2.png', text: '"...간식 줄까?"\n강아지가 꼬리를 흔들었다.', reqLevel: 40, reqs: [{type:'dog', level:4}], reward: {coins:60}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 8,  ep: 3, title: '첫 번째 동료', img: 'images/story/scenes/ep3_outro_1.png', text: '"나도 같이 갈래."\n둘은 나란히 걸었다.', reqLevel: 45, reqs: [{type:'dog', level:5}], reward: {coins:80}, isLastInEp: true, bossName: '도깨비 포수', bossImg: 'images/story/boss_trapper.png' },
+    { id: 6,  ep: 3, title: '첫 번째 동료', img: 'images/story/scenes/ep3_intro_1.webp', text: '길가에 강아지 한 마리가 쓰러져 있었다.\n굶주린 눈.', reqLevel: 35, reqs: [{type:'dog', level:3}], reward: {coins:50}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 7,  ep: 3, title: '첫 번째 동료', img: 'images/story/scenes/ep3_intro_2.webp', text: '"...간식 줄까?"\n강아지가 꼬리를 흔들었다.', reqLevel: 40, reqs: [{type:'dog', level:4}], reward: {coins:60}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 8,  ep: 3, title: '첫 번째 동료', img: 'images/story/scenes/ep3_outro_1.webp', text: '"나도 같이 갈래."\n둘은 나란히 걸었다.', reqLevel: 45, reqs: [{type:'dog', level:5}], reward: {coins:80}, isLastInEp: true, bossName: '도깨비 포수', bossImg: 'images/story/boss_trapper.webp' },
 
     // EP.4 "하늘의 눈" (3장, Lv.50/55/60)
-    { id: 9,  ep: 4, title: '하늘의 눈', img: 'images/story/scenes/ep4_intro_1.png', text: '나뭇가지에 새 한 마리가 앉아있었다.\n날개가 꺾여 있었다.', reqLevel: 50, reqs: [{type:'bird', level:2}], reward: {coins:60}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 10, ep: 4, title: '하늘의 눈', img: 'images/story/scenes/ep4_intro_2.png', text: '"치료해줄게."\n아기 고양이가 간식을 내밀었다.', reqLevel: 55, reqs: [{type:'bird', level:3}, {type:'cat_snack', level:2}], reward: {coins:70}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 11, ep: 4, title: '하늘의 눈', img: 'images/story/scenes/ep4_outro_1.png', text: '"저쪽이야. 검은 섬."\n먹구름이 몰려있었다.', reqLevel: 60, reqs: [{type:'bird', level:4}, {type:'cat_snack', level:3}], reward: {coins:80}, isLastInEp: true, bossName: '도깨비 궁수', bossImg: 'images/story/boss_archer.png' },
+    { id: 9,  ep: 4, title: '하늘의 눈', img: 'images/story/scenes/ep4_intro_1.webp', text: '나뭇가지에 새 한 마리가 앉아있었다.\n날개가 꺾여 있었다.', reqLevel: 50, reqs: [{type:'bird', level:2}], reward: {coins:60}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 10, ep: 4, title: '하늘의 눈', img: 'images/story/scenes/ep4_intro_2.webp', text: '"치료해줄게."\n아기 고양이가 간식을 내밀었다.', reqLevel: 55, reqs: [{type:'bird', level:3}, {type:'cat_snack', level:2}], reward: {coins:70}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 11, ep: 4, title: '하늘의 눈', img: 'images/story/scenes/ep4_outro_1.webp', text: '"저쪽이야. 검은 섬."\n먹구름이 몰려있었다.', reqLevel: 60, reqs: [{type:'bird', level:4}, {type:'cat_snack', level:3}], reward: {coins:80}, isLastInEp: true, bossName: '도깨비 궁수', bossImg: 'images/story/boss_archer.webp' },
 
     // EP.5 "검은 바다" (3장, Lv.65/70/75)
-    { id: 12, ep: 5, title: '검은 바다', img: 'images/story/scenes/ep5_intro_1.png', text: '바다가 검게 물들어 있었다.\n건널 수 없었다.', reqLevel: 65, reqs: [{type:'reptile', level:3}], reward: {coins:70}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 13, ep: 5, title: '검은 바다', img: 'images/story/scenes/ep5_intro_2.png', text: '거북이가 수면 위로 올라왔다.\n"타."', reqLevel: 70, reqs: [{type:'reptile', level:3}, {type:'dog_snack', level:2}], reward: {coins:80}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 14, ep: 5, title: '검은 바다', img: 'images/story/scenes/ep5_outro_1.png', text: '섬이 점점 커졌다.\n냄새가 났다. 불길한 냄새.', reqLevel: 75, reqs: [{type:'reptile', level:4}, {type:'dog_snack', level:3}], reward: {coins:100}, isLastInEp: true, bossName: '바다 도깨비', bossImg: 'images/story/boss_pirate.png' },
+    { id: 12, ep: 5, title: '검은 바다', img: 'images/story/scenes/ep5_intro_1.webp', text: '바다가 검게 물들어 있었다.\n건널 수 없었다.', reqLevel: 65, reqs: [{type:'reptile', level:3}], reward: {coins:70}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 13, ep: 5, title: '검은 바다', img: 'images/story/scenes/ep5_intro_2.webp', text: '거북이가 수면 위로 올라왔다.\n"타."', reqLevel: 70, reqs: [{type:'reptile', level:3}, {type:'dog_snack', level:2}], reward: {coins:80}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 14, ep: 5, title: '검은 바다', img: 'images/story/scenes/ep5_outro_1.webp', text: '섬이 점점 커졌다.\n냄새가 났다. 불길한 냄새.', reqLevel: 75, reqs: [{type:'reptile', level:4}, {type:'dog_snack', level:3}], reward: {coins:100}, isLastInEp: true, bossName: '바다 도깨비', bossImg: 'images/story/boss_pirate.webp' },
 
     // EP.6 "도깨비섬" (4장, Lv.80/85/90/95)
-    { id: 15, ep: 6, title: '도깨비섬', img: 'images/story/scenes/ep6_intro_1.png', text: '섬에 발을 디딘 순간, 냄새가 났다.', reqLevel: 80, reqs: [{type:'cat', level:5}], reward: {coins:80}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 16, ep: 6, title: '도깨비섬', img: 'images/story/scenes/ep6_intro_2.png', text: '길 양옆에 뼈가 흩어져 있었다.\n작은 뼈. 동물의 뼈.', reqLevel: 85, reqs: [{type:'dog', level:4}, {type:'cat', level:5}], reward: {coins:90}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 17, ep: 6, title: '도깨비섬', img: 'images/story/scenes/ep6_intro_3.png', text: '깃털 하나가 땅에 떨어졌다.\n같은 종류의 깃털이었다.', reqLevel: 90, reqs: [{type:'cat', level:6}, {type:'dog', level:5}], reward: {coins:100}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 18, ep: 6, title: '도깨비섬', img: 'images/story/scenes/ep6_outro_1.png', text: '동굴 입구가 보였다.\n안에서 숨소리가 들렸다.', reqLevel: 95, reqs: [{type:'cat', level:6}, {type:'dog', level:5}, {type:'bird', level:3}], reward: {coins:120}, isLastInEp: true, bossName: '도깨비 문지기', bossImg: 'images/story/boss_guard.png' },
+    { id: 15, ep: 6, title: '도깨비섬', img: 'images/story/scenes/ep6_intro_1.webp', text: '섬에 발을 디딘 순간, 냄새가 났다.', reqLevel: 80, reqs: [{type:'cat', level:5}], reward: {coins:80}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 16, ep: 6, title: '도깨비섬', img: 'images/story/scenes/ep6_intro_2.webp', text: '길 양옆에 뼈가 흩어져 있었다.\n작은 뼈. 동물의 뼈.', reqLevel: 85, reqs: [{type:'dog', level:4}, {type:'cat', level:5}], reward: {coins:90}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 17, ep: 6, title: '도깨비섬', img: 'images/story/scenes/ep6_intro_3.webp', text: '깃털 하나가 땅에 떨어졌다.\n같은 종류의 깃털이었다.', reqLevel: 90, reqs: [{type:'cat', level:6}, {type:'dog', level:5}], reward: {coins:100}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 18, ep: 6, title: '도깨비섬', img: 'images/story/scenes/ep6_outro_1.webp', text: '동굴 입구가 보였다.\n안에서 숨소리가 들렸다.', reqLevel: 95, reqs: [{type:'cat', level:6}, {type:'dog', level:5}, {type:'bird', level:3}], reward: {coins:120}, isLastInEp: true, bossName: '도깨비 문지기', bossImg: 'images/story/boss_guard.webp' },
 
     // EP.7 "도깨비" (5장, Lv.100/105/110/115/120)
-    { id: 19, ep: 7, title: '도깨비', img: 'images/story/scenes/ep7_intro_1.png', text: '동굴 안은 어두웠다.\n숨소리만 들렸다.', reqLevel: 100, reqs: [{type:'cat', level:6}, {type:'dog', level:5}], reward: {coins:100}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 20, ep: 7, title: '도깨비', img: 'images/story/scenes/ep7_intro_2.png', text: '거대한 들쥐. 핏빛 눈.\n이빨 사이에 깃털이 끼어있었다.', reqLevel: 105, reqs: [{type:'cat', level:7}, {type:'dog', level:5}], reward: {coins:120}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 21, ep: 7, title: '도깨비', img: 'images/story/scenes/ep7_intro_3.png', text: '도깨비가 웃었다.\n배가 고프다는 뜻이었다.', reqLevel: 110, reqs: [{type:'cat', level:7}, {type:'dog', level:6}], reward: {coins:150}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 22, ep: 7, title: '도깨비', img: 'images/story/scenes/ep7_outro_1.png', text: '아기 고양이가 할퀴었다.\n강아지가 물었다. 새가 눈을 찔렀다.', reqLevel: 115, reqs: [{type:'cat', level:7}, {type:'dog', level:6}, {type:'bird', level:3}], reward: {coins:200}, isLastInEp: false, bossName: null, bossImg: null },
-    { id: 23, ep: 7, title: '도깨비', img: 'images/story/scenes/ep7_outro_2.png', text: '갇혀있던 동물들이었다.\n살아있었다. 전부.\n\n─ Chapter 1. 끝 ─', reqLevel: 120, reqs: [{type:'cat', level:7}, {type:'dog', level:6}, {type:'bird', level:4}], reward: {coins:300}, isLastInEp: true, bossName: '도깨비 두목', bossImg: 'images/story/boss_king.png' },
+    { id: 19, ep: 7, title: '도깨비', img: 'images/story/scenes/ep7_intro_1.webp', text: '동굴 안은 어두웠다.\n숨소리만 들렸다.', reqLevel: 100, reqs: [{type:'cat', level:6}, {type:'dog', level:5}], reward: {coins:100}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 20, ep: 7, title: '도깨비', img: 'images/story/scenes/ep7_intro_2.webp', text: '거대한 들쥐. 핏빛 눈.\n이빨 사이에 깃털이 끼어있었다.', reqLevel: 105, reqs: [{type:'cat', level:7}, {type:'dog', level:5}], reward: {coins:120}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 21, ep: 7, title: '도깨비', img: 'images/story/scenes/ep7_intro_3.webp', text: '도깨비가 웃었다.\n배가 고프다는 뜻이었다.', reqLevel: 110, reqs: [{type:'cat', level:7}, {type:'dog', level:6}], reward: {coins:150}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 22, ep: 7, title: '도깨비', img: 'images/story/scenes/ep7_outro_1.webp', text: '아기 고양이가 할퀴었다.\n강아지가 물었다. 새가 눈을 찔렀다.', reqLevel: 115, reqs: [{type:'cat', level:7}, {type:'dog', level:6}, {type:'bird', level:3}], reward: {coins:200}, isLastInEp: false, bossName: null, bossImg: null },
+    { id: 23, ep: 7, title: '도깨비', img: 'images/story/scenes/ep7_outro_2.webp', text: '갇혀있던 동물들이었다.\n살아있었다. 전부.\n\n─ Chapter 1. 끝 ─', reqLevel: 120, reqs: [{type:'cat', level:7}, {type:'dog', level:6}, {type:'bird', level:4}], reward: {coins:300}, isLastInEp: true, bossName: '도깨비 두목', bossImg: 'images/story/boss_king.webp' },
 ];

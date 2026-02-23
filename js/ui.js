@@ -454,8 +454,10 @@ function handleDragStart(e) {
     t.style.position = 'fixed';
     t.style.width = r.width + 'px';
     t.style.height = r.height + 'px';
-    t.style.left = r.left + 'px';
-    t.style.top = r.top + 'px';
+    t.style.left = '0px';
+    t.style.top = '0px';
+    t.style.transform = `translate(${r.left}px, ${r.top}px)`;
+    t.style.willChange = 'transform';
     t.style.zIndex = 1000;
     t.style.pointerEvents = 'none';
 }
@@ -465,8 +467,7 @@ function handleDragMove(e) {
     e.preventDefault();
     const cx = e.touches ? e.touches[0].clientX : e.clientX,
         cy = e.touches ? e.touches[0].clientY : e.clientY;
-    dragData.el.style.left = cx - dragData.offsetX + 'px';
-    dragData.el.style.top = cy - dragData.offsetY + 'px';
+    dragData.el.style.transform = `translate(${cx - dragData.offsetX}px, ${cy - dragData.offsetY}px)`;
 }
 
 function handleDragEnd(e) {
@@ -786,7 +787,7 @@ function updateBottomBadges() {
     // 탐험: 진행도
     const exploreInfo = document.getElementById('badge-explore-info');
     if (exploreInfo) {
-        exploreInfo.textContent = `${exploreProgress.revealedTiles.length}/${EXPLORE_TILE_COUNT}`;
+        exploreInfo.textContent = `${exploreProgress.collectedFossils.length}/10`;
     }
 }
 

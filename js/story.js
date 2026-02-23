@@ -189,7 +189,7 @@ function createBossItem(item, bossData, imgData) {
     const hpColor = getBossHpColor(pct);
     d.innerHTML = `
         <div class="bg-circle" style="background-color:#fee2e2"></div>
-        <img src="${imgData?.bossImg || 'images/story/boss_shadow.png'}" style="width:80%;height:80%;object-fit:contain;position:relative;z-index:1">
+        <img src="${imgData?.bossImg || 'images/story/boss_shadow.webp'}" style="width:80%;height:80%;object-fit:contain;position:relative;z-index:1">
         <div class="boss-mini-hp">
             <div class="boss-mini-hp-fill" style="width:${pct}%;background:${hpColor}"></div>
         </div>
@@ -202,7 +202,7 @@ function createBossItem(item, bossData, imgData) {
 function showBossInfoPopup(bossData, imgData) {
     playSound('click');
     const name = imgData?.bossName || '보스';
-    const bossImg = imgData?.bossImg || 'images/story/boss_shadow.png';
+    const bossImg = imgData?.bossImg || 'images/story/boss_shadow.webp';
     const pct = Math.round((bossData.hp / bossData.maxHp) * 100);
     const hpColor = getBossHpColor(pct);
 
@@ -296,7 +296,7 @@ function renderStoryGallery() {
         epImages.forEach(img => {
             const unlocked = storyProgress.unlockedImages.includes(img.id);
             html += `<div class="gallery-image ${unlocked ? '' : 'locked'}" onclick="${unlocked ? `viewStoryImage(${img.id})` : ''}">
-                <img src="${unlocked ? img.img : 'images/icons/lock.png'}" style="width:100%;height:100%;object-fit:${unlocked ? 'cover' : 'contain'};${unlocked ? '' : 'opacity:0.3;padding:8px'}">
+                <img src="${unlocked ? img.img : 'images/icons/lock.png'}" loading="lazy" style="width:100%;height:100%;object-fit:${unlocked ? 'cover' : 'contain'};${unlocked ? '' : 'opacity:0.3;padding:8px'}">
                 ${unlocked ? '' : `<span class="gallery-lock-level">Lv.${img.reqLevel}</span>`}
             </div>`;
         });
