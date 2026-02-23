@@ -535,6 +535,7 @@ function trySpawnPendingDinoGen() {
         boardState[emptyIdx] = { type: 'dinosaur_generator', clicks: 0, cooldown: 0 };
         pendingDinoGen = false;
         showToast('공룡 둥지가 나타났다!');
+        playSound('milestone');
     }
 }
 

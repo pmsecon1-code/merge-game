@@ -786,7 +786,7 @@ function updateBottomBadges() {
     // 탐험: 진행도
     const exploreInfo = document.getElementById('badge-explore-info');
     if (exploreInfo) {
-        exploreInfo.textContent = `${exploreProgress.revealedTiles.length}/49`;
+        exploreInfo.textContent = `${exploreProgress.revealedTiles.length}/${EXPLORE_TILE_COUNT}`;
     }
 }
 
