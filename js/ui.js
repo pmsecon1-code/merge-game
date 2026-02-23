@@ -406,27 +406,6 @@ function spawnLevelupConfetti() {
     }
 }
 
-function highlightMergeTargets(type, level) {
-    const allCells = boardEl.querySelectorAll('.cell');
-    allCells.forEach((c, i) => {
-        const it = boardState[i];
-        if (it && it.type === type && it.level === level) {
-            c.classList.add('merge-highlight');
-        }
-    });
-    const storageCells = storageEl.querySelectorAll('.cell');
-    storageCells.forEach((c, i) => {
-        const it = storageState[i];
-        if (it && it.type === type && it.level === level) {
-            c.classList.add('merge-highlight');
-        }
-    });
-}
-
-function clearMergeHighlights() {
-    document.querySelectorAll('.merge-highlight').forEach(el => el.classList.remove('merge-highlight'));
-}
-
 // --- 에러 헬퍼 ---
 function showError(msg) {
     playSound('error');
@@ -561,11 +540,6 @@ function handleDragStart(e) {
     t.style.willChange = 'transform';
     t.style.zIndex = 1000;
     t.style.pointerEvents = 'none';
-    // C2: 같은 타입+레벨 셀 하이라이트
-    const dragItem = (z === 'board' ? boardState : storageState)[i];
-    if (dragItem && !dragItem.type.includes('generator') && !dragItem.type.includes('locked') && dragItem.level < getMaxLevel(dragItem.type)) {
-        highlightMergeTargets(dragItem.type, dragItem.level);
-    }
 }
 
 function handleDragMove(e) {
@@ -578,7 +552,6 @@ function handleDragMove(e) {
 
 function handleDragEnd(e) {
     if (!dragData) return;
-    clearMergeHighlights();
     const cx = e.changedTouches ? e.changedTouches[0].clientX : e.clientX,
         cy = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
     if (Math.hypot(cx - dragData.startX, cy - dragData.startY) < 5) {

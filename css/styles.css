@@ -1968,13 +1968,4 @@ body.tutorial-active {
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* C2. 합성 가능 셀 하이라이트 */
-.merge-highlight {
-    box-shadow: 0 0 0 3px #f43f5e, 0 0 12px 2px rgba(244, 63, 94, 0.4) !important;
-    animation: merge-glow 0.8s ease-in-out infinite;
-}
-@keyframes merge-glow {
-    0%, 100% { box-shadow: 0 0 0 3px #f43f5e, 0 0 12px 2px rgba(244, 63, 94, 0.4); }
-    50% { box-shadow: 0 0 0 3px #f43f5e, 0 0 18px 4px rgba(244, 63, 94, 0.6); }
-}
 

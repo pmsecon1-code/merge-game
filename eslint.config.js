@@ -443,8 +443,6 @@ export default [
                 screenShake: 'readonly',
                 flyRewardToStatusBar: 'readonly',
                 spawnLevelupConfetti: 'readonly',
-                highlightMergeTargets: 'readonly',
-                clearMergeHighlights: 'readonly',
                 currentBottomTab: 'writable',
                 exploreProgress: 'writable',
                 pendingDinoGen: 'writable',
