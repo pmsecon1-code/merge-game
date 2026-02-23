@@ -225,6 +225,11 @@
 
             <!-- 하단 배지 내비게이션 -->
             <div id="bottom-nav">
+                <button class="bottom-nav-badge" data-tab="explore" onclick="toggleBottomTab('explore')">
+                    <span class="badge-icon"><img src="images/badges/badge_explore.png" class="icon icon-md"></span>
+                    <span class="badge-label">탐험</span>
+                    <span class="badge-info" id="badge-explore-info"></span>
+                </button>
                 <button class="bottom-nav-badge" data-tab="race" onclick="toggleBottomTab('race')">
                     <span class="badge-icon"><img src="images/badges/badge_race.png" class="icon icon-md"></span>
                     <span class="badge-label">레이스</span>
@@ -249,11 +254,6 @@
                     <span class="badge-icon"><img src="images/badges/badge_storage.png" class="icon icon-md"></span>
                     <span class="badge-label">창고</span>
                     <span class="badge-info" id="badge-storage-info"></span>
-                </button>
-                <button class="bottom-nav-badge" data-tab="explore" onclick="toggleBottomTab('explore')">
-                    <span class="badge-icon">🦴</span>
-                    <span class="badge-label">탐험</span>
-                    <span class="badge-info" id="badge-explore-info"></span>
                 </button>
             </div>
 

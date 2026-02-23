@@ -474,7 +474,7 @@ function exploreTile(idx) {
         if (!exploreProgress.collectedFossils.includes(tile.fossilId)) {
             exploreProgress.collectedFossils.push(tile.fossilId);
             const fossil = EXPLORE_FOSSILS[tile.fossilId];
-            showToast(`${fossil.icon} ${fossil.name} 발견!`);
+            showToast(`${ICON[fossil.icon]} ${fossil.name} 발견!`);
             playSound('milestone');
             checkExploreMilestone();
         }
@@ -560,7 +560,7 @@ function updateExploreUI() {
     const allRevealed = revealed >= EXPLORE_TILE_COUNT;
 
     let html = `<div class="flex justify-between items-center mb-1">
-        <span class="text-[10px] font-bold text-amber-700">🦴 화석 발굴 ${revealed}/${EXPLORE_TILE_COUNT}</span>
+        <span class="text-[10px] font-bold text-amber-700">${ICON.fossil_bone} 화석 발굴 ${revealed}/${EXPLORE_TILE_COUNT}</span>
         <button onclick="openExploreModal()" class="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold">지도 열기</button>
     </div>
     <div class="flex gap-2 items-start">
@@ -585,12 +585,12 @@ function renderExploreMinimap() {
         let content = '';
         if (isRevealed) {
             cls += ' revealed';
-            if (tile.type === 'fossil') content = tile.icon;
-            else if (tile.type === 'start') content = '🏠';
-            else if (tile.type === 'coins') content = '🪙';
-            else if (tile.type === 'diamonds') content = '💎';
-            else if (tile.type === 'energy') content = '⚡';
-            else if (tile.type === 'cards') content = '🃏';
+            if (tile.type === 'fossil') content = ICON[EXPLORE_FOSSILS[tile.fossilId].icon];
+            else if (tile.type === 'start') content = ICON.paw;
+            else if (tile.type === 'coins') content = ICON.coin;
+            else if (tile.type === 'diamonds') content = ICON.diamond;
+            else if (tile.type === 'energy') content = ICON.energy;
+            else if (tile.type === 'cards') content = ICON.card;
         } else if (isExplorable(i)) {
             cls += ' explorable';
         } else {
@@ -632,16 +632,16 @@ function renderExploreModal() {
             cls += ' revealed';
             if (tile.type === 'fossil') {
                 const f = EXPLORE_FOSSILS[tile.fossilId];
-                content = `<span class="text-base">${f.icon}</span><span class="text-[7px]">${f.name}</span>`;
+                content = `<span>${ICON[f.icon]}</span><span class="text-[7px]">${f.name}</span>`;
             } else if (tile.type === 'start') {
-                content = '<span class="text-base">🏠</span>';
+                content = `<span>${ICON.paw}</span>`;
             } else {
                 const icons = { coins: ICON.coin, diamonds: ICON.diamond, energy: ICON.energy, cards: ICON.card };
                 content = `<span>${icons[tile.type] || ''}</span>`;
             }
         } else if (canExplore) {
             cls += ' explorable';
-            content = `<span class="text-[8px] font-bold">${cost}🪙</span>`;
+            content = `<span class="text-[8px] font-bold">${cost}${ICON.coin}</span>`;
             onclick = `onclick="exploreTile(${i})"`;
         } else {
             cls += ' fog';
@@ -657,7 +657,7 @@ function renderExploreModal() {
         for (const f of EXPLORE_FOSSILS) {
             const collected = exploreProgress.collectedFossils.includes(f.id);
             fHtml += `<div class="explore-fossil ${collected ? 'collected' : 'missing'}" title="${f.name}">
-                <span>${collected ? f.icon : '?'}</span>
+                <span>${collected ? ICON[f.icon] : '?'}</span>
             </div>`;
         }
         fossils.innerHTML = fHtml;
@@ -672,7 +672,7 @@ function renderExploreModal() {
             const claimed = exploreProgress.claimedMilestones.includes(i);
             const reached = count >= m.count;
             mHtml += `<span class="text-[9px] ${claimed ? 'text-green-500' : reached ? 'text-yellow-500' : 'text-gray-400'} font-bold">
-                ${m.count}개${claimed ? '✓' : ''} ${m.dinoGen ? '🦕' : ''}
+                ${m.count}개${claimed ? ICON.check : ''} ${m.dinoGen ? ICON.fossil_skeleton : ''}
             </span>`;
         }
         milestones.innerHTML = mHtml;

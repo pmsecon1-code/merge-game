@@ -44,6 +44,12 @@ const ICON = {
     offline: '<img src="images/icons/offline.png" class="icon icon-sm">',
     star: '<img src="images/effects/star.png" class="icon icon-sm">',
     merge: '<img src="images/icons/merge.png" class="icon icon-sm">',
+    fossil_footprint: '<img src="images/icons/fossil_footprint.png" class="icon icon-sm">',
+    fossil_tooth: '<img src="images/icons/fossil_tooth.png" class="icon icon-sm">',
+    fossil_bone: '<img src="images/icons/fossil_bone.png" class="icon icon-sm">',
+    fossil_skull: '<img src="images/icons/fossil_skull.png" class="icon icon-sm">',
+    fossil_egg: '<img src="images/icons/fossil_egg.png" class="icon icon-sm">',
+    fossil_skeleton: '<img src="images/icons/fossil_skeleton.png" class="icon icon-sm">',
 };
 
 // --- 생성기 이름 매핑 ---
@@ -371,16 +377,16 @@ const EXPLORE_BASE_COST = 200;
 const EXPLORE_COST_INCREMENT = 50;
 
 const EXPLORE_FOSSILS = [
-    { id: 0, name: '공룡 발자국', icon: '🦶' },
-    { id: 1, name: '이빨 화석', icon: '🦷' },
-    { id: 2, name: '갈비뼈 화석', icon: '🦴' },
-    { id: 3, name: '꼬리뼈 화석', icon: '🦴' },
-    { id: 4, name: '발톱 화석', icon: '🦴' },
-    { id: 5, name: '등뼈 화석', icon: '🦴' },
-    { id: 6, name: '날개뼈 화석', icon: '🦴' },
-    { id: 7, name: '두개골 화석', icon: '💀' },
-    { id: 8, name: '알 화석', icon: '🥚' },
-    { id: 9, name: '완전한 골격', icon: '🦕' },
+    { id: 0, name: '공룡 발자국', icon: 'fossil_footprint' },
+    { id: 1, name: '이빨 화석', icon: 'fossil_tooth' },
+    { id: 2, name: '갈비뼈 화석', icon: 'fossil_bone' },
+    { id: 3, name: '꼬리뼈 화석', icon: 'fossil_bone' },
+    { id: 4, name: '발톱 화석', icon: 'fossil_bone' },
+    { id: 5, name: '등뼈 화석', icon: 'fossil_bone' },
+    { id: 6, name: '날개뼈 화석', icon: 'fossil_bone' },
+    { id: 7, name: '두개골 화석', icon: 'fossil_skull' },
+    { id: 8, name: '알 화석', icon: 'fossil_egg' },
+    { id: 9, name: '완전한 골격', icon: 'fossil_skeleton' },
 ];
 
 const EXPLORE_MILESTONES = [
@@ -394,13 +400,13 @@ const EXPLORE_MILESTONES = [
 // types: 'start', 'coins', 'diamonds', 'energy', 'cards', 'fossil'
 const EXPLORE_MAP = [
     // row 0 (top edge)
-    { type: 'fossil', fossilId: 0, icon: '🦶' },
+    { type: 'fossil', fossilId: 0 },
     { type: 'coins', min: 50, max: 100 },
     { type: 'energy', min: 10, max: 15 },
     { type: 'coins', min: 80, max: 150 },
     { type: 'diamonds', min: 2, max: 4 },
     { type: 'coins', min: 60, max: 120 },
-    { type: 'fossil', fossilId: 1, icon: '🦷' },
+    { type: 'fossil', fossilId: 1 },
     // row 1
     { type: 'coins', min: 100, max: 200 },
     { type: 'energy', min: 15, max: 25 },
@@ -408,7 +414,7 @@ const EXPLORE_MAP = [
     { type: 'coins', min: 50, max: 100 },
     { type: 'diamonds', min: 1, max: 3 },
     { type: 'coins', min: 70, max: 130 },
-    { type: 'fossil', fossilId: 2, icon: '🦴' },
+    { type: 'fossil', fossilId: 2 },
     // row 2
     { type: 'diamonds', min: 3, max: 5 },
     { type: 'coins', min: 100, max: 180 },
@@ -416,17 +422,17 @@ const EXPLORE_MAP = [
     { type: 'cards', min: 4, max: 7 },
     { type: 'coins', min: 60, max: 100 },
     { type: 'diamonds', min: 2, max: 4 },
-    { type: 'fossil', fossilId: 3, icon: '🦴' },
+    { type: 'fossil', fossilId: 3 },
     // row 3 (center row)
-    { type: 'fossil', fossilId: 4, icon: '🦴' },
+    { type: 'fossil', fossilId: 4 },
     { type: 'energy', min: 15, max: 30 },
     { type: 'coins', min: 150, max: 250 },
     { type: 'start' },
     { type: 'coins', min: 200, max: 300 },
     { type: 'cards', min: 5, max: 10 },
-    { type: 'fossil', fossilId: 5, icon: '🦴' },
+    { type: 'fossil', fossilId: 5 },
     // row 4
-    { type: 'fossil', fossilId: 6, icon: '🦴' },
+    { type: 'fossil', fossilId: 6 },
     { type: 'diamonds', min: 3, max: 6 },
     { type: 'coins', min: 80, max: 150 },
     { type: 'energy', min: 20, max: 30 },
@@ -440,15 +446,15 @@ const EXPLORE_MAP = [
     { type: 'coins', min: 120, max: 200 },
     { type: 'energy', min: 10, max: 20 },
     { type: 'coins', min: 80, max: 150 },
-    { type: 'fossil', fossilId: 7, icon: '💀' },
+    { type: 'fossil', fossilId: 7 },
     // row 6 (bottom edge)
-    { type: 'fossil', fossilId: 8, icon: '🥚' },
+    { type: 'fossil', fossilId: 8 },
     { type: 'coins', min: 100, max: 180 },
     { type: 'energy', min: 15, max: 25 },
     { type: 'diamonds', min: 3, max: 6 },
     { type: 'coins', min: 150, max: 250 },
     { type: 'cards', min: 5, max: 8 },
-    { type: 'fossil', fossilId: 9, icon: '🦕' },
+    { type: 'fossil', fossilId: 9 },
 ];
 
 function getExploreCost(revealedCount) {
