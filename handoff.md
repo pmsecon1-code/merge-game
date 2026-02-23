@@ -38,11 +38,11 @@ merge2/
 │   ├── constants.test.js  # constants.js 테스트 (54개)
 │   └── save.test.js    # save.js 테스트 (32개)
 ├── images/
-│   ├── icons/          # UI 아이콘 27종 (128×128 PNG)
+│   ├── icons/          # UI 아이콘 33종 (128×128 PNG)
 │   ├── effects/        # 이펙트 아이콘 3종
 │   ├── race/           # 레이스 아이콘 5종
-│   ├── spawners/       # 생성기 이미지 7종
-│   ├── badges/         # 배지 바 아이콘
+│   ├── spawners/       # 생성기 이미지 8종
+│   ├── badges/         # 배지 바 아이콘 6종
 │   ├── story/          # 보스 이미지 7종 + scenes/ 24장
 │   │   └── scenes/     # 스토리 씬 이미지 24장 (EP.1~7)
 │   ├── cats/           # 고양이 동물 이미지 11종
@@ -50,7 +50,7 @@ merge2/
 │   ├── birds/          # 새 동물 이미지 7종
 │   ├── fish/           # 물고기 동물 이미지 7종
 │   ├── reptiles/       # 파충류 동물 이미지 7종
-│   ├── dinosaurs/      # 공룡 동물 이미지 7종 (이미지 미제작)
+│   ├── dinosaurs/      # 공룡 동물 이미지 7종
 │   ├── cat_snacks/     # 고양이 간식 이미지 5종
 │   ├── dog_snacks/     # 강아지 간식 이미지 5종
 │   ├── cat_toys/       # 고양이 장난감 이미지 5종
@@ -78,29 +78,29 @@ merge2/
 | 4 | 맵 (5×7 = 35칸) | board-wrapper 분홍 |
 | 5 | 📋 일일 미션 (합성/생성/코인) | event-bar 황색 |
 | 6 | 콘텐츠 영역 (배지 탭 시 일일미션 대체) | #bottom-content |
-| 7 | 하단 배지 바 (🏁📸🎲🛒📦🎁) | #bottom-nav 6열 그리드 |
+| 7 | 하단 배지 바 (🗺🏁📸🎲🛒📦) | #bottom-nav 6열 그리드 |
 
 ### 하단 배지 바 (v4.34.0)
 ```
-┌─────┬──────┬──────┬─────┬─────┬─────┐
-│ 🏁  │  📸  │  🎲  │ 🛒  │ 📦  │ 🦴  │
-│레이스│ 앨범 │주사위│ 상점│ 창고│ 탐험│
-│참가  │0/81  │1/50  │4:32 │0/0  │1/49 │
-└─────┴──────┴──────┴─────┴─────┴─────┘
+┌─────┬──────┬──────┬──────┬─────┬─────┐
+│ 🗺  │  🏁  │  📸  │  🎲  │ 🛒  │ 📦  │
+│탐험 │레이스│ 앨범 │주사위│ 상점│ 창고│
+│1/49 │참가  │0/81  │1/50  │4:32 │0/0  │
+└─────┴──────┴──────┴──────┴─────┴─────┘
 ```
 - 배지 탭 → 해당 콘텐츠 표시 (일일미션 자리 대체, CSS calc 동적 높이)
 - 같은 배지 재탭 → 닫힘 (일일미션 복원)
-- 배지 요약 정보: 레이스(상태별), 앨범(진행도), 주사위(위치), 상점(갱신타이머), 창고(보관/열린칸), 탐험(개방/49)
+- 배지 요약 정보: 탐험(개방/49), 레이스(상태별), 앨범(진행도), 주사위(위치), 상점(갱신타이머), 창고(보관/열린칸)
 - 각 콘텐츠는 기본 숨김 (`display:none`)
 
 | 배지 | data-tab | 콘텐츠 ID | 요약정보 |
 |------|----------|-----------|----------|
+| 🗺 탐험 | explore | #explore-wrapper | n/49 (개방 타일 수) |
 | 🏁 레이스 | race | #race-bar | 참가하기/⏱초대타이머/n/10 |
 | 📸 앨범 | album | #album-bar | n/81 (테마 미니칩 9개) |
 | 🎲 주사위 여행 | dice | #dice-trip-wrapper | n/50 |
 | 🛒 상점 | shop | #shop-wrapper | m:ss (갱신 타이머) |
 | 📦 창고 | storage | #storage-wrapper | 보관중/열린칸 |
-| 🦴 탐험 | explore | #explore-wrapper | n/49 (개방 타일 수) |
 
 ---
 
@@ -945,7 +945,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ### v4.34.0 (2026-02-23) - 기부 제거 + 화석 발굴 탐험 지도 + 공룡 생성기
 - 🗺️ **기부 시스템 완전 제거** → **화석 발굴 탐험 지도**로 교체
-  - 하단 배지 6번째 탭: 기부 → 탐험 (🦴)
+  - 하단 배지 **1번째** 탭: 탐험 (기존 6번째 기부 → 1번째 탐험으로 이동)
   - 7×7 안개 맵에서 코인으로 타일 개방 → 보상 발견 + 화석 수집
   - 비용: `200 + (개방수-1) × 50`🪙 (총 ~67K🪙 소비 = 코인 싱크)
   - Lv.15 해제 (`EXPLORE_UNLOCK_LEVEL`)
@@ -981,7 +981,14 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 신규 CSS: `.explore-minimap`, `.explore-tile`, `.explore-modal-grid`, `.explore-modal-tile`, `.explore-fossil-item`
 - firestore.rules: `donationTotal` 검증 제거 + `exploreProgress` map 검증 추가
 - 수정 함수: `triggerGen()` (game.js - dinosaur 추가), `tryMergeItems()` (game.js - dinosaur 버블 제외), `toggleBottomTab()` (ui.js - explore 매핑), `updateBottomBadges()` (ui.js - 탐험 진행도), `openSettings()` (ui.js - getExploreTitle), `createItem()` (ui.js - dinosaur 색상), `openGuide()` (ui.js - dinosaur 탭 제한), `updateUpgradeUI()`/`upgradeGenerator()` (ui.js - dinosaur 스페셜), `updateAll()` (ui.js - trySpawnPendingDinoGen), `getGameData()`/`applyGameData()`/`clampSaveData()`/`initNewGame()` (save.js - exploreProgress)
-- 이미지 필요 (미제작): `images/dinosaurs/dino1~7.png`, `images/spawners/spawner_dinosaur.png`
+- 🎨 **커스텀 이미지 추가** (15종)
+  - 공룡 동물 7종: `images/dinosaurs/dino1~7.png` (아기공룡→랩터→스테고→트리케라→안킬로→브라키오→티라노)
+  - 공룡 생성기: `images/spawners/spawner_dinosaur.png` (공룡 둥지)
+  - 탐험 배지: `images/badges/badge_explore.png` (보물지도+돋보기)
+  - 화석 아이콘 6종: `images/icons/fossil_footprint.png`, `fossil_tooth.png`, `fossil_bone.png`, `fossil_skull.png`, `fossil_egg.png`, `fossil_skeleton.png`
+- 🎨 **탐험 이모지 → ICON 교체**: EXPLORE_FOSSILS icon을 ICON 키 참조로 변경, 미니맵/모달 타일 보상 이모지 → ICON 재활용
+- 신규 ICON 항목 (6종): fossil_footprint, fossil_tooth, fossil_bone, fossil_skull, fossil_egg, fossil_skeleton (총 43종)
+- 캐시 버스팅: `?v=4.31.1` → `?v=4.34.0`
 
 ### v4.33.0 (2026-02-20) - 쿨다운 즉시 해제 + 기부 시스템
 - 🔥 **쿨다운 즉시 해제** 추가
@@ -1188,7 +1195,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
   - `renderDiceTripBoard()` 호출을 `requestAnimationFrame`으로 감싸서 레이아웃 계산 보장
 - 수정 파일: js/constants.js, js/state.js, js/save.js, js/main.js, js/game.js, js/ui.js, js/systems.js, js/album.js, js/race.js, css/styles.css, firestore.rules, eslint.config.js, index.html
 - 신규 이미지 (6개): icons/timer, check, sleep, offline, merge + effects/star
-- 신규 ICON 항목 (6종): timer, check, sleep, offline, star, merge (총 37종)
+- 신규 ICON 항목 (6종): timer, check, sleep, offline, star, merge (총 37종→v4.34.0에서 43종)
 - 삭제 함수: `recoverOfflineEnergy()` (save.js)
 - 저장 필드 변경: `recoveryCountdown` → `energyRecoverAt`
 - 신규 HTML: `#level-progress` span
