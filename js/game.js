@@ -472,10 +472,12 @@ function handleSpecialItem(zone, idx, it) {
         if (bossData) showBossInfoPopup(bossData, imgData);
     } else if (it.type === 'piggy_bank') {
         if (Date.now() >= it.openAt) {
+            const cell = zone === 'board' ? boardEl.children[idx] : storageEl.children[idx];
             addCoins(it.coins);
             s[idx] = null;
             playSound('piggy_open');
             showMilestonePopup(`${ICON.piggy} 저금통 개봉!`, `+${it.coins}${ICON.coin}`);
+            if (cell) flyRewardToStatusBar(cell, 'coin');
             updateAll();
         } else {
             const rem = it.openAt - Date.now();
@@ -967,11 +969,13 @@ function confirmAd() {
         const s = zone === 'board' ? boardState : storageState;
         const it = s[idx];
         if (!it || it.type !== 'piggy_bank') return;
+        const cell = zone === 'board' ? boardEl.children[idx] : storageEl.children[idx];
         const reward = it.coins * 2;
         addCoins(reward);
         s[idx] = null;
         playSound('purchase');
         showMilestonePopup(`${ICON.piggy} 저금통 개봉! (×2)`, `+${reward}${ICON.coin}`);
+        if (cell) flyRewardToStatusBar(cell, 'coin');
         updateAll();
     }
 }

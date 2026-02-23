@@ -349,10 +349,10 @@ function screenShake(intensity) {
 
 function flyRewardToStatusBar(fromEl, type) {
     if (!fromEl) return;
-    const iconMap = { coin: '#coinEl', diamond: '#diamondEl', card: '#level-progress' };
-    const targetSel = iconMap[type];
-    if (!targetSel) return;
-    const targetEl = document.querySelector(targetSel) || document.getElementById(targetSel.slice(1));
+    const iconMap = { coin: 'coin-val', diamond: 'diamond-val', card: 'card-val' };
+    const targetId = iconMap[type];
+    if (!targetId) return;
+    const targetEl = document.getElementById(targetId);
     if (!targetEl) return;
     const fromR = fromEl.getBoundingClientRect();
     const toR = targetEl.getBoundingClientRect();
