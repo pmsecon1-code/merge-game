@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.34.2)
+# 멍냥 머지 게임 - Architecture (v4.35.0)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.34.2
+- **버전**: 4.35.0
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -16,20 +16,20 @@
 merge2/
 ├── index.html          # 메인 HTML (~684줄)
 ├── css/
-│   └── styles.css      # 모든 CSS (~1821줄)
+│   └── styles.css      # 모든 CSS (~1980줄)
 ├── js/
 │   ├── constants.js    # 상수 + 데이터 + 헬퍼 + ICON (~750줄)
 │   ├── state.js        # 전역 변수 + DOM 참조 (~141줄)
 │   ├── auth.js         # 인증 + 세션 + 회원탈퇴 (~180줄)
 │   ├── save.js         # 저장/로드/검증/클램핑/진단 (~740줄)
-│   ├── game.js         # 코어 게임 메커닉 (~1002줄)
+│   ├── game.js         # 코어 게임 메커닉 (~1024줄)
 │   ├── systems.js      # 7행미션/주사위 여행/상점/탐험 (~590줄)
 │   ├── album.js        # 앨범 (사진 수집) 시스템 (~243줄)
 │   ├── race.js         # 레이스 시스템 (1:1 경쟁) (~1069줄)
 │   ├── sound.js        # 사운드 시스템 (효과음+BGM) (~419줄)
 │   ├── story.js        # 스토리 이미지 갤러리 시스템 (~335줄)
 │   ├── tutorial.js     # 온보딩 튜토리얼 (4스텝) (~194줄)
-│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~845줄)
+│   ├── ui.js           # 렌더링/이펙트/드래그/도감/배지바/설정 (~949줄)
 │   └── main.js         # 초기화 + 타이머 (~315줄)
 ├── hooks/
 │   └── pre-commit      # Git pre-commit hook (lint+test)
@@ -64,7 +64,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → sound → **story** → ui → tutorial → main
 
-**총 JS**: ~6900줄, **함수**: ~199개
+**총 JS**: ~7040줄, **함수**: ~204개
 
 ---
 
@@ -830,8 +830,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### systems.js (30개)
 `hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`, `isExplorable`, `exploreTile`, `checkExploreMilestone`, `spawnDinoGenerator`, `trySpawnPendingDinoGen`, `getExploreTitle`, `updateExploreUI`, `renderExploreMinimap`, `openExploreModal`, `renderExploreModal`, `closeExploreModal`
 
-### ui.js (35개)
-`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `showError`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuideForItem`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `getGenSpawnLevels`, `renderSpawnPreview`, `updateUpgradeUI`, `upgradeGenerator`, `toggleBottomTab`, `updateBottomBadges`, `updateDailyMissionUI`
+### ui.js (40개)
+`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `screenShake`, `flyRewardToStatusBar`, `spawnLevelupConfetti`, `highlightMergeTargets`, `clearMergeHighlights`, `showError`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuideForItem`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `getGenSpawnLevels`, `renderSpawnPreview`, `updateUpgradeUI`, `upgradeGenerator`, `toggleBottomTab`, `updateBottomBadges`, `updateDailyMissionUI`
 
 ### race.js (32개)
 `generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `joinRaceByCode`, `findActiveOrPendingRace`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `quickJoinRace`, `submitRaceCode`, `validateCurrentRace`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `initRace`
@@ -943,7 +943,33 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## 변경 이력
 
-### v4.34.2 (2026-02-23) - 스토리 이미지 WebP 전환 + 탐험 보상 밸런싱
+### v4.35.0 (2026-02-23) - 시각 이펙트 전면 개선
+- 💥 **합성 타격감 강화**
+  - `merge-punch` CSS 애니메이션 (0.3s scale 1→1.2→1) 합성 시 적용
+  - `spawnParticles(cell, level)` 레벨별 차등: 수량 `min(6+level*2, 16)`, 색상 저(핑크+보라) 중(핑크+금) 고(금+빨강), 퍼짐 `30+level*5`
+  - `screenShake(intensity)` 합성 시 보드 흔들림 (최대 4px, 0.15s)
+  - "UP!" → "Lv.N!" 빨간색 floatText로 변경
+  - `showFloatText` 중앙정렬 + text-shadow 가독성 개선
+  - 합성 시 5단계 이펙트 시퀀스: merge-punch → particles → itemEffect → screenShake → floatText(50ms delay)
+- 🎁 **보상 연출 강화**
+  - `flyRewardToStatusBar(fromEl, type)` 아이콘 3~5개가 상단바로 날아가는 애니메이션 (0.5s, 60ms 딜레이)
+  - 도착 시 상단바 `.status-bump` 범프 효과 (0.3s scale 1→1.25→1)
+  - `spawnLevelupConfetti()` 레벨업 오버레이에 20개 6색 파티클 낙하 (1.2s)
+  - 퀘스트 완료 시 체크마크 오버레이 (`quest-complete-check`, pop 등장)
+  - 적용: `completeQuest` 코인/카드, `handleLevelUp` 다이아+컨페티
+- 🖱️ **드래그 피드백 개선**
+  - 드래그 시작 시 `scale(1.15)` + `drop-shadow(0 4px 8px rgba(0,0,0,0.3))`
+  - `highlightMergeTargets(type, level)` 같은 타입+레벨 셀에 빨간 글로우 (`.merge-highlight`)
+  - `clearMergeHighlights()` 드래그 종료 시 하이라이트 정리
+  - `handleDragMove` scale(1.15) 유지, `handleDragEnd` filter 정리
+- 수정 파일: css/styles.css, js/ui.js, js/game.js, eslint.config.js (4개)
+- 신규 CSS (7 @keyframes + 8 class): `merge-punch`, `status-bump`, `fly-reward-icon`+`fly-reward`, `confetti-particle`+`confetti-fall`, `quest-complete-check`+`quest-check-pop`, `merge-highlight`+`merge-glow`
+- 수정 CSS: `.floating-text` (center align + text-shadow), `@keyframes floatUp` (scale 추가)
+- 신규 함수 (5개): `screenShake`, `flyRewardToStatusBar`, `spawnLevelupConfetti`, `highlightMergeTargets`, `clearMergeHighlights` (ui.js)
+- 수정 함수: `spawnParticles()` (ui.js - level 파라미터 추가), `showFloatText()` (ui.js - 중앙정렬), `handleDragStart()` (ui.js - scale+shadow+highlight), `handleDragMove()` (ui.js - scale 유지), `handleDragEnd()` (ui.js - highlight 정리+filter 리셋), `tryMergeItems()` (game.js - 5단계 이펙트), `handleLevelUp()` (game.js - confetti+flyReward), `completeQuest()` (game.js - 체크마크+flyReward)
+- eslint.config.js: 5개 전역 추가 (screenShake, flyRewardToStatusBar, spawnLevelupConfetti, highlightMergeTargets, clearMergeHighlights)
+
+
 - 🖼️ **스토리 이미지 PNG → WebP 전환** (보스 8종 + 씬 24장, 용량 ~75% 절감)
   - `images/story/*.png` → `*.webp`, `images/story/scenes/*.png` → `*.webp`
   - `js/constants.js` STORY_IMAGES 참조 경로 .png → .webp
@@ -1918,6 +1944,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## To-do
 
+- [x] 시각 이펙트 전면 개선 (v4.35.0) - 합성 타격감 + 보상 연출 + 드래그 피드백
 - [x] 쿨다운 즉시 해제 + 기부 시스템 (v4.33.0) - 코인 싱크 2종 추가
 - [x] 스토리 퀘스트 데드락 수정 (v4.31.2) - expiresAt desync + 자동 복구 + updateAll 강화
 - [x] 코드 리팩토링 (v4.31.2) - pre-commit hook, 중복 상수화, 함수 분리 (applyGameData/handleCellClick/moveItem)
