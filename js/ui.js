@@ -254,17 +254,22 @@ function updateQuestUI(scrollToFront = false) {
 }
 
 // --- 이펙트 ---
-function spawnParticles(cell) {
-    const particles = ['✦', '·', '•', '✦', '·'];
+function spawnParticles(cell, level = 1) {
+    const count = Math.min(6 + level * 2, 16);
+    const colors = level >= 8 ? ['#fbbf24','#ef4444','#f97316','#fcd34d']
+        : level >= 5 ? ['#f472b6','#fbbf24','#fcd34d','#f9a8d4']
+        : ['#f472b6','#c084fc','#f9a8d4','#e879f9'];
+    const dist = 30 + level * 5;
     const rect = cell.getBoundingClientRect();
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < count; i++) {
         const p = document.createElement('div');
         p.className = 'spawn-particle';
-        p.innerText = particles[Math.floor(Math.random() * particles.length)];
-        const angle = (i / 6) * Math.PI * 2;
-        const dist = 40 + Math.random() * 20;
-        p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
-        p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+        p.innerText = ['✦', '·', '•', '★'][Math.floor(Math.random() * 4)];
+        p.style.color = colors[Math.floor(Math.random() * colors.length)];
+        const angle = (i / count) * Math.PI * 2 + Math.random() * 0.5;
+        const d = dist + Math.random() * 20;
+        p.style.setProperty('--tx', `${Math.cos(angle) * d}px`);
+        p.style.setProperty('--ty', `${Math.sin(angle) * d}px`);
         p.style.left = `${rect.left + rect.width / 2}px`;
         p.style.top = `${rect.top + rect.height / 2}px`;
         document.body.appendChild(p);
@@ -321,10 +326,105 @@ function showFloatText(c, t, col) {
     d.className = 'floating-text';
     d.innerText = t;
     d.style.color = col;
-    d.style.left = r.left + r.width / 2 - 10 + 'px';
+    d.style.left = r.left + r.width / 2 + 'px';
     d.style.top = r.top + 'px';
     document.body.appendChild(d);
     setTimeout(() => d.remove(), 1000);
+}
+
+// --- 합성/보상 이펙트 ---
+function screenShake(intensity) {
+    const board = document.getElementById('board-wrapper');
+    if (!board) return;
+    const px = Math.min(intensity, 4);
+    const rx = (Math.random() - 0.5) * px * 2;
+    const ry = (Math.random() - 0.5) * px * 2;
+    board.style.transition = 'none';
+    board.style.transform = `translate(${rx}px, ${ry}px)`;
+    requestAnimationFrame(() => {
+        board.style.transition = 'transform 0.15s ease-out';
+        board.style.transform = '';
+    });
+}
+
+function flyRewardToStatusBar(fromEl, type) {
+    if (!fromEl) return;
+    const iconMap = { coin: '#coinEl', diamond: '#diamondEl', card: '#level-progress' };
+    const targetSel = iconMap[type];
+    if (!targetSel) return;
+    const targetEl = document.querySelector(targetSel) || document.getElementById(targetSel.slice(1));
+    if (!targetEl) return;
+    const fromR = fromEl.getBoundingClientRect();
+    const toR = targetEl.getBoundingClientRect();
+    const count = 3 + Math.floor(Math.random() * 3);
+    const imgMap = { coin: 'images/icons/coin.png', diamond: 'images/icons/diamond.png', card: 'images/icons/card.png' };
+    for (let i = 0; i < count; i++) {
+        const icon = document.createElement('img');
+        icon.src = imgMap[type] || 'images/icons/coin.png';
+        icon.className = 'fly-reward-icon';
+        icon.style.width = '18px';
+        icon.style.height = '18px';
+        const ox = (Math.random() - 0.5) * 20;
+        const oy = (Math.random() - 0.5) * 20;
+        icon.style.left = '0px';
+        icon.style.top = '0px';
+        icon.style.setProperty('--fx', `${fromR.left + fromR.width / 2 + ox}px`);
+        icon.style.setProperty('--fy', `${fromR.top + fromR.height / 2 + oy}px`);
+        icon.style.setProperty('--tx', `${toR.left + toR.width / 2}px`);
+        icon.style.setProperty('--ty', `${toR.top + toR.height / 2}px`);
+        icon.style.transform = `translate(${fromR.left + fromR.width / 2 + ox}px, ${fromR.top + fromR.height / 2 + oy}px)`;
+        document.body.appendChild(icon);
+        setTimeout(() => {
+            icon.style.transition = 'transform 0.5s ease-in, opacity 0.5s';
+            icon.style.transform = `translate(${toR.left + toR.width / 2}px, ${toR.top + toR.height / 2}px) scale(0.5)`;
+            icon.style.opacity = '0.6';
+        }, i * 60);
+        setTimeout(() => {
+            icon.remove();
+            if (i === count - 1) {
+                targetEl.closest('.status-item')?.classList.add('status-bump');
+                setTimeout(() => targetEl.closest('.status-item')?.classList.remove('status-bump'), 300);
+            }
+        }, i * 60 + 550);
+    }
+}
+
+function spawnLevelupConfetti() {
+    const colors = ['#f43f5e', '#fbbf24', '#10b981', '#3b82f6', '#a855f7', '#f97316'];
+    for (let i = 0; i < 20; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti-particle';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.left = `${10 + Math.random() * 80}vw`;
+        c.style.setProperty('--cx', `${(Math.random() - 0.5) * 60}px`);
+        c.style.setProperty('--cr', `${Math.random() * 720 - 360}deg`);
+        c.style.animationDelay = `${Math.random() * 0.4}s`;
+        c.style.width = `${6 + Math.random() * 6}px`;
+        c.style.height = `${6 + Math.random() * 6}px`;
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 1600);
+    }
+}
+
+function highlightMergeTargets(type, level) {
+    const allCells = boardEl.querySelectorAll('.cell');
+    allCells.forEach((c, i) => {
+        const it = boardState[i];
+        if (it && it.type === type && it.level === level) {
+            c.classList.add('merge-highlight');
+        }
+    });
+    const storageCells = storageEl.querySelectorAll('.cell');
+    storageCells.forEach((c, i) => {
+        const it = storageState[i];
+        if (it && it.type === type && it.level === level) {
+            c.classList.add('merge-highlight');
+        }
+    });
+}
+
+function clearMergeHighlights() {
+    document.querySelectorAll('.merge-highlight').forEach(el => el.classList.remove('merge-highlight'));
 }
 
 // --- 에러 헬퍼 ---
@@ -456,10 +556,16 @@ function handleDragStart(e) {
     t.style.height = r.height + 'px';
     t.style.left = '0px';
     t.style.top = '0px';
-    t.style.transform = `translate(${r.left}px, ${r.top}px)`;
+    t.style.transform = `translate(${r.left}px, ${r.top}px) scale(1.15)`;
+    t.style.filter = 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))';
     t.style.willChange = 'transform';
     t.style.zIndex = 1000;
     t.style.pointerEvents = 'none';
+    // C2: 같은 타입+레벨 셀 하이라이트
+    const dragItem = (z === 'board' ? boardState : storageState)[i];
+    if (dragItem && !dragItem.type.includes('generator') && !dragItem.type.includes('locked') && dragItem.level < getMaxLevel(dragItem.type)) {
+        highlightMergeTargets(dragItem.type, dragItem.level);
+    }
 }
 
 function handleDragMove(e) {
@@ -467,15 +573,17 @@ function handleDragMove(e) {
     e.preventDefault();
     const cx = e.touches ? e.touches[0].clientX : e.clientX,
         cy = e.touches ? e.touches[0].clientY : e.clientY;
-    dragData.el.style.transform = `translate(${cx - dragData.offsetX}px, ${cy - dragData.offsetY}px)`;
+    dragData.el.style.transform = `translate(${cx - dragData.offsetX}px, ${cy - dragData.offsetY}px) scale(1.15)`;
 }
 
 function handleDragEnd(e) {
     if (!dragData) return;
+    clearMergeHighlights();
     const cx = e.changedTouches ? e.changedTouches[0].clientX : e.clientX,
         cy = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
     if (Math.hypot(cx - dragData.startX, cy - dragData.startY) < 5) {
         dragData.el.style.display = '';
+        dragData.el.style.filter = '';
         handleCellClick(dragData.zone, dragData.index);
         dragData = null;
         updateAll();

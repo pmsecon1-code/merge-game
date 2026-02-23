@@ -148,6 +148,10 @@ function handleLevelUp() {
     document.getElementById('levelup-reward').innerText = reward;
     openOverlay('levelup-overlay');
     playSound('levelup');
+    spawnLevelupConfetti();
+    // 다이아 보상 아이콘 날아가기
+    const lvOverlay = document.getElementById('levelup-overlay');
+    if (lvOverlay) flyRewardToStatusBar(lvOverlay, 'diamond');
     setTimeout(() => closeOverlay('levelup-overlay'), 2000);
     checkToyGeneratorUnlock();
     // 레벨업 후 스페셜 퀘스트 추가 체크 (10개 상한)
@@ -197,6 +201,14 @@ function completeQuest(i) {
     } else {
         // --- 일반 퀘스트 완료 ---
         removeQuestItems(q.reqs);
+        // B3. 퀘스트 카드에 체크마크 오버레이
+        const questCard = questContainer.children[i];
+        if (questCard) {
+            const checkEl = document.createElement('div');
+            checkEl.className = 'quest-complete-check';
+            checkEl.innerHTML = '<img src="images/icons/check.png" class="icon icon-lg">';
+            questCard.appendChild(checkEl);
+        }
         if (q.piggyReward) {
             if (q.reward >= 200) {
                 spawnPiggyBank('완료! ');
@@ -206,9 +218,11 @@ function completeQuest(i) {
         } else if (q.cardReward > 0) {
             cards += q.cardReward;
             showToast(`완료! +${q.cardReward}${ICON.card}`);
+            if (questCard) flyRewardToStatusBar(questCard, 'card');
         } else {
             addCoins(q.reward);
             showToast(`완료! +${q.reward}${ICON.coin}`);
+            if (questCard) flyRewardToStatusBar(questCard, 'coin');
         }
         playSound('quest_complete');
     }
@@ -678,7 +692,15 @@ function tryMergeItems(ss, fi, fIt, ts, ti, tIt, tz) {
     checkAutoCompleteMissions();
     const cell = (tz === 'board' ? boardEl : storageEl).children[ti];
     if (tz === 'board') lastMergedIndex = ti;
-    setTimeout(() => { showFloatText(cell, 'UP!', '#f43f5e'); }, 50);
+    // 합성 이펙트 시퀀스
+    if (cell) {
+        cell.classList.add('merge-punch');
+        setTimeout(() => cell.classList.remove('merge-punch'), 300);
+        spawnParticles(cell, newLv);
+        spawnItemEffect(cell, false);
+        screenShake(newLv * 0.5);
+    }
+    setTimeout(() => { showFloatText(cell, `Lv.${newLv}!`, '#f43f5e'); }, 50);
     if (tutorialStep <= 0) tryDropDice();
     dealBoardBossDamage(newLv);
     const isSpecialType = ['bird', 'fish', 'reptile', 'dinosaur'].includes(fIt.type);

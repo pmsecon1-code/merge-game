@@ -768,15 +768,20 @@ body {
     pointer-events: none;
     animation: floatUp 1s forwards;
     z-index: 100;
+    transform: translateX(-50%);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 0 8px rgba(255,255,255,0.5);
 }
 
 @keyframes floatUp {
     0% {
-        transform: translateY(0);
+        transform: translateX(-50%) translateY(0) scale(1.2);
         opacity: 1;
     }
+    30% {
+        transform: translateX(-50%) translateY(-15px) scale(1);
+    }
     100% {
-        transform: translateY(-50px);
+        transform: translateX(-50%) translateY(-50px) scale(0.8);
         opacity: 0;
     }
 }
@@ -1891,5 +1896,85 @@ body.tutorial-active {
     border-color: #16a34a;
     background: #dcfce7;
     color: inherit;
+}
+
+/* ============================================
+   시각 이펙트 (v4.35.0)
+   ============================================ */
+
+/* A3. 합성 타격감 — 셀 펀치 */
+@keyframes merge-punch {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+.merge-punch {
+    animation: merge-punch 0.3s ease-out;
+}
+
+/* B1. 상단바 범프 */
+@keyframes status-bump {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+.status-bump {
+    animation: status-bump 0.3s ease-out;
+}
+
+/* B1. 보상 아이콘 날아가기 */
+.fly-reward-icon {
+    position: fixed;
+    pointer-events: none;
+    z-index: 3500;
+    font-size: 1rem;
+    transition: none;
+}
+@keyframes fly-reward {
+    0% { transform: translate(var(--fx), var(--fy)) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0.6; }
+}
+
+/* B2. 레벨업 컨페티 */
+.confetti-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 2100;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: confetti-fall 1.2s ease-in forwards;
+}
+@keyframes confetti-fall {
+    0% { transform: translate(var(--cx), -20px) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--cx), calc(50vh + 40px)) rotate(var(--cr)); opacity: 0; }
+}
+
+/* B3. 퀘스트 완료 체크 */
+.quest-complete-check {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(16, 185, 129, 0.85);
+    border-radius: 10px;
+    z-index: 10;
+    animation: quest-check-pop 0.4s ease-out;
+}
+@keyframes quest-check-pop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* C2. 합성 가능 셀 하이라이트 */
+.merge-highlight {
+    box-shadow: 0 0 0 3px #f43f5e, 0 0 12px 2px rgba(244, 63, 94, 0.4) !important;
+    animation: merge-glow 0.8s ease-in-out infinite;
+}
+@keyframes merge-glow {
+    0%, 100% { box-shadow: 0 0 0 3px #f43f5e, 0 0 12px 2px rgba(244, 63, 94, 0.4); }
+    50% { box-shadow: 0 0 0 3px #f43f5e, 0 0 18px 4px rgba(244, 63, 94, 0.6); }
 }
 
