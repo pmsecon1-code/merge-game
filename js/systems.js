@@ -563,7 +563,7 @@ function updateExploreUI() {
     const lastM = EXPLORE_MILESTONES[EXPLORE_MILESTONES.length - 1];
 
     let html = `<div class="flex justify-between items-center mb-1">
-        <span class="text-[10px] font-bold text-amber-700">${ICON.fossil_bone} 화석 발굴 ${fossils}/10 <span class="text-[9px] text-amber-400 font-bold">(완성 시 +${lastM.coins}${ICON.coin} +${lastM.diamonds}${ICON.diamond} +공룡)</span></span>
+        <span class="text-[10px] font-bold text-amber-700">${ICON.fossil_bone} 화석 발굴 ${fossils}/10 <span class="text-[9px] text-amber-400 font-bold">(완성 시 +${lastM.coins}${ICON.coin} +${lastM.diamonds}${ICON.diamond})</span></span>
         <button onclick="openExploreModal()" class="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold">발굴하기</button>
     </div>
     <div class="flex gap-2 items-start">
