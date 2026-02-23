@@ -170,6 +170,7 @@ function checkThemeComplete(themeIdx) {
             addCoins(ALBUM_COMPLETE_COINS);
             playSound('theme_complete');
             showMilestonePopup(`${theme.icon} ${theme.name} 완성!`, `${ALBUM_COMPLETE_COINS}${ICON.coin}`);
+            flyRewardToStatusBar(document.getElementById('milestone-popup'), 'coin');
         }
     }
 }
@@ -182,6 +183,7 @@ function checkAlbumAllComplete() {
         // 테마 완성 팝업이 먼저 보이도록 딜레이
         setTimeout(() => {
             showMilestonePopup(`${ICON.camera} 앨범 완성! 새 주기 시작`, `${ALBUM_ALL_COMPLETE_DIAMONDS}${ICON.diamond}`);
+            flyRewardToStatusBar(document.getElementById('milestone-popup'), 'diamond');
         }, MILESTONE_POPUP_MS + 500);
         cards = 0;
         album = [];

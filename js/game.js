@@ -602,6 +602,7 @@ function checkEnergyAfterUse() {
             energyRecoverAt = Date.now() + RECOVERY_SEC * 1000;
             playSound('milestone');
             showToast(`${ICON.gift} 첫 에너지 소진 보상! +100${ICON.energy}`);
+            flyRewardToStatusBar(document.getElementById('energy-val')?.closest('.status-item'), 'energy');
             updateUI();
             updateTimerUI();
             saveGame();
@@ -802,6 +803,7 @@ function checkDailyMissionComplete(type) {
         coins += mission.reward;
         playSound('quest_complete');
         showToast(`${mission.icon} ${mission.label} 완료! +${mission.reward}${ICON.coin}`);
+        flyRewardToStatusBar(document.getElementById('daily-mission-bar'), 'coin');
 
         // 현재 단계 올클리어 → 다음 단계 승급
         if (dailyMissions.claimed.every((c) => c)) {
@@ -833,6 +835,9 @@ function claimDailyBonus() {
     cards += DAILY_COMPLETE_REWARD.cards;
     playSound('milestone');
     showMilestonePopup(`${ICON.gift} 일일 미션 완료!`, `${DAILY_COMPLETE_REWARD.diamonds}${ICON.diamond} + ${DAILY_COMPLETE_REWARD.cards}${ICON.card}`);
+    const dailyMp = document.getElementById('milestone-popup');
+    flyRewardToStatusBar(dailyMp, 'diamond');
+    flyRewardToStatusBar(dailyMp, 'card');
     updateDailyMissionUI();
     updateAll();
 }
@@ -1027,5 +1032,9 @@ function checkDailyBonus() {
 
     playSound('daily_bonus');
     showMilestonePopup(`${ICON.gift} ${reward.day}일차 출석!`, rewardText);
+    const bonusMp = document.getElementById('milestone-popup');
+    if (reward.coins) flyRewardToStatusBar(bonusMp, 'coin');
+    if (reward.diamonds) flyRewardToStatusBar(bonusMp, 'diamond');
+    if (reward.cards) flyRewardToStatusBar(bonusMp, 'card');
     saveGame();
 }

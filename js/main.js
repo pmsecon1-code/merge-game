@@ -281,6 +281,7 @@ document.getElementById('confirm-sell-btn').onclick = () => {
         playSound('purchase');
         updateAll();
         showToast(`+${p}${ICON.coin} 획득!`);
+        flyRewardToStatusBar(document.getElementById('sell-popup'), 'coin');
         closeOverlay('sell-popup');
         sellTarget = null;
     }

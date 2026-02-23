@@ -73,7 +73,11 @@ function completeImageQuest(imageId) {
     storyProgress.activeQuestId = null;
 
     // 보상
-    if (img.reward.coins) addCoins(img.reward.coins);
+    if (img.reward.coins) {
+        addCoins(img.reward.coins);
+        const storyCard = questContainer?.children[0];
+        if (storyCard) flyRewardToStatusBar(storyCard, 'coin');
+    }
     playSound('quest_complete');
 
     // 슬라이드쇼 (이미지 1장)
@@ -177,6 +181,7 @@ function defeatBoardBoss(boss) {
         `${imgData?.bossName || '보스'} 격파!`,
         `+${reward}${ICON.coin}`
     );
+    flyRewardToStatusBar(document.getElementById('milestone-popup'), 'coin');
     renderGrid('board', boardState, boardEl);
     saveGame();
 }

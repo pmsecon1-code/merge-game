@@ -533,6 +533,9 @@ function showRaceResult(data) {
     const resultText = result === 'win' ? `${ICON.trophy} 승리!` : result === 'lose' ? `${ICON.lose} 패배` : `${ICON.draw} 무승부`;
     const rewardText = `${reward.coins}${ICON.coin}` + (reward.diamonds > 0 ? ` + ${reward.diamonds}${ICON.diamond}` : '');
     showMilestonePopup(resultText, rewardText);
+    const raceMp = document.getElementById('milestone-popup');
+    flyRewardToStatusBar(raceMp, 'coin');
+    if (reward.diamonds > 0) flyRewardToStatusBar(raceMp, 'diamond');
 }
 
 // --- 보상 수령 기록 ---

@@ -195,6 +195,7 @@ function tryDropDice() {
         if (countEl) countEl.textContent = `보유: ${diceCount}개`;
         if (popup) {
             openOverlay('dice-drop-popup');
+            flyRewardToStatusBar(popup, 'dice');
             setTimeout(() => {
                 closeOverlay('dice-drop-popup');
             }, DICE_DROP_POPUP_MS);
@@ -302,22 +303,27 @@ function giveStepRewardWithInfo(pos) {
     const amount = reward.min + Math.floor(Math.random() * (reward.max - reward.min + 1));
     let rewardStr = '';
 
+    const dicePopup = document.getElementById('dice-roll-popup');
     switch (reward.type) {
         case 'coins':
             addCoins(amount);
             rewardStr = `${amount}${ICON.coin}`;
+            flyRewardToStatusBar(dicePopup, 'coin');
             break;
         case 'diamonds':
             diamonds += amount;
             rewardStr = `${amount}${ICON.diamond}`;
+            flyRewardToStatusBar(dicePopup, 'diamond');
             break;
         case 'cards':
             cards += amount;
             rewardStr = `${amount}${ICON.card}`;
+            flyRewardToStatusBar(dicePopup, 'card');
             break;
         case 'energy':
             energy += amount;
             rewardStr = `${amount}${ICON.energy}`;
+            flyRewardToStatusBar(dicePopup, 'energy');
             break;
     }
     updateUI();
@@ -331,6 +337,9 @@ function completeTrip() {
 
     playSound('milestone');
     showMilestonePopup(`${ICON.party} 주사위 여행 완주!`, `${DICE_TRIP_COMPLETE_REWARD.coins}${ICON.coin} + ${DICE_TRIP_COMPLETE_REWARD.diamonds}${ICON.diamond}`);
+    const mp = document.getElementById('milestone-popup');
+    flyRewardToStatusBar(mp, 'coin');
+    flyRewardToStatusBar(mp, 'diamond');
 
     // 즉시 리셋
     diceTripPosition = 0;
@@ -481,11 +490,12 @@ function exploreTile(idx) {
     } else if (tile.type !== 'start') {
         let amount = tile.min + Math.floor(Math.random() * (tile.max - tile.min + 1));
         let rewardStr = '';
+        const modal = document.getElementById('explore-modal');
         switch (tile.type) {
-            case 'coins': addCoins(amount); rewardStr = `+${amount}${ICON.coin}`; break;
-            case 'diamonds': diamonds += amount; rewardStr = `+${amount}${ICON.diamond}`; break;
-            case 'energy': energy += amount; rewardStr = `+${amount}${ICON.energy}`; break;
-            case 'cards': cards += amount; rewardStr = `+${amount}${ICON.card}`; break;
+            case 'coins': addCoins(amount); rewardStr = `+${amount}${ICON.coin}`; flyRewardToStatusBar(modal, 'coin'); break;
+            case 'diamonds': diamonds += amount; rewardStr = `+${amount}${ICON.diamond}`; flyRewardToStatusBar(modal, 'diamond'); break;
+            case 'energy': energy += amount; rewardStr = `+${amount}${ICON.energy}`; flyRewardToStatusBar(modal, 'energy'); break;
+            case 'cards': cards += amount; rewardStr = `+${amount}${ICON.card}`; flyRewardToStatusBar(modal, 'card'); break;
         }
         showToast(rewardStr);
     }
@@ -502,12 +512,15 @@ function checkExploreMilestone() {
             exploreProgress.claimedMilestones.push(i);
             addCoins(m.coins);
             diamonds += m.diamonds;
+            const exploreModal = document.getElementById('explore-modal');
             if (m.dinoGen) {
                 spawnDinoGenerator();
                 showMilestonePopup(`${ICON.party} 화석 완성! 공룡 생성기 해제!`, `+${m.coins}${ICON.coin} +${m.diamonds}${ICON.diamond}`);
             } else {
                 showMilestonePopup(`${ICON.party} 화석 ${m.count}개 수집!`, `+${m.coins}${ICON.coin} +${m.diamonds}${ICON.diamond}`);
             }
+            flyRewardToStatusBar(exploreModal, 'coin');
+            if (m.diamonds > 0) flyRewardToStatusBar(exploreModal, 'diamond');
         }
     }
 }
