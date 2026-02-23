@@ -490,6 +490,7 @@ function exploreTile(idx) {
         showToast(rewardStr);
     }
     updateExploreUI();
+    renderExploreModal();
     updateAll();
 }
 
@@ -561,29 +562,27 @@ function updateExploreUI() {
 
     let html = `<div class="flex justify-between items-center mb-1">
         <span class="text-[10px] font-bold text-amber-700">${ICON.fossil_bone} 화석 발굴 ${revealed}/${EXPLORE_TILE_COUNT}</span>
-        <button onclick="openExploreModal()" class="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold">지도 열기</button>
+        <button onclick="openExploreModal()" class="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold">발굴하기</button>
     </div>
     <div class="flex gap-2 items-start">
         <div id="explore-minimap" class="explore-minimap"></div>
-        <div class="flex-1 text-[9px] text-amber-600">
-            <div>비용: ${allRevealed ? '완료!' : cost + ICON.coin}</div>
-            <div>화석: ${fossils}/10</div>
-        </div>
-    </div>
-    <div class="explore-fossil-bar">`;
+        <div class="flex-1">
+            <div class="explore-fossil-bar">`;
     for (const f of EXPLORE_FOSSILS) {
         const collected = exploreProgress.collectedFossils.includes(f.id);
         html += `<div class="explore-fossil ${collected ? 'collected' : 'missing'}" title="${f.name}">${collected ? ICON[f.icon] : '?'}</div>`;
     }
     html += `</div>
-    <div class="flex gap-2 items-center justify-center mt-1">`;
+            <div class="flex gap-1 items-center mt-1 flex-wrap">`;
     for (let i = 0; i < EXPLORE_MILESTONES.length; i++) {
         const m = EXPLORE_MILESTONES[i];
         const claimed = exploreProgress.claimedMilestones.includes(i);
         const reached = fossils >= m.count;
         html += `<span class="text-[8px] ${claimed ? 'text-green-500' : reached ? 'text-yellow-500' : 'text-gray-400'} font-bold">${m.count}개${claimed ? ICON.check : ''} ${m.dinoGen ? ICON.fossil_skeleton : ''}</span>`;
     }
-    html += `</div>`;
+    html += `</div>
+        </div>
+    </div>`;
     wrapper.innerHTML = html;
     renderExploreMinimap();
 }
@@ -653,7 +652,7 @@ function renderExploreModal() {
             }
         } else if (canExplore) {
             cls += ' explorable';
-            content = `<span class="text-[8px] font-bold">${cost}${ICON.coin}</span>`;
+            content = `<span class="text-[7px] font-bold text-amber-700">발굴</span><span class="text-[7px]">${cost}${ICON.coin}</span>`;
             onclick = `onclick="exploreTile(${i})"`;
         } else {
             cls += ' fog';
