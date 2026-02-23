@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.35.0)
+# 멍냥 머지 게임 - Architecture (v4.35.1)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.35.0
+- **버전**: 4.35.1
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -942,6 +942,33 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.35.1 (2026-02-23) - flyRewardToStatusBar 전체 보상 확대 적용
+- 🎁 **보상 날아가기 이펙트 전수 적용** (기존 7곳 → 32곳)
+  - `flyRewardToStatusBar` dice 타입 추가 (하단 배지 `#badge-dice-info`로 날아감)
+  - 탐험 타일 발굴 보상 4종 (coin/diamond/energy/card)
+  - 탐험 마일스톤 보상 (coin+diamond)
+  - 주사위 여행 칸 보상 4종 (coin/diamond/card/energy)
+  - 주사위 여행 완주 보상 (coin+diamond)
+  - 주사위 드랍 시 주사위 아이콘 → 배지로 날아감
+  - 일일 미션 개별 완료 (coin)
+  - 일일 미션 올클리어 보너스 (diamond+card)
+  - 7일 출석 보상 (coin/diamond/card 조건부)
+  - 첫 에너지 소진 보상 (energy)
+  - 레이스 결과 보상 (coin+diamond 조건부)
+  - 앨범 테마 완성 (coin)
+  - 앨범 전체 완성 (diamond)
+  - 스토리 퀘스트 완료 (coin)
+  - 보스 격파 (coin)
+  - 아이템 판매 (coin)
+- 수정 파일: js/ui.js, js/systems.js, js/game.js, js/race.js, js/album.js, js/story.js, js/main.js (7개)
+- ui.js: `iconMap`/`imgMap`에 `dice` 타입 추가
+- systems.js: `exploreTile()` 4곳, `checkExploreMilestone()` 2곳, `giveStepRewardWithInfo()` 4곳, `completeTrip()` 2곳, `tryDropDice()` 1곳 추가
+- game.js: `checkDailyMissionComplete()` 1곳, `claimDailyBonus()` 2곳, `checkDailyBonus()` 3곳, `checkEnergyAfterUse()` 1곳 추가
+- race.js: `showRaceResult()` 2곳 추가
+- album.js: `checkThemeComplete()` 1곳, `checkAlbumAllComplete()` 1곳 추가
+- story.js: `completeImageQuest()` 1곳, `defeatBoardBoss()` 1곳 추가
+- main.js: `confirm-sell-btn.onclick` 1곳 추가
 
 ### v4.35.0 (2026-02-23) - 시각 이펙트 전면 개선
 - 💥 **합성 타격감 강화**
@@ -1944,6 +1971,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## To-do
 
+- [x] flyRewardToStatusBar 전체 보상 확대 적용 (v4.35.1) - 7곳 → 32곳, dice 타입 추가
 - [x] 시각 이펙트 전면 개선 (v4.35.0) - 합성 타격감 + 보상 연출 + 드래그 피드백
 - [x] 쿨다운 즉시 해제 + 기부 시스템 (v4.33.0) - 코인 싱크 2종 추가
 - [x] 스토리 퀘스트 데드락 수정 (v4.31.2) - expiresAt desync + 자동 복구 + updateAll 강화
