@@ -444,75 +444,241 @@ function askSellItem(z, i, e) {
 }
 
 // ============================================
-// 기부 시스템
+// 탐험 지도 시스템
 // ============================================
 
-function getDonationTitle() {
-    let title = null;
-    for (const m of DONATION_MILESTONES) {
-        if (donationTotal >= m.threshold) title = m.title;
-    }
-    return title;
+function isExplorable(idx) {
+    if (idx < 0 || idx >= EXPLORE_TILE_COUNT) return false;
+    if (exploreProgress.revealedTiles.includes(idx)) return false;
+    const adj = getExploreAdjacentTiles(idx);
+    return adj.some(a => exploreProgress.revealedTiles.includes(a));
 }
 
-function getNextMilestone() {
-    for (const m of DONATION_MILESTONES) {
-        if (donationTotal < m.threshold) return m;
+function exploreTile(idx) {
+    if (!isExplorable(idx)) return;
+    if (userLevel < EXPLORE_UNLOCK_LEVEL) {
+        showError(`Lv.${EXPLORE_UNLOCK_LEVEL}에 해제!`);
+        return;
     }
-    return null;
-}
-
-function donate(amount) {
-    if (coins < amount) {
+    const cost = getExploreCost(exploreProgress.revealedTiles.length);
+    if (coins < cost) {
         showError('코인 부족!');
         return;
     }
-    const prevTitle = getDonationTitle();
-    coins -= amount;
-    donationTotal += amount;
+    coins -= cost;
+    exploreProgress.revealedTiles.push(idx);
     playSound('purchase');
-    showToast(`기부 완료! -${amount.toLocaleString()}${ICON.coin}`);
 
-    const newTitle = getDonationTitle();
-    if (newTitle && newTitle !== prevTitle) {
-        const milestone = DONATION_MILESTONES.find(m => m.title === newTitle);
-        if (milestone) {
-            diamonds += milestone.diamonds;
+    const tile = EXPLORE_MAP[idx];
+    if (tile.type === 'fossil') {
+        if (!exploreProgress.collectedFossils.includes(tile.fossilId)) {
+            exploreProgress.collectedFossils.push(tile.fossilId);
+            const fossil = EXPLORE_FOSSILS[tile.fossilId];
+            showToast(`${fossil.icon} ${fossil.name} 발견!`);
             playSound('milestone');
-            setTimeout(() => {
-                showMilestonePopup(`${ICON.gift} 칭호 획득: ${newTitle}!<br>+${milestone.diamonds}${ICON.diamond}`);
-            }, 500);
+            checkExploreMilestone();
         }
+    } else if (tile.type !== 'start') {
+        let amount = tile.min + Math.floor(Math.random() * (tile.max - tile.min + 1));
+        let rewardStr = '';
+        switch (tile.type) {
+            case 'coins': addCoins(amount); rewardStr = `+${amount}${ICON.coin}`; break;
+            case 'diamonds': diamonds += amount; rewardStr = `+${amount}${ICON.diamond}`; break;
+            case 'energy': energy += amount; rewardStr = `+${amount}${ICON.energy}`; break;
+            case 'cards': cards += amount; rewardStr = `+${amount}${ICON.card}`; break;
+        }
+        showToast(rewardStr);
     }
-    updateDonationUI();
+    updateExploreUI();
     updateAll();
 }
 
-function updateDonationUI() {
-    const titleEl = document.getElementById('donate-title');
-    const totalEl = document.getElementById('donate-total');
-    const nextEl = document.getElementById('donate-next');
+function checkExploreMilestone() {
+    const count = exploreProgress.collectedFossils.length;
+    for (let i = 0; i < EXPLORE_MILESTONES.length; i++) {
+        const m = EXPLORE_MILESTONES[i];
+        if (count >= m.count && !exploreProgress.claimedMilestones.includes(i)) {
+            exploreProgress.claimedMilestones.push(i);
+            addCoins(m.coins);
+            diamonds += m.diamonds;
+            if (m.dinoGen) {
+                spawnDinoGenerator();
+                showMilestonePopup(`${ICON.party} 화석 완성! 공룡 생성기 해제!`, `+${m.coins}${ICON.coin} +${m.diamonds}${ICON.diamond}`);
+            } else {
+                showMilestonePopup(`${ICON.party} 화석 ${m.count}개 수집!`, `+${m.coins}${ICON.coin} +${m.diamonds}${ICON.diamond}`);
+            }
+        }
+    }
+}
 
-    const title = getDonationTitle();
-    if (titleEl) titleEl.textContent = title || '없음';
-    if (totalEl) totalEl.textContent = donationTotal.toLocaleString();
+function spawnDinoGenerator() {
+    if (genLevels.dinosaur > 0) return; // 이미 해제됨
+    genLevels.dinosaur = 1;
+    const emptyIdx = boardState.findIndex((x, i) => x === null && i < BOARD_MISSION_START);
+    if (emptyIdx !== -1) {
+        boardState[emptyIdx] = { type: 'dinosaur_generator', clicks: 0, cooldown: 0 };
+        pendingDinoGen = false;
+    } else {
+        pendingDinoGen = true;
+    }
+}
 
-    const next = getNextMilestone();
-    if (nextEl) {
-        if (next) {
-            const remain = next.threshold - donationTotal;
-            nextEl.innerHTML = `다음 칭호: <b>${next.title}</b> (${remain.toLocaleString()}${ICON.coin} 남음)`;
+function trySpawnPendingDinoGen() {
+    if (!pendingDinoGen || genLevels.dinosaur <= 0) return;
+    if (boardState.some(x => x && x.type === 'dinosaur_generator')) {
+        pendingDinoGen = false;
+        return;
+    }
+    const emptyIdx = boardState.findIndex((x, i) => x === null && i < BOARD_MISSION_START);
+    if (emptyIdx !== -1) {
+        boardState[emptyIdx] = { type: 'dinosaur_generator', clicks: 0, cooldown: 0 };
+        pendingDinoGen = false;
+        showToast('공룡 둥지가 나타났다!');
+    }
+}
+
+function getExploreTitle() {
+    const count = exploreProgress.collectedFossils.length;
+    if (count >= 10) return '탐험가';
+    if (count >= 7) return '화석 수집가';
+    if (count >= 3) return '발굴 초보';
+    return null;
+}
+
+function updateExploreUI() {
+    const wrapper = document.getElementById('explore-wrapper');
+    if (!wrapper) return;
+
+    if (userLevel < EXPLORE_UNLOCK_LEVEL) {
+        wrapper.innerHTML = `<div class="text-center text-gray-400 py-4 text-xs">Lv.${EXPLORE_UNLOCK_LEVEL}에 해제</div>`;
+        return;
+    }
+
+    const revealed = exploreProgress.revealedTiles.length;
+    const fossils = exploreProgress.collectedFossils.length;
+    const cost = revealed < EXPLORE_TILE_COUNT ? getExploreCost(revealed) : 0;
+    const allRevealed = revealed >= EXPLORE_TILE_COUNT;
+
+    let html = `<div class="flex justify-between items-center mb-1">
+        <span class="text-[10px] font-bold text-amber-700">🦴 화석 발굴 ${revealed}/${EXPLORE_TILE_COUNT}</span>
+        <button onclick="openExploreModal()" class="text-[9px] bg-amber-500 text-white px-2 py-0.5 rounded font-bold">지도 열기</button>
+    </div>
+    <div class="flex gap-2 items-start">
+        <div id="explore-minimap" class="explore-minimap"></div>
+        <div class="flex-1 text-[9px] text-amber-600">
+            <div>비용: ${allRevealed ? '완료!' : cost + ICON.coin}</div>
+            <div>화석: ${fossils}/10</div>
+        </div>
+    </div>`;
+    wrapper.innerHTML = html;
+    renderExploreMinimap();
+}
+
+function renderExploreMinimap() {
+    const container = document.getElementById('explore-minimap');
+    if (!container) return;
+    let html = '';
+    for (let i = 0; i < EXPLORE_TILE_COUNT; i++) {
+        const isRevealed = exploreProgress.revealedTiles.includes(i);
+        const tile = EXPLORE_MAP[i];
+        let cls = 'explore-tile';
+        let content = '';
+        if (isRevealed) {
+            cls += ' revealed';
+            if (tile.type === 'fossil') content = tile.icon;
+            else if (tile.type === 'start') content = '🏠';
+            else if (tile.type === 'coins') content = '🪙';
+            else if (tile.type === 'diamonds') content = '💎';
+            else if (tile.type === 'energy') content = '⚡';
+            else if (tile.type === 'cards') content = '🃏';
+        } else if (isExplorable(i)) {
+            cls += ' explorable';
         } else {
-            nextEl.innerHTML = `<span class="text-yellow-600 font-bold">모든 칭호 달성!</span>`;
+            cls += ' fog';
         }
+        html += `<div class="${cls}">${content}</div>`;
+    }
+    container.innerHTML = html;
+}
+
+function openExploreModal() {
+    if (userLevel < EXPLORE_UNLOCK_LEVEL) {
+        showError(`Lv.${EXPLORE_UNLOCK_LEVEL}에 해제!`);
+        return;
+    }
+    renderExploreModal();
+    openOverlay('explore-modal');
+}
+
+function renderExploreModal() {
+    const grid = document.getElementById('explore-modal-grid');
+    const fossils = document.getElementById('explore-fossil-collection');
+    const milestones = document.getElementById('explore-milestone-info');
+    if (!grid) return;
+
+    const revealed = exploreProgress.revealedTiles.length;
+    const cost = revealed < EXPLORE_TILE_COUNT ? getExploreCost(revealed) : 0;
+
+    let gridHtml = '';
+    for (let i = 0; i < EXPLORE_TILE_COUNT; i++) {
+        const isRevealed = exploreProgress.revealedTiles.includes(i);
+        const canExplore = isExplorable(i);
+        const tile = EXPLORE_MAP[i];
+        let cls = 'explore-modal-tile';
+        let content = '';
+        let onclick = '';
+
+        if (isRevealed) {
+            cls += ' revealed';
+            if (tile.type === 'fossil') {
+                const f = EXPLORE_FOSSILS[tile.fossilId];
+                content = `<span class="text-base">${f.icon}</span><span class="text-[7px]">${f.name}</span>`;
+            } else if (tile.type === 'start') {
+                content = '<span class="text-base">🏠</span>';
+            } else {
+                const icons = { coins: ICON.coin, diamonds: ICON.diamond, energy: ICON.energy, cards: ICON.card };
+                content = `<span>${icons[tile.type] || ''}</span>`;
+            }
+        } else if (canExplore) {
+            cls += ' explorable';
+            content = `<span class="text-[8px] font-bold">${cost}🪙</span>`;
+            onclick = `onclick="exploreTile(${i})"`;
+        } else {
+            cls += ' fog';
+            content = '?';
+        }
+        gridHtml += `<div class="${cls}" ${onclick}>${content}</div>`;
+    }
+    grid.innerHTML = gridHtml;
+
+    // 화석 컬렉션
+    if (fossils) {
+        let fHtml = '';
+        for (const f of EXPLORE_FOSSILS) {
+            const collected = exploreProgress.collectedFossils.includes(f.id);
+            fHtml += `<div class="explore-fossil ${collected ? 'collected' : 'missing'}" title="${f.name}">
+                <span>${collected ? f.icon : '?'}</span>
+            </div>`;
+        }
+        fossils.innerHTML = fHtml;
     }
 
-    // 버튼 disabled 갱신
-    for (const amt of DONATION_AMOUNTS) {
-        const btn = document.getElementById(`donate-btn-${amt}`);
-        if (btn) {
-            btn.disabled = coins < amt;
-            btn.classList.toggle('opacity-50', coins < amt);
+    // 마일스톤
+    if (milestones) {
+        const count = exploreProgress.collectedFossils.length;
+        let mHtml = '';
+        for (let i = 0; i < EXPLORE_MILESTONES.length; i++) {
+            const m = EXPLORE_MILESTONES[i];
+            const claimed = exploreProgress.claimedMilestones.includes(i);
+            const reached = count >= m.count;
+            mHtml += `<span class="text-[9px] ${claimed ? 'text-green-500' : reached ? 'text-yellow-500' : 'text-gray-400'} font-bold">
+                ${m.count}개${claimed ? '✓' : ''} ${m.dinoGen ? '🦕' : ''}
+            </span>`;
         }
+        milestones.innerHTML = mHtml;
     }
+}
+
+function closeExploreModal() {
+    closeOverlay('explore-modal');
 }

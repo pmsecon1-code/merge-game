@@ -50,6 +50,7 @@ const ICON = {
 const GENERATOR_NAMES = {
     cat: '캣타워', dog: '개집', bird: '새장',
     fish: '어항', reptile: '사육장', toy: '장난감 상자',
+    dinosaur: '공룡 둥지',
 };
 function getGeneratorName(type) {
     return GENERATOR_NAMES[type] || type;
@@ -292,7 +293,7 @@ const FISH = [
     { level: 1, emoji: '🐟', img: 'images/fish/fish1.png', name: '금붕어', color: '#fbbf24' },
     { level: 2, emoji: '🐠', img: 'images/fish/fish2.png', name: '열대어', color: '#fde047' },
     { level: 3, emoji: '🐡', img: 'images/fish/fish3.png', name: '복어', color: '#fbbf24' },
-    { level: 4, emoji: '🦑', img: 'images/fish/fish4.png', name: '거북이', color: '#86efac' },
+    { level: 4, emoji: '🦑', img: 'images/fish/fish4.png', name: '바다거북', color: '#86efac' },
     { level: 5, emoji: '🐙', img: 'images/fish/fish5.png', name: '돌고래', color: '#60a5fa' },
     { level: 6, emoji: '🦈', img: 'images/fish/fish6.png', name: '상어', color: '#94a3b8' },
     { level: 7, emoji: '🐳', img: 'images/fish/fish7.png', name: '고래', color: '#3b82f6' },
@@ -362,15 +363,118 @@ const ALBUM_COMPLETE_COINS = 500;
 const ALBUM_ALL_COMPLETE_DIAMONDS = 500;
 const ALBUM_CYCLE_MS = 42 * 24 * 60 * 60 * 1000; // 42일
 
-// --- 기부 시스템 ---
-const DONATION_AMOUNTS = [100, 500, 1000, 5000];
-const DONATION_MILESTONES = [
-    { threshold: 1000,   title: '작은 나눔',       diamonds: 2  },
-    { threshold: 5000,   title: '따뜻한 마음',      diamonds: 5  },
-    { threshold: 20000,  title: '마을의 은인',      diamonds: 10 },
-    { threshold: 50000,  title: '동물 수호자',      diamonds: 20 },
-    { threshold: 100000, title: '전설의 후원자',    diamonds: 30 },
-    { threshold: 500000, title: '동물 마을의 영웅', diamonds: 50 },
+// --- 탐험 지도 ---
+const EXPLORE_MAP_SIZE = 7;
+const EXPLORE_TILE_COUNT = 49;
+const EXPLORE_UNLOCK_LEVEL = 15;
+const EXPLORE_BASE_COST = 200;
+const EXPLORE_COST_INCREMENT = 50;
+
+const EXPLORE_FOSSILS = [
+    { id: 0, name: '공룡 발자국', icon: '🦶' },
+    { id: 1, name: '이빨 화석', icon: '🦷' },
+    { id: 2, name: '갈비뼈 화석', icon: '🦴' },
+    { id: 3, name: '꼬리뼈 화석', icon: '🦴' },
+    { id: 4, name: '발톱 화석', icon: '🦴' },
+    { id: 5, name: '등뼈 화석', icon: '🦴' },
+    { id: 6, name: '날개뼈 화석', icon: '🦴' },
+    { id: 7, name: '두개골 화석', icon: '💀' },
+    { id: 8, name: '알 화석', icon: '🥚' },
+    { id: 9, name: '완전한 골격', icon: '🦕' },
+];
+
+const EXPLORE_MILESTONES = [
+    { count: 3,  coins: 100, diamonds: 5  },
+    { count: 5,  coins: 200, diamonds: 10 },
+    { count: 7,  coins: 300, diamonds: 15 },
+    { count: 10, coins: 500, diamonds: 30, dinoGen: true },
+];
+
+// 7×7 = 49칸 고정 배치 (행 우선)
+// types: 'start', 'coins', 'diamonds', 'energy', 'cards', 'fossil'
+const EXPLORE_MAP = [
+    // row 0 (top edge)
+    { type: 'fossil', fossilId: 0, icon: '🦶' },
+    { type: 'coins', min: 50, max: 100 },
+    { type: 'energy', min: 10, max: 15 },
+    { type: 'coins', min: 80, max: 150 },
+    { type: 'diamonds', min: 2, max: 4 },
+    { type: 'coins', min: 60, max: 120 },
+    { type: 'fossil', fossilId: 1, icon: '🦷' },
+    // row 1
+    { type: 'coins', min: 100, max: 200 },
+    { type: 'energy', min: 15, max: 25 },
+    { type: 'cards', min: 3, max: 6 },
+    { type: 'coins', min: 50, max: 100 },
+    { type: 'diamonds', min: 1, max: 3 },
+    { type: 'coins', min: 70, max: 130 },
+    { type: 'fossil', fossilId: 2, icon: '🦴' },
+    // row 2
+    { type: 'diamonds', min: 3, max: 5 },
+    { type: 'coins', min: 100, max: 180 },
+    { type: 'energy', min: 10, max: 20 },
+    { type: 'cards', min: 4, max: 7 },
+    { type: 'coins', min: 60, max: 100 },
+    { type: 'diamonds', min: 2, max: 4 },
+    { type: 'fossil', fossilId: 3, icon: '🦴' },
+    // row 3 (center row)
+    { type: 'fossil', fossilId: 4, icon: '🦴' },
+    { type: 'energy', min: 15, max: 30 },
+    { type: 'coins', min: 150, max: 250 },
+    { type: 'start' },
+    { type: 'coins', min: 200, max: 300 },
+    { type: 'cards', min: 5, max: 10 },
+    { type: 'fossil', fossilId: 5, icon: '🦴' },
+    // row 4
+    { type: 'fossil', fossilId: 6, icon: '🦴' },
+    { type: 'diamonds', min: 3, max: 6 },
+    { type: 'coins', min: 80, max: 150 },
+    { type: 'energy', min: 20, max: 30 },
+    { type: 'cards', min: 3, max: 6 },
+    { type: 'coins', min: 100, max: 200 },
+    { type: 'diamonds', min: 4, max: 8 },
+    // row 5
+    { type: 'coins', min: 50, max: 100 },
+    { type: 'cards', min: 4, max: 8 },
+    { type: 'diamonds', min: 2, max: 5 },
+    { type: 'coins', min: 120, max: 200 },
+    { type: 'energy', min: 10, max: 20 },
+    { type: 'coins', min: 80, max: 150 },
+    { type: 'fossil', fossilId: 7, icon: '💀' },
+    // row 6 (bottom edge)
+    { type: 'fossil', fossilId: 8, icon: '🥚' },
+    { type: 'coins', min: 100, max: 180 },
+    { type: 'energy', min: 15, max: 25 },
+    { type: 'diamonds', min: 3, max: 6 },
+    { type: 'coins', min: 150, max: 250 },
+    { type: 'cards', min: 5, max: 8 },
+    { type: 'fossil', fossilId: 9, icon: '🦕' },
+];
+
+function getExploreCost(revealedCount) {
+    return EXPLORE_BASE_COST + (revealedCount - 1) * EXPLORE_COST_INCREMENT;
+}
+
+function getExploreAdjacentTiles(idx) {
+    const row = Math.floor(idx / EXPLORE_MAP_SIZE);
+    const col = idx % EXPLORE_MAP_SIZE;
+    const adj = [];
+    if (row > 0) adj.push(idx - EXPLORE_MAP_SIZE);
+    if (row < EXPLORE_MAP_SIZE - 1) adj.push(idx + EXPLORE_MAP_SIZE);
+    if (col > 0) adj.push(idx - 1);
+    if (col < EXPLORE_MAP_SIZE - 1) adj.push(idx + 1);
+    return adj;
+}
+
+// --- 공룡 동물 데이터 ---
+const DINOSAURS = [
+    { level: 1, emoji: '🥚', img: 'images/dinosaurs/dino1.png', name: '아기 공룡', color: '#86efac' },
+    { level: 2, emoji: '🦎', img: 'images/dinosaurs/dino2.png', name: '랩터', color: '#4ade80' },
+    { level: 3, emoji: '🦕', img: 'images/dinosaurs/dino3.png', name: '스테고', color: '#16a34a' },
+    { level: 4, emoji: '🦖', img: 'images/dinosaurs/dino4.png', name: '트리케라', color: '#15803d' },
+    { level: 5, emoji: '🐉', img: 'images/dinosaurs/dino5.png', name: '안킬로', color: '#14532d' },
+    { level: 6, emoji: '🦕', img: 'images/dinosaurs/dino6.png', name: '브라키오', color: '#60a5fa' },
+    { level: 7, emoji: '🦖', img: 'images/dinosaurs/dino7.png', name: '티라노', color: '#ef4444' },
 ];
 
 // --- 7일 출석 보상 ---
@@ -575,6 +679,7 @@ function getItemList(type) {
         bird: BIRDS,
         fish: FISH,
         reptile: REPTILES,
+        dinosaur: DINOSAURS,
         cat_snack: CAT_SNACKS,
         dog_snack: DOG_SNACKS,
         cat_toy: CAT_TOYS,

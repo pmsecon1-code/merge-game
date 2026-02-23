@@ -493,7 +493,7 @@ function triggerGen(idx, item) {
     const cell = boardEl.children[idx],
         cage = cell.querySelector('.cage-generator');
     const baseType = item.type.replace('_generator', '');
-    if (['bird', 'fish', 'reptile'].includes(baseType)) {
+    if (['bird', 'fish', 'reptile', 'dinosaur'].includes(baseType)) {
         if (item.cooldown > Date.now()) {
             openCooldownPopup(idx, item);
             return;
@@ -681,7 +681,7 @@ function tryMergeItems(ss, fi, fIt, ts, ti, tIt, tz) {
     setTimeout(() => { showFloatText(cell, 'UP!', '#f43f5e'); }, 50);
     if (tutorialStep <= 0) tryDropDice();
     dealBoardBossDamage(newLv);
-    const isSpecialType = ['bird', 'fish', 'reptile'].includes(fIt.type);
+    const isSpecialType = ['bird', 'fish', 'reptile', 'dinosaur'].includes(fIt.type);
     if (newLv >= BUBBLE_MIN_LEVEL && tutorialStep <= 0 && !isSpecialType && Math.random() < BUBBLE_CHANCE) {
         spawnBubble(fIt.type, newLv);
     }

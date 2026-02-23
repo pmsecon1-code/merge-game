@@ -57,13 +57,13 @@ function createItem(item, zone, index) {
             type = item.type.replace('_generator', '');
         const spawnerImg = `images/spawners/spawner_${type}.png`;
         let specialUI = '';
-        if (['bird', 'fish', 'reptile', 'toy'].includes(type)) {
+        if (['bird', 'fish', 'reptile', 'toy', 'dinosaur'].includes(type)) {
             const rem = GENERATOR_MAX_CLICKS - (item.clicks || 0);
             if (item.cooldown > Date.now())
                 specialUI = `<div class="cooldown-overlay"><span><img src="images/icons/sleep.png" class="icon icon-sm"></span><span>${formatMinSec(item.cooldown - Date.now())}</span></div>`;
             else specialUI = `<div class="usage-badge">${rem}/6</div>`;
         }
-        const genColors = { cat: ['#fff1f2','#f472b6'], dog: ['#fef3c7','#fbbf24'], bird: ['#e0f2fe','#38bdf8'], fish: ['#ccfbf1','#2dd4bf'], reptile: ['#dcfce7','#4ade80'], toy: ['#f3e8ff','#a78bfa'] };
+        const genColors = { cat: ['#fff1f2','#f472b6'], dog: ['#fef3c7','#fbbf24'], bird: ['#e0f2fe','#38bdf8'], fish: ['#ccfbf1','#2dd4bf'], reptile: ['#dcfce7','#4ade80'], toy: ['#f3e8ff','#a78bfa'], dinosaur: ['#dcfce7','#86efac'] };
         const [bg, accent] = genColors[type] || ['#f1f5f9','#64748b'];
         if (type === 'toy') {
             label = '장난감 생성기';
@@ -148,6 +148,7 @@ function updateAll(opts) {
     updateQuestUI(opts && opts.scrollQuestToFront);
     trySpawnSpecialGenerator();
     trySpawnPendingBoss();
+    trySpawnPendingDinoGen();
     updateDailyMissionUI();
     updateAlbumBarUI();
     updateDiceTripUI();
@@ -378,7 +379,7 @@ function openSettings() {
     if (nameEl && currentUser) nameEl.textContent = getDisplayName(currentUser);
     const titleEl = document.getElementById('settings-title');
     if (titleEl) {
-        const title = getDonationTitle();
+        const title = getExploreTitle();
         titleEl.textContent = title ? `"${title}"` : '';
         titleEl.style.display = title ? 'inline' : 'none';
     }
@@ -526,12 +527,13 @@ function openGuide(type) {
     playSound('click');
     currentGuideType = type;
     const isToy = type === 'toy';
+    const isDino = type === 'dinosaur';
     document.getElementById('modal-title').textContent = (getGeneratorName(type) !== type ? getGeneratorName(type) : '도감') + ' 도감';
     document.getElementById('tab-animal').style.display = isToy ? 'none' : '';
     document.getElementById('tab-snack').style.display = isToy || !['cat', 'dog'].includes(type) ? 'none' : '';
     document.getElementById('tab-cat_toy').style.display = isToy ? '' : 'none';
     document.getElementById('tab-dog_toy').style.display = isToy ? '' : 'none';
-    document.getElementById('tab-upgrade').style.display = isToy ? 'none' : '';
+    document.getElementById('tab-upgrade').style.display = (isToy || isDino) ? 'none' : '';
     const defaultTab = isToy ? 'cat_toy' : 'animal';
     currentGuideTab = defaultTab;
     document.getElementById('guide-modal').classList.add('show');
@@ -630,7 +632,7 @@ function updateUpgradeUI() {
     const type = currentGuideType;
     const upgradeContent = document.getElementById('upgrade-content');
     const upgradeMsg = document.getElementById('upgrade-msg');
-    const isSpecial = ['bird', 'fish', 'reptile'].includes(type);
+    const isSpecial = ['bird', 'fish', 'reptile', 'dinosaur'].includes(type);
     const isCatDog = type === 'cat' || type === 'dog';
 
     if (!isCatDog && !isSpecial) {
@@ -671,7 +673,7 @@ function updateUpgradeUI() {
 
 function upgradeGenerator() {
     const type = currentGuideType;
-    const isSpecial = ['bird', 'fish', 'reptile'].includes(type);
+    const isSpecial = ['bird', 'fish', 'reptile', 'dinosaur'].includes(type);
     if (type !== 'cat' && type !== 'dog' && !isSpecial) return;
     if (genLevels[type] >= CAGE_MAX_LEVEL) {
         showError('최대 레벨!');
@@ -716,7 +718,7 @@ function toggleBottomTab(tabId) {
         dice: 'dice-trip-wrapper',
         shop: 'shop-wrapper',
         storage: 'storage-wrapper',
-        donate: 'donate-wrapper'
+        explore: 'explore-wrapper'
     };
     const dailyBar = document.getElementById('daily-mission-bar');
 
@@ -730,7 +732,7 @@ function toggleBottomTab(tabId) {
         document.getElementById(mapping[tabId]).style.display = 'flex';
         currentBottomTab = tabId;
         if (tabId === 'dice') requestAnimationFrame(() => renderDiceTripBoard());
-        if (tabId === 'donate') updateDonationUI();
+        if (tabId === 'explore') updateExploreUI();
     }
 
     document.querySelectorAll('.bottom-nav-badge').forEach(btn => {
@@ -781,11 +783,10 @@ function updateBottomBadges() {
         storageInfo.textContent = `${used}/${unlocked}`;
     }
 
-    // 기부: 현재 칭호
-    const donateInfo = document.getElementById('badge-donate-info');
-    if (donateInfo) {
-        const title = getDonationTitle();
-        donateInfo.textContent = title || '기부하기';
+    // 탐험: 진행도
+    const exploreInfo = document.getElementById('badge-explore-info');
+    if (exploreInfo) {
+        exploreInfo.textContent = `${exploreProgress.revealedTiles.length}/49`;
     }
 }
 

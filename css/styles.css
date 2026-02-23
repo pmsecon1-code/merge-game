@@ -1819,3 +1819,66 @@ body.tutorial-active {
     background: #a5b4fc;
 }
 
+/* === 탐험 지도 === */
+.explore-minimap {
+    display: grid;
+    grid-template-columns: repeat(7, 9px);
+    grid-template-rows: repeat(7, 9px);
+    gap: 1px;
+}
+.explore-minimap .explore-tile {
+    width: 9px;
+    height: 9px;
+    border-radius: 1px;
+    font-size: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.explore-tile.revealed { background: #bbf7d0; }
+.explore-tile.explorable { background: #fde68a; border: 1px solid #f59e0b; cursor: pointer; }
+.explore-tile.fog { background: #d1d5db; }
+.explore-tile.start { background: #86efac; }
+
+.explore-modal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+}
+.explore-modal-tile {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    position: relative;
+    cursor: default;
+}
+.explore-modal-tile.revealed { background: #dcfce7; border: 1px solid #86efac; }
+.explore-modal-tile.explorable { background: #fef9c3; border: 2px solid #f59e0b; cursor: pointer; }
+.explore-modal-tile.explorable:active { background: #fde68a; }
+.explore-modal-tile.fog { background: #e5e7eb; }
+.explore-modal-tile .tile-cost {
+    font-size: 7px;
+    color: #92400e;
+    font-weight: bold;
+}
+
+.explore-fossil-item {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border: 2px solid #d1d5db;
+    background: #f3f4f6;
+}
+.explore-fossil-item.collected {
+    border-color: #16a34a;
+    background: #dcfce7;
+}
+

@@ -29,7 +29,7 @@ let userLevel = 1,
 let totalQuestsCompleted = 0;
 
 // --- 생성기/드래그 ---
-let genLevels = { cat: 1, dog: 1, bird: 1, fish: 1, reptile: 1 },
+let genLevels = { cat: 1, dog: 1, bird: 1, fish: 1, reptile: 1, dinosaur: 0 },
     dragData = null;
 
 // --- 도감/상점/판매 ---
@@ -103,10 +103,15 @@ let currentSessionId = null;
 let sessionUnsubscribe = null;
 
 // --- 하단 배지 탭 ---
-let currentBottomTab = null; // null | 'race' | 'album' | 'dice' | 'shop' | 'storage' | 'donate'
+let currentBottomTab = null; // null | 'race' | 'album' | 'dice' | 'shop' | 'storage' | 'explore'
 
-// --- 기부 시스템 ---
-let donationTotal = 0;
+// --- 탐험 지도 ---
+let exploreProgress = {
+    revealedTiles: [24],       // 개방된 타일 인덱스 (시작점=중앙)
+    collectedFossils: [],      // 수집한 화석 ID (최대 10)
+    claimedMilestones: [],     // 수령한 마일스톤 인덱스 (최대 4)
+};
+let pendingDinoGen = false; // 보드 가득 시 공룡 생성기 대기
 
 // --- 스토리 슬라이드 (UI 임시 상태) ---
 let storySlides = [];

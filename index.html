@@ -207,21 +207,18 @@
                     <div id="storage-area" class="grid-layout"></div>
                 </div>
 
-                <!-- 9. 기부 -->
-                <div id="donate-wrapper" class="event-bar" style="display:none; border: 2px solid #f59e0b">
-                    <div class="flex items-center gap-2 mb-1">
-                        <img src="images/cats/cat1.png" class="icon icon-md rounded-full border-2 border-yellow-300">
-                        <div class="flex-1">
-                            <span class="text-[10px] font-bold text-yellow-700"><img src="images/icons/gift.png" class="icon icon-xs"> 동물 마을 기부</span>
-                            <div class="text-[9px] text-yellow-500">칭호: <span id="donate-title" class="font-bold">없음</span> | 누적: <span id="donate-total" class="font-bold">0</span><img src="images/icons/coin.png" class="icon" style="width:10px;height:10px"></div>
-                        </div>
+                <!-- 9. 탐험 지도 -->
+                <div id="explore-wrapper" class="event-bar" style="display:none; border: 2px solid #16a34a">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[10px] font-bold text-green-700">🦴 화석 발굴 <span id="explore-progress-text">1/49</span></span>
+                        <button onclick="openExploreModal()" class="bg-green-500 text-white text-[9px] px-2 py-0.5 rounded font-bold shadow">지도 열기</button>
                     </div>
-                    <div id="donate-next" class="text-[9px] text-gray-500 mb-1"></div>
-                    <div class="flex gap-1 justify-center">
-                        <button id="donate-btn-100" onclick="donate(100)" class="bg-yellow-400 text-white text-[10px] px-2 py-1 rounded font-bold shadow">100<img src="images/icons/coin.png" class="icon" style="width:10px;height:10px"></button>
-                        <button id="donate-btn-500" onclick="donate(500)" class="bg-yellow-500 text-white text-[10px] px-2 py-1 rounded font-bold shadow">500<img src="images/icons/coin.png" class="icon" style="width:10px;height:10px"></button>
-                        <button id="donate-btn-1000" onclick="donate(1000)" class="bg-orange-400 text-white text-[10px] px-2 py-1 rounded font-bold shadow">1,000<img src="images/icons/coin.png" class="icon" style="width:10px;height:10px"></button>
-                        <button id="donate-btn-5000" onclick="donate(5000)" class="bg-orange-500 text-white text-[10px] px-2 py-1 rounded font-bold shadow">5,000<img src="images/icons/coin.png" class="icon" style="width:10px;height:10px"></button>
+                    <div class="flex gap-2 items-start">
+                        <div id="explore-minimap" class="explore-minimap"></div>
+                        <div class="flex-1 text-[9px]">
+                            <div class="text-green-600">비용: <span id="explore-cost-text" class="font-bold">250</span><img src="images/icons/coin.png" class="icon" style="width:10px;height:10px"></div>
+                            <div class="text-green-600">화석: <span id="explore-fossil-text" class="font-bold">0/10</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -253,10 +250,10 @@
                     <span class="badge-label">창고</span>
                     <span class="badge-info" id="badge-storage-info"></span>
                 </button>
-                <button class="bottom-nav-badge" data-tab="donate" onclick="toggleBottomTab('donate')">
-                    <span class="badge-icon"><img src="images/icons/gift.png" class="icon icon-md"></span>
-                    <span class="badge-label">기부</span>
-                    <span class="badge-info" id="badge-donate-info"></span>
+                <button class="bottom-nav-badge" data-tab="explore" onclick="toggleBottomTab('explore')">
+                    <span class="badge-icon">🦴</span>
+                    <span class="badge-label">탐험</span>
+                    <span class="badge-info" id="badge-explore-info"></span>
                 </button>
             </div>
 
@@ -270,6 +267,22 @@
                     <div id="tutorial-bubble-text"></div>
                 </div>
                 <button id="tutorial-next-btn">다음</button>
+            </div>
+        </div>
+
+        <!-- 탐험 모달 -->
+        <div id="explore-modal" class="overlay-bg" style="display:none">
+            <div class="overlay-content bg-white p-4 rounded-2xl shadow-xl border-4 border-green-400" style="max-width:360px;width:90%">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-lg font-bold text-green-700">🦴 화석 발굴 지도</h2>
+                    <button onclick="closeExploreModal()" class="text-gray-400 text-xl font-bold">&times;</button>
+                </div>
+                <div id="explore-modal-grid" class="explore-modal-grid"></div>
+                <div class="mt-2">
+                    <div class="text-[10px] font-bold text-green-700 mb-1">화석 컬렉션</div>
+                    <div id="explore-fossil-collection" class="flex flex-wrap gap-1"></div>
+                </div>
+                <div id="explore-milestone-area" class="mt-2"></div>
             </div>
         </div>
 

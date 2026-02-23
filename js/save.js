@@ -44,8 +44,13 @@ function getGameData() {
         diceTripPosition,
         diceCount,
         visitedSteps: [...visitedSteps],
-        // 기부
-        donationTotal,
+        // 탐험 지도
+        exploreProgress: {
+            revealedTiles: [...exploreProgress.revealedTiles],
+            collectedFossils: [...exploreProgress.collectedFossils],
+            claimedMilestones: [...exploreProgress.claimedMilestones],
+        },
+        pendingDinoGen,
         // 사운드 설정
         soundEnabled,
         musicEnabled,
@@ -186,7 +191,7 @@ function applyGameData(d) {
     });
     questIdCounter = d.questIdCounter ?? 0;
     const gl = d.genLevels || {};
-    genLevels = { cat: gl.cat || 1, dog: gl.dog || 1, bird: gl.bird || 1, fish: gl.fish || 1, reptile: gl.reptile || 1 };
+    genLevels = { cat: gl.cat || 1, dog: gl.dog || 1, bird: gl.bird || 1, fish: gl.fish || 1, reptile: gl.reptile || 1, dinosaur: gl.dinosaur ?? 0 };
     shopItems = d.shopItems || shopItems;
     const savedShopRemaining = d.shopNextRefresh ?? SHOP_REFRESH_MS;
     shopNextRefresh = Date.now() + savedShopRemaining;
@@ -256,7 +261,18 @@ function applyGameData(d) {
     diceCount = d.diceCount ?? 0;
     visitedSteps = d.visitedSteps && Array.isArray(d.visitedSteps) ? d.visitedSteps : [0];
 
-    donationTotal = d.donationTotal ?? 0;
+    // 탐험 지도 로드
+    if (d.exploreProgress && typeof d.exploreProgress === 'object') {
+        const ep = d.exploreProgress;
+        exploreProgress = {
+            revealedTiles: Array.isArray(ep.revealedTiles) ? ep.revealedTiles : [24],
+            collectedFossils: Array.isArray(ep.collectedFossils) ? ep.collectedFossils : [],
+            claimedMilestones: Array.isArray(ep.claimedMilestones) ? ep.claimedMilestones : [],
+        };
+    } else {
+        exploreProgress = { revealedTiles: [24], collectedFossils: [], claimedMilestones: [] };
+    }
+    pendingDinoGen = d.pendingDinoGen ?? false;
 
     if (d.soundEnabled !== undefined) soundEnabled = d.soundEnabled;
     if (d.musicEnabled !== undefined) musicEnabled = d.musicEnabled;
@@ -401,7 +417,6 @@ function clampSaveData(data) {
         ['diceTripPosition', 0, 50],
         ['diceCount', 0, 999],
         ['tutorialStep', 0, 4],
-        ['donationTotal', 0, 9999999],
     ];
     for (const [key, min, max] of numClamps) {
         if (data[key] !== undefined) {
@@ -442,6 +457,13 @@ function clampSaveData(data) {
             console.warn(`[clampSaveData] storyProgress.bosses.length = ${sp.bosses.length} → 10`);
             sp.bosses = sp.bosses.slice(0, 10);
         }
+    }
+    // exploreProgress 하위 배열 클램핑
+    if (data.exploreProgress && typeof data.exploreProgress === 'object') {
+        const ep = data.exploreProgress;
+        if (Array.isArray(ep.revealedTiles) && ep.revealedTiles.length > 49) ep.revealedTiles = ep.revealedTiles.slice(0, 49);
+        if (Array.isArray(ep.collectedFossils) && ep.collectedFossils.length > 10) ep.collectedFossils = ep.collectedFossils.slice(0, 10);
+        if (Array.isArray(ep.claimedMilestones) && ep.claimedMilestones.length > 4) ep.claimedMilestones = ep.claimedMilestones.slice(0, 4);
     }
     return data;
 }
@@ -654,7 +676,7 @@ function initNewGame() {
     userLevel = 1;
     questProgress = 0;
     quests = [];
-    genLevels = { cat: 1, dog: 1, bird: 1, fish: 1, reptile: 1 };
+    genLevels = { cat: 1, dog: 1, bird: 1, fish: 1, reptile: 1, dinosaur: 0 };
     discoveredItems = new Set();
     currentSpecialIndex = 0;
     dailyMissions = {
@@ -682,8 +704,9 @@ function initNewGame() {
     diceCount = 0;
     visitedSteps = [0];
 
-    // 기부 초기화
-    donationTotal = 0;
+    // 탐험 지도 초기화
+    exploreProgress = { revealedTiles: [24], collectedFossils: [], claimedMilestones: [] };
+    pendingDinoGen = false;
 
     // 스토리 갤러리 초기화
     storyProgress = { unlockedImages: [], activeQuestId: null, bosses: [], pendingBoss: null };
