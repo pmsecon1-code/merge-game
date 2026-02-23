@@ -1868,19 +1868,15 @@ body.tutorial-active {
 
 .explore-fossil-bar {
     display: flex;
-    gap: 4px;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    margin-top: 4px;
+    gap: 3px;
+    flex-wrap: wrap;
+    margin-top: 2px;
     padding: 2px 0;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
 }
-.explore-fossil-bar::-webkit-scrollbar { display: none; }
 .explore-fossil {
-    min-width: 28px;
-    width: 28px;
-    height: 28px;
+    min-width: 22px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     display: flex;
     align-items: center;
