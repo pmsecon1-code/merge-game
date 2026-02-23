@@ -1866,19 +1866,34 @@ body.tutorial-active {
     font-weight: bold;
 }
 
-.explore-fossil-item {
+.explore-fossil-bar {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    margin-top: 4px;
+    padding: 2px 0;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.explore-fossil-bar::-webkit-scrollbar { display: none; }
+.explore-fossil {
+    min-width: 28px;
     width: 28px;
     height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 11px;
     border: 2px solid #d1d5db;
     background: #f3f4f6;
+    color: #9ca3af;
+    font-weight: bold;
 }
-.explore-fossil-item.collected {
+.explore-fossil.collected {
     border-color: #16a34a;
     background: #dcfce7;
+    color: inherit;
 }
 

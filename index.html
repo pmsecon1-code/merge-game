@@ -210,7 +210,7 @@
                 <!-- 9. 탐험 지도 -->
                 <div id="explore-wrapper" class="event-bar" style="display:none; border: 2px solid #16a34a">
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-[10px] font-bold text-green-700">🦴 화석 발굴 <span id="explore-progress-text">1/49</span></span>
+                        <span class="text-[10px] font-bold text-green-700"><img src="images/icons/fossil_bone.png" class="icon icon-xs"> 화석 발굴 <span id="explore-progress-text">1/49</span></span>
                         <button onclick="openExploreModal()" class="bg-green-500 text-white text-[9px] px-2 py-0.5 rounded font-bold shadow">지도 열기</button>
                     </div>
                     <div class="flex gap-2 items-start">
@@ -274,15 +274,10 @@
         <div id="explore-modal" class="overlay-bg" style="display:none">
             <div class="overlay-content bg-white p-4 rounded-2xl shadow-xl border-4 border-green-400" style="max-width:360px;width:90%">
                 <div class="flex justify-between items-center mb-2">
-                    <h2 class="text-lg font-bold text-green-700">🦴 화석 발굴 지도</h2>
+                    <h2 class="text-lg font-bold text-green-700"><img src="images/icons/fossil_bone.png" class="icon icon-sm"> 화석 발굴 지도</h2>
                     <button onclick="closeExploreModal()" class="text-gray-400 text-xl font-bold">&times;</button>
                 </div>
                 <div id="explore-modal-grid" class="explore-modal-grid"></div>
-                <div class="mt-2">
-                    <div class="text-[10px] font-bold text-green-700 mb-1">화석 컬렉션</div>
-                    <div id="explore-fossil-collection" class="flex flex-wrap gap-1"></div>
-                </div>
-                <div id="explore-milestone-area" class="mt-2"></div>
             </div>
         </div>
 

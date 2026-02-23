@@ -569,7 +569,21 @@ function updateExploreUI() {
             <div>비용: ${allRevealed ? '완료!' : cost + ICON.coin}</div>
             <div>화석: ${fossils}/10</div>
         </div>
-    </div>`;
+    </div>
+    <div class="explore-fossil-bar">`;
+    for (const f of EXPLORE_FOSSILS) {
+        const collected = exploreProgress.collectedFossils.includes(f.id);
+        html += `<div class="explore-fossil ${collected ? 'collected' : 'missing'}" title="${f.name}">${collected ? ICON[f.icon] : '?'}</div>`;
+    }
+    html += `</div>
+    <div class="flex gap-2 items-center justify-center mt-1">`;
+    for (let i = 0; i < EXPLORE_MILESTONES.length; i++) {
+        const m = EXPLORE_MILESTONES[i];
+        const claimed = exploreProgress.claimedMilestones.includes(i);
+        const reached = fossils >= m.count;
+        html += `<span class="text-[8px] ${claimed ? 'text-green-500' : reached ? 'text-yellow-500' : 'text-gray-400'} font-bold">${m.count}개${claimed ? ICON.check : ''} ${m.dinoGen ? ICON.fossil_skeleton : ''}</span>`;
+    }
+    html += `</div>`;
     wrapper.innerHTML = html;
     renderExploreMinimap();
 }
@@ -612,8 +626,6 @@ function openExploreModal() {
 
 function renderExploreModal() {
     const grid = document.getElementById('explore-modal-grid');
-    const fossils = document.getElementById('explore-fossil-collection');
-    const milestones = document.getElementById('explore-milestone-info');
     if (!grid) return;
 
     const revealed = exploreProgress.revealedTiles.length;
@@ -650,33 +662,6 @@ function renderExploreModal() {
         gridHtml += `<div class="${cls}" ${onclick}>${content}</div>`;
     }
     grid.innerHTML = gridHtml;
-
-    // 화석 컬렉션
-    if (fossils) {
-        let fHtml = '';
-        for (const f of EXPLORE_FOSSILS) {
-            const collected = exploreProgress.collectedFossils.includes(f.id);
-            fHtml += `<div class="explore-fossil ${collected ? 'collected' : 'missing'}" title="${f.name}">
-                <span>${collected ? ICON[f.icon] : '?'}</span>
-            </div>`;
-        }
-        fossils.innerHTML = fHtml;
-    }
-
-    // 마일스톤
-    if (milestones) {
-        const count = exploreProgress.collectedFossils.length;
-        let mHtml = '';
-        for (let i = 0; i < EXPLORE_MILESTONES.length; i++) {
-            const m = EXPLORE_MILESTONES[i];
-            const claimed = exploreProgress.claimedMilestones.includes(i);
-            const reached = count >= m.count;
-            mHtml += `<span class="text-[9px] ${claimed ? 'text-green-500' : reached ? 'text-yellow-500' : 'text-gray-400'} font-bold">
-                ${m.count}개${claimed ? ICON.check : ''} ${m.dinoGen ? ICON.fossil_skeleton : ''}
-            </span>`;
-        }
-        milestones.innerHTML = mHtml;
-    }
 }
 
 function closeExploreModal() {
