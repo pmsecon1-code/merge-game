@@ -1,11 +1,11 @@
-# 멍냥 머지 게임 - Architecture (v4.34.0)
+# 멍냥 머지 게임 - Architecture (v4.34.1)
 
 ## 개요
 
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.34.0
+- **버전**: 4.34.1
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -893,7 +893,7 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 `COOLDOWN_COIN_PER_SEC=5` (남은 초 × 5코인)
 
 ### 탐험 지도 (v4.34.0)
-`EXPLORE_MAP_SIZE=7`, `EXPLORE_TILE_COUNT=49`, `EXPLORE_UNLOCK_LEVEL=15`, `EXPLORE_BASE_COST=200`, `EXPLORE_COST_INCREMENT=50`, `EXPLORE_FOSSILS`(10종), `EXPLORE_MILESTONES`(4단계: 3/5/7/10개), `EXPLORE_MAP`(49칸 고정 보상), `getExploreCost(n)`, `getExploreAdjacentTiles(idx)`
+`EXPLORE_MAP_SIZE=7`, `EXPLORE_TILE_COUNT=49`, `EXPLORE_UNLOCK_LEVEL=10`, `EXPLORE_BASE_COST=200`, `EXPLORE_COST_INCREMENT=50`, `EXPLORE_FOSSILS`(10종), `EXPLORE_MILESTONES`(4단계: 3/5/7/10개), `EXPLORE_MAP`(49칸 고정 보상), `getExploreCost(n)`, `getExploreAdjacentTiles(idx)`
 
 ### 공룡 (v4.34.0)
 `DINOSAURS`(7레벨: 아기 공룡→랩터→스테고→트리케라→안킬로→브라키오→티라노)
@@ -943,12 +943,30 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## 변경 이력
 
+### v4.34.1 (2026-02-23) - 탐험 UI 개선 + 버그 수정
+- 🗺️ **배지 토글 레이아웃 변경**
+  - 미니맵 + 화석 컬렉션을 같은 flex 행에 배치 (기존: 비용/화석 텍스트 별도 행)
+  - "비용: N🪙" / "화석: N/10" 텍스트 제거, 헤더에 화석 진행도 통합
+  - 마일스톤 텍스트(3개/5개/7개/10개 + 공룡뼈) 제거
+  - 헤더에 최종 보상 표시: "(완성 시 +500🪙 +30💎)"
+  - 버튼 텍스트: "지도 열기" → "발굴하기"
+- 🐛 **발굴 후 모달 타일 미갱신 버그 수정** — `exploreTile()` 끝에 `renderExploreModal()` 추가
+- 🎨 **모달 텍스트 톤앤매너 통일** — 화석 이름 green-700, 비용 amber-600, fog gray-400
+- 🎨 **모달 explorable 타일**: 비용만 → "발굴" + 비용 2행 표시
+- 🎨 **화석 아이콘 잘림 수정**: 28px → 22px, flex-wrap 적용 (overflow-x 스크롤 제거)
+- ⚖️ **EXPLORE_UNLOCK_LEVEL**: 15 → **10**
+- 🔊 **trySpawnPendingDinoGen()**: `playSound('milestone')` 추가
+- 🔧 **updateBottomBadges()**: 하드코딩 `49` → `EXPLORE_TILE_COUNT` 상수
+- 수정 파일: js/systems.js, js/constants.js, js/ui.js, css/styles.css (4개)
+- 변경 상수: `EXPLORE_UNLOCK_LEVEL` 15 → 10
+- 수정 함수: `updateExploreUI()` (레이아웃 변경), `exploreTile()` (renderExploreModal 추가), `renderExploreModal()` (explorable 텍스트+색상), `updateBottomBadges()` (상수 사용), `trySpawnPendingDinoGen()` (사운드)
+
 ### v4.34.0 (2026-02-23) - 기부 제거 + 화석 발굴 탐험 지도 + 공룡 생성기
 - 🗺️ **기부 시스템 완전 제거** → **화석 발굴 탐험 지도**로 교체
   - 하단 배지 **1번째** 탭: 탐험 (기존 6번째 기부 → 1번째 탐험으로 이동)
   - 7×7 안개 맵에서 코인으로 타일 개방 → 보상 발견 + 화석 수집
   - 비용: `200 + (개방수-1) × 50`🪙 (총 ~67K🪙 소비 = 코인 싱크)
-  - Lv.15 해제 (`EXPLORE_UNLOCK_LEVEL`)
+  - Lv.10 해제 (`EXPLORE_UNLOCK_LEVEL`, v4.34.1에서 15→10)
   - 49칸 고정 보상: 코인(17) + 다이아(7) + 에너지(7) + 카드(7) + 화석(10) + 시작(1)
   - 인접 타일만 개방 가능 (상하좌우)
   - 배지 탭 미니맵 (7×7, 9px 셀) + 모달 (큰 맵 + 화석 컬렉션 + 마일스톤)
