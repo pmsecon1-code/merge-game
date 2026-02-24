@@ -411,9 +411,9 @@ function renderDiceTripBoard() {
 
     diceTripBoard.innerHTML = html;
 
-    // 현재 위치로 자동 스크롤
+    // 현재 위치로 자동 스크롤 (hidden 상태면 스킵)
     const currentStep = diceTripBoard.querySelector('.dice-step.current');
-    if (currentStep) {
+    if (currentStep && diceTripBoard.clientWidth > 0) {
         void diceTripBoard.offsetWidth;
         const scrollLeft = currentStep.offsetLeft - (diceTripBoard.clientWidth / 2) + (currentStep.offsetWidth / 2);
         diceTripBoard.scrollLeft = Math.max(0, scrollLeft);

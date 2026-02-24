@@ -807,7 +807,7 @@ function toggleBottomTab(tabId) {
         dailyBar.style.display = 'none';
         document.getElementById(mapping[tabId]).style.display = 'flex';
         currentBottomTab = tabId;
-        if (tabId === 'dice') requestAnimationFrame(() => renderDiceTripBoard());
+        if (tabId === 'dice') requestAnimationFrame(() => requestAnimationFrame(() => renderDiceTripBoard()));
         if (tabId === 'explore') updateExploreUI();
     }
 
