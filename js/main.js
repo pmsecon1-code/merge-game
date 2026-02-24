@@ -250,6 +250,19 @@ auth.onAuthStateChanged(async (user) => {
             showGameScreen();
             playBGM();
 
+            // 데이터 복구 보상 (v4.35.4)
+            if (!compensation1Given && loadResult.reason !== 'no_data') {
+                coins += 10000;
+                cumulativeCoins += 10000;
+                compensation1Given = true;
+                updateAll();
+                setTimeout(() => {
+                    showMilestonePopup(`${ICON.gift} 데이터 복구 보상`, `+10,000${ICON.coin}`);
+                    flyRewardToStatusBar(document.getElementById('game-board'), 'coin');
+                    playSound('milestone');
+                }, 500);
+            }
+
             // 튜토리얼 진행 중이면 지연, 아니면 즉시 실행
             if (tutorialStep > 0) {
                 setTimeout(() => startTutorial(), 300);

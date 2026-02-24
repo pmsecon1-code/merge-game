@@ -51,6 +51,8 @@ function getGameData() {
             claimedMilestones: [...exploreProgress.claimedMilestones],
         },
         pendingDinoGen,
+        // 보상 지급
+        compensation1Given,
         // 사운드 설정
         soundEnabled,
         musicEnabled,
@@ -246,6 +248,7 @@ function applyGameData(d) {
         tutorialStep = 1;
     }
     firstEnergyRewardGiven = d.firstEnergyRewardGiven ?? false;
+    compensation1Given = d.compensation1Given ?? false;
     cards = d.cards ?? 0;
     album = d.album || [];
     albumResetTime = Date.now() + (d.albumResetTime ?? ALBUM_CYCLE_MS);

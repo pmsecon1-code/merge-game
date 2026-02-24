@@ -71,6 +71,8 @@ service cloud.firestore {
           ))
           && (!data.keys().hasAny(['soundEnabled']) || data.soundEnabled is bool)
           && (!data.keys().hasAny(['musicEnabled']) || data.musicEnabled is bool)
+          // 보상 지급 플래그 (선택적 필드)
+          && (!data.keys().hasAny(['compensation1Given']) || data.compensation1Given is bool)
           // 스토리 갤러리 검증 (선택적 필드)
           && (!data.keys().hasAny(['storyProgress']) || (
             data.storyProgress is map

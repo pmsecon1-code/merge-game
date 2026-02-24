@@ -65,6 +65,9 @@ let energyPurchaseCount = 0,
 // --- 최초 에너지 보상 ---
 let firstEnergyRewardGiven = false;
 
+// --- 보상 지급 ---
+let compensation1Given = false; // v4.35.4 데이터 복구 보상
+
 // --- 앨범 ---
 let cards = 0,
     album = [];
