@@ -260,9 +260,10 @@ function rollDice() {
             updateDiceTripUI();
             saveGame();
 
-            // 보상 표시 후 자동 닫기
+            // 보상 표시 후 자동 닫기 + 스크롤 재설정
             setTimeout(() => {
                 popup.style.display = 'none';
+                if (currentBottomTab === 'dice') renderDiceTripBoard();
             }, DICE_RESULT_POPUP_MS);
         }, DICE_MOVE_DELAY_MS);
     }, DICE_SLOT_EFFECT_MS);
@@ -414,9 +415,7 @@ function renderDiceTripBoard() {
     // 현재 위치로 자동 스크롤 (hidden 상태면 스킵)
     const currentStep = diceTripBoard.querySelector('.dice-step.current');
     if (currentStep && diceTripBoard.clientWidth > 0) {
-        void diceTripBoard.offsetWidth;
-        const scrollLeft = currentStep.offsetLeft - (diceTripBoard.clientWidth / 2) + (currentStep.offsetWidth / 2);
-        diceTripBoard.scrollLeft = Math.max(0, scrollLeft);
+        currentStep.scrollIntoView({ inline: 'center', block: 'nearest' });
     }
 }
 
