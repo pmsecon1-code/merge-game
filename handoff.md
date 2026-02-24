@@ -1,4 +1,4 @@
-# 멍냥 머지 게임 - Architecture (v4.36.0)
+# 멍냥 머지 게임 - Architecture (v4.36.1)
 
 ## 개요
 
@@ -938,10 +938,20 @@ firebase deploy --only firestore:rules   # 보안 규칙
 | 다중 기기 로그아웃 안 됨 | onSnapshot 미시작 | `startSessionListener()` 확인 |
 | 데이터 손실 | 네트워크 오류 + 빈 데이터 저장 | v4.2.8 3중 방어 체계로 해결 |
 | 스토리 퀘스트 안 나옴 | expiresAt:null이 로드 시 10분 타이머로 덮어씌워짐 → 만료 후 데드락 | v4.31.2 isStory 체크 + desync 복구 |
+| 주사위 여행 스크롤 안 됨 | 팝업 닫힐 때 스크롤 리셋 + offsetLeft 불안정 + 모바일 레이아웃 타이밍 | v4.36.1 scrollIntoView + setTimeout(50) + 팝업 후 재스크롤 |
 
 ---
 
 ## 변경 이력
+
+### v4.36.1 (2026-02-24) - 주사위 여행 스크롤 버그 수정
+- 🐛 **주사위 여행 탭/주사위 굴림 후 현재 위치 스크롤 안 되는 버그 수정** (4가지 원인 해결)
+  - `renderDiceTripBoard()`: `offsetLeft` 수동 계산 → `scrollIntoView({ inline: 'center' })` 네이티브 API로 교체 (offsetParent 의존성 제거)
+  - `toggleBottomTab('dice')`: 이중 `requestAnimationFrame` → `setTimeout(50ms)`로 모바일 레이아웃 확정 보장
+  - `rollDice()`: 주사위 팝업 닫힌 후 `renderDiceTripBoard()` 재호출 추가 (가장 큰 원인)
+  - `.dice-trip-board` CSS에 `position: relative` 추가 (보험)
+- 수정 파일: js/systems.js, js/ui.js, css/styles.css (3개)
+- 수정 함수: `renderDiceTripBoard()` (systems.js — scrollIntoView), `rollDice()` (systems.js — 팝업 닫힌 후 재스크롤), `toggleBottomTab()` (ui.js — setTimeout)
 
 ### v4.36.0 (2026-02-24) - 퀘스트 난이도 밸런싱
 - ⚖️ **퀘스트 레벨 분포 전면 개선**
