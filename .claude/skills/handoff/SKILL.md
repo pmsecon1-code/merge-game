@@ -1,6 +1,7 @@
 ---
+name: handoff
 description: 세션 종료 시 handoff.md 갱신
-allowed-tools: Read, Edit, Write, Glob, Grep
+tools: Read, Edit, Write, Glob, Grep, Bash
 ---
 
 # Handoff 갱신

@@ -1,6 +1,7 @@
 ---
+name: deploy
 description: GitHub Pages + Firebase 배포
-allowed-tools: Bash, Read
+tools: Bash, Read
 ---
 
 # 배포
