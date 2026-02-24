@@ -5,7 +5,7 @@
 **멍냥 머지**는 동물을 합성하여 성장시키는 모바일 친화적 웹 게임입니다.
 
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.35.2
+- **버전**: 4.37.1
 - **Firebase 프로젝트**: `merge-game-7cf5f`
 
 ---
@@ -134,11 +134,15 @@ merge2/
 ### 저장 흐름
 ```
 [게임 액션] → updateAll() → saveGame()
-  ├── localStorage (즉시)
+  ├── localStorage (즉시, savedSessionId 포함)
   └── Firestore (500ms 디바운스)
 
 [중요 액션] → saveGameNow() → 즉시 저장
 [페이지 이탈] → beforeunload/visibilitychange → 저장
+[signOut] → cloudLoaded=false + localStorage 삭제 → 저장 차단
+
+[다른 기기 로그인] → loadFromCloud()
+  → savedSessionId 불일치 → 클라우드 우선 (v4.37.1 3중 방어)
 ```
 
 ### 저장 데이터 구조
@@ -213,6 +217,9 @@ merge2/
     claimedMilestones,          // [0, 1, ...] 수령한 마일스톤 인덱스 (최대 4)
   },
   pendingDinoGen,               // true/false 보드 가득 시 공룡 생성기 대기
+
+  // 세션 식별 (v4.37.1+, 멀티 디바이스 충돌 방지)
+  savedSessionId,               // 저장 시 세션 ID (loadFromCloud에서 같은 세션만 로컬 우선)
 
   // 기타
   discoveredItems, currentSpecialIndex,
@@ -892,6 +899,9 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 쿨다운 즉시 해제 (v4.33.0)
 `COOLDOWN_COIN_PER_SEC=5` (남은 초 × 5코인)
 
+### 합성 콤보 (v4.37.0)
+`COMBO_WINDOW_MS=3000` (3초 이내 연속 합성 → 콤보)
+
 ### 탐험 지도 (v4.34.0)
 `EXPLORE_MAP_SIZE=7`, `EXPLORE_TILE_COUNT=49`, `EXPLORE_UNLOCK_LEVEL=10`, `EXPLORE_BASE_COST=200`, `EXPLORE_COST_INCREMENT=50`, `EXPLORE_FOSSILS`(10종), `EXPLORE_MILESTONES`(4단계: 3/5/7/10개), `EXPLORE_MAP`(49칸 고정 보상), `getExploreCost(n)`, `getExploreAdjacentTiles(idx)`
 
@@ -939,14 +949,32 @@ firebase deploy --only firestore:rules   # 보안 규칙
 | 데이터 손실 | 네트워크 오류 + 빈 데이터 저장 | v4.2.8 3중 방어 체계로 해결 |
 | 스토리 퀘스트 안 나옴 | expiresAt:null이 로드 시 10분 타이머로 덮어씌워짐 → 만료 후 데드락 | v4.31.2 isStory 체크 + desync 복구 |
 | 주사위 여행 스크롤 안 됨 | 팝업 닫힐 때 스크롤 리셋 + offsetLeft 불안정 + 모바일 레이아웃 타이밍 | v4.36.1 scrollIntoView + setTimeout(50) + 팝업 후 재스크롤 |
+| 멀티 디바이스 보상 중복 지급 | 기기 B의 오래된 localStorage가 클라우드 덮어씀 (savedAt 기반 로컬 우선 로직) | v4.37.1 3중 방어: signOut 시 localStorage 삭제 + savedSessionId 세션 검증 + 보상 즉시 저장 |
 
 ---
 
 ## 변경 이력
 
+### v4.37.1 (2026-02-24) - 멀티 디바이스 보상 중복 지급 버그 수정
+- 🐛 **멀티 디바이스 보상 중복 지급 방지 — 3중 방어 체계**
+  - 근본 원인: 기기 B의 오래된 localStorage가 클라우드를 덮어써서 `compensation1Given=false`로 복원 → 보상 재지급
+  - **방어 1 (auth.js)**: signOut 시 `cloudLoaded = false` + `localStorage.removeItem('mergeGame')` 추가
+    - 세션 감지 signOut (다른 기기 로그인 감지) + 수동 로그아웃 2곳 모두 적용
+    - `cloudLoaded = false` → beforeunload/visibilitychange/saveGameNow 저장 차단
+  - **방어 2 (save.js)**: `getGameData()`에 `savedSessionId` 필드 추가 + `loadFromCloud()` 세션 검증
+    - 로컬 데이터의 `savedSessionId`가 현재 세션과 일치할 때만 로컬 우선 허용
+    - 다른 세션(= 다른 기기)의 localStorage → 클라우드 우선 (안전 방향)
+    - 기존 데이터 호환: `savedSessionId` 없으면 `isSameSession = false` → 클라우드 우선
+  - **방어 3 (main.js)**: compensation 보상 직후 `await saveGameNow()` 추가
+    - 보상 플래그가 즉시 Firestore에 반영 → 타임스탬프 우위 확보
+- 수정 파일: js/auth.js, js/save.js, js/main.js (3개)
+- 신규 저장 필드: `savedSessionId` (save.js getGameData)
+- 수정 함수: `getGameData()` (save.js — savedSessionId 추가), `loadFromCloud()` (save.js — isSameSession 체크)
+- 호환성: 기존 localStorage(savedSessionId 없음) → 클라우드 우선, 같은 기기 오프라인→재접속 → 같은 세션 유지
+
 ### v4.37.0 (2026-02-24) - 합성 콤보 시각 이펙트 시스템
 - 🔥 **합성 콤보 시스템 추가** (세션 전용 상태, 세이브 불필요)
-  - 2초 이내 연속 합성 → 콤보 카운트 증가, 2초 초과 → 리셋 (1로)
+  - 3초 이내 연속 합성 → 콤보 카운트 증가, 3초 초과 → 리셋 (1로)
   - 콤보 2+ 부터 이펙트 발동
   - 콤보 2~4: 주황 `N COMBO` 화면 중앙 표시 (×1.3 배율)
   - 콤보 5~9: 빨강 `N COMBO` 화면 중앙 + 보드 빨간 글로우 (×1.6 배율)

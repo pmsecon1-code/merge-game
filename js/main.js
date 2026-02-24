@@ -255,6 +255,7 @@ auth.onAuthStateChanged(async (user) => {
                 coins += 10000;
                 cumulativeCoins += 10000;
                 compensation1Given = true;
+                await saveGameNow();
                 updateAll();
                 setTimeout(() => {
                     showMilestonePopup(`${ICON.gift} 데이터 복구 보상`, `+10,000${ICON.coin}`);

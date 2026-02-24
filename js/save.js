@@ -53,6 +53,8 @@ function getGameData() {
         pendingDinoGen,
         // 보상 지급
         compensation1Given,
+        // 세션 식별자 (멀티 디바이스 충돌 방지)
+        savedSessionId: currentSessionId,
         // 사운드 설정
         soundEnabled,
         musicEnabled,
@@ -574,8 +576,9 @@ async function loadFromCloud() {
             if (localRaw) {
                 try {
                     const localData = JSON.parse(localRaw);
-                    if (localData.savedAt && cloudData.savedAt && localData.savedAt > cloudData.savedAt) {
-                        console.log('[Cloud] Local data is newer, keeping local. local:', localData.savedAt, 'cloud:', cloudData.savedAt);
+                    const isSameSession = localData.savedSessionId && localData.savedSessionId === currentSessionId;
+                    if (isSameSession && localData.savedAt && cloudData.savedAt && localData.savedAt > cloudData.savedAt) {
+                        console.log('[Cloud] Same session local data is newer, keeping local. local:', localData.savedAt, 'cloud:', cloudData.savedAt);
                         const validatedLocal = validateGameData(localData);
                         applyGameData(validatedLocal);
                         cloudLoaded = true;

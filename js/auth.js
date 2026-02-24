@@ -66,6 +66,8 @@ function startSessionListener() {
                     if (serverSessionId !== currentSessionId) {
                         console.log('[Session] Different session detected, logging out...');
                         showToast('다른 기기에서 로그인되어 로그아웃됩니다.');
+                        cloudLoaded = false;
+                        localStorage.removeItem('mergeGame');
                         if (sessionUnsubscribe) {
                             sessionUnsubscribe();
                             sessionUnsubscribe = null;
@@ -109,6 +111,8 @@ async function startGoogleLogin() {
 async function handleGoogleLogin() {
     if (currentUser) {
         if (confirm('로그아웃 하시겠습니까?')) {
+            cloudLoaded = false;
+            localStorage.removeItem('mergeGame');
             await auth.signOut();
         }
     }
