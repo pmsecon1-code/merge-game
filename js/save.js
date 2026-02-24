@@ -339,6 +339,7 @@ function migrateRow7Missions() {
 
 // --- 저장 ---
 function saveGame() {
+    if (!cloudLoaded) return; // 클라우드 로드 전 저장 차단 (초기값 덮어쓰기 방지)
     const data = getGameData();
     localStorage.setItem('mergeGame', JSON.stringify(data));
     lastSavedAt = Date.now();  // 포그라운드 복귀 시 회복 계산용
@@ -356,6 +357,7 @@ function saveGame() {
 }
 
 async function saveGameNow() {
+    if (!cloudLoaded) return; // 클라우드 로드 전 저장 차단
     const data = getGameData();
     localStorage.setItem('mergeGame', JSON.stringify(data));
     lastSavedAt = Date.now();  // 포그라운드 복귀 시 회복 계산용
@@ -573,6 +575,7 @@ async function loadFromCloud() {
                         console.log('[Cloud] Local data is newer, keeping local. local:', localData.savedAt, 'cloud:', cloudData.savedAt);
                         const validatedLocal = validateGameData(localData);
                         applyGameData(validatedLocal);
+                        cloudLoaded = true;
                         updateAll();
                         saveGame();
                         return { success: true, reason: 'local_newer' };
@@ -582,6 +585,7 @@ async function loadFromCloud() {
             const validatedData = validateGameData(cloudData);
             applyGameData(validatedData);
             localStorage.setItem('mergeGame', JSON.stringify(validatedData));
+            cloudLoaded = true;
             updateAll();
             return { success: true, reason: 'loaded' };
         }

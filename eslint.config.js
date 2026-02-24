@@ -151,6 +151,7 @@ export default [
                 energyPurchaseCount: 'writable',
                 energyPurchaseResetTime: 'writable',
                 firstEnergyRewardGiven: 'writable',
+                cloudLoaded: 'writable',
                 cloudSaveTimeout: 'writable',
                 cloudSavePromise: 'writable',
                 pendingCloudData: 'writable',

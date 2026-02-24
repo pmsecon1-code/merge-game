@@ -89,6 +89,7 @@ let pendingInviteData = null; // 초대 데이터
 let inviteTimerInterval = null; // 초대 타이머 인터벌
 
 // --- 클라우드 저장 ---
+let cloudLoaded = false; // Firestore 로드 완료 전 저장 차단
 let cloudSaveTimeout = null;
 let cloudSavePromise = null;
 let pendingCloudData = null;

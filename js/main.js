@@ -229,6 +229,7 @@ auth.onAuthStateChanged(async (user) => {
                         const parsed = JSON.parse(localData);
                         const validated = validateGameData(parsed);
                         applyGameData(validated);
+                        cloudLoaded = true;
                         showToast(`${ICON.offline} 오프라인 데이터 사용 중`);
                     } catch (e) {
                         console.error('[Auth] LocalStorage parse failed:', e);
@@ -242,6 +243,7 @@ auth.onAuthStateChanged(async (user) => {
             } else if (loadResult.reason === 'no_data') {
                 console.log('[Auth] No cloud data, initializing new game');
                 initNewGame();
+                cloudLoaded = true;
             }
 
             console.log('[Auth] Showing game screen...');
@@ -289,6 +291,7 @@ document.getElementById('confirm-sell-btn').onclick = () => {
 
 // --- 페이지 이벤트 ---
 window.addEventListener('beforeunload', () => {
+    if (!cloudLoaded) return; // 로드 전 초기값 저장 방지
     const data = getGameData();
     localStorage.setItem('mergeGame', JSON.stringify(data));
 });
