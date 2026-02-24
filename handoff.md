@@ -1,4 +1,4 @@
-# 멍냥 머지 게임 - Architecture (v4.35.3)
+# 멍냥 머지 게임 - Architecture (v4.36.0)
 
 ## 개요
 
@@ -282,7 +282,7 @@ merge2/
 - 10분 타이머 (만료 시 자동 교체)
 - 보상 타입 (생성 시 결정, 배타적): easy 20% 저금통 → Lv.3+ 30% 카드 → 나머지 코인
 - 카드 퀘스트: 카드만 지급 / 저금통 퀘스트: 🐷만 지급 / 일반: 코인만 지급
-- 난이도: easy `minLv=4`, 일반 `max(3, floor(lv/2)+1)` (상한 7), 6개 중 2개는 Lv.4 이하 보장
+- 난이도: easy `minLv=4`, 일반 `minLv=5 고정`, `maxLvAnimal=min(7+floor(lv/10),11)`, 가중치 기반 레벨 선택, 6개 중 2개는 Lv.4 이하 보장
 - 보상: `10 + score + random(0~4)` (동물×5, 간식/장난감×7)
 
 ### 상점 (systems.js)
@@ -872,7 +872,7 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 `CATS`(11), `DOGS`(11), `BIRDS`(7), `FISH`(7), `REPTILES`(7), `DINOSAURS`(7), `CAT_SNACKS`(5), `DOG_SNACKS`(5), `CAT_TOYS`(5), `DOG_TOYS`(5), `ALBUM_THEMES`(9테마×9장), `NPC_AVATARS`, `DAILY_MISSIONS`(3단계×3개), `ATTENDANCE_REWARDS`(7일), `DICE_TRIP_REWARDS`(50칸)
 
 ### 퀘스트/럭키 (v4.25.1)
-`SPECIAL_QUEST_REWARD=300`, `QUEST_EXPIRE_MS=600000`, `QUEST_SNACK_CHANCE=0.3`, `QUEST_PIGGY_CHANCE=0.2`, `QUEST_MULTI_BASE_CHANCE=0.3`, `QUEST_MULTI_LEVEL_FACTOR=0.05`, `QUEST_MULTI_MAX_CHANCE=0.8`, `LUCKY_BASE_CHANCE=0.05`, `LUCKY_LEVEL_BONUS=0.01`, `LUCKY_SNACK_CHANCE=0.5`, `QUEST_COUNT_MISSION_GOAL=100`, `CLOUD_SAVE_DEBOUNCE_MS=500`
+`SPECIAL_QUEST_REWARD=300`, `QUEST_EXPIRE_MS=600000`, `QUEST_SNACK_CHANCE=0.3`, `QUEST_PIGGY_CHANCE=0.2`, `QUEST_MULTI_BASE_CHANCE=0.3`, `QUEST_MULTI_LEVEL_FACTOR=0.05`, `QUEST_MULTI_MAX_CHANCE=0.8`, `QUEST_LEVEL_WEIGHTS=[100,100,100,75,55,40,28,15,8,4,2]`, `LUCKY_BASE_CHANCE=0.05`, `LUCKY_LEVEL_BONUS=0.01`, `LUCKY_SNACK_CHANCE=0.5`, `QUEST_COUNT_MISSION_GOAL=100`, `CLOUD_SAVE_DEBOUNCE_MS=500`
 
 ### 유저 이름 (v4.25.2)
 `MAX_NAME_LENGTH=6`, `getDisplayName(user)` → 첫 단어 기준 최대 6자
@@ -901,8 +901,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### 생성기 이름 매핑 (v4.31.2)
 `GENERATOR_NAMES={cat:'캣타워', dog:'개집', bird:'새장', fish:'어항', reptile:'사육장', toy:'장난감 상자', dinosaur:'공룡 둥지'}`, `getGeneratorName(type)`
 
-### 헬퍼 함수 (13개)
-`getItemList`, `getMaxLevel`, `getItemData`, `getDisplayName`, `formatMinSec`, `getSpecialCooldown`, `getLevelUpGoal`, `getLevelUpReward`, `getKSTDateString`, `getMsUntilKSTMidnight`, `getGeneratorName`, `getExploreCost`, `getExploreAdjacentTiles`
+### 헬퍼 함수 (14개)
+`getItemList`, `getMaxLevel`, `getItemData`, `getDisplayName`, `formatMinSec`, `getSpecialCooldown`, `getLevelUpGoal`, `getLevelUpReward`, `getKSTDateString`, `getMsUntilKSTMidnight`, `getGeneratorName`, `getExploreCost`, `getExploreAdjacentTiles`, `weightedAnimalLevel`
 
 ---
 
@@ -942,6 +942,18 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.36.0 (2026-02-24) - 퀘스트 난이도 밸런싱
+- ⚖️ **퀘스트 레벨 분포 전면 개선**
+  - `minLv`: `5 + floor(lv/20)` (최대 9) → **고정 5** (고레벨도 Lv.5 퀘스트 항상 등장)
+  - `maxLvAnimal`: `minLv + 3 + floor(lv/4)` → `7 + floor(lv/10)` (Lv.40에서 11 도달, 기존 Lv.20)
+  - `QUEST_LEVEL_WEIGHTS`: 급락 곡선 → 완만 지수 감소 `[100,100,100,75,55,40,28,15,8,4,2]`
+  - `weightedAnimalLevel(min, max)` 가중치 기반 레벨 선택 함수 추가 (간식/장난감은 기존 균등 분포 유지)
+  - Lv.40+ 최종 분포: Lv.5~7 ~81%, Lv.8~11 ~19% (도전 퀘스트)
+- 수정 파일: js/game.js, js/constants.js, eslint.config.js (3개)
+- 신규 상수 (1개): `QUEST_LEVEL_WEIGHTS` (constants.js)
+- 신규 함수 (1개): `weightedAnimalLevel()` (constants.js)
+- 수정 함수: `generateNewQuest()` (game.js — minLv 고정, maxLvAnimal 공식 변경, 동물 레벨 가중치 적용)
 
 ### v4.35.3 (2026-02-23) - 탐험 리셋 기능 추가
 - 🔄 **화석 10개 수집 시 탐험 자동 리셋** (반복 플레이 가능)
