@@ -798,7 +798,7 @@ function upgradeGenerator() {
     if (isSpecial) {
         const maxCd = getSpecialCooldown(type);
         boardState.forEach(item => {
-            if (item && item.type === type && item.cooldown) {
+            if (item && item.type === type + '_generator' && item.cooldown) {
                 const remaining = item.cooldown - Date.now();
                 if (remaining > maxCd) item.cooldown = Date.now() + maxCd;
             }
