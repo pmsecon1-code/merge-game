@@ -842,6 +842,7 @@ function claimDailyBonus() {
     flyRewardToStatusBar(dailyMp, 'card');
     updateDailyMissionUI();
     updateAll();
+    toggleBottomTab('explore');
 }
 
 // --- 버블 스폰 ---
