@@ -270,6 +270,7 @@ auth.onAuthStateChanged(async (user) => {
                 checkDailyBonus();
                 initRace();
                 showToast(`환영합니다, ${getDisplayName(user)}!`);
+                if (dailyMissions.tier >= 3) toggleBottomTab('explore');
                 // 스토리 퀘스트 체크 (레벨 기반 자동 활성)
                 setTimeout(() => {
                     checkStoryQuests();
