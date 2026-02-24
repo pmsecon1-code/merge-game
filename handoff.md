@@ -948,9 +948,9 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 🔥 **합성 콤보 시스템 추가** (세션 전용 상태, 세이브 불필요)
   - 2초 이내 연속 합성 → 콤보 카운트 증가, 2초 초과 → 리셋 (1로)
   - 콤보 2+ 부터 이펙트 발동
-  - 콤보 2~4: 주황 `N COMBO` floatText (×1.3 배율)
-  - 콤보 5~9: 빨강 `N COMBO` floatText + 보드 빨간 글로우 (×1.6 배율)
-  - 콤보 10+: 금색 `N COMBO!` floatText + 보드 금색 글로우 (×2 배율)
+  - 콤보 2~4: 주황 `N COMBO` 화면 중앙 표시 (×1.3 배율)
+  - 콤보 5~9: 빨강 `N COMBO` 화면 중앙 + 보드 빨간 글로우 (×1.6 배율)
+  - 콤보 10+: 금색 `N COMBO` 화면 중앙 + 보드 금색 글로우 (×2 배율)
   - 파티클 수/퍼짐 거리 × comboMult, 보드 흔들림 × comboMult
   - 보드 글로우: `#board-wrapper`에 `.combo-glow-red`/`.combo-glow-gold` 클래스, 0.3s transition fade-out
 - 🔊 **콤보별 merge 사운드 피치 상승**
@@ -961,8 +961,9 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 신규 상수 (1개): `COMBO_WINDOW_MS` (constants.js)
 - 신규 변수 (2개): `comboCount`, `lastMergeTime` (state.js)
 - 신규 함수 (1개): `updateComboGlow()` (ui.js)
-- 신규 CSS (3개): `.combo-glow-orange`, `.combo-glow-red`, `.combo-glow-gold`
+- 신규 CSS (5개): `.combo-glow-orange`, `.combo-glow-red`, `.combo-glow-gold`, `.combo-text`, `@keyframes combo-text-anim`
 - 수정 CSS: `#board-wrapper` (transition: box-shadow 0.3s ease 추가)
+- 콤보 텍스트: 셀 위 floatText → 화면 중앙 럭키 스타일 (`.combo-text`, fixed position, 단계별 text-shadow)
 - 수정 함수: `tryMergeItems()` (game.js — 콤보 판정 + 배율 적용 + 콤보 텍스트 + 글로우), `spawnParticles()` (ui.js — comboMult 파라미터), `playSound()` (sound.js — pitch 파라미터), `createSynthSound()` (sound.js — merge pitch 적용)
 - 🐛 **스페셜 생성기 업그레이드 시 쿨다운 클램핑 안 되는 버그 수정**
   - 원인: `upgradeGenerator()`에서 `item.type === type`으로 비교했으나, boardState 생성기 타입은 `'bird_generator'` 형식 → 매칭 실패 → 쿨다운 미클램핑
