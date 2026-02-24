@@ -254,12 +254,12 @@ function updateQuestUI(scrollToFront = false) {
 }
 
 // --- 이펙트 ---
-function spawnParticles(cell, level = 1) {
-    const count = Math.min(6 + level * 2, 16);
+function spawnParticles(cell, level = 1, comboMult = 1) {
+    const count = Math.round(Math.min(6 + level * 2, 16) * comboMult);
     const colors = level >= 8 ? ['#fbbf24','#ef4444','#f97316','#fcd34d']
         : level >= 5 ? ['#f472b6','#fbbf24','#fcd34d','#f9a8d4']
         : ['#f472b6','#c084fc','#f9a8d4','#e879f9'];
-    const dist = 30 + level * 5;
+    const dist = (30 + level * 5) * comboMult;
     const rect = cell.getBoundingClientRect();
     for (let i = 0; i < count; i++) {
         const p = document.createElement('div');
@@ -345,6 +345,14 @@ function screenShake(intensity) {
         board.style.transition = 'transform 0.15s ease-out';
         board.style.transform = '';
     });
+}
+
+function updateComboGlow() {
+    const board = document.getElementById('board-wrapper');
+    if (!board) return;
+    board.classList.remove('combo-glow-orange', 'combo-glow-red', 'combo-glow-gold');
+    if (comboCount >= 10) board.classList.add('combo-glow-gold');
+    else if (comboCount >= 5) board.classList.add('combo-glow-red');
 }
 
 function flyRewardToStatusBar(fromEl, type) {

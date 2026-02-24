@@ -130,6 +130,10 @@ let storyProgress = {
     pendingBoss: null,      // 보드 가득 시 대기 중인 EP번호
 };
 
+// --- 합성 콤보 ---
+let comboCount = 0;
+let lastMergeTime = 0;
+
 // --- 사운드 ---
 let audioContext = null;
 let soundEnabled = true;

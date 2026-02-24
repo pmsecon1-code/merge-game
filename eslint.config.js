@@ -103,6 +103,7 @@ export default [
                 GENERATOR_NAMES: 'readonly',
                 getGeneratorName: 'readonly',
                 COOLDOWN_COIN_PER_SEC: 'readonly',
+                COMBO_WINDOW_MS: 'readonly',
                 EXPLORE_MAP_SIZE: 'readonly',
                 EXPLORE_TILE_COUNT: 'readonly',
                 EXPLORE_UNLOCK_LEVEL: 'readonly',
@@ -354,6 +355,9 @@ export default [
                 cancelPendingInvite: 'readonly',
                 expireInvite: 'readonly',
                 updatePendingInviteUI: 'readonly',
+                // 합성 콤보
+                comboCount: 'writable',
+                lastMergeTime: 'writable',
                 // sound.js globals
                 audioContext: 'writable',
                 soundEnabled: 'writable',
@@ -446,6 +450,7 @@ export default [
                 openSettings: 'readonly',
                 closeSettings: 'readonly',
                 screenShake: 'readonly',
+                updateComboGlow: 'readonly',
                 flyRewardToStatusBar: 'readonly',
                 spawnLevelupConfetti: 'readonly',
                 currentBottomTab: 'writable',

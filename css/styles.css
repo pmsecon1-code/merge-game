@@ -260,6 +260,16 @@ body {
     background: #fbcfe8;
     position: relative;
     margin: 0 auto;
+    transition: box-shadow 0.3s ease;
+}
+.combo-glow-orange {
+    box-shadow: inset 0 0 10px rgba(249, 115, 22, 0.4), 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.combo-glow-red {
+    box-shadow: inset 0 0 12px rgba(239, 68, 68, 0.5), 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.combo-glow-gold {
+    box-shadow: inset 0 0 15px rgba(234, 179, 8, 0.6), 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 

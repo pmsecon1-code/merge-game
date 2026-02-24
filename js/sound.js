@@ -25,7 +25,7 @@ function unlockAudio() {
 }
 
 // --- 합성음 생성/재생 ---
-function createSynthSound(id) {
+function createSynthSound(id, pitch = 1) {
     if (!audioContext || !soundEnabled) return;
     if (audioContext.state === 'suspended') audioContext.resume();
 
@@ -62,8 +62,8 @@ function createSynthSound(id) {
             const osc = audioContext.createOscillator();
             const gain = audioContext.createGain();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(330, now);
-            osc.frequency.exponentialRampToValueAtTime(660, now + 0.3);
+            osc.frequency.setValueAtTime(330 * pitch, now);
+            osc.frequency.exponentialRampToValueAtTime(660 * pitch, now + 0.3);
             gain.gain.setValueAtTime(0.3, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
             osc.connect(gain).connect(audioContext.destination);
@@ -323,9 +323,9 @@ function createSynthSound(id) {
 }
 
 // --- 통합 재생 API ---
-function playSound(id) {
+function playSound(id, pitch = 1) {
     if (!soundEnabled) return;
-    createSynthSound(id);
+    createSynthSound(id, pitch);
 }
 
 // --- BGM (Web Audio 합성 루프) ---

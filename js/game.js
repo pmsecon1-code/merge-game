@@ -695,19 +695,37 @@ function tryMergeItems(ss, fi, fIt, ts, ti, tIt, tz) {
     ss[fi] = null;
     discoverItem(fIt.type, newLv);
     addDailyProgress('merge');
-    playSound('merge');
     checkAutoCompleteMissions();
     const cell = (tz === 'board' ? boardEl : storageEl).children[ti];
     if (tz === 'board') lastMergedIndex = ti;
+    // 콤보 판정
+    const now = Date.now();
+    if (now - lastMergeTime < COMBO_WINDOW_MS) {
+        comboCount++;
+    } else {
+        comboCount = 1;
+    }
+    lastMergeTime = now;
+    const comboMult = comboCount >= 10 ? 2 : comboCount >= 5 ? 1.6 : comboCount >= 2 ? 1.3 : 1;
+    // 콤보별 피치: 1→1, 2→1.1, 3→1.2, ... 최대 1.8
+    const comboPitch = Math.min(1 + (comboCount - 1) * 0.1, 1.8);
+    playSound('merge', comboPitch);
     // 합성 이펙트 시퀀스
     if (cell) {
         cell.classList.add('merge-punch');
         setTimeout(() => cell.classList.remove('merge-punch'), 300);
-        spawnParticles(cell, newLv);
+        spawnParticles(cell, newLv, comboMult);
         spawnItemEffect(cell, false);
-        screenShake(newLv * 0.5);
+        screenShake(newLv * 0.5 * comboMult);
     }
     setTimeout(() => { showFloatText(cell, `Lv.${newLv}!`, '#f43f5e'); }, 50);
+    // 콤보 텍스트 (2+)
+    if (comboCount >= 2) {
+        const comboColor = comboCount >= 10 ? '#eab308' : comboCount >= 5 ? '#ef4444' : '#f97316';
+        setTimeout(() => showFloatText(cell, `${comboCount} COMBO`, comboColor), 100);
+    }
+    // 보드 글로우 (5+)
+    updateComboGlow();
     if (tutorialStep <= 0) tryDropDice();
     dealBoardBossDamage(newLv);
     const isSpecialType = ['bird', 'fish', 'reptile', 'dinosaur'].includes(fIt.type);
