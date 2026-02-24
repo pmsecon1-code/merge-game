@@ -1,4 +1,4 @@
-# 멍냥 머지 게임 - Architecture (v4.36.1)
+# 멍냥 머지 게임 - Architecture (v4.36.2)
 
 ## 개요
 
@@ -830,8 +830,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### systems.js (31개)
 `hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`, `isExplorable`, `exploreTile`, `checkExploreMilestone`, `resetExplore`, `spawnDinoGenerator`, `trySpawnPendingDinoGen`, `getExploreTitle`, `updateExploreUI`, `renderExploreMinimap`, `openExploreModal`, `renderExploreModal`, `closeExploreModal`
 
-### ui.js (38개)
-`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `screenShake`, `flyRewardToStatusBar`, `spawnLevelupConfetti`, `showError`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuideForItem`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `getGenSpawnLevels`, `renderSpawnPreview`, `updateUpgradeUI`, `upgradeGenerator`, `toggleBottomTab`, `updateBottomBadges`, `updateDailyMissionUI`
+### ui.js (39개)
+`renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `screenShake`, `flyRewardToStatusBar`, `spawnLevelupConfetti`, `showError`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuideForItem`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `getGenSpawnLevels`, `getSnackSpawnLevels`, `renderSpawnPreview`, `updateUpgradeUI`, `upgradeGenerator`, `toggleBottomTab`, `updateBottomBadges`, `updateDailyMissionUI`
 
 ### race.js (32개)
 `generateRaceCode`, `getOrCreateMyCode`, `findActiveRace`, `joinRaceByCode`, `findActiveOrPendingRace`, `copyRaceCode`, `startRaceListener`, `stopRaceListener`, `updateRaceProgress`, `checkRaceWinner`, `checkRaceTimeout`, `showRaceResult`, `claimRaceReward`, `addRecentOpponent`, `updateRaceUI`, `updateRaceUIFromData`, `openRaceJoinPopup`, `quickJoinRace`, `submitRaceCode`, `validateCurrentRace`, `startPlayer2Listener`, `stopPlayer2Listener`, `showRaceInvitePopup`, `closeRaceInvitePopup`, `startInviteTimer`, `stopInviteTimer`, `acceptRaceInvite`, `declineRaceInvite`, `cancelPendingInvite`, `expireInvite`, `updatePendingInviteUI`, `initRace`
@@ -943,6 +943,17 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.36.2 (2026-02-24) - 업그레이드 미리보기 간식 추가
+- 🎨 **생성기 업그레이드 미리보기에 간식 스폰 표시 추가**
+  - 기존: 동물만 표시 (기본 Lv.1 + 럭키 동물)
+  - 변경: 동물 + 간식 (기본 간식 Lv.1 + 럭키 간식 min(luckyLv, 3))
+  - `getSnackSpawnLevels(genLv)` 헬퍼 신규 (간식 스폰 레벨 계산)
+  - `renderSpawnPreview()` 시그니처 변경: `prevLevels`(배열) → `prevGenLv`(숫자)로 단순화
+  - 업그레이드 시 NEW 표시: 동물/간식 각각 독립 판정
+- 수정 파일: js/ui.js, eslint.config.js (2개)
+- 신규 함수 (1개): `getSnackSpawnLevels()` (ui.js)
+- 수정 함수: `renderSpawnPreview()` (ui.js — 간식 추가 + 시그니처 변경), `updateUpgradeUI()` (ui.js — 호출부 변경)
 
 ### v4.36.1 (2026-02-24) - 주사위 여행 스크롤 버그 수정
 - 🐛 **주사위 여행 탭/주사위 굴림 후 현재 위치 스크롤 안 되는 버그 수정** (4가지 원인 해결)
