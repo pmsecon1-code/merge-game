@@ -435,6 +435,7 @@ export default [
                 switchGuideTab: 'readonly',
                 renderGuideList: 'readonly',
                 getGenSpawnLevels: 'readonly',
+                getSnackSpawnLevels: 'readonly',
                 renderSpawnPreview: 'readonly',
                 updateUpgradeUI: 'readonly',
                 upgradeGenerator: 'readonly',

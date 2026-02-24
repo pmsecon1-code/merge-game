@@ -686,19 +686,42 @@ function getGenSpawnLevels(genLv) {
     return levels;
 }
 
-function renderSpawnPreview(containerId, type, genLv, prevLevels) {
+function getSnackSpawnLevels(genLv) {
+    const luckyLv = genLv >= 3 ? 4 : genLv + 1;
+    const levels = [1];
+    const luckySnackLv = Math.min(luckyLv, 3);
+    if (luckySnackLv > 1) levels.push(luckySnackLv);
+    return levels;
+}
+
+function renderSpawnPreview(containerId, type, genLv, prevGenLv) {
     const el = document.getElementById(containerId);
     if (!el) return;
-    const list = type === 'cat' ? CATS : DOGS;
+    const animalList = type === 'cat' ? CATS : DOGS;
+    const snackList = type === 'cat' ? CAT_SNACKS : DOG_SNACKS;
     const levels = getGenSpawnLevels(genLv);
+    const prevAnimalLevels = prevGenLv ? getGenSpawnLevels(prevGenLv) : null;
+    const snackLevels = getSnackSpawnLevels(genLv);
+    const prevSnackLevels = prevGenLv ? getSnackSpawnLevels(prevGenLv) : null;
     let html = '';
+    // 동물
     for (const lv of levels) {
-        const data = list[lv - 1];
+        const data = animalList[lv - 1];
         if (!data) continue;
-        const isNew = prevLevels && !prevLevels.includes(lv);
+        const isNew = prevAnimalLevels && !prevAnimalLevels.includes(lv);
         html += `<div class="upg-spawn-item${isNew ? ' new-item' : ''}">
             <img src="${data.img}" alt="${data.name}">
             <span class="upg-spawn-label">${lv === 1 ? '기본' : '럭키'}${isNew ? ' NEW' : ''}</span>
+        </div>`;
+    }
+    // 간식
+    for (const lv of snackLevels) {
+        const data = snackList[lv - 1];
+        if (!data) continue;
+        const isNew = prevSnackLevels && !prevSnackLevels.includes(lv);
+        html += `<div class="upg-spawn-item${isNew ? ' new-item' : ''}">
+            <img src="${data.img}" alt="${data.name}">
+            <span class="upg-spawn-label">${lv === 1 ? '간식' : '럭키'}${isNew ? ' NEW' : ''}</span>
         </div>`;
     }
     el.innerHTML = html;
@@ -734,9 +757,8 @@ function updateUpgradeUI() {
         document.getElementById('upg-current-luck').innerText = 5 + (currentLv - 1);
         document.getElementById('upg-next-lv').innerText = nextLv;
         document.getElementById('upg-next-luck').innerText = 5 + (nextLv - 1);
-        const currentLevels = getGenSpawnLevels(currentLv);
         renderSpawnPreview('upg-current-spawn', type, currentLv, null);
-        renderSpawnPreview('upg-next-spawn', type, nextLv, currentLevels);
+        renderSpawnPreview('upg-next-spawn', type, nextLv, currentLv);
     } else {
         if (catdogSection) catdogSection.style.display = 'none';
         if (specialSection) specialSection.style.display = 'block';
