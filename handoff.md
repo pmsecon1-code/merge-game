@@ -964,6 +964,11 @@ firebase deploy --only firestore:rules   # 보안 규칙
 - 신규 CSS (3개): `.combo-glow-orange`, `.combo-glow-red`, `.combo-glow-gold`
 - 수정 CSS: `#board-wrapper` (transition: box-shadow 0.3s ease 추가)
 - 수정 함수: `tryMergeItems()` (game.js — 콤보 판정 + 배율 적용 + 콤보 텍스트 + 글로우), `spawnParticles()` (ui.js — comboMult 파라미터), `playSound()` (sound.js — pitch 파라미터), `createSynthSound()` (sound.js — merge pitch 적용)
+- 🐛 **스페셜 생성기 업그레이드 시 쿨다운 클램핑 안 되는 버그 수정**
+  - 원인: `upgradeGenerator()`에서 `item.type === type`으로 비교했으나, boardState 생성기 타입은 `'bird_generator'` 형식 → 매칭 실패 → 쿨다운 미클램핑
+  - 수정: `item.type === type + '_generator'`로 변경
+  - 수정 파일: js/ui.js (1개)
+  - 수정 함수: `upgradeGenerator()` (ui.js — 생성기 타입 매칭 수정)
 
 ### v4.36.2 (2026-02-24) - 업그레이드 미리보기 개선
 - 🎨 **생성기 업그레이드 미리보기에 간식 스폰 표시 추가**
