@@ -97,9 +97,9 @@ function renderShop() {
         if (item) {
             d.onclick = () => buyShopItem(idx);
             if (item.type === 'card_pack') {
-                d.innerHTML = `<div class="bg-circle" style="background-color:#f0abfc"></div><img src="images/icons/card.png" class="icon icon-md"><div class="level-badge">×${item.amount}</div><div class="shop-price-tag">${item.price}<img src="images/icons/diamond.png" class="icon" style="width:8px;height:8px"></div>`;
+                d.innerHTML = `<div class="bg-circle" style="background-color:#f0abfc"></div><img src="images/icons/card.png" style="width:65%;height:65%;object-fit:contain"><div class="level-badge">×${item.amount}</div><div class="shop-price-tag">${item.price}<img src="images/icons/diamond.png" class="icon" style="width:8px;height:8px"></div>`;
             } else if (item.type === 'diamond_pack') {
-                d.innerHTML = `<div class="bg-circle" style="background-color:#67e8f9"></div><img src="images/icons/diamond.png" class="icon icon-md"><div class="level-badge">×${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">${item.price}<img src="images/icons/coin.png" class="icon" style="width:8px;height:8px"></div>`;
+                d.innerHTML = `<div class="bg-circle" style="background-color:#67e8f9"></div><img src="images/icons/diamond.png" style="width:65%;height:65%;object-fit:contain"><div class="level-badge">×${item.amount}</div><div class="shop-price-tag" style="color:#fbbf24">${item.price}<img src="images/icons/coin.png" class="icon" style="width:8px;height:8px"></div>`;
             } else {
                 let list;
                 if (item.type.includes('cat'))
@@ -115,9 +115,10 @@ function renderShop() {
                 const priceTag = item.isAd
                     ? `<div class="shop-price-tag"><img src="images/icons/tv.png" class="icon" style="width:10px;height:10px"></div>`
                     : `<div class="shop-price-tag">${item.level * 3}<img src="images/icons/diamond.png" class="icon" style="width:8px;height:8px"></div>`;
+                const imgSize = isS || isT ? '65%' : '80%';
                 const shopVisual = data.img
-                    ? `<img src="${data.img}" style="width:1.2rem;height:1.2rem;object-fit:contain">`
-                    : `<div style="font-size:1.2rem">${data.emoji}</div>`;
+                    ? `<img src="${data.img}" style="width:${imgSize};height:${imgSize};object-fit:contain">`
+                    : `<div style="font-size:2rem">${data.emoji}</div>`;
                 d.innerHTML = `<div class="${isS || isT ? 'bg-square' : 'bg-circle'}" style="background-color:${data.color}"></div>${shopVisual}<div class="level-badge">Lv.${item.level}</div>${priceTag}`;
             }
         } else d.innerHTML = `<span class="text-xs text-gray-400">품절</span>`;
