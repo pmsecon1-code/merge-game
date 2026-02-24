@@ -944,16 +944,21 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## 변경 이력
 
-### v4.36.2 (2026-02-24) - 업그레이드 미리보기 간식 추가
+### v4.36.2 (2026-02-24) - 업그레이드 미리보기 개선
 - 🎨 **생성기 업그레이드 미리보기에 간식 스폰 표시 추가**
   - 기존: 동물만 표시 (기본 Lv.1 + 럭키 동물)
   - 변경: 동물 + 간식 (기본 간식 Lv.1 + 럭키 간식 min(luckyLv, 3))
   - `getSnackSpawnLevels(genLv)` 헬퍼 신규 (간식 스폰 레벨 계산)
   - `renderSpawnPreview()` 시그니처 변경: `prevLevels`(배열) → `prevGenLv`(숫자)로 단순화
   - 업그레이드 시 NEW 표시: 동물/간식 각각 독립 판정
-- 수정 파일: js/ui.js, eslint.config.js (2개)
+- 🎨 **럭키 아이템 녹색 강조 + 간식 라벨 통일**
+  - 럭키 아이템: `.lucky-item` 녹색 테두리(`#22c55e`) + 녹색 배경 (상시 표시)
+  - NEW 아이템: `.new-item` 오렌지 테두리(`#f59e0b`) + 노란 배경 (업그레이드 시만)
+  - 간식 라벨: `간식` → `기본`으로 통일 (동물과 동일)
+- 수정 파일: js/ui.js, css/styles.css, eslint.config.js (3개)
 - 신규 함수 (1개): `getSnackSpawnLevels()` (ui.js)
-- 수정 함수: `renderSpawnPreview()` (ui.js — 간식 추가 + 시그니처 변경), `updateUpgradeUI()` (ui.js — 호출부 변경)
+- 신규 CSS (2개): `.upg-spawn-item.lucky-item` (녹색 강조), `.upg-spawn-item.new-item` (오렌지 강조, 기존 녹색에서 변경)
+- 수정 함수: `renderSpawnPreview()` (ui.js — 간식 추가 + lucky-item 클래스 + 시그니처 변경), `updateUpgradeUI()` (ui.js — 호출부 변경)
 
 ### v4.36.1 (2026-02-24) - 주사위 여행 스크롤 버그 수정
 - 🐛 **주사위 여행 탭/주사위 굴림 후 현재 위치 스크롤 안 되는 버그 수정** (4가지 원인 해결)
