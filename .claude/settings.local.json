@@ -39,7 +39,17 @@
       "Bash(which gh.exe 2>/dev/null || where gh 2>/dev/null || cmd.exe /c \"where gh\" 2>/dev/null)",
       "Bash(tail:*)",
       "Bash(export:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "mcp__obsidian__read_note",
+      "mcp__obsidian__patch_note",
+      "mcp__obsidian__get_vault_stats",
+      "Bash(test:*)",
+      "mcp__obsidian__search_notes",
+      "mcp__obsidian__read_multiple_notes",
+      "WebFetch(domain:danieldonbavand.com)",
+      "Bash(bash:*)",
+      "Bash(echo \"test line\" | py -3 -c \"import sys,json; print\\(json.dumps\\(sys.stdin.read\\(\\)\\)\\)\" 2>&1)",
+      "Bash(py:*)"
     ]
   },
   "mcpServers": {
