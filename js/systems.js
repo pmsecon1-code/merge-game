@@ -514,8 +514,14 @@ function checkExploreMilestone() {
             diamonds += m.diamonds;
             const exploreModal = document.getElementById('explore-modal');
             if (m.dinoGen) {
+                const isFirstDino = genLevels.dinosaur === 0;
                 spawnDinoGenerator();
-                showMilestonePopup(`${ICON.party} 화석 완성! 공룡 생성기 해제!`, `+${m.coins}${ICON.coin} +${m.diamonds}${ICON.diamond}`);
+                if (isFirstDino) {
+                    showMilestonePopup(`${ICON.party} 화석 완성! 공룡 생성기 해제!`, `+${m.coins}${ICON.coin} +${m.diamonds}${ICON.diamond}`);
+                } else {
+                    showMilestonePopup(`${ICON.party} 탐험 완료! 지도 초기화!`, `+${m.coins}${ICON.coin} +${m.diamonds}${ICON.diamond}`);
+                }
+                resetExplore();
             } else {
                 showMilestonePopup(`${ICON.party} 화석 ${m.count}개 수집!`, `+${m.coins}${ICON.coin} +${m.diamonds}${ICON.diamond}`);
             }
@@ -523,6 +529,12 @@ function checkExploreMilestone() {
             if (m.diamonds > 0) flyRewardToStatusBar(exploreModal, 'diamond');
         }
     }
+}
+
+function resetExplore() {
+    exploreProgress = { revealedTiles: [24], collectedFossils: [], claimedMilestones: [] };
+    updateExploreUI();
+    renderExploreModal();
 }
 
 function spawnDinoGenerator() {

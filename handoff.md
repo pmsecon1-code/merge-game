@@ -1,4 +1,4 @@
-# 멍냥 머지 게임 - Architecture (v4.35.2)
+# 멍냥 머지 게임 - Architecture (v4.35.3)
 
 ## 개요
 
@@ -64,7 +64,7 @@ merge2/
 
 **script 로드 순서**: constants → state → auth → save → game → systems → album → race → sound → **story** → ui → tutorial → main
 
-**총 JS**: ~7010줄, **함수**: ~202개
+**총 JS**: ~7020줄, **함수**: ~203개
 
 ---
 
@@ -827,8 +827,8 @@ RACE_INVITE_EXPIRE_MS = 10분   // 초대 10분 만료
 ### game.js (43개)
 `addCoins`, `spawnPiggyBank`, `discoverItem`, `countEasyQuests`, `generateNewQuest`, `generateSpecialQuest`, `trySpawnSpecialGenerator`, `removeQuestItems`, `handleLevelUp`, `completeQuest`, `checkExpiredQuests`, `formatQuestTimer`, `spawnItem`, `spawnToy`, `handleCellClick`, `handleLockedCell`, `handleMissionCell`, `handleSpecialItem`, `triggerGen`, `openCooldownPopup`, `confirmCooldownReset`, `getEnergyPrice`, `checkEnergyAfterUse`, `openEnergyPopup`, `closeEnergyPopup`, `buyEnergy`, `getActiveTypes`, `checkToyGeneratorUnlock`, `moveItem`, `tryMergeItems`, `updateBossIdx`, `checkDailyReset`, `addDailyProgress`, `checkDailyMissionComplete`, `claimDailyBonus`, `spawnBubble`, `showBubblePopup`, `openBubbleByAd`, `openBubbleByDiamond`, `adEnergy`, `openAdPopup`, `confirmAd`, `checkDailyBonus`
 
-### systems.js (30개)
-`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`, `isExplorable`, `exploreTile`, `checkExploreMilestone`, `spawnDinoGenerator`, `trySpawnPendingDinoGen`, `getExploreTitle`, `updateExploreUI`, `renderExploreMinimap`, `openExploreModal`, `renderExploreModal`, `closeExploreModal`
+### systems.js (31개)
+`hasItemOfType`, `hasItemOfTypeAndLevel`, `getMaxLevelOfType`, `checkAutoCompleteMissions`, `startShopTimer`, `refreshShop`, `generateRandomShopItem`, `renderShop`, `buyShopItem`, `askSellItem`, `tryDropDice`, `useDice`, `rollDice`, `executeMove`, `closeDiceRollPopup`, `giveStepRewardWithInfo`, `completeTrip`, `updateDiceTripUI`, `renderDiceTripBoard`, `isExplorable`, `exploreTile`, `checkExploreMilestone`, `resetExplore`, `spawnDinoGenerator`, `trySpawnPendingDinoGen`, `getExploreTitle`, `updateExploreUI`, `renderExploreMinimap`, `openExploreModal`, `renderExploreModal`, `closeExploreModal`
 
 ### ui.js (38개)
 `renderGrid`, `createItem`, `updateAll`, `updateUI`, `updateLevelupProgressUI`, `updateTimerUI`, `updateQuestUI`, `spawnParticles`, `spawnItemEffect`, `showLuckyEffect`, `showFloatText`, `screenShake`, `flyRewardToStatusBar`, `spawnLevelupConfetti`, `showError`, `showToast`, `showMilestonePopup`, `openOverlay`, `closeOverlay`, `openSettings`, `closeSettings`, `formatTime`, `updateEnergyPopupTimer`, `handleDragStart`, `handleDragMove`, `handleDragEnd`, `openGuideForItem`, `openGuide`, `closeModal`, `switchGuideTab`, `renderGuideList`, `getGenSpawnLevels`, `renderSpawnPreview`, `updateUpgradeUI`, `upgradeGenerator`, `toggleBottomTab`, `updateBottomBadges`, `updateDailyMissionUI`
@@ -942,6 +942,17 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.35.3 (2026-02-23) - 탐험 리셋 기능 추가
+- 🔄 **화석 10개 수집 시 탐험 자동 리셋** (반복 플레이 가능)
+  - `checkExploreMilestone()` 수정: 10개 마일스톤 처리 후 `resetExplore()` 호출
+  - 최초 완료: "화석 완성! 공룡 생성기 해제!" 팝업 (기존)
+  - 이후 완료: "탐험 완료! 지도 초기화!" 팝업 (신규)
+  - 공룡 생성기: 최초 1회만 해제 (`genLevels.dinosaur === 0` 체크)
+  - 마일스톤 보상: 매회 반복 수령 가능 (코인 싱크 역할)
+- 수정 파일: js/systems.js, eslint.config.js (2개)
+- 신규 함수 (1개): `resetExplore()` (systems.js) — `exploreProgress` 초기 상태로 리셋 + UI 갱신
+- 수정 함수: `checkExploreMilestone()` (systems.js — 최초/이후 팝업 분기 + 리셋 호출)
 
 ### v4.35.2 (2026-02-23) - 드래그 합성 하이라이트 제거
 - 🗑️ **드래그 시 합성 대상 빨간 글로우 제거**
@@ -1981,6 +1992,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## To-do
 
+- [x] 탐험 리셋 기능 (v4.35.3) - 화석 10개 수집 시 자동 리셋, 반복 플레이 가능
 - [x] flyRewardToStatusBar 전체 보상 확대 적용 (v4.35.1) - 7곳 → 32곳, dice 타입 추가
 - [x] 시각 이펙트 전면 개선 (v4.35.0) - 합성 타격감 + 보상 연출 + 드래그 피드백
 - [x] 쿨다운 즉시 해제 + 기부 시스템 (v4.33.0) - 코인 싱크 2종 추가

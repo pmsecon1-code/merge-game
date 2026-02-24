@@ -278,6 +278,7 @@ export default [
                 isExplorable: 'readonly',
                 exploreTile: 'readonly',
                 checkExploreMilestone: 'readonly',
+                resetExplore: 'readonly',
                 spawnDinoGenerator: 'readonly',
                 trySpawnPendingDinoGen: 'readonly',
                 getExploreTitle: 'readonly',
