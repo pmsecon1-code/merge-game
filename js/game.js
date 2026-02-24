@@ -719,10 +719,19 @@ function tryMergeItems(ss, fi, fIt, ts, ti, tIt, tz) {
         screenShake(newLv * 0.5 * comboMult);
     }
     setTimeout(() => { showFloatText(cell, `Lv.${newLv}!`, '#f43f5e'); }, 50);
-    // 콤보 텍스트 (2+)
+    // 콤보 텍스트 (2+) — 화면 중앙에 럭키 스타일로 표시
     if (comboCount >= 2) {
         const comboColor = comboCount >= 10 ? '#eab308' : comboCount >= 5 ? '#ef4444' : '#f97316';
-        setTimeout(() => showFloatText(cell, `${comboCount} COMBO`, comboColor), 100);
+        const shadow = comboCount >= 10 ? '0 0 10px #eab308, 0 0 20px #fbbf24, 2px 2px 0 #92400e'
+            : comboCount >= 5 ? '0 0 10px #ef4444, 0 0 20px #f87171, 2px 2px 0 #7f1d1d'
+            : '0 0 8px #f97316, 2px 2px 0 #7c2d12';
+        const txt = document.createElement('div');
+        txt.className = 'combo-text';
+        txt.textContent = `${comboCount} COMBO`;
+        txt.style.color = comboColor;
+        txt.style.textShadow = shadow;
+        document.body.appendChild(txt);
+        setTimeout(() => txt.remove(), 800);
     }
     // 보드 글로우 (5+)
     updateComboGlow();
