@@ -285,7 +285,6 @@ export default [
                 resetExplore: 'readonly',
                 spawnDinoGenerator: 'readonly',
                 trySpawnPendingDinoGen: 'readonly',
-                getExploreTitle: 'readonly',
                 updateExploreUI: 'readonly',
                 renderExploreMinimap: 'readonly',
                 openExploreModal: 'readonly',

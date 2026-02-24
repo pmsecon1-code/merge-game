@@ -566,14 +566,6 @@ function trySpawnPendingDinoGen() {
     }
 }
 
-function getExploreTitle() {
-    const count = exploreProgress.collectedFossils.length;
-    if (count >= 10) return '탐험가';
-    if (count >= 7) return '화석 수집가';
-    if (count >= 3) return '발굴 초보';
-    return null;
-}
-
 function updateExploreUI() {
     const wrapper = document.getElementById('explore-wrapper');
     if (!wrapper) return;

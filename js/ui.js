@@ -456,12 +456,6 @@ function openSettings() {
     }
     const nameEl = document.getElementById('settings-username');
     if (nameEl && currentUser) nameEl.textContent = getDisplayName(currentUser);
-    const titleEl = document.getElementById('settings-title');
-    if (titleEl) {
-        const title = getExploreTitle();
-        titleEl.textContent = title ? `"${title}"` : '';
-        titleEl.style.display = title ? 'inline' : 'none';
-    }
     openOverlay('settings-popup');
 }
 
