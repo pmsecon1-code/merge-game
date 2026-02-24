@@ -58,6 +58,8 @@ export default [
                 LUCKY_BASE_CHANCE: 'readonly',
                 LUCKY_LEVEL_BONUS: 'readonly',
                 LUCKY_SNACK_CHANCE: 'readonly',
+                QUEST_LEVEL_WEIGHTS: 'readonly',
+                weightedAnimalLevel: 'readonly',
                 QUEST_COUNT_MISSION_GOAL: 'readonly',
                 CLOUD_SAVE_DEBOUNCE_MS: 'readonly',
                 getLevelUpGoal: 'readonly',

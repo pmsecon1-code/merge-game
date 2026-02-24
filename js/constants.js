@@ -121,6 +121,24 @@ const QUEST_MULTI_BASE_CHANCE = 0.3;
 const QUEST_MULTI_LEVEL_FACTOR = 0.05;
 const QUEST_MULTI_MAX_CHANCE = 0.9;
 
+// --- 퀘스트 레벨 가중치 (동물만, 인덱스 = 레벨-1) ---
+// Lv.1~3: 100, Lv.4~7: 완만 감소, Lv.8~11: 도전 구간
+const QUEST_LEVEL_WEIGHTS = [100, 100, 100, 75, 55, 40, 28, 15, 8, 4, 2];
+
+function weightedAnimalLevel(min, max) {
+    const weights = [];
+    for (let lv = min; lv <= max; lv++) {
+        weights.push(QUEST_LEVEL_WEIGHTS[lv - 1] || 1);
+    }
+    const total = weights.reduce((a, b) => a + b, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < weights.length; i++) {
+        r -= weights[i];
+        if (r <= 0) return min + i;
+    }
+    return max;
+}
+
 // --- 럭키 드랍 확률 ---
 const LUCKY_BASE_CHANCE = 0.05;
 const LUCKY_LEVEL_BONUS = 0.01;

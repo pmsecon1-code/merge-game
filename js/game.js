@@ -43,8 +43,8 @@ function generateNewQuest(forceEasy = false) {
     const npc = NPC_AVATARS[Math.floor(Math.random() * NPC_AVATARS.length)];
     const twoItemChance = Math.min(QUEST_MULTI_BASE_CHANCE + userLevel * QUEST_MULTI_LEVEL_FACTOR, QUEST_MULTI_MAX_CHANCE);
     const cnt = Math.random() < twoItemChance ? 2 : 1;
-    const minLv = needEasy ? 4 : Math.min(5 + Math.floor(userLevel / 20), 9);
-    const maxLvAnimal = needEasy ? 5 : Math.min(minLv + 3 + Math.floor(userLevel / 4), 11);
+    const minLv = needEasy ? 4 : 5;
+    const maxLvAnimal = needEasy ? 5 : Math.min(7 + Math.floor(userLevel / 10), 11);
     const maxLvSnack = needEasy ? 3 : Math.min(Math.ceil(minLv / 2) + 2, 5);
     const reqs = [];
     let sc = 0;
@@ -57,7 +57,9 @@ function generateNewQuest(forceEasy = false) {
         const type = isSnack ? base + '_snack' : isToy ? base + '_toy' : base;
         const min = isSnack || isToy ? 2 : minLv;
         const max = isSnack || isToy ? maxLvSnack : maxLvAnimal;
-        const lv = Math.floor(Math.random() * (max - min + 1)) + min;
+        const lv = (isSnack || isToy)
+            ? Math.floor(Math.random() * (max - min + 1)) + min
+            : weightedAnimalLevel(min, max);
         reqs.push({ type, level: lv });
         sc += Math.max(30, Math.pow(2, lv - 3));
     }
