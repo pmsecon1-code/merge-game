@@ -407,12 +407,19 @@ body {
     font-weight: bold;
     color: #6b7280;
 }
-.upg-spawn-item.new-item img {
+.upg-spawn-item.lucky-item img {
     border: 2px solid #22c55e;
     background: #dcfce7;
 }
-.upg-spawn-item.new-item .upg-spawn-label {
+.upg-spawn-item.lucky-item .upg-spawn-label {
     color: #16a34a;
+}
+.upg-spawn-item.new-item img {
+    border: 2px solid #f59e0b;
+    background: #fef3c7;
+}
+.upg-spawn-item.new-item .upg-spawn-label {
+    color: #d97706;
 }
 
 /* ============================================

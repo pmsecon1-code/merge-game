@@ -708,20 +708,22 @@ function renderSpawnPreview(containerId, type, genLv, prevGenLv) {
     for (const lv of levels) {
         const data = animalList[lv - 1];
         if (!data) continue;
+        const isLucky = lv > 1;
         const isNew = prevAnimalLevels && !prevAnimalLevels.includes(lv);
-        html += `<div class="upg-spawn-item${isNew ? ' new-item' : ''}">
+        html += `<div class="upg-spawn-item${isLucky ? ' lucky-item' : ''}${isNew ? ' new-item' : ''}">
             <img src="${data.img}" alt="${data.name}">
-            <span class="upg-spawn-label">${lv === 1 ? '기본' : '럭키'}${isNew ? ' NEW' : ''}</span>
+            <span class="upg-spawn-label">${isLucky ? '럭키' : '기본'}${isNew ? ' NEW' : ''}</span>
         </div>`;
     }
     // 간식
     for (const lv of snackLevels) {
         const data = snackList[lv - 1];
         if (!data) continue;
+        const isLucky = lv > 1;
         const isNew = prevSnackLevels && !prevSnackLevels.includes(lv);
-        html += `<div class="upg-spawn-item${isNew ? ' new-item' : ''}">
+        html += `<div class="upg-spawn-item${isLucky ? ' lucky-item' : ''}${isNew ? ' new-item' : ''}">
             <img src="${data.img}" alt="${data.name}">
-            <span class="upg-spawn-label">${lv === 1 ? '간식' : '럭키'}${isNew ? ' NEW' : ''}</span>
+            <span class="upg-spawn-label">${isLucky ? '럭키' : '기본'}${isNew ? ' NEW' : ''}</span>
         </div>`;
     }
     el.innerHTML = html;
