@@ -1,4 +1,4 @@
-# 멍냥 머지 게임 - Architecture (v4.36.2)
+# 멍냥 머지 게임 - Architecture (v4.37.0)
 
 ## 개요
 
@@ -943,6 +943,27 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 변경 이력
+
+### v4.37.0 (2026-02-24) - 합성 콤보 시각 이펙트 시스템
+- 🔥 **합성 콤보 시스템 추가** (세션 전용 상태, 세이브 불필요)
+  - 2초 이내 연속 합성 → 콤보 카운트 증가, 2초 초과 → 리셋 (1로)
+  - 콤보 2+ 부터 이펙트 발동
+  - 콤보 2~4: 주황 `N COMBO` floatText (×1.3 배율)
+  - 콤보 5~9: 빨강 `N COMBO` floatText + 보드 빨간 글로우 (×1.6 배율)
+  - 콤보 10+: 금색 `N COMBO!` floatText + 보드 금색 글로우 (×2 배율)
+  - 파티클 수/퍼짐 거리 × comboMult, 보드 흔들림 × comboMult
+  - 보드 글로우: `#board-wrapper`에 `.combo-glow-red`/`.combo-glow-gold` 클래스, 0.3s transition fade-out
+- 🔊 **콤보별 merge 사운드 피치 상승**
+  - `playSound(id, pitch)` / `createSynthSound(id, pitch)` 시그니처 확장
+  - merge 사운드 주파수에 pitch 배율 적용 (330×p → 660×p)
+  - 콤보 1 → 피치 1.0, 콤보 2 → 1.1, 콤보 3 → 1.2, ... 최대 1.8
+- 수정 파일: js/constants.js, js/state.js, js/game.js, js/ui.js, js/sound.js, css/styles.css, eslint.config.js (7개)
+- 신규 상수 (1개): `COMBO_WINDOW_MS` (constants.js)
+- 신규 변수 (2개): `comboCount`, `lastMergeTime` (state.js)
+- 신규 함수 (1개): `updateComboGlow()` (ui.js)
+- 신규 CSS (3개): `.combo-glow-orange`, `.combo-glow-red`, `.combo-glow-gold`
+- 수정 CSS: `#board-wrapper` (transition: box-shadow 0.3s ease 추가)
+- 수정 함수: `tryMergeItems()` (game.js — 콤보 판정 + 배율 적용 + 콤보 텍스트 + 글로우), `spawnParticles()` (ui.js — comboMult 파라미터), `playSound()` (sound.js — pitch 파라미터), `createSynthSound()` (sound.js — merge pitch 적용)
 
 ### v4.36.2 (2026-02-24) - 업그레이드 미리보기 개선
 - 🎨 **생성기 업그레이드 미리보기에 간식 스폰 표시 추가**
@@ -2030,6 +2051,7 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## To-do
 
+- [x] 합성 콤보 시각 이펙트 시스템 (v4.37.0) - 연속 합성 콤보 카운터 + 단계별 이펙트/사운드 피치
 - [x] 탐험 리셋 기능 (v4.35.3) - 화석 10개 수집 시 자동 리셋, 반복 플레이 가능
 - [x] flyRewardToStatusBar 전체 보상 확대 적용 (v4.35.1) - 7곳 → 32곳, dice 타입 추가
 - [x] 시각 이펙트 전면 개선 (v4.35.0) - 합성 타격감 + 보상 연출 + 드래그 피드백
