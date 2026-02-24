@@ -970,6 +970,11 @@ firebase deploy --only firestore:rules   # 보안 규칙
   - 수정: `item.type === type + '_generator'`로 변경
   - 수정 파일: js/ui.js (1개)
   - 수정 함수: `upgradeGenerator()` (ui.js — 생성기 타입 매칭 수정)
+- 🎨 **상점 아이템 이미지 크기 확대** (창고/보드와 동일 비율)
+  - 동물/간식/장난감: `1.2rem` → `80%`/`65%` (createItem과 동일)
+  - 카드팩/다이아팩: `icon-md`(24px) → `65%` 비율
+  - 수정 파일: js/systems.js (1개)
+  - 수정 함수: `renderShop()` (systems.js — 이미지 크기 확대)
 
 ### v4.36.2 (2026-02-24) - 업그레이드 미리보기 개선
 - 🎨 **생성기 업그레이드 미리보기에 간식 스폰 표시 추가**

@@ -108,7 +108,7 @@ function getSpecialCooldown(type) {
 // --- 게임 밸런스 ---
 const CAGE_MAX_LEVEL = 5;
 const COOLDOWN_COIN_PER_SEC = 5; // 쿨다운 즉시 해제: 남은 초 × 5코인
-const COMBO_WINDOW_MS = 2000; // 콤보 인정 시간 (2초)
+const COMBO_WINDOW_MS = 3000; // 콤보 인정 시간 (3초)
 const SNACK_CHANCE = 0.08;
 const GENERATOR_MAX_CLICKS = 6; // 스페셜 생성기 과열 클릭 수
 const AD_ENERGY_AMOUNT = 30; // 광고 시청 에너지 충전량
