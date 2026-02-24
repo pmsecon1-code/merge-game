@@ -522,6 +522,8 @@ function checkExploreMilestone() {
                     showMilestonePopup(`${ICON.party} 탐험 완료! 지도 초기화!`, `+${m.coins}${ICON.coin} +${m.diamonds}${ICON.diamond}`);
                 }
                 resetExplore();
+                saveGameNow();
+                return;
             } else {
                 showMilestonePopup(`${ICON.party} 화석 ${m.count}개 수집!`, `+${m.coins}${ICON.coin} +${m.diamonds}${ICON.diamond}`);
             }

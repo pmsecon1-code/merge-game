@@ -565,6 +565,20 @@ async function loadFromCloud() {
         if (doc.exists) {
             console.log('[Cloud] Data found, applying...');
             const cloudData = doc.data();
+            const localRaw = localStorage.getItem('mergeGame');
+            if (localRaw) {
+                try {
+                    const localData = JSON.parse(localRaw);
+                    if (localData.savedAt && cloudData.savedAt && localData.savedAt > cloudData.savedAt) {
+                        console.log('[Cloud] Local data is newer, keeping local. local:', localData.savedAt, 'cloud:', cloudData.savedAt);
+                        const validatedLocal = validateGameData(localData);
+                        applyGameData(validatedLocal);
+                        updateAll();
+                        saveGame();
+                        return { success: true, reason: 'local_newer' };
+                    }
+                } catch (e) { /* localStorage parse 실패 시 클라우드 우선 */ }
+            }
             const validatedData = validateGameData(cloudData);
             applyGameData(validatedData);
             localStorage.setItem('mergeGame', JSON.stringify(validatedData));
