@@ -1,97 +1,95 @@
-# 멍냥 머지 (Merge Game)
+# CLAUDE.md
 
-모바일 웹 머지 게임 - Firebase 기반, 순수 JS
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 구조
-```
-index.html          # 메인 HTML (~684줄)
-css/styles.css      # 전체 스타일 (~1980줄)
-js/constants.js     # 상수/데이터/ICON (~759줄)
-js/state.js         # 전역 변수 (~140줄)
-js/auth.js          # 인증/세션/회원탈퇴 (~180줄)
-js/save.js          # 저장/로드 (~746줄)
-js/game.js          # 게임 로직 (~1024줄)
-js/systems.js       # 미션/주사위여행/상점/탐험 (~662줄)
-js/album.js         # 앨범 시스템 (~243줄)
-js/race.js          # 레이스 시스템 (~1069줄)
-js/sound.js         # 사운드 (효과음+BGM) (~419줄)
-js/story.js         # 스토리 미션 시스템 (~335줄)
-js/tutorial.js      # 온보딩 튜토리얼 (~194줄)
-js/ui.js            # UI/렌더링/이펙트/배지바/설정 (~949줄)
-js/main.js          # 초기화 (~322줄)
-images/             # 커스텀 아이콘/동물 PNG (128종)
-firestore.rules     # DB 보안 규칙
-firebase.json       # Firebase 설정
-```
-
-## 기술 스택
-- HTML5 + Vanilla JavaScript (프레임워크 없음)
-- Tailwind CSS (CDN) + 커스텀 CSS
+## 프로젝트 개요
+모바일 웹 머지 게임 - Firebase 기반, 순수 JS (프레임워크 없음)
+- HTML5 + Vanilla JavaScript + Tailwind CSS (CDN) + 커스텀 CSS
 - Firebase: Auth (Google), Firestore, Hosting
 
 ## 명령어
+
 | 명령 | 설명 |
 |------|------|
-| `git push` | GitHub Pages 배포 (자동, 1~2분) |
+| `npm run lint` | ESLint 검사 |
+| `npm run lint:fix` | ESLint 자동 수정 |
+| `npm run format` | Prettier 포맷팅 |
+| `npm test` | Vitest 전체 테스트 실행 |
+| `npx vitest run tests/save.test.js` | 단일 테스트 파일 실행 |
+| `npx vitest --watch` | 테스트 watch 모드 |
+| `git push` | GitHub Pages 자동 배포 (1~2분) |
 | `firebase deploy --only hosting` | 인증 핸들러 배포 |
 | `firebase deploy --only firestore:rules` | 보안 규칙 배포 |
-| `npm run lint` | ESLint 검사 |
-| `npm run format` | Prettier 포맷팅 |
 
-## 핵심 규칙
-- 멀티 파일 JS 구조 (전역 변수 기반, 모듈 없음)
-- 모바일 퍼스트 (5x7 그리드, 터치 최적화)
-- Firestore 보안 규칙 변경 시 범위 검증 필수
-- script 로드 순서: constants → state → auth → save → game → systems → album → race → sound → story → ui → tutorial → main
+Pre-commit hook이 lint + test를 자동 실행. 실패 시 커밋 차단.
 
-## 데이터 구조 변경 시 체크리스트
-배열/객체에 새로운 타입의 데이터 추가 시 **반드시** 확인:
-- [ ] `save.js` - `sanitizeForFirestore()` 검증 범위 (배열 최대 길이 등)
-- [ ] `firestore.rules` - 보안 규칙 제한값
-- [ ] `handoff.md` - 저장 데이터 구조 섹션 업데이트
-- [ ] `eslint.config.js` - 새 전역 변수/함수 추가 시
+## 아키텍처
 
-**예시 (앨범 버그 교훈):**
+### 전역 변수 기반 멀티 파일 구조
+ES 모듈을 쓰지 않음. 모든 JS 파일이 전역 스코프를 공유하며, script 로드 순서가 중요:
+
+**constants → state → auth → save → game → systems → album → race → sound → story → ui → tutorial → main**
+
+- `constants.js`: 상수 + 데이터 배열 + 헬퍼 함수 (다른 파일에서 참조만)
+- `state.js`: 전역 변수 + DOM 참조 선언 (초기값만)
+- `auth.js`~`main.js`: 각 시스템 로직, 앞 파일에 정의된 전역을 자유롭게 사용
+
+### 새 전역 함수/변수 추가 시
+1. 해당 JS 파일에서 함수/변수 선언
+2. `eslint.config.js`의 globals 섹션에 등록 (readonly/writable)
+3. HTML 파일 블록에도 필요하면 동일하게 추가
+
+### 테스트 구조
+Vitest + `vm.runInContext` 패턴. 브라우저 전역 스코프 의존 코드를 Node에서 실행하기 위해 `tests/helpers/`에서 vm 컨텍스트를 만들어 JS 파일을 로드:
 ```
-album 배열에 완성 마커 추가 → 검증 로직 미업데이트 → 데이터 손실
+tests/helpers/loadConstants.js  → constants.js를 vm에서 실행, ICON을 Proxy로 mock
+tests/helpers/loadSave.js       → save.js를 vm에서 실행
 ```
 
-## 밸런스 변경 시 체크리스트
-숫자/공식을 변경할 때 **반드시** 확인:
-- [ ] `constants.js`에 상수/헬퍼 함수가 있는지 확인 → 있으면 그곳만 수정
-- [ ] 같은 값이 다른 파일에 하드코딩되어 있지 않은지 `Grep`으로 검색
-- [ ] `index.html`에 초기값으로 하드코딩된 텍스트 확인
-- [ ] `firestore.rules`에 검증 범위가 연동되는지 확인
+### 핵심 흐름
+- **저장**: 게임 액션 → `updateAll()` → `saveGame()` → localStorage(즉시) + Firestore(500ms 디바운스)
+- **로드**: 로그인 → `loadFromCloud()` → `applyGameData()` → `renderGrid()`
+- **합성**: 드래그 → `tryMergeItems()` → 보스 데미지/콤보/버블 체크 → `updateAll()`
 
-**원칙**: 같은 값은 반드시 1곳에서만 정의. 중복 발견 시 상수화 먼저.
-
-**중앙화된 헬퍼 함수** (constants.js):
-- `getLevelUpGoal(lv)` - 레벨업 필요 퀘스트 수
-- `getLevelUpReward(lv)` - 레벨업 다이아 보상
+### 중앙화된 헬퍼 함수 (constants.js)
+밸런스 값은 반드시 헬퍼 함수를 통해 접근:
+- `getLevelUpGoal(lv)` / `getLevelUpReward(lv)` - 레벨업 관련
 - `getMaxLevel(type)` - 타입별 합성 최대 레벨
-- `getGeneratorName(type)` - 생성기 한글 이름 (캣타워/개집/새장 등)
+- `getGeneratorName(type)` - 생성기 한글 이름
 - `getEnergyPrice()` - 에너지 구매 가격 (game.js)
+- `getExploreCost(n)` - 탐험 타일 비용
+- `weightedAnimalLevel(maxLv)` - 퀘스트 동물 레벨 가중치 뽑기
 
-**예시 (레벨업 보상 버그 교훈):**
-```
-game.js에서 공식 변경 → ui.js 프리뷰는 미변경 → 표시 불일치
-→ 해결: getLevelUpReward() 헬퍼 함수로 중앙화
-```
+## 변경 시 체크리스트
 
-## 기능 제거/리팩토링 시 체크리스트
-코드를 삭제하거나 큰 리팩토링 시 **반드시** 확인:
-- [ ] 삭제 함수의 호출처 모두 확인 (`Grep`으로 검색)
+### 데이터 구조 변경
+배열/객체에 새 타입 추가 시:
+- [ ] `save.js` - `sanitizeForFirestore()` 검증 범위
+- [ ] `firestore.rules` - 보안 규칙 제한값
+- [ ] `handoff.md` - 저장 데이터 구조 섹션
+- [ ] `eslint.config.js` - 새 전역 변수/함수
+
+**교훈**: album 배열에 완성 마커 추가 → 검증 로직 미업데이트 → 데이터 손실
+
+### 밸런스 변경
+- [ ] `constants.js`에 상수/헬퍼 있는지 확인 → 있으면 그곳만 수정
+- [ ] 같은 값이 다른 파일에 하드코딩되어 있지 않은지 `Grep`
+- [ ] `index.html`에 초기값 하드코딩 텍스트 확인
+- [ ] `firestore.rules` 검증 범위 연동 확인
+
+**원칙**: 같은 값은 1곳에서만 정의. 중복 발견 시 상수화 먼저.
+
+**교훈**: game.js에서 공식 변경 → ui.js 프리뷰 미변경 → 표시 불일치 → `getLevelUpReward()` 중앙화로 해결
+
+### 기능 제거/리팩토링
+- [ ] 삭제 함수의 호출처 모두 확인 (`Grep`)
 - [ ] `eslint.config.js` 전역 선언 정리
-- [ ] `css/styles.css`에서 미사용 클래스 제거
-- [ ] `index.html`에서 미사용 HTML 요소 제거
-- [ ] `handoff.md` 함수 목록/변경 이력 갱신
+- [ ] `css/styles.css` 미사용 클래스 제거
+- [ ] `index.html` 미사용 HTML 요소 제거
 - [ ] `state.js` 미사용 변수 제거
+- [ ] `handoff.md` 함수 목록/변경 이력 갱신
 
-**예시 (기부 시스템 제거 교훈):**
-```
-기부 시스템 삭제 → constants/state/systems/ui/save/index/css/firestore.rules/eslint 10개 파일 수정
-→ 누락 시 dead code 잔존 + eslint 전역 오염
-```
+**교훈**: 기부 시스템 삭제 시 constants/state/systems/ui/save/index/css/firestore.rules/eslint 10개 파일 수정 필요
 
 ## 상세 컨텍스트
-@handoff.md - 전체 아키텍처, 함수 목록, 밸런스, 변경 이력 (v4.35.0)
+@handoff.md - 전체 아키텍처, 함수 목록, 밸런스, 변경 이력 (v4.37.1)
