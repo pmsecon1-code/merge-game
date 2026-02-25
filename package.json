@@ -11,7 +11,8 @@
         "format": "prettier --write \"**/*.{html,css,js,json}\"",
         "format:check": "prettier --check \"**/*.{html,css,js,json}\"",
         "setup-hooks": "cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit",
-        "convert-webp": "node scripts/convert-webp.js"
+        "convert-webp": "node scripts/convert-webp.js",
+        "extract-balance": "node scripts/extract-balance.js"
     },
     "devDependencies": {
         "eslint": "^9.0.0",

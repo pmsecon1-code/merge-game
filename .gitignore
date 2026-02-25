@@ -67,3 +67,6 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# Zoo Revival 밸런스 추출 결과물
+balance-data/
