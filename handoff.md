@@ -150,6 +150,12 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## 최근 변경 이력
 
+### v4.37.2 (2026-02-25) - Zoo Revival PRD 확정 + 코드 revert
+- Zoo Revival: Merge & Build PRD v1.0 확정 (Obsidian: `1-Projects/merge2/zoo-revival-prd.md`)
+- 이전 세션 변경분 revert: 에너지 리밸런싱(MAX=100→50, RECOVERY=30→150초), 배틀패스 시스템
+- HTML5 코드베이스 v4.37.1 기준 유지 (Zoo Revival은 Unity 리빌드)
+- 다음 단계: Unity 프로젝트 세팅 + Merge2 코어 프로토타입 (Phase 0)
+
 ### v4.37.1 (2026-02-24) - 멀티디바이스 보상 중복 방지
 - 방어1(auth.js): signOut시 cloudLoaded=false + localStorage 삭제
 - 방어2(save.js): savedSessionId 필드 + loadFromCloud 세션 검증
@@ -186,6 +192,13 @@ firebase deploy --only firestore:rules   # 보안 규칙
 ---
 
 ## 기획/분석 노트
+
+### Zoo Revival: Merge & Build PRD (2026-02-25)
+- **문서**: Obsidian `1-Projects/merge2/zoo-revival-prd.md`
+- **핵심**: 망한 동물원 복원 타이쿤 + Merge2 하이브리드, US 시장 타겟
+- **기술 결정**: Unity 리빌드 (기존 HTML5 GDD/밸런스 데이터 재활용)
+- **타임라인**: Phase 0 Pre-Production(4주) → Phase 1 Unity MVP(20주) → Soft Launch → US 출시
+- **KPI 목표**: D1 38%, D7 15%, ARPDAU $0.10-0.20, 월매출 $75K+
 
 ### 더블유게임즈 퍼블리싱 가정 상품성 분석 (2026-02-25)
 - **문서**: Obsidian `1-Projects/merge2/더블유게임즈-퍼블리싱-분석.md`
