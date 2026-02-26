@@ -7,6 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - HTML5 + Vanilla JavaScript + Tailwind CSS (CDN) + 커스텀 CSS
 - Firebase: Auth (Google), Firestore, Hosting
 
+> **주의: HTML5 코드베이스 동결 (2026-02-25)**
+> Zoo Revival (Cocos Creator 리빌드)로 전환 중. 버그 수정 외 새 기능 추가 금지.
+> `scripts/extract-balance.js`로 밸런스 데이터 추출 → `balance-data/` 폴더 출력.
+
 ## 명령어
 
 | 명령 | 설명 |
@@ -20,6 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `npm run test:watch` | 테스트 watch 모드 |
 | `npm run setup-hooks` | Git pre-commit hook 설치 |
 | `npm run convert-webp` | 이미지를 WebP로 변환 |
+| `npm run extract-balance` | constants.js → JSON 추출 (`balance-data/`) |
 | `git push` | GitHub Pages 자동 배포 (1~2분) |
 | `firebase deploy --only hosting` | 인증 핸들러 배포 |
 | `firebase deploy --only firestore:rules` | 보안 규칙 배포 |
