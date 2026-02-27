@@ -36,7 +36,7 @@ Pre-commit hook이 lint + test를 자동 실행. 실패 시 커밋 차단.
 ## 아키텍처
 
 ### 전역 변수 기반 멀티 파일 구조
-ES 모듈을 쓰지 않음. 모든 JS 파일이 전역 스코프를 공유하며, script 로드 순서가 중요:
+게임 JS 파일은 ES 모듈을 쓰지 않음 (`package.json`의 `"type":"module"`은 Vitest ESM 전용). 모든 JS 파일이 전역 스코프를 공유하며, script 로드 순서가 중요:
 
 **constants → state → auth → save → game → systems → album → race → sound → story → ui → tutorial → main**
 
