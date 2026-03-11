@@ -121,6 +121,18 @@ function cleanupInactiveSpecialTypes() {
             if (shopItems[i] && shopItems[i].type && shopItems[i].type.includes(rType))
                 shopItems[i] = generateRandomShopItem(getActiveTypes());
         }
+        // 비활성 타입 스페셜 퀘스트 제거
+        for (let i = quests.length - 1; i >= 0; i--) {
+            if (quests[i].isSpecial && quests[i].reqs[0].type === rType) quests.splice(i, 1);
+        }
+    }
+    // 스페셜 퀘스트 중복 제거 (같은 활성 타입 2개 이상 방지)
+    let foundSpecial = false;
+    for (let i = quests.length - 1; i >= 0; i--) {
+        if (quests[i].isSpecial) {
+            if (foundSpecial) quests.splice(i, 1);
+            else foundSpecial = true;
+        }
     }
 }
 
@@ -681,10 +693,11 @@ function buyEnergy() {
 // --- 활성 타입 ---
 function getActiveTypes() {
     const t = [];
-    if (boardState.some((i) => i && i.type === 'cat_generator')) t.push('cat');
-    if (boardState.some((i) => i && i.type === 'dog_generator')) t.push('dog');
+    const all = [...boardState, ...storageState];
+    if (all.some((i) => i && i.type === 'cat_generator')) t.push('cat');
+    if (all.some((i) => i && i.type === 'dog_generator')) t.push('dog');
     ['bird', 'fish', 'reptile'].forEach((x) => {
-        if (boardState.some((i) => i && i.type === `${x}_generator`)) t.push(x);
+        if (all.some((i) => i && i.type === `${x}_generator`)) t.push(x);
     });
     if (t.length === 0) t.push('cat', 'dog');
     return t;
@@ -783,6 +796,7 @@ function moveItem(fz, fi, tz, ti) {
     // 보드 전용 아이템: 창고 이동 차단
     if (fIt.type === 'boss' && tz === 'storage') { showError('보스는 보드에서만 이동할 수 있어요!'); return; }
     if (fIt.type === 'bubble' && tz === 'storage') { showError('버블은 이동할 수 없어요!'); return; }
+    if (fIt.type.includes('generator') && tz === 'storage') { showError('생성기는 보드에서만 사용할 수 있어요!'); return; }
     // 빈 칸 이동
     if (!tIt) {
         ts[ti] = fIt; ss[fi] = null;
