@@ -211,23 +211,7 @@ function applyGameData(d) {
         currentSpecialIndex = 0;
     }
     // 비활성 스페셜 타입 정리
-    const spTypes = ['bird', 'fish', 'reptile'];
-    const activeType = spTypes[currentSpecialIndex];
-    for (const rType of spTypes) {
-        if (rType === activeType) continue;
-        for (let i = 0; i < BOARD_SIZE; i++) {
-            if (boardState[i] && (boardState[i].type === rType || boardState[i].type === `${rType}_generator`))
-                boardState[i] = null;
-        }
-        for (let i = 0; i < STORAGE_SIZE; i++) {
-            if (storageState[i] && (storageState[i].type === rType || storageState[i].type === `${rType}_generator`))
-                storageState[i] = null;
-        }
-        for (let i = 0; i < SHOP_SIZE; i++) {
-            if (shopItems[i] && shopItems[i].type && shopItems[i].type.includes(rType))
-                shopItems[i] = generateRandomShopItem(getActiveTypes());
-        }
-    }
+    cleanupInactiveSpecialTypes();
     if (!quests.some((q) => q.isSpecial) && quests.length < 10) {
         const sp = generateSpecialQuest();
         if (sp) quests.push(sp);

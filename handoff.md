@@ -1,9 +1,10 @@
-# 멍냥 머지 게임 - Architecture (v4.37.1)
+# 멍냥 머지 게임 - Architecture (v4.37.3) [HTML5 동결]
 
 ## 개요
 - **URL**: https://pmsecon1-code.github.io/merge-game/
-- **버전**: 4.37.1 | **Firebase**: `merge-game-7cf5f`
+- **버전**: 4.37.3 | **Firebase**: `merge-game-7cf5f`
 - 동물을 합성하여 성장시키는 모바일 친화적 웹 게임
+- **상태**: HTML5 코드베이스 동결 — Zoo Revival Unity 리빌드로 전환 (2026-02-25)
 
 ---
 
@@ -145,15 +146,29 @@ firebase deploy --only firestore:rules   # 보안 규칙
 | 스토리 퀘스트 안나옴 | v4.31.2 isStory 체크+desync 복구 |
 | 주사위 스크롤 안됨 | v4.36.1 scrollIntoView+setTimeout |
 | 멀티디바이스 보상 중복 | v4.37.1 3중 방어: signOut시 localStorage삭제+savedSessionId+즉시저장 |
+| 스페셜 생성기 중복 | v4.37.3 cleanupInactiveSpecialTypes() — 로드 시 + 퀘스트 완료 시 자동 정리 |
 
 ---
 
 ## 최근 변경 이력
 
+### v4.37.3 (2026-03-11) - 스페셜 생성기 중복 버그 수정
+- `cleanupInactiveSpecialTypes()` 함수 신설 (game.js) — 비활성 스페셜 타입(bird/fish/reptile) board/storage/shop에서 제거
+- save.js `applyGameData()` 인라인 로직 → 함수 호출로 리팩토링 (중복 제거)
+- `completeQuest()` 스페셜 완료 시 즉시 정리 호출 (다음 타입 전환 후 cleanup)
+- eslint.config.js: `cleanupInactiveSpecialTypes` globals 등록
+- 기존 유저: 앱 접속 시 applyGameData() 경로로 자동 정리
+
+### Zoo Revival Phase 0.1 (2026-02-25) - 밸런스 데이터 추출
+- `scripts/extract-balance.js`: constants.js → 7개 JSON (vm.runInContext 패턴 재활용)
+- `balance-data/` 출력 폴더 .gitignore 추가, `package.json` extract-balance 스크립트 추가
+- HTML5 코드베이스 동결 결정 — Zoo Revival Unity 리빌드 전환
+- 다음 단계: Unity 프로젝트 세팅 + Merge2 코어 프로토타입
+
 ### v4.37.2 (2026-02-25) - Zoo Revival PRD 확정 + 코드 revert
 - Zoo Revival: Merge & Build PRD v1.0 확정 (Obsidian: `1-Projects/merge2/zoo-revival-prd.md`)
 - 이전 세션 변경분 revert: 에너지 리밸런싱(MAX=100→50, RECOVERY=30→150초), 배틀패스 시스템
-- HTML5 코드베이스 v4.37.1 기준 유지 (Zoo Revival은 Unity 리빌드)
+- HTML5 코드베이스 v4.37.1 기준 유지 (Zoo Revival은 Cocos Creator 리빌드)
 - 다음 단계: Unity 프로젝트 세팅 + Merge2 코어 프로토타입 (Phase 0)
 
 ### v4.37.1 (2026-02-24) - 멀티디바이스 보상 중복 방지
@@ -193,12 +208,54 @@ firebase deploy --only firestore:rules   # 보안 규칙
 
 ## 기획/분석 노트
 
-### Zoo Revival: Merge & Build PRD (2026-02-25)
+### Zoo Revival: Merge & Build PRD (2026-02-25, v1.4)
 - **문서**: Obsidian `1-Projects/merge2/zoo-revival-prd.md`
 - **핵심**: 망한 동물원 복원 타이쿤 + Merge2 하이브리드, US 시장 타겟
-- **기술 결정**: Unity 리빌드 (기존 HTML5 GDD/밸런스 데이터 재활용)
-- **타임라인**: Phase 0 Pre-Production(4주) → Phase 1 Unity MVP(20주) → Soft Launch → US 출시
+- **기술 결정**: **Cocos Creator** 리빌드 (TypeScript, 2D 특화, Merge 게임 레퍼런스 풍부)
+- **타임라인**: Phase 0 Pre-Production(4주) → Phase 1 Cocos Creator MVP(20주) → Soft Launch → US 출시
 - **KPI 목표**: D1 38%, D7 15%, ARPDAU $0.10-0.20, 월매출 $75K+
+- **다음 단계**: ~~Windows 재시작 → Cocos Dashboard → Creator 3.8.x LTS → `Desktop/zoo-revival` 프로젝트 생성~~
+- **다음 세션 (2026-02-26)**: Cocos Creator 열기 (MCP 자동 시작) → S2 — MainScene 생성 + BoardManager.ts 구현
+- **현재 진행 (2026-02-27)**: S13까지 완료 — ZooManager + ZooUI (동물원 메타 시스템)
+
+### Zoo Revival 진행 현황 (2026-02-27)
+
+**완료: S1~S12** (git: 6fdca41)
+
+| 스프린트 | 내용 | 상태 |
+|---------|------|------|
+| S1~S4 | 프로젝트 세팅, BoardManager, MergeLogic, GeneratorLogic, 스프라이트 | ✅ |
+| S5 | QuestLogic + QuestManager + QuestUI (NPC 카드 3개) | ✅ |
+| S6 | StorageUI + FloatText + Board↔Storage 크로스존 드래그 | ✅ |
+| S7 | ShopLogic(시드RNG) + ShopManager + ShopUI (5카드) | ✅ |
+| S8 | GeneratorPopup 자동부착 + 쿨다운/업그레이드 팝업 | ✅ |
+| S9 | SaveLogic + SaveManager localStorage 연동 | ✅ |
+| S10 | BottomNav(6탭) + ContentArea(탭토글) + UI 레이아웃 | ✅ |
+| S11 | SaveLogic 단위 테스트 15개 | ✅ |
+| S12 | DailyConfig + DailyMissionLogic + DailyMissionManager + DailyMissionUI | ✅ |
+| S13 | ZooConfig + ZooLogic + ZooManager + ZooUI + BottomNav/ContentArea zoo탭 | ✅ |
+
+**테스트**: 239개 (MergeLogic 29 + QuestLogic 43 + SaveLogic 15 + ShopLogic 21 + GeneratorLogic 35 + DailyMissionLogic 33 + ZooLogic 63)
+
+**파일 구조 (zoo-revival)**:
+```
+assets/scripts/
+├── core/   BoardManager, MergeLogic, GeneratorLogic, QuestLogic, ShopLogic, SaveLogic, DailyMissionLogic, ZooLogic
+├── data/   BalanceConfig, QuestConfig, ShopConfig, DailyConfig, ZooConfig
+├── managers/ GameManager, QuestManager, ShopManager, SaveManager, DailyMissionManager, ZooManager
+├── ui/     BoardUI, CellRenderer, HUD, QuestUI, StorageUI, ShopUI, GeneratorPopup,
+│           FloatText, Toast, BottomNav, ContentArea, ComboUI, DailyMissionUI, ZooUI
+└── utils/  Constants, EventBus
+tests/  MergeLogic, QuestLogic, ShopLogic, SaveLogic, GeneratorLogic, DailyMissionLogic, ZooLogic
+```
+
+**레이아웃 좌표** (Canvas 720×1280):
+HUD(+605) → QuestUI(+510) → BoardUI(+65) → StorageUI(-232) → ContentArea(-330) → BottomNav(-435)
+
+**다음 단계: S14 — 동물원 시설 + 보드→동물원 드래그 연동** (PRD Phase W5-8)
+- 보드 아이템 → ZooManager.tryPlaceAnimal() 드래그 연동
+- FacilitySlot 실제 시설 종류 구현
+- 동물원 방문자 수 / 수입 UI 고도화
 
 ### 더블유게임즈 퍼블리싱 가정 상품성 분석 (2026-02-25)
 - **문서**: Obsidian `1-Projects/merge2/더블유게임즈-퍼블리싱-분석.md`

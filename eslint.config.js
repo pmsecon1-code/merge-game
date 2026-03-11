@@ -250,6 +250,7 @@ export default [
                 removeQuestItems: 'readonly',
                 handleLevelUp: 'readonly',
                 generateSpecialQuest: 'readonly',
+                cleanupInactiveSpecialTypes: 'readonly',
                 trySpawnSpecialGenerator: 'readonly',
                 tryMergeItems: 'readonly',
                 updateBossIdx: 'readonly',
